@@ -11,9 +11,12 @@ service cloud.firestore {
       return isAuthenticated();
     }
 
-    match /admins/{allPaths=**} {
-      allow read, create: if true; 
-      allow update, delete: if false;
+    match /admins {
+      allow read, write: if true;
+    }
+
+    match /admins/{document=**} {
+      allow read, write: if true;
     }
 
     match /users/{userId} {

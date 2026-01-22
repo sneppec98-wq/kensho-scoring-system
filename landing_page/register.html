@@ -242,8 +242,8 @@
                 setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
 
             } catch (error) {
-                console.error("Init Error:", error);
-                alert("Gagal sinkronisasi data personil: " + error.message);
+                console.warn("Firestore Sync Error:", error);
+                alert("Gagal sinkronisasi data personil: " + error.message + " (Cek Console untuk detail)");
             }
         }
 

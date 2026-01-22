@@ -11,8 +11,8 @@ service cloud.firestore {
       return isAuthenticated();
     }
 
-    match /admins/{adminName} {
-      allow get, list, create: if true; 
+    match /admins/{allPaths=**} {
+      allow read, create: if true; 
       allow update, delete: if false;
     }
 

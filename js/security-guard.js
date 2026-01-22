@@ -48,7 +48,7 @@ onAuthStateChanged(auth, async (user) => {
                     return;
                 }
                 if (data.status === 'pending') {
-                    handleViolation("⏳ AKUN MENUNGGU PERSETUJUAN\nSilakan hubungi Super Admin.");
+                    handleViolation("⏳ AKUN MENUNGGU PERSETUJUAN\nSilakan hubungi Owner.");
                     return;
                 }
 

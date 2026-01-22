@@ -730,7 +730,7 @@
                     document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
                 }
 
-                // Check if Super Admin for Sidebar & Set Role Display
+                // Check if Owner for Sidebar & Set Role Display
                 try {
                     const q = query(collection(db, "admins"), where("email", "==", user.email));
                     const snap = await getDocs(q);
@@ -739,9 +739,9 @@
 
                         // Display actual role
                         const roleEl = document.getElementById('userRoleDisplay');
-                        if (roleEl) roleEl.innerText = adminData.level.toUpperCase();
+                        if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
 
-                        if (adminData.level === 'Super Admin') {
+                        if (adminData.role === 'owner') {
                             document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
                         }
                     } else {

@@ -958,7 +958,7 @@
 
                 console.log('[DEBUG] User logged in:', user.email);
 
-                // Sync Level/Role from Firestore & Check if Super Admin (menggunakan email query seperti dashboard)
+                // Sync Role from Firestore & Check if Owner (menggunakan email query seperti dashboard)
                 const q = query(collection(db, "admins"), where("email", "==", user.email));
                 const snap = await getDocs(q);
                 if (!snap.empty) {
@@ -966,9 +966,9 @@
 
                     // Display actual role
                     const roleEl = document.getElementById('userRoleDisplay');
-                    if (roleEl) roleEl.innerText = adminData.level.toUpperCase();
+                    if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
 
-                    if (adminData.level === 'Super Admin') {
+                    if (adminData.role === 'owner') {
                         document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
                     }
                 } else {
@@ -1037,7 +1037,7 @@
 
                 console.log('[DEBUG] User logged in:', user.email);
 
-                // Sync Level/Role from Firestore & Check if Super Admin (menggunakan email query seperti dashboard)
+                // Sync Role from Firestore & Check if Owner (menggunakan email query seperti dashboard)
                 const q = query(collection(db, "admins"), where("email", "==", user.email));
                 const snap = await getDocs(q);
                 if (!snap.empty) {
@@ -1045,9 +1045,9 @@
 
                     // Display actual role
                     const roleEl = document.getElementById('userRoleDisplay');
-                    if (roleEl) roleEl.innerText = adminData.level.toUpperCase();
+                    if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
 
-                    if (adminData.level === 'Super Admin') {
+                    if (adminData.role === 'owner') {
                         document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
                     }
                 } else {

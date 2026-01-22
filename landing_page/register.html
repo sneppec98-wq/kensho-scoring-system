@@ -273,7 +273,7 @@
                 await setDoc(doc(db, "admins", docId), {
                     name: fullName,
                     email: email.toLowerCase(),
-                    level: 'Admin', // Level otomatis Admin (Petugas Lapangan)
+                    role: 'admin', // Role otomatis Admin (Petugas Lapangan)
                     uid: user.uid,
                     status: 'pending',
                     registeredFrom: 'web-landing',

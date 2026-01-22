@@ -542,13 +542,12 @@
                             placeholder="admin@spartan.com"></div>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-[9px] font-black uppercase tracking-widest opacity-40 ml-4">Level Akses</label>
+                    <label class="text-[9px] font-black uppercase tracking-widest opacity-40 ml-4">Role Akses</label>
                     <div class="neu-inset p-4 rounded-xl">
-                        <select id="adminLevel"
+                        <select id="adminRole"
                             class="bg-transparent w-full text-sm font-bold text-white outline-none uppercase">
-                            <option value="Super Admin" class="bg-slate-900 text-white">Super Admin</option>
-                            <option value="Operator" class="bg-slate-900 text-white">Operator</option>
-                            <option value="Dewan Hakim" class="bg-slate-900 text-white">Dewan Hakim</option>
+                            <option value="owner" class="bg-slate-900 text-white">Owner</option>
+                            <option value="admin" class="bg-slate-900 text-white">Admin</option>
                         </select>
                     </div>
                 </div>
@@ -729,7 +728,7 @@
                     document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
                 }
 
-                // Check if Super Admin for Sidebar & Set Role Display
+                // Check if Owner for Sidebar & Set Role Display
                 const q = query(collection(db, "admins"), where("email", "==", user.email));
                 const snap = await getDocs(q);
                 if (!snap.empty) {
@@ -737,9 +736,9 @@
 
                     // Display actual role
                     const roleEl = document.getElementById('userRoleDisplay');
-                    if (roleEl) roleEl.innerText = adminData.level.toUpperCase();
+                    if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
 
-                    if (adminData.level === 'Super Admin') {
+                    if (adminData.role === 'owner') {
                         document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
                     }
                 } else {
@@ -776,7 +775,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <div class="td-sub mb-0.5">${data.level}</div>
+                                <div class="td-sub mb-0.5">${data.role}</div>
                                 <div class="td-main uppercase tracking-tighter shimmer-text">${data.name}</div>
                                 <div class="text-[9px] font-bold opacity-30 uppercase tracking-widest">${data.email}</div>
                             </div>
@@ -807,7 +806,7 @@
         window.saveAdmin = async () => {
             const name = document.getElementById('adminName').value;
             const email = document.getElementById('adminEmail').value;
-            const level = document.getElementById('adminLevel').value;
+            const role = document.getElementById('adminRole').value;
 
             if (!name || !email) return alert("Nama dan Email wajib diisi!");
 
@@ -816,12 +815,12 @@
                 await setDoc(doc(db, "admins", docId), {
                     name: name,
                     email: email,
-                    level: level,
+                    role: role,
                     createdAt: new Date().toISOString()
                 });
 
                 // Track Add Admin Activity
-                await logActivity("Tambah Admin", `Menambahkan admin baru: ${name} (${level})`);
+                await logActivity("Tambah Admin", `Menambahkan admin baru: ${name} (${role})`);
 
                 closeModal('modalAdd');
                 document.getElementById('adminName').value = '';
@@ -842,7 +841,7 @@
                     await deleteDoc(doc(db, "admins", id));
 
                     // Track Delete Admin Activity
-                    await logActivity("Hapus Admin", `Menghapus akses admin: ${adminData.name} (${adminData.level})`);
+                    await logActivity("Hapus Admin", `Menghapus akses admin: ${adminData.name} (${adminData.role})`);
                 } catch (error) {
                     alert("Gagal menghapus: " + error.message);
                 }

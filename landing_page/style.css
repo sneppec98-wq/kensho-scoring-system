@@ -38,7 +38,7 @@ body {
     text-align: center;
     position: relative;
     background: radial-gradient(circle at top right, rgba(248, 113, 113, 0.1), transparent 40%),
-                radial-gradient(circle at bottom left, rgba(30, 64, 175, 0.1), transparent 40%);
+        radial-gradient(circle at bottom left, rgba(30, 64, 175, 0.1), transparent 40%);
 }
 
 .hero-content {
@@ -46,8 +46,15 @@ body {
 }
 
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .logo-section {
@@ -90,25 +97,54 @@ body {
 }
 
 /* Buttons */
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
 .btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 12px;
     background: var(--primary);
     color: white;
-    padding: 18px 40px;
+    padding: 16px 36px;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 700;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 10px 20px rgba(248, 113, 113, 0.3);
+}
+
+.btn-secondary-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    color: var(--text);
+    padding: 16px 36px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    border: 2px solid var(--border);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .btn-primary:hover:not(.disabled) {
     transform: translateY(-5px) scale(1.02);
     box-shadow: 0 15px 30px rgba(248, 113, 113, 0.5);
     background: var(--primary-hover);
+}
+
+.btn-secondary-outline:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary);
+    background: rgba(248, 113, 113, 0.05);
 }
 
 .btn-primary.disabled {
@@ -225,7 +261,16 @@ footer {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .logo-section h1 { font-size: 2.5rem; }
-    .tagline { font-size: 1.1rem; }
-    .btn-primary { width: 100%; justify-content: center; }
+    .logo-section h1 {
+        font-size: 2.5rem;
+    }
+
+    .tagline {
+        font-size: 1.1rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
 }

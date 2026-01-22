@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi Admin | Kensho Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-dark {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .input-dark:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+            outline: none;
+        }
+
+        .spartan-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .spartan-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+        }
+
+        .spartan-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loader {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #ef4444;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <!-- Dekorasi -->
+    <div class="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-red-600/10 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]"></div>
+    </div>
+
+    <div class="w-full max-w-md z-10">
+        <div class="text-center mb-10">
+            <a href="index.html" class="inline-block hover:opacity-80 transition-opacity">
+                <h1 class="text-4xl font-black tracking-tighter text-white mb-2">KENSHO <span
+                        class="gradient-text">TECH</span></h1>
+            </a>
+            <p class="text-slate-400 text-sm font-medium tracking-wide uppercase">Admin Portal Registration</p>
+        </div>
+
+        <div class="glass-dark rounded-[2rem] p-8 shadow-2xl relative">
+            <!-- Loading Overlay -->
+            <div id="loading-overlay"
+                class="absolute inset-0 bg-[#020617]/80 rounded-[2rem] z-20 flex flex-col items-center justify-center text-center p-6 transition-opacity duration-300">
+                <div class="loader mb-4 !w-8 !h-8 !border-4"></div>
+                <p class="text-sm font-bold tracking-widest uppercase">Sinkronisasi Database...</p>
+                <p class="text-[10px] text-slate-500 mt-2">Menyaring daftar personil yang tersedia</p>
+            </div>
+
+            <form id="adminRegisterForm" class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Nama
+                        Lengkap</label>
+                    <div class="relative">
+                        <select id="fullName" required
+                            class="w-full px-5 py-4 rounded-2xl input-dark text-sm appearance-none cursor-pointer">
+                            <option value="" disabled selected class="bg-slate-900 text-slate-500">Memuat data...
+                            </option>
+                        </select>
+                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Email
+                        Institusi</label>
+                    <div class="relative">
+                        <select id="email" required
+                            class="w-full px-5 py-4 rounded-2xl input-dark text-sm appearance-none cursor-pointer">
+                            <option value="" disabled selected class="bg-slate-900 text-slate-500">Memuat data...
+                            </option>
+                        </select>
+                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <p id="email-warning" class="hidden text-[9px] text-red-400 mt-2 ml-1 font-bold italic">Email ini
+                        sudah terikat dengan nama lain yang terdaftar.</p>
+                </div>
+
+                <div>
+                    <label
+                        class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
+                    <input type="password" id="password" required placeholder="Buat Password Anda"
+                        class="w-full px-5 py-4 rounded-2xl input-dark text-sm placeholder:text-slate-600">
+                    <p class="text-[10px] text-slate-500 mt-2 ml-1 font-bold italic font-sans italic">* Gunakan minimal
+                        6 karakter kombinasi.</p>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="btnRegister"
+                        class="w-full py-4 rounded-2xl spartan-btn text-white font-black text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+                        <span>Daftar Admin</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+            <div id="statusMessage" class="mt-6 text-center text-[10px] font-bold uppercase tracking-widest hidden">
+            </div>
+        </div>
+
+        <p class="mt-8 text-center text-xs text-slate-600 font-medium">
+            &copy; 2026 Kensho Tech Management.
+            <br><a href="index.html" class="opacity-50 hover:opacity-100 transition-opacity">KEMBALI KE BERANDA</a>
+        </p>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './firebase-register.js';
+        import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, getDocs, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const MASTER_NAMES = [
+            "Ponco Condro K", "Mamluatuz Zahirah Siswanto", "Muslimatul Ilmiyah",
+            "Muhammad Farid Feryansyah", "Rafly Aulia Pratama", "Achmad Anval Adhiem Allain",
+            "Fara Amalia", "Tantri Eka", "Nur wahidah", "Muhammad Roichan Arifin",
+            "Wira Eka Saputra", "Sabna Devi Kumalasari", "Nafisah Fanda Fardhani",
+            "Achmad Birril Haqiqi Efendy", "Muhammad Raihan Bima Aruna"
+        ];
+
+        const MASTER_EMAILS = [
+            "irulaselole0@gmail.com", "tantrie848@gmail.com", "ilmiyah.arif13@gmail.com",
+            "faraamaliaa21@gmail.com", "anvalalan@gmail.com", "raflyyourbaee@gmail.com",
+            "muhammadpipitcahyono@gmail.com", "roichan456@gmail.com", "hidahwahidah87@gmail.com",
+            "mamluatuzsiswa0103@gmail.com", "muhammadfaridferyansyah@gmail.com",
+            "nafisahfandafardhani@gmail.com", "sabnadevi24@gmail.com", "putrsalsabila769@gmail.com"
+        ];
+
+        // UI Elements
+        const form = document.getElementById('adminRegisterForm');
+        const nameSelect = document.getElementById('fullName');
+        const emailSelect = document.getElementById('email');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const statusMessage = document.getElementById('statusMessage');
+        const btnRegister = document.getElementById('btnRegister');
+
+        async function initForm() {
+            try {
+                // 1. Fetch registered admins
+                const querySnapshot = await getDocs(collection(db, "admins"));
+                const registeredNames = [];
+                const registeredEmails = [];
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.name) registeredNames.push(data.name);
+                    if (data.email) registeredEmails.push(data.email.toLowerCase());
+                });
+
+                // 2. Filter Lists
+                const availableNames = MASTER_NAMES.filter(name => !registeredNames.includes(name));
+                const availableEmails = MASTER_EMAILS.filter(email => !registeredEmails.includes(email.toLowerCase()));
+
+                // 3. Populate Selects
+                nameSelect.innerHTML = '<option value="" disabled selected class="bg-slate-900 text-slate-500">Pilih Nama Personil</option>';
+                availableNames.forEach(name => {
+                    nameSelect.innerHTML += `<option value="${name}" class="bg-slate-900">${name}</option>`;
+                });
+
+                emailSelect.innerHTML = '<option value="" disabled selected class="bg-slate-900 text-slate-500">Pilih Email Anda</option>';
+                availableEmails.forEach(email => {
+                    emailSelect.innerHTML += `<option value="${email}" class="bg-slate-900">${email}</option>`;
+                });
+
+                // Final check if all registered
+                if (availableNames.length === 0) {
+                    nameSelect.innerHTML = '<option value="" disabled selected>SEMUA PERSONIL SUDAH TERDAFTAR</option>';
+                    btnRegister.disabled = true;
+                }
+
+                // 4. Hide Loader
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
+
+            } catch (error) {
+                console.error("Init Error:", error);
+                alert("Gagal sinkronisasi data personil. Silakan refresh.");
+            }
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const fullName = nameSelect.value;
+            const email = emailSelect.value;
+            const password = document.getElementById('password').value;
+
+            btnRegister.disabled = true;
+            btnRegister.innerHTML = `<span class="loader"></span><span>Mendaftar...</span>`;
+            statusMessage.classList.add('hidden');
+
+            try {
+                // 1. Create Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Update Profile
+                await updateProfile(user, { displayName: fullName });
+
+                // 3. Store in Firestore
+                // ID Dokumen menggunakan Nama Kapital (sesuai request sebelumnya)
+                const docId = fullName.toUpperCase();
+                await setDoc(doc(db, "admins", docId), {
+                    name: fullName,
+                    email: email.toLowerCase(),
+                    level: 'Admin', // Level otomatis Admin (Petugas Lapangan)
+                    uid: user.uid,
+                    status: 'pending',
+                    registeredFrom: 'web-landing',
+                    createdAt: serverTimestamp(),
+                    lastLogin: serverTimestamp()
+                });
+
+                statusMessage.textContent = "REGISTRASI BERHASIL! MENGALIHKAN...";
+                statusMessage.className = "mt-6 text-center text-[10px] font-black tracking-widest text-green-400 block";
+                statusMessage.classList.remove('hidden');
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error("Register Error:", error);
+                let msg = error.message;
+                if (error.code === 'auth/email-already-in-use') msg = "EMAIL SUDAH TERDAFTAR!";
+                if (error.code === 'auth/weak-password') msg = "PASSWORD TERLALU LEMAH (MIN 6 KARAKTER)!";
+
+                statusMessage.textContent = "GAGAL: " + msg;
+                statusMessage.className = "mt-6 text-center text-[10px] font-black tracking-widest text-red-500 block";
+                statusMessage.classList.remove('hidden');
+
+                btnRegister.disabled = false;
+                btnRegister.innerHTML = `<span>Daftar Admin</span><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>`;
+            }
+        };
+
+        initForm();
+    </script>
+</body>
+
+</html>

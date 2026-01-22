@@ -158,28 +158,9 @@
                 <div>
                     <label
                         class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Password</label>
-                    <input type="password" id="password" required value="spartan1234"
+                    <input type="password" id="password" required placeholder="Masukkan Password Anda"
                         class="w-full px-5 py-4 rounded-2xl input-dark text-sm placeholder:text-slate-600">
-                    <p class="text-[9px] text-slate-600 mt-2 ml-1 font-bold italic">* Default: spartan1234 (dapat diubah
-                        jika perlu)</p>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2 ml-1">Role
-                        Jabatan</label>
-                    <div class="relative">
-                        <select id="role" required
-                            class="w-full px-5 py-4 rounded-2xl input-dark text-sm appearance-none cursor-pointer">
-                            <option value="admin" class="bg-slate-900">Admin (Petugas Lapangan)</option>
-                            <option value="superadmin" class="bg-slate-900">Super Admin (Manajer Event)</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none">
-                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </div>
+                    <p class="text-[9px] text-slate-600 mt-2 ml-1 font-bold italic">* Minimal 6 karakter</p>
                 </div>
 
                 <div class="pt-4">
@@ -223,7 +204,6 @@
             const fullName = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
 
             btnRegister.disabled = true;
             btnRegister.innerHTML = `<span class="animate-pulse">Memproses...</span>`;
@@ -242,7 +222,7 @@
                 await setDoc(doc(db, "admins", docId), {
                     name: fullName,
                     email: email.toLowerCase(),
-                    level: role === 'superadmin' ? 'Super Admin' : 'Admin',
+                    level: 'Admin', // Otomatis Admin (Petugas Lapangan)
                     uid: user.uid,
                     status: 'pending',
                     registeredFrom: window.electronAPI ? 'desktop' : 'web',

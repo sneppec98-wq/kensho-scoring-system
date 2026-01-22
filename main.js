@@ -1,7 +1,8 @@
-const { app, BrowserWindow, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 const os = require('os');
+const { autoUpdater } = require('electron-updater');
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -80,6 +81,9 @@ ipcMain.handle('get-machine-id', async () => {
 app.whenReady().then(() => {
     createWindow();
 
+    // Check for updates
+    autoUpdater.checkForUpdatesAndNotify();
+
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
@@ -91,4 +95,24 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();
     }
+});
+
+// AUTO-UPDATE LOGIC
+autoUpdater.on('update-available', () => {
+    console.log('Update available.');
+});
+
+autoUpdater.on('update-downloaded', () => {
+    dialog.showMessageBox({
+        type: 'info',
+        title: 'Update Siap',
+        message: 'Versi baru sudah siap dipasang. Aplikasi akan restart sekarang.',
+        buttons: ['OK']
+    }).then(() => {
+        autoUpdater.quitAndInstall();
+    });
+});
+
+autoUpdater.on('error', (err) => {
+    console.error('Update error:', err);
 });

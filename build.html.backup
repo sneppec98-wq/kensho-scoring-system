@@ -1,0 +1,2741 @@
+<!DOCTYPE html>
+
+<html lang="id">
+
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kensho Builder Pro - Firestore Save</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+
+
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+
+
+    <link rel="stylesheet" href="builder/build.css">
+
+
+
+    body {
+    background: var(--bg);
+    color: white;
+    font-family: sans-serif;
+    overflow: hidden;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    /* Stack top-toolbar and main-container vertically */
+    height: 100vh;
+    }
+
+    .main-container {
+    display: flex;
+    /* Sidebar and Canvas side-by-side */
+    flex-direction: row;
+    flex-grow: 1;
+    overflow: hidden;
+    }
+
+
+
+    /* SIDEBAR NAVIGATION */
+
+    .sidebar {
+    width: 68px;
+    height: 100%;
+    background: #000000;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px 0;
+    z-index: 1000;
+    flex-shrink: 0;
+    gap: 12px;
+    transition: all 0.3s ease;
+    }
+
+    .side-icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    position: relative;
+    }
+
+    .side-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    }
+
+    .side-icon-btn.active {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+    }
+
+    .side-icon-btn svg {
+    width: 20px;
+    height: 20px;
+    }
+
+    /* TOP TOOLBAR */
+    .top-toolbar {
+    height: 52px;
+    width: 100%;
+    background: #111116;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1001;
+    position: relative;
+    flex-shrink: 0;
+    }
+
+    .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    }
+
+    .toolbar-item {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: 0.2s;
+    }
+
+    .toolbar-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    }
+
+    .zoom-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* Reduced from 15px */
+    background: rgba(255, 255, 255, 0.03);
+    padding: 3px 10px;
+    /* Reduced from 4px 14px */
+    border-radius: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .zoom-btn {
+    color: #fff;
+    opacity: 0.6;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+    user-select: none;
+    }
+
+    .zoom-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    }
+
+    .zoom-val {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    min-width: 35px;
+    text-align: center;
+    }
+
+    /* FLYOUT PANEL - DARK */
+    .flyout-panel {
+    position: fixed;
+    left: 78px;
+    top: 60px;
+    height: auto;
+    max-height: calc(100vh - 80px);
+    width: 180px;
+    background: #111116;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    z-index: 999;
+    transform: translateX(-20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .flyout-panel.show {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+    }
+
+    .flyout-header {
+    font-size: 10px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    }
+
+    .flyout-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    }
+
+    .flyout-btn {
+    width: 100%;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 9px;
+    font-weight: 600;
+    text-align: left;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    }
+
+    .flyout-btn svg {
+    width: 14px;
+    height: 14px;
+    opacity: 0.5;
+    }
+
+    .flyout-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    transform: translateX(3px);
+    /* Reduced from 4px */
+    }
+
+    .flyout-label {
+    font-size: 8px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 12px 0 6px 4px;
+    }
+
+
+
+
+    /* ALIGNMENT ICON GRID - FIXED */
+
+    .align-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 8px;
+
+    margin-top: 5px;
+
+    }
+
+
+
+    .align-icon-btn {
+
+    background: #334155;
+
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+
+    border: 1px solid rgba(255, 255, 255, 0.05);
+
+    }
+
+
+
+    .align-icon-btn:hover {
+
+    background: #475569;
+
+    border-color: #38bdf8;
+
+    transform: translateY(-2px);
+
+    }
+
+
+
+    .align-icon-btn svg {
+
+    width: 20px;
+
+    height: 20px;
+
+    fill: #cbd5e1;
+
+    }
+
+
+
+    .align-icon-btn:hover svg {
+
+    fill: #38bdf8;
+
+    }
+
+
+
+    #canvas-container {
+    flex-grow: 1;
+    height: 100%;
+    /* Relative to main-container */
+    overflow: auto;
+    position: relative;
+    background: #0f172a;
+    }
+
+    #canvas {
+    width: 3500px;
+    height: 2500px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+    position: relative;
+    transform-origin: 0 0;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #line-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    }
+
+
+
+    .draggable-item {
+    position: absolute;
+    background: #fff;
+    color: #1e293b;
+    border: 1px solid #000;
+    border-radius: 4px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    }
+
+    .header-pair-box {
+    flex-direction: column !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    }
+
+    .header-divider {
+    width: 100%;
+    height: 1px;
+    background: #000;
+    flex-shrink: 0;
+    }
+
+    .header-input {
+    width: 100% !important;
+    height: 50% !important;
+    border: none !important;
+    background: transparent !important;
+    color: #1e293b;
+    font-weight: 800;
+    text-align: center;
+    padding: 2px 10px;
+    box-sizing: border-box;
+    outline: none !important;
+    font-size: 14px;
+    text-transform: uppercase;
+    resize: none !important;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.2;
+    }
+
+    /* Ensure handles are always on top and visible */
+    .move-handle,
+    .resize-handle,
+    .box-actions {
+    z-index: 100 !important;
+    }
+
+    .draggable-item.disabled input,
+    .draggable-item.disabled textarea {
+    pointer-events: none;
+    cursor: not-allowed;
+    }
+
+
+
+    .selected {
+
+    outline: 3px solid #fbbf24 !important;
+
+    z-index: 20 !important;
+
+    }
+
+
+
+    /* Controls visibility */
+
+    .move-handle,
+
+    .resize-handle,
+
+    .conn-dot,
+
+    .box-actions {
+
+    opacity: 0;
+
+    transition: opacity 0.2s;
+
+    pointer-events: none;
+
+    }
+
+
+
+    .draggable-item:hover .move-handle,
+
+    .draggable-item:hover .resize-handle,
+
+    .draggable-item:hover .conn-dot,
+
+    .draggable-item:hover .box-actions {
+
+    opacity: 1;
+
+    pointer-events: auto;
+
+    }
+
+
+
+    .box-actions {
+
+    position: absolute;
+
+    top: -26px;
+
+    right: -1px;
+
+    display: flex;
+
+    gap: 2px;
+
+    z-index: 50;
+
+    padding-bottom: 10px;
+
+    }
+
+
+
+    .btn-mini {
+
+    width: 24px;
+
+    height: 24px;
+
+    border-radius: 4px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    color: white;
+
+    cursor: pointer;
+
+    border: 1px solid rgba(0, 0, 0, 0.2);
+
+    position: relative;
+
+    }
+
+
+
+    .align-dropdown {
+
+    display: none;
+
+    position: absolute;
+
+    top: 30px;
+
+    right: 0;
+
+    background: #1e293b;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    border-radius: 6px;
+
+    padding: 8px;
+
+    min-width: 140px;
+
+    z-index: 1000;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+
+    }
+
+
+
+    .align-dropdown.show {
+
+    display: block;
+
+    }
+
+
+
+    .align-option {
+
+    padding: 6px 10px;
+
+    cursor: pointer;
+
+    border-radius: 4px;
+
+    font-size: 10px;
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    transition: 0.2s;
+
+    }
+
+
+
+    .align-option:hover {
+
+    background: #334155;
+
+    }
+
+
+
+    .move-handle {
+    position: absolute;
+    top: -24px;
+    /* Slightly higher to avoid box-actions */
+    left: -12px;
+    /* Pojok kiri atas */
+    cursor: move;
+    font-size: 18px;
+    /* Slightly larger */
+    color: #fbbf24;
+    /* Make it visible (gold) */
+    user-select: none;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.6);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .id-badge-input {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #fbbf24;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    width: 70px;
+    outline: none;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    }
+
+    .id-badge-input:focus {
+    background: rgba(0, 0, 0, 0.6);
+    border-color: #fbbf24;
+    width: 100px;
+    }
+
+    .id-badge-input::placeholder {
+    color: rgba(251, 191, 36, 0.4);
+    }
+
+    .resize-handle {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    width: 14px;
+    height: 14px;
+    background: #38bdf8;
+    cursor: nwse-resize;
+    z-index: 60;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .conn-dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #fbbf24;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    cursor: crosshair;
+    z-index: 40;
+    }
+
+    /* EVENT HEADER BOX */
+    .event-header-box {
+    background: #ffffff !important;
+    border: 2px solid #000;
+    display: flex;
+    align-items: stretch !important;
+    padding: 0 !important;
+    overflow: hidden;
+    color: #000;
+    }
+
+    .eh-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    }
+
+    .eh-col {
+    display: flex;
+    flex-direction: column;
+    border-right: 1.5px solid #94a3b8;
+    /* Slate gray */
+    padding: 4px 8px;
+    justify-content: center;
+    }
+
+    .eh-col:last-child {
+    border-right: none;
+    }
+
+    .eh-main {
+    flex: 3;
+    }
+
+    .eh-date {
+    flex: 1.5;
+    }
+
+    .eh-small {
+    flex: 0.8;
+    text-align: center;
+    }
+
+    .eh-input {
+    background: transparent;
+    border: none;
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    width: 100%;
+    padding: 2px 0;
+    outline: none;
+    }
+
+    .eh-input-large {
+    font-size: 13px;
+    text-transform: uppercase;
+    }
+
+    .eh-label {
+    font-size: 9px;
+    font-weight: 900;
+    color: #000;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    opacity: 0.8;
+    }
+
+    .eh-divider-h {
+    height: 1px;
+    background: #94a3b8;
+    /* Slate gray for print visibility */
+    margin: 4px 0;
+    border: none;
+    }
+
+
+
+    .dot-right {
+
+    right: -7px;
+
+    top: calc(50% - 7px);
+
+    }
+
+
+
+    .dot-left {
+
+    left: -7px;
+
+    top: calc(50% - 7px);
+
+    }
+
+
+
+    .dot-active {
+
+    opacity: 1 !important;
+
+    transform: scale(1.4);
+
+    background: #f59e0b;
+
+    box-shadow: 0 0 10px #f59e0b;
+
+    pointer-events: auto;
+
+    }
+
+
+
+    .resize-handle {
+
+    position: absolute;
+
+    bottom: 0;
+
+    right: 0;
+
+    width: 16px;
+
+    height: 16px;
+
+    background: #94a3b8;
+
+    cursor: nwse-resize;
+
+    border-radius: 2px;
+
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+
+    z-index: 30;
+
+    }
+
+
+
+    .indicator {
+    width: 16px;
+    height: 70%;
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 4px;
+    z-index: 1;
+    }
+
+    /* SCORE BOX COMPONENTS */
+    .score-divider {
+    width: 1px;
+    height: 100%;
+    background: #000;
+    flex-shrink: 0;
+    }
+
+    .score-input {
+    width: 40px !important;
+    height: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    /* Prevent overlapping parent border */
+    color: #ef4444;
+    font-weight: 900 !important;
+    font-size: 24px !important;
+    text-align: center !important;
+    padding: 2px 0 !important;
+    /* Adjusted for 24px font in 40px box */
+    outline: none !important;
+    resize: none !important;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 40px;
+    /* Force line-height to match box height for centering */
+    box-sizing: border-box;
+    flex-shrink: 0;
+    /* Ensure it stays 40px */
+    }
+
+
+
+    .red {
+
+    background: #ef4444 !important;
+
+    }
+
+
+
+    .blue {
+
+    background: #3b82f6 !important;
+
+    }
+
+
+
+    .name-input,
+    .title-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: transparent;
+    color: #000;
+    text-align: center;
+    padding: 12px 10px;
+    /* Adjusted for vertical center */
+    box-sizing: border-box;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    }
+
+
+
+    .title-input {
+
+    font-size: 14px;
+
+    padding: 8px 10px !important;
+
+    line-height: 1.2;
+
+    }
+
+
+
+    #line-canvas {
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    pointer-events: none;
+
+    z-index: 5;
+
+    }
+
+
+
+    path {
+
+    fill: none;
+
+    stroke-width: 2.5;
+
+    stroke-linejoin: round;
+
+    stroke-linecap: round;
+
+    pointer-events: all;
+
+    cursor: pointer;
+
+    }
+
+
+
+    .color-dot {
+
+    width: 30px;
+
+    height: 30px;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    border: 2px solid transparent;
+
+    }
+
+
+
+    .active-dot {
+
+    border-color: #38bdf8;
+
+    transform: scale(1.1);
+
+    }
+
+
+
+    @media print {
+
+    .sidebar {
+
+    display: none !important;
+
+    }
+
+
+
+    @page {
+    size: legal landscape;
+    margin: 5mm;
+    }
+
+    body {
+
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+
+    }
+
+
+
+    #canvas-container {
+
+    overflow: visible !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+
+    }
+
+
+
+    #canvas {
+
+    background: transparent !important;
+    background-image: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+
+    }
+
+    .indicator {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    border: 1px solid #000 !important;
+    /* Ensure it has a border in print if colors are off */
+    }
+
+    .score-input {
+    background: transparent !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    border-left: 1px solid #000 !important;
+    }
+
+    .score-divider {
+    background: #000 !important;
+    width: 1px !important;
+    }
+
+    .draggable-item {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    }
+
+
+
+    .move-handle,
+
+    .resize-handle,
+
+    .conn-dot,
+
+    .box-actions {
+
+    display: none !important;
+
+    }
+
+
+
+    path {
+
+    stroke: black !important;
+
+    }
+
+    /* HIDE PLACEHOLDERS IN PRINT */
+    input::placeholder,
+    textarea::placeholder {
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    opacity: 0 !important;
+    }
+
+    }
+
+
+
+    /* MODAL DIALOG STYLES */
+
+    .modal-overlay {
+
+    display: none;
+
+    position: fixed;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100vw;
+
+    height: 100vh;
+
+    background: rgba(0, 0, 0, 0.8);
+
+    z-index: 9999;
+
+    justify-content: center;
+
+    align-items: center;
+
+    }
+
+
+
+    .modal-overlay.show {
+
+    display: flex;
+
+    }
+
+
+
+    .modal-content {
+
+    background: #1e293b;
+
+    border-radius: 12px;
+
+    padding: 24px;
+
+    min-width: 400px;
+
+    max-width: 500px;
+
+    max-height: 80vh;
+
+    overflow-y: auto;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    }
+
+
+
+    .modal-header {
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    color: white;
+
+    margin-bottom: 20px;
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    }
+
+
+
+    .modal-input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border-radius: 6px;
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    background: #0f172a;
+
+    color: white;
+
+    font-size: 14px;
+
+    margin-bottom: 16px;
+
+    box-sizing: border-box;
+
+    }
+
+
+
+    .modal-input:focus {
+
+    outline: none;
+
+    border-color: #38bdf8;
+
+    }
+
+
+
+    .template-list {
+
+    max-height: 300px;
+
+    overflow-y: auto;
+
+    margin-bottom: 16px;
+
+    }
+
+
+
+    .template-item {
+
+    padding: 12px;
+
+    background: #0f172a;
+
+    border-radius: 6px;
+
+    margin-bottom: 8px;
+
+    cursor: pointer;
+
+    border: 1px solid transparent;
+
+    transition: 0.2s;
+
+    }
+
+
+
+    .template-item:hover {
+
+    border-color: #38bdf8;
+
+    background: #1e293b;
+
+    }
+
+
+
+    .template-item.selected {
+
+    border-color: #38bdf8;
+
+    background: #334155;
+
+    }
+
+
+
+    .template-name {
+
+    font-weight: 700;
+
+    color: white;
+
+    font-size: 14px;
+
+    }
+
+
+
+    .template-date {
+
+    font-size: 11px;
+
+    color: rgba(255, 255, 255, 0.5);
+
+    margin-top: 4px;
+
+    }
+
+
+
+    .modal-buttons {
+
+    display: flex;
+
+    gap: 12px;
+
+    justify-content: flex-end;
+
+    }
+
+
+
+    .modal-btn {
+
+    padding: 10px 20px;
+
+    border-radius: 6px;
+
+    font-weight: 700;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    border: none;
+
+    transition: 0.2s;
+
+    }
+
+
+
+    .modal-btn-primary {
+
+    background: #3b82f6;
+
+    color: white;
+
+    }
+
+
+
+    .modal-btn-primary:hover {
+
+    background: #2563eb;
+
+    }
+
+
+
+    .modal-btn-secondary {
+
+    background: #475569;
+
+    color: white;
+
+    }
+
+
+
+    .modal-btn-secondary:hover {
+
+    background: #64748b;
+
+    }
+
+    /* PRINT OPTIMIZATION */
+    @media print {
+
+    body,
+    .main-container,
+    #canvas-container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    width: auto !important;
+    display: block !important;
+    }
+
+    .top-toolbar,
+    .sidebar,
+    .box-actions,
+    .move-handle,
+    .resize-handle,
+    .conn-dot,
+    .flyout-panel,
+    .modal-overlay {
+    display: none !important;
+    }
+
+    #line-canvas {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    }
+
+    #line-canvas path {
+    stroke: #000000 !important;
+    stroke-width: 3px !important;
+    stroke-opacity: 1 !important;
+    vector-effect: non-scaling-stroke !important;
+    fill: none !important;
+    }
+
+    #canvas {
+    background-image: none !important;
+    border: none !important;
+    margin: 0 !important;
+    }
+
+    /* Ensure everything inside canvas prints correctly */
+    #canvas-container {
+    overflow: visible !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    }
+
+</head>
+
+
+
+<body>
+
+    <div class="top-toolbar">
+        <div class="toolbar-group">
+            <div class="bg-white p-0.5 rounded-md">
+                <img src="kensho-logo.png" alt="Logo" class="w-6 h-6 object-contain">
+            </div>
+            <span class="text-white font-bold text-xs tracking-widest ml-1">KENSHO BUILDER</span>
+        </div>
+
+        <div class="zoom-controls">
+            <div class="zoom-btn" onclick="changeZoom(-0.1)">−</div>
+            <div id="zoomText" class="zoom-val">100%</div>
+            <div class="zoom-btn" onclick="changeZoom(0.1)">+</div>
+        </div>
+
+        <div class="toolbar-group">
+            <button onclick="loadTemplate()"
+                class="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-bold rounded-full transition shadow-lg shadow-amber-500/20">MUAT</button>
+            <button onclick="saveTemplate()"
+                class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded-full transition shadow-lg shadow-indigo-500/20">SIMPAN</button>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="sidebar">
+            <!-- Add Items (Plus) -->
+            <div class="side-icon-btn" onclick="toggleFlyout('flyout-add', this)" title="Tambah Elemen">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </div>
+
+            <!-- System (Print) -->
+            <div class="side-icon-btn mt-auto mb-4" onclick="printDesignedBracket()" title="Cetak PDF">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- FLYOUT PANEL: TAMBAH ELEMEN -->
+        <div id="flyout-add" class="flyout-panel">
+            <div class="flyout-header">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5 text-slate-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                TAMBAH ELEMEN
+            </div>
+
+            <div class="flyout-label">Fasilitas Judul</div>
+            <div class="flyout-section">
+                <button onclick="addItem('title', 'neutral', 200, 40); closeAllFlyouts();" class="flyout-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Judul Tunggal
+                </button>
+                <button onclick="addItem('event-header', 'neutral', 600, 80); closeAllFlyouts();" class="flyout-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z M4 9h16 M15 9v10 M18 9v10"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Header Event (Smart)
+                </button>
+                <button onclick="addItem('header-pair', 'neutral', 550, 80); closeAllFlyouts();" class="flyout-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Header Ganda (Logo)
+                </button>
+            </div>
+
+            <div class="flyout-label">Fasilitas Atlet</div>
+            <div class="flyout-section">
+                <button onclick="addItem('atlet', 'neutral', 220, 40); closeAllFlyouts();"
+                    class="flyout-btn text-slate-600">
+                    <svg fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                    </svg>
+                    Kotak Nama Saja
+                </button>
+                <button onclick="addItem('atlet-score', 'neutral', 260, 40); closeAllFlyouts();"
+                    class="flyout-btn text-slate-700">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Kotak Nama + Skor
+                </button>
+            </div>
+        </div>
+
+        <!-- FLYOUT PANEL: PENYIMPANAN -->
+        <div id="flyout-storage" class="flyout-panel">
+            <div class="flyout-header">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-5 h-5 text-slate-400">
+                    <path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1a2 2 0 01-2 2H5" stroke-width="2"
+                        stroke-linecap="round" />
+                </svg>
+                PENYIMPANAN
+            </div>
+
+            <div class="flyout-section">
+                <button onclick="saveTemplate(); closeAllFlyouts();" class="flyout-btn text-indigo-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                    Simpan Ke Cloud
+                </button>
+                <button onclick="loadTemplate(); closeAllFlyouts();" class="flyout-btn text-amber-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1a2 2 0 01-2 2H5" stroke-width="2"
+                            stroke-linecap="round" />
+                    </svg>
+                    Muat Template Lama
+                </button>
+            </div>
+        </div>
+
+
+
+        <div id="canvas-container">
+
+            <div id="canvas">
+
+                <svg id="line-canvas"></svg>
+
+            </div>
+
+        </div>
+
+
+
+    </div>
+
+    <!-- MODAL SAVE TEMPLATE -->
+
+    <div id="saveModal" class="modal-overlay">
+
+        <div class="modal-content">
+
+            <div class="modal-header">💾 Simpan Template</div>
+
+            <input type="text" id="saveTemplateName" class="modal-input"
+                placeholder="Nama Template (contoh: Template 16 Peserta)" />
+
+            <div class="modal-buttons">
+
+                <button class="modal-btn modal-btn-secondary" onclick="closeSaveModal()">Batal</button>
+
+                <button class="modal-btn modal-btn-primary" onclick="confirmSaveTemplate()">Simpan</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- MODAL LOAD TEMPLATE -->
+
+    <div id="loadModal" class="modal-overlay">
+
+        <div class="modal-content">
+
+            <div class="modal-header">📂 Muat Template</div>
+
+            <div id="templateList" class="template-list">
+
+                <div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">Loading...</div>
+
+            </div>
+
+            <div class="modal-buttons">
+
+                <button class="modal-btn modal-btn-secondary" onclick="closeLoadModal()">Batal</button>
+
+                <button class="modal-btn modal-btn-primary" id="confirmLoadBtn" onclick="confirmLoadTemplate()"
+                    disabled>Muat Template</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script src="builder/build.js"></script>
+
+    // Menggunakan konfigurasi Firebase yang sama dengan aplikasi scoring
+
+    const firebaseConfig = {
+
+    apiKey: "AIzaSyCRMDmIfNWhICl7CLYgd2MteLpjI4OzkgM",
+
+    authDomain: "adm-spartan-sport-2f4ec.firebaseapp.com",
+
+    databaseURL: "https://adm-spartan-sport-2f4ec-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId: "adm-spartan-sport-2f4ec",
+
+    storageBucket: "adm-spartan-sport-2f4ec.firebasestorage.app",
+
+    messagingSenderId: "847888051133",
+
+    appId: "1:847888051133:web:fdd362c642c654bd2080d4",
+
+    measurementId: "G-SC7SBDVHZ2"
+
+    };
+
+
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- ZOOM LOGIC ---
+    let currentZoom = 1;
+    function changeZoom(delta) {
+    currentZoom = Math.min(2, Math.max(0.4, currentZoom + delta));
+    updateZoom();
+    }
+    function updateZoom() {
+    const canvas = document.getElementById('canvas');
+    const zoomText = document.getElementById('zoomText');
+    canvas.style.transform = `scale(${currentZoom})`;
+    zoomText.innerText = Math.round(currentZoom * 100) + '%';
+    }
+
+
+
+    const GRID = 20;
+
+    let connections = [];
+
+    let sourceDotId = null;
+
+    let activeStroke = 'white';
+
+    let selectedItems = [];
+
+
+
+    // MODAL FUNCTIONS
+
+    let selectedTemplateToLoad = null;
+
+
+
+    function saveTemplate() {
+
+    document.getElementById('saveModal').classList.add('show');
+
+    document.getElementById('saveTemplateName').value = '';
+
+    document.getElementById('saveTemplateName').focus();
+
+    }
+
+
+
+    function closeSaveModal() {
+
+    document.getElementById('saveModal').classList.remove('show');
+
+    }
+
+
+
+    async function confirmSaveTemplate() {
+
+    const templateName = document.getElementById('saveTemplateName').value.trim();
+
+    if (!templateName) {
+
+    alert('Masukkan nama template!');
+
+    return;
+
+    }
+
+
+
+    const items = [];
+
+    document.querySelectorAll('.draggable-item').forEach(el => {
+
+    let type = 'atlet';
+    if (el.classList.contains('title-box')) type = 'title';
+    else if (el.classList.contains('header-pair-box')) type = 'pair';
+    else if (el.querySelector('.score-input')) type = 'atlet-score';
+
+    const textInputs = el.querySelectorAll('input, textarea');
+    const textValue = Array.from(textInputs).map(i => i.value).join('|');
+
+    items.push({
+
+    id: el.id,
+
+    type: type,
+
+    x: el.dataset.x,
+
+    y: el.dataset.y,
+
+    width: el.style.width,
+
+    height: el.style.height,
+
+    text: textValue,
+
+    color: el.querySelector('.indicator')?.classList.contains('red') ? 'red' :
+
+    (el.querySelector('.indicator')?.classList.contains('blue') ? 'blue' : 'neutral'),
+
+    hasBorder: el.classList.contains('has-border'),
+
+    textAlign: el.querySelector('input, textarea').style.textAlign,
+
+    alignItems: el.style.alignItems,
+    idLabel: el.dataset.idLabel || ""
+
+    });
+
+    });
+
+
+
+    try {
+
+    await db.collection("templates").doc(templateName).set({
+
+    name: templateName,
+
+    items: items,
+
+    connections: connections,
+
+    lastSaved: firebase.firestore.FieldValue.serverTimestamp()
+
+    });
+
+    closeSaveModal();
+
+    alert("✅ Template berhasil disimpan!");
+
+    } catch (error) {
+
+    console.error("Error saving: ", error);
+
+    alert("❌ Gagal menyimpan template.");
+
+    }
+
+    }
+
+
+
+    async function loadTemplate() {
+
+    document.getElementById('loadModal').classList.add('show');
+
+    selectedTemplateToLoad = null;
+
+    document.getElementById('confirmLoadBtn').disabled = true;
+
+
+
+    const listContainer = document.getElementById('templateList');
+
+    listContainer.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">Loading...
+    </div>';
+
+
+
+    try {
+
+    const snapshot = await db.collection("templates").orderBy("lastSaved", "desc").get();
+
+
+
+    if (snapshot.empty) {
+
+    listContainer.innerHTML = '<div style="color: rgba(255,255,255,0.5); text-align: center; padding: 20px;">Tidak ada
+        template tersimpan</div>';
+
+    return;
+
+    }
+
+
+
+    listContainer.innerHTML = '';
+
+    snapshot.forEach(doc => {
+
+    const data = doc.data();
+
+    const item = document.createElement('div');
+
+    item.className = 'template-item';
+
+    item.onclick = () => selectTemplate(doc.id, item);
+
+
+
+    const date = data.lastSaved ? new Date(data.lastSaved.toDate()).toLocaleString('id-ID') : 'Tanggal tidak tersedia';
+
+
+
+    item.innerHTML = `
+
+    <div class="template-name">${data.name || doc.id}</div>
+
+    <div class="template-date">Disimpan: ${date}</div>
+
+    `;
+
+    listContainer.appendChild(item);
+
+    });
+
+    } catch (error) {
+
+    console.error("Error loading templates: ", error);
+
+    listContainer.innerHTML = '<div style="color: #ef4444; text-align: center; padding: 20px;">Error loading templates
+    </div>';
+
+    }
+
+    }
+
+
+
+    function selectTemplate(templateId, element) {
+
+    // Remove previous selection
+
+    document.querySelectorAll('.template-item').forEach(el => el.classList.remove('selected'));
+
+    // Add selection
+
+    element.classList.add('selected');
+
+    selectedTemplateToLoad = templateId;
+
+    document.getElementById('confirmLoadBtn').disabled = false;
+
+    }
+
+
+
+    function closeLoadModal() {
+
+    document.getElementById('loadModal').classList.remove('show');
+
+    }
+
+
+
+    async function confirmLoadTemplate() {
+
+    if (!selectedTemplateToLoad) return;
+
+
+
+    try {
+
+    const doc = await db.collection("templates").doc(selectedTemplateToLoad).get();
+
+    if (!doc.exists) {
+
+    alert("❌ Template tidak ditemukan.");
+
+    return;
+
+    }
+
+
+
+    const data = doc.data();
+
+
+
+    // Clear canvas
+
+    document.getElementById('canvas').querySelectorAll('.draggable-item').forEach(e => e.remove());
+
+    connections = [];
+
+
+
+    // Load Items
+
+    data.items.forEach(item => {
+
+    const id = item.id;
+    div.id = id;
+    let classNames = `draggable-item ${item.type === 'title' ? 'title-box' : 'atlet-box'}`;
+    if (item.type === 'pair') classNames = 'draggable-item header-pair-box';
+    if (item.type === 'event-header') classNames = 'draggable-item event-header-box';
+    div.className = classNames;
+
+    if (item.hasBorder) div.classList.add('has-border');
+
+
+
+    div.style.width = item.width;
+
+    div.style.height = item.height;
+
+    div.style.transform = `translate(${item.x}px, ${item.y}px)`;
+
+    div.style.alignItems = item.alignItems || 'center';
+
+    div.dataset.x = item.x;
+
+    div.dataset.y = item.y;
+
+    div.dataset.idLabel = item.idLabel || "";
+
+
+
+    const innerHTML = `
+
+    ${(item.type !== 'pair' && item.type !== 'title' && item.type !== 'event-header') ? `
+    <div class="conn-dot dot-left" onclick="handleDotClick('${id}', 'left')"></div>
+    <div class="conn-dot dot-right" onclick="handleDotClick('${id}', 'right')"></div>
+    ` : ''}
+    <div class="move-handle">✥</div>
+    <div class="resize-handle"></div>
+    <div class="box-actions">
+        <input type="text" class="id-badge-input" value="${item.idLabel || ''}" placeholder="ID..."
+            onchange="updateItemId('${id}', this.value)" title="ID Pemetaan Data">
+        <div class="btn-mini bg-purple-600" onclick="toggleAlignMenu('${id}', event)">A
+            <div id="align-menu-${id}" class="align-dropdown">
+                <div class="align-option" onclick="alignSingleItem('${id}', 'left', event)">⇤ Left</div>
+                <div class="align-option" onclick="alignSingleItem('${id}', 'center-h', event)">↔ Center H</div>
+                <div class="align-option" onclick="alignSingleItem('${id}', 'right', event)">⇥ Right</div>
+                <div class="align-option" onclick="alignSingleItem('${id}', 'top', event)">⇡ Top</div>
+                <div class="align-option" onclick="alignSingleItem('${id}', 'center-v', event)">↕ Center V</div>
+                <div class="align-option" onclick="alignSingleItem('${id}', 'bottom', event)">⇣ Bottom</div>
+            </div>
+        </div>
+        <div class="btn-mini bg-blue-600" onclick="toggleBorder('${id}')">B</div>
+        <div id="lock-btn-${id}" class="btn-mini bg-amber-500" onclick="toggleBoxLock('${id}')">🔓</div>
+        <div class="btn-mini bg-emerald-500" onclick="duplicateItem('${id}')">D</div>
+        <div class="btn-mini bg-rose-500" onclick="deleteItem('${id}')">✕</div>
+    </div>
+
+    `;
+
+
+
+    div.innerHTML = innerHTML;
+
+    // FIX: Ensure duplicated boxes have the cycle color button in box-actions
+    const actionsDiv = div.querySelector('.box-actions');
+    if (actionsDiv && !actionsDiv.innerHTML.includes('cycleBoxColor')) {
+    const colorBtn = document.createElement('div');
+    colorBtn.className = 'btn-mini bg-slate-700';
+    colorBtn.title = 'Ubah Warna';
+    colorBtn.innerHTML = '🎨';
+    colorBtn.onclick = () => cycleBoxColor(id);
+    actionsDiv.prepend(colorBtn);
+    }
+
+    if (item.type === 'pair') {
+
+    const texts = (item.text || "").split('|');
+    const input1 = document.createElement('textarea');
+    input1.className = 'header-input';
+    input1.value = texts[0] || "";
+    input1.placeholder = "JUDUL KELAS...";
+
+    const divider = document.createElement('div');
+    divider.className = 'header-divider';
+
+    const input2 = document.createElement('textarea');
+    input2.className = 'header-input';
+    input2.value = texts[1] || "";
+    input2.placeholder = "NAMA EVENT...";
+
+    div.appendChild(input1);
+    div.appendChild(divider);
+    div.appendChild(input2);
+
+    } else if (item.type === 'atlet-score') {
+    const texts = (item.text || "").split('|');
+
+    const ind = document.createElement('div');
+    ind.className = `indicator ${item.color}`;
+    div.appendChild(ind);
+
+    const nameInput = document.createElement('textarea');
+    nameInput.className = 'name-input';
+    nameInput.value = texts[0] || "";
+    nameInput.style.paddingLeft = '40px';
+    nameInput.style.textAlign = item.textAlign || 'center';
+
+    const divider = document.createElement('div');
+    divider.className = 'score-divider';
+
+    const scoreInput = document.createElement('textarea');
+    scoreInput.className = 'score-input';
+    scoreInput.value = texts[1] || "";
+    scoreInput.style.color = item.color === 'red' ? '#ef4444' : '#3b82f6';
+
+    div.appendChild(nameInput);
+    div.appendChild(divider);
+    div.appendChild(scoreInput);
+
+    } else if (item.type === 'event-header') {
+    const texts = (item.text || "").split('|');
+    const container = document.createElement('div');
+    container.className = 'eh-container';
+    container.innerHTML = `
+    <div class="eh-col eh-main">
+        <input class="eh-input eh-input-large" placeholder="NAMA KELAS PERTANDINGAN" value="${texts[0] || ''}">
+        <div class="eh-divider-h"></div>
+        <input class="eh-input" placeholder="NAMA EVENT" value="${texts[1] || ''}">
+    </div>
+    <div class="eh-col eh-date">
+        <input class="eh-input" placeholder="TANGGAL" value="${texts[2] || ''}">
+        <div class="eh-divider-h"></div>
+        <input class="eh-input" placeholder="JAM MULAI - SELESAI" value="${texts[3] || ''}">
+    </div>
+    <div class="eh-col eh-small">
+        <div class="eh-label">TATAMI</div>
+        <input class="eh-input text-center" placeholder="0" value="${texts[4] || ''}">
+    </div>
+    <div class="eh-col eh-small">
+        <div class="eh-label">POOL</div>
+        <input class="eh-input text-center" placeholder="X" value="${texts[5] || ''}">
+    </div>
+    `;
+    div.appendChild(container);
+    } else {
+
+    const field = document.createElement('textarea');
+    field.className = item.type === 'title' ? 'title-input' : 'name-input';
+    field.value = item.text;
+    field.style.textAlign = item.textAlign || 'center';
+    if (item.type === 'atlet') field.style.paddingLeft = '40px';
+
+    if (item.type === 'atlet') {
+    const ind = document.createElement('div');
+    ind.className = `indicator ${item.color}`;
+    div.appendChild(ind);
+    }
+
+    div.appendChild(field);
+
+    }
+
+    document.getElementById('canvas').appendChild(div);
+
+    initInteract(div);
+
+
+
+    // Add click handler for selection
+
+    div.addEventListener('click', (e) => {
+
+    if (e.target.closest('.box-actions') || e.target.closest('.conn-dot') || e.target.tagName === 'INPUT' ||
+    e.target.tagName === 'TEXTAREA') return;
+
+    div.classList.toggle('selected');
+
+    if (div.classList.contains('selected')) {
+
+    selectedItems.push(id);
+
+    } else {
+
+    selectedItems = selectedItems.filter(item => item !== id);
+
+    }
+
+    });
+
+    });
+
+
+
+    // Load Connections
+
+    connections = data.connections || [];
+
+    drawLines();
+
+
+
+    closeLoadModal();
+
+    alert("✅ Template berhasil dimuat!");
+
+
+
+    } catch (error) {
+
+    console.error("Error loading: ", error);
+
+    alert("❌ Gagal memuat template.");
+
+    }
+
+    }
+
+
+
+    function updateItemId(boxId, newValue) {
+    const el = document.getElementById(boxId);
+    if (el) {
+    el.dataset.idLabel = newValue.trim().toUpperCase();
+    }
+    }
+
+    function toggleFlyout(id, btn) {
+    const panel = document.getElementById(id);
+    const isShowing = panel.classList.contains('show');
+
+    // Close all first
+    closeAllFlyouts();
+
+    if (!isShowing) {
+    panel.classList.add('show');
+    btn.classList.add('active');
+    }
+    }
+
+    function closeAllFlyouts() {
+    document.querySelectorAll('.flyout-panel').forEach(p => p.classList.remove('show'));
+    document.querySelectorAll('.side-icon-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    // Close flyouts when clicking outside
+    document.addEventListener('click', (e) => {
+    if (!e.target.closest('.sidebar') && !e.target.closest('.flyout-panel')) {
+    closeAllFlyouts();
+    }
+    });
+
+    function cycleBoxColor(id) {
+    const box = document.getElementById(id);
+    const indicator = box.querySelector('.indicator');
+    if (!indicator) return;
+
+    const isScoreBox = !!box.querySelector('.score-input');
+    const scoreInput = box.querySelector('.score-input');
+
+    if (indicator.classList.contains('neutral')) {
+    indicator.classList.replace('neutral', 'red');
+    if (isScoreBox) scoreInput.style.color = '#ef4444';
+    } else if (indicator.classList.contains('red')) {
+    indicator.classList.replace('red', 'blue');
+    if (isScoreBox) scoreInput.style.color = '#3b82f6';
+    } else {
+    indicator.classList.replace('blue', 'neutral');
+    if (isScoreBox) scoreInput.style.color = '#000';
+    }
+    drawLines(); // Re-draw to update connection colors if needed
+    }
+
+    // TOGGLE LOCK/UNLOCK PER BOX
+
+    function toggleBoxLock(id) {
+    const box = document.getElementById(id);
+    const lockBtn = document.getElementById(`lock-btn-${id}`);
+    const input = box.querySelector('input, textarea');
+
+    if (box.classList.contains('disabled')) {
+    box.classList.remove('disabled');
+    if (input) input.removeAttribute('readonly');
+    lockBtn.innerHTML = '🔓';
+    } else {
+    box.classList.add('disabled');
+    if (input) input.setAttribute('readonly', 'true');
+    lockBtn.innerHTML = '🔒';
+    }
+    }
+
+
+
+
+    function distributeItems(type) {
+
+    if (selectedItems.length < 3) return; const elements=selectedItems.map(id=> document.getElementById(id)).sort((a, b)
+        => parseFloat(a.dataset.y) - parseFloat(b.dataset.y));
+
+        const firstY = parseFloat(elements[0].dataset.y);
+
+        const lastY = parseFloat(elements[elements.length - 1].dataset.y);
+
+        const totalGap = lastY - firstY;
+
+        const step = totalGap / (elements.length - 1);
+
+        elements.forEach((el, i) => { const newY = Math.round((firstY + (step * i)) / GRID) * GRID; el.style.transform =
+        `translate(${el.dataset.x}px, ${newY}px)`; el.dataset.y = newY; });
+
+        drawLines();
+
+        }
+
+
+
+        function clearSelection() {
+
+        selectedItems.forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('selected');
+        });
+
+        selectedItems = [];
+
+        }
+
+
+
+        // TRACK MOUSE POSITION FOR NEW ITEMS
+        let lastMouseX = 100, lastMouseY = 100;
+        document.getElementById('canvas-container').addEventListener('mousemove', (e) => {
+        const canvas = document.getElementById('canvas');
+        const rect = canvas.getBoundingClientRect();
+        // Sesuaikan dengan tingkat ZOOM (currentZoom)
+        lastMouseX = Math.round(((e.clientX - rect.left) / currentZoom) / GRID) * GRID;
+        lastMouseY = Math.round(((e.clientY - rect.top) / currentZoom) / GRID) * GRID;
+        });
+
+        function addItem(type, color, w, h, existingIdLabel = null) {
+
+        const id = 'item-' + Date.now();
+        const idLabel = existingIdLabel || (type === 'title' ? 'TITLE' : (type === 'header-pair' ? 'HEADER' : (type ===
+        'event-header' ? 'EVENT_INFO' : 'ID_' + Math.floor(Math.random() * 10000))));
+
+        const div = document.createElement('div');
+
+        div.id = id;
+
+        let classNames = `draggable-item ${type === 'title' ? 'title-box' : 'atlet-box'}`;
+        if (type === 'header-pair') classNames = 'draggable-item header-pair-box';
+        if (type === 'event-header') classNames = 'draggable-item event-header-box';
+        div.className = classNames;
+
+        const startX = lastMouseX, startY = lastMouseY;
+
+        div.style.width = `${w}px`; div.style.height = `${h}px`;
+
+        div.style.transform = `translate(${startX}px, ${startY}px)`;
+
+        div.dataset.x = startX; div.dataset.y = startY;
+
+        let contentHTML = '';
+        if (type === 'title') {
+        contentHTML = '<textarea class="title-input" placeholder="JUDUL..."></textarea>';
+        } else if (type === 'header-pair') {
+        contentHTML = `
+        <textarea class="header-input" placeholder="JUDUL KELAS..."></textarea>
+        <div class="header-divider"></div>
+        <textarea class="header-input" placeholder="NAMA EVENT..."></textarea>
+        `;
+        } else if (type === 'atlet-score') {
+        contentHTML = `
+        <div class="indicator ${color}"></div>
+        <textarea class="name-input" placeholder="NAMA ATLET" style="padding-left: 40px"></textarea>
+        <div class="score-divider"></div>
+        <textarea class="score-input" placeholder="0"
+            style="color: ${color === 'red' ? '#ef4444' : '#3b82f6'}"></textarea>
+        `;
+        } else if (type === 'event-header') {
+        contentHTML = `
+        <div class="eh-container">
+            <div class="eh-col eh-main">
+                <input class="eh-input eh-input-large" placeholder="NAMA KELAS PERTANDINGAN">
+                <div class="eh-divider-h"></div>
+                <input class="eh-input" placeholder="NAMA EVENT">
+            </div>
+            <div class="eh-col eh-date">
+                <input class="eh-input" placeholder="TANGGAL">
+                <div class="eh-divider-h"></div>
+                <input class="eh-input" placeholder="JAM MULAI - SELESAI">
+            </div>
+            <div class="eh-col eh-small">
+                <div class="eh-label">TATAMI</div>
+                <input class="eh-input text-center" placeholder="0">
+            </div>
+            <div class="eh-col eh-small">
+                <div class="eh-label">POOL</div>
+                <input class="eh-input text-center" placeholder="X">
+            </div>
+        </div>
+        `;
+        } else {
+        contentHTML = `<div class="indicator ${color}"></div><textarea class="name-input" placeholder="NAMA ATLET"
+            style="padding-left: 40px"></textarea>`;
+        }
+
+        div.innerHTML = `
+        ${contentHTML}
+        <div class="move-handle">✥</div>
+        <div class="resize-handle"></div>
+        <div class="box-actions">
+            <input type="text" class="id-badge-input" value="${idLabel}" placeholder="ID..."
+                onchange="updateItemId('${id}', this.value)" title="ID Pemetaan Data">
+            <div class="btn-mini bg-slate-700" title="Ubah Warna" onclick="cycleBoxColor('${id}')">🎨</div>
+            <div class="btn-mini bg-purple-600" onclick="toggleAlignMenu('${id}', event)">A
+                <div id="align-menu-${id}" class="align-dropdown">
+                    <div class="align-option" onclick="alignSingleItem('${id}', 'left', event)">⇤ Left</div>
+                    <div class="align-option" onclick="alignSingleItem('${id}', 'center-h', event)">↔ Center H</div>
+                    <div class="align-option" onclick="alignSingleItem('${id}', 'right', event)">⇥ Right</div>
+                    <div class="align-option" onclick="alignSingleItem('${id}', 'top', event)">⇡ Top</div>
+                    <div class="align-option" onclick="alignSingleItem('${id}', 'center-v', event)">↕ Center V</div>
+                    <div class="align-option" onclick="alignSingleItem('${id}', 'bottom', event)">⇣ Bottom</div>
+                </div>
+            </div>
+            <div class="btn-mini bg-blue-600" onclick="toggleBorder('${id}')">B</div>
+            <div id="lock-btn-${id}" class="btn-mini bg-amber-500" onclick="toggleBoxLock('${id}')">🔓</div>
+            <div class="btn-mini bg-emerald-500" onclick="duplicateItem('${id}')">D</div>
+            <div class="btn-mini bg-rose-500" onclick="deleteItem('${id}')">✕</div>
+        </div>
+        ${(type !== 'header-pair' && type !== 'title' && type !== 'event-header') ? `
+        <div class="conn-dot dot-left" onclick="handleDotClick('${id}', 'left')"></div>
+        <div class="conn-dot dot-right" onclick="handleDotClick('${id}', 'right')"></div>
+        ` : ''}
+        `;
+
+
+
+        div.addEventListener('click', (e) => {
+
+        if (e.target.closest('.box-actions') || e.target.closest('.conn-dot') || e.target.tagName === 'INPUT' ||
+        e.target.tagName === 'TEXTAREA') return;
+
+        div.classList.toggle('selected');
+
+        if (div.classList.contains('selected')) { selectedItems.push(id); } else { selectedItems =
+        selectedItems.filter(item => item !== id); }
+
+        });
+
+
+
+        document.getElementById('canvas').appendChild(div);
+
+        initInteract(div);
+
+        drawLines();
+
+        }
+
+
+
+        function toggleBorder(id) { document.getElementById(id).classList.toggle('has-border'); }
+
+
+
+        function toggleAlignMenu(id, e) {
+
+        e.stopPropagation();
+
+        document.querySelectorAll('.align-dropdown').forEach(menu => menu.classList.remove('show'));
+
+        const menu = document.getElementById(`align-menu-${id}`);
+
+        menu.classList.toggle('show');
+
+        }
+
+
+
+        function alignSingleItem(id, type, e) {
+
+        e.stopPropagation();
+
+        const el = document.getElementById(id);
+
+        const input = el.querySelector('input, textarea');
+
+        if (input) {
+
+        input.style.width = '100%';
+
+        if (type === 'left') { input.style.textAlign = 'left'; input.style.paddingLeft = '40px'; }
+
+        else if (type === 'center-h') { input.style.textAlign = 'center'; input.style.paddingLeft = '10px'; }
+
+        else if (type === 'right') { input.style.textAlign = 'right'; input.style.paddingRight = '24px'; }
+
+        if (type === 'top') { el.style.alignItems = 'flex-start'; }
+
+        else if (type === 'center-v') { el.style.alignItems = 'center'; }
+
+        else if (type === 'bottom') { el.style.alignItems = 'flex-end'; }
+
+        }
+
+        document.getElementById(`align-menu-${id}`).classList.remove('show');
+
+        }
+
+
+
+        // Close dropdown when clicking outside
+
+        document.addEventListener('click', (e) => {
+
+        if (!e.target.closest('.btn-mini')) {
+
+        document.querySelectorAll('.align-dropdown').forEach(menu => menu.classList.remove('show'));
+
+        }
+
+        });
+
+
+
+        function handleDotClick(boxId, side) {
+
+        const dotEl = document.querySelector(`#${boxId} .dot-${side}`);
+
+        if (!sourceDotId) {
+
+        sourceDotId = { boxId, side };
+
+        dotEl.classList.add('dot-active');
+
+        } else {
+
+        if (sourceDotId.boxId !== boxId) {
+
+        connections.push({ from: sourceDotId.boxId, fromSide: sourceDotId.side, to: boxId, toSide: side, color:
+        activeStroke });
+
+        }
+
+        document.querySelectorAll('.conn-dot').forEach(d => d.classList.remove('dot-active'));
+
+        sourceDotId = null;
+
+        drawLines();
+
+        }
+
+        }
+
+
+
+        function duplicateItem(id) {
+        const original = document.getElementById(id);
+        if (!original) return;
+
+        let type = 'atlet';
+        if (original.classList.contains('title-box')) type = 'title';
+        else if (original.classList.contains('header-pair-box')) type = 'header-pair';
+        else if (original.querySelector('.score-input')) type = 'atlet-score';
+
+        const color = original.querySelector('.indicator')?.classList[1] || 'neutral';
+
+        addItem(type, color, original.offsetWidth, original.offsetHeight);
+
+        // Copy values and styles from original to the newly added item (last child of canvas)
+        const newItem = document.getElementById('canvas').lastElementChild;
+        if (newItem) {
+        // Copy text values
+        const oldTextareas = original.querySelectorAll('textarea');
+        const newTextareas = newItem.querySelectorAll('textarea');
+        oldTextareas.forEach((ta, i) => {
+        if (newTextareas[i]) {
+        newTextareas[i].value = ta.value;
+        // Copy styling
+        newTextareas[i].style.textAlign = ta.style.textAlign;
+        newTextareas[i].style.paddingLeft = ta.style.paddingLeft;
+        newTextareas[i].style.paddingRight = ta.style.paddingRight;
+        }
+        });
+
+        // Copy idLabel with suffix
+        const oldId = original.dataset.idLabel || "";
+        if (oldId) {
+        newItem.dataset.idLabel = oldId + "_COPY";
+        const newIdInput = newItem.querySelector('.id-badge-input');
+        if (newIdInput) newIdInput.value = newItem.dataset.idLabel;
+        }
+
+        // Copy container styling
+        newItem.style.alignItems = original.style.alignItems;
+        }
+        }
+
+        function duplicateSelected() {
+        if (selectedItems.length === 0) {
+        alert("Pilih satu atau lebih kotak terlebih dahulu!");
+        return;
+        }
+
+        const idsToDuplicate = [...selectedItems];
+        clearSelection();
+
+        idsToDuplicate.forEach(id => {
+        duplicateItem(id);
+        // The new item is at lastMouseX/Y. If we want them offset from each other,
+        // we might need to adjust their transform, but addItem uses lastMouseX/Y
+        });
+
+        alert(`✅ ${idsToDuplicate.length} item berhasil diduplikasi ke posisi kursor.`);
+        }
+
+
+
+        function deleteItem(id) {
+
+        const el = document.getElementById(id);
+
+        if (el) el.remove();
+
+        connections = connections.filter(c => c.from !== id && c.to !== id);
+
+        selectedItems = selectedItems.filter(item => item !== id);
+
+        drawLines();
+
+        }
+
+
+
+        function initInteract(el) {
+
+        interact(el).draggable({
+
+        allowFrom: '.move-handle',
+
+        modifiers: [interact.modifiers.snap({ targets: [interact.snappers.grid({ x: GRID, y: GRID })] })],
+
+        listeners: {
+
+        move(event) {
+        const t = event.target;
+        // Sesuaikan delta pergerakan (dx/dy) dengan tingkat ZOOM
+        const x = Math.round(((parseFloat(t.dataset.x) || 0) + (event.dx / currentZoom)) / GRID) * GRID;
+        const y = Math.round(((parseFloat(t.dataset.y) || 0) + (event.dy / currentZoom)) / GRID) * GRID;
+
+        t.style.transform = `translate(${x}px, ${y}px)`;
+        t.dataset.x = x; t.dataset.y = y;
+        drawLines();
+        }
+
+        }
+
+        }).resizable({
+
+        allowFrom: '.resize-handle',
+
+        edges: { right: true, bottom: true },
+
+        modifiers: [interact.modifiers.snapSize({ targets: [interact.snappers.grid({ x: GRID, y: GRID })] })],
+
+        listeners: {
+
+        move(event) {
+        const t = event.target;
+        // Sesuaikan ukuran dengan tingkat ZOOM
+        const w = Math.round((event.rect.width / currentZoom) / GRID) * GRID;
+        const h = Math.round((event.rect.height / currentZoom) / GRID) * GRID;
+
+        t.style.width = `${w}px`;
+        t.style.height = `${h}px`;
+        drawLines();
+        }
+
+        }
+
+        });
+
+        }
+
+
+
+        function drawLines() {
+        const svg = document.getElementById('line-canvas');
+        if (!svg) return;
+        svg.innerHTML = '';
+
+        connections.forEach(c => {
+        const f = document.getElementById(c.from);
+        const t = document.getElementById(c.to);
+
+        if (!f || !t) return;
+
+        // Logical coordinates (immune to zoom/CSS scale)
+        const fx = parseFloat(f.dataset.x) || 0;
+        const fy = parseFloat(f.dataset.y) || 0;
+        const tx = parseFloat(t.dataset.x) || 0;
+        const ty = parseFloat(t.dataset.y) || 0;
+        const fw = f.offsetWidth;
+        const fh = f.offsetHeight;
+        const tw = t.offsetWidth;
+        const th = t.offsetHeight;
+
+        const x1 = (c.fromSide === 'left' ? fx : fx + fw);
+        const y1 = fy + fh / 2;
+        const x2 = (c.toSide === 'left' ? tx : tx + tw);
+        const y2 = ty + th / 2;
+
+        let midX;
+        if (c.fromSide === c.toSide) {
+        const offset = 40;
+        if (c.fromSide === 'right') {
+        midX = Math.max(x1, x2) + offset;
+        } else {
+        midX = Math.min(x1, x2) - offset;
+        }
+        } else {
+        midX = x1 + (x2 - x1) / 2;
+        }
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', c.color);
+        path.setAttribute('stroke-width', '3');
+        path.setAttribute('fill', 'none');
+        // Ensure it shows up in print
+        path.style.vectorEffect = 'non-scaling-stroke';
+        svg.appendChild(path);
+        });
+        }
+
+        function printDesignedBracket() {
+        const items = document.querySelectorAll('.draggable-item');
+        if (items.length === 0) {
+        window.print();
+        return;
+        }
+
+        // 1. Cari Bounding Box (Area terjauh desain)
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        items.forEach(el => {
+        const x = parseFloat(el.dataset.x) || 0;
+        const y = parseFloat(el.dataset.y) || 0;
+        const w = el.offsetWidth;
+        const h = el.offsetHeight;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x + w);
+        maxY = Math.max(maxY, y + h);
+        });
+
+        const designW = maxX - minX;
+        const designH = maxY - minY;
+
+        // 2. Kertas F4/Legal Landscape (330mm x 210mm @ 96 DPI)
+        // 330mm ~ 1247px, 210mm ~ 794px
+        const paperW = 1247;
+        const paperH = 794;
+
+        // Target Margin (Minimalist: ~5mm = ~20px)
+        const targetMargin = 20;
+        const availableW = paperW - (targetMargin * 2);
+        const availableH = paperH - (targetMargin * 2);
+
+        // 3. Hitung Rasio Skala
+        const scaleW = availableW / designW;
+        const scaleH = availableH / designH;
+
+        // Gunakan rasio terkecil agar muat semua, maksimal skala 1
+        const finalScale = Math.min(scaleW, scaleH, 1);
+
+        // 4. Hitung Offset agar Center
+        const actualW = designW * finalScale;
+        const actualH = designH * finalScale;
+        const marginLeft = (paperW - actualW) / 2;
+        const marginTop = (paperH - actualH) / 2;
+
+        // Transform origin 0 0 berarti scaling terjadi dari pojok kiri atas
+        // Kita butuh translate agar minX/minY mendarat di marginLeft/marginTop
+        const tx = (marginLeft / finalScale) - minX;
+        const ty = (marginTop / finalScale) - minY;
+
+        // 5. Terapkan Transformasi Sementara
+        const container = document.getElementById('canvas-container');
+        const canvas = document.getElementById('canvas');
+
+        const originalTransform = canvas.style.transform;
+        const originalTransformOrigin = canvas.style.transformOrigin;
+        const originalContainerOverflow = container.style.overflow;
+
+        canvas.style.transformOrigin = '0 0';
+        canvas.style.transform = `scale(${finalScale}) translate(${tx}px, ${ty}px)`;
+        container.style.overflow = 'visible';
+
+        // 6. Eksekusi Print
+        setTimeout(() => {
+        window.print();
+
+        // Kembalikan ke Normal
+        setTimeout(() => {
+        canvas.style.transform = originalTransform;
+        canvas.style.transformOrigin = originalTransformOrigin;
+        container.style.overflow = originalContainerOverflow;
+        }, 1500);
+        }, 500);
+        }
+
+        // KEYBOARD NAVIGATION (ARROW KEYS)
+        window.addEventListener('keydown', (e) => {
+        if (selectedItems.length === 0) return;
+
+        const arrows = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+        if (arrows.includes(e.key)) {
+        if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') return;
+
+        e.preventDefault();
+
+        let dx = 0, dy = 0;
+        if (e.key === 'ArrowUp') dy = -GRID;
+        if (e.key === 'ArrowDown') dy = GRID;
+        if (e.key === 'ArrowLeft') dx = -GRID;
+        if (e.key === 'ArrowRight') dx = GRID;
+
+        selectedItems.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+        const x = (parseFloat(el.dataset.x) || 0) + dx;
+        const y = (parseFloat(el.dataset.y) || 0) + dy;
+        el.style.transform = `translate(${x}px, ${y}px)`;
+        el.dataset.x = x;
+        el.dataset.y = y;
+        }
+        });
+
+        drawLines();
+        }
+        });
+
+
+        <script type="module" src="./js/security-guard.js"></script>
+
+</body>
+
+
+
+</html>

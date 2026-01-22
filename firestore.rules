@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAuthorized() {
+      return isAuthenticated();
+    }
+
+    match /admins/{adminName} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.uid || request.auth.token.email.upper() == userId);
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    match /events/{eventId} {
+      allow read, write: if isAuthorized();
+      
+      match /{allChildren=**} {
+        allow read, write: if isAuthorized();
+      }
+    }
+
+    match /officials/{officialId} {
+      allow read, write: if isAuthorized();
+    }
+
+    match /installations/{hwid} {
+      allow read, create: if true; 
+      allow update, delete: if isAuthenticated();
+    }
+
+    match /licenses/{docId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /settings/app {
+      allow read: if true;
+    }
+
+    match /templates/{templateId} {
+      allow read, write: if true;
+    }
+
+    match /voice_lounge_users/{userId} { allow read, write: if isAuthenticated(); }
+    match /voice_calls/{callId} { allow read, write: if isAuthenticated(); }
+    match /voice_signals/{signalId} { allow read, write: if isAuthenticated(); }
+
+  }
+}

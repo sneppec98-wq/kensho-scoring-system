@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun | Kensho Tech Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+        }
+
+        .glow-red {
+            background: radial-gradient(circle, rgba(220, 38, 38, 0.1) 0%, rgba(2, 6, 23, 0) 70%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden text-slate-100">
+
+    <div class="absolute top-0 left-0 w-full h-full glow-red pointer-events-none"></div>
+
+    <div
+        class="bg-[#0f172a]/70 w-full max-w-[550px] rounded-[2.5rem] shadow-2xl p-8 md:p-10 z-10 border border-white/10 backdrop-blur-2xl">
+
+        <div class="text-center mb-8">
+            <img src="kensho-logo.png" alt="Kensho Tech Logo"
+                class="w-24 mx-auto mb-4 hover:scale-105 transition-transform duration-300">
+            <h1 class="text-2xl font-extrabold tracking-tight text-white">Buat Akun Kensho</h1>
+            <p class="text-slate-400 text-sm mt-1 font-medium">Lengkapi data untuk mulai mengelola acara</p>
+        </div>
+
+        <form id="registerForm" class="space-y-4" onsubmit="handleRegister(event)">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label
+                        class="block text-[10px] font-extrabold text-slate-400 mb-1.5 ml-1 uppercase tracking-[0.15em]">Nama
+                        Lengkap</label>
+                    <input type="text" id="fullName" required
+                        class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:border-red-600 focus:bg-black/60 outline-none transition-all text-sm text-white font-medium"
+                        placeholder="Nama Anda">
+                </div>
+                <div>
+                    <label
+                        class="block text-[10px] font-extrabold text-slate-400 mb-1.5 ml-1 uppercase tracking-[0.15em]">Nama
+                        Dojo/Klub</label>
+                    <input type="text" id="dojoName" required
+                        class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:border-red-600 focus:bg-black/60 outline-none transition-all text-sm text-white font-medium"
+                        placeholder="Nama Klub">
+                </div>
+            </div>
+
+            <div>
+                <label
+                    class="block text-[10px] font-extrabold text-slate-400 mb-1.5 ml-1 uppercase tracking-[0.15em]">Alamat
+                    Email</label>
+                <input type="email" id="email" required
+                    class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:border-red-600 focus:bg-black/60 outline-none transition-all text-sm text-white font-medium"
+                    placeholder="nama@email.com">
+            </div>
+
+            <div>
+                <label
+                    class="block text-[10px] font-extrabold text-slate-400 mb-1.5 ml-1 uppercase tracking-[0.15em]">Buat
+                    Kata Sandi</label>
+                <div class="relative">
+                    <input type="password" id="password" required
+                        class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:border-red-600 focus:bg-black/60 outline-none transition-all text-sm text-white font-medium"
+                        placeholder="••••••••">
+                    <button type="button" onclick="togglePassword()"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-red-600 transition-colors">
+                        <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmit"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-2xl transition-all shadow-[0_10px_20px_rgba(220,38,38,0.25)] active:scale-[0.98] flex items-center justify-center text-sm mt-4">
+                <span id="btnText">Daftar Akun Sekarang</span>
+            </button>
+        </form>
+
+        <div class="mt-8 pt-6 border-t border-white/5 text-center">
+            <p class="text-slate-400 text-xs font-medium">
+                Sudah memiliki akun? <br>
+                <a href="login.html"
+                    class="text-red-600 font-bold hover:underline inline-block mt-2 font-extrabold">Kembali ke Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-init.js';
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Fungsi Show/Hide Password
+        window.togglePassword = function () {
+            const pwInput = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+            if (pwInput.type === 'password') {
+                pwInput.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />';
+            } else {
+                pwInput.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+            }
+        }
+
+        window.handleRegister = async function (e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmit');
+            const text = document.getElementById('btnText');
+
+            const fullName = document.getElementById('fullName').value;
+            const dojoName = document.getElementById('dojoName').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const originalText = text.innerHTML;
+            text.innerHTML = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.disabled = true;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Simpan profil ke Firestore
+                const docId = fullName.toUpperCase(); // Gunakan Nama sebagai ID Dokumen
+                await setDoc(doc(db, "users", docId), {
+                    fullName: fullName,
+                    dojoName: dojoName,
+                    email: email.toLowerCase(),
+                    uid: user.uid,
+                    role: 'user',
+                    status: 'pending',
+                    registeredFrom: window.electronAPI ? 'desktop' : 'web',
+                    createdAt: new Date().toISOString()
+                });
+
+                alert('Pendaftaran Berhasil!');
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error("Register Error:", error);
+                alert("Pendaftaran Gagal: " + error.message);
+                text.innerHTML = originalText;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

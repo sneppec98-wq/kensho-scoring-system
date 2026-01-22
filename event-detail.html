@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kontrol Event | Spartan Sport</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a',
+                        light: '#1e293b',
+                        accent: '#3b82f6',
+                        blue: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030712;
+            --light: rgba(30, 41, 59, 0.4);
+            --dark: #0f172a;
+            --text: #f8fafc;
+            --accent: #3b82f6;
+            --blue: #3b82f6;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* NEUMORPHISM UI */
+        .neu-flat {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.2), -5px -5px 15px rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .neu-inset {
+            background: rgba(2, 6, 23, 0.82);
+            box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .neu-button {
+            background: rgba(30, 41, 59, 0.5);
+            box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.2), -2px -2px 8px rgba(255, 255, 255, 0.02);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .neu-button:hover {
+            transform: translateY(-2px);
+            color: var(--blue);
+            box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.3), -2px -2px 10px rgba(255, 255, 255, 0.03);
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        /* Aurora Background */
+        #aurora-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+            background: var(--bg);
+        }
+
+        .aurora {
+            position: absolute;
+            width: 80vmax;
+            height: 80vmax;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            mix-blend-mode: plus-lighter;
+            animation: drift 20s infinite alternate linear;
+        }
+
+        .aurora-1 {
+            background: var(--accent);
+            top: -20%;
+            left: -20%;
+        }
+
+        .aurora-2 {
+            background: #4f46e5;
+            bottom: -20%;
+            right: -20%;
+            animation-delay: -5s;
+        }
+
+        .aurora-3 {
+            background: #06b6d4;
+            top: 40%;
+            left: 30%;
+            animation-duration: 25s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(10%, 10%) scale(1.1);
+            }
+        }
+
+        /* Staggered Entry Animation */
+        .stagger-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shimmer-text {
+            color: #ffffff;
+            font-weight: 900;
+        }
+
+        /* SIDEBAR DROPDOWN FIX */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            padding-left: 20px;
+            z-index: 100;
+            min-width: 200px;
+        }
+
+        .group:hover .dropdown-menu {
+            display: block;
+            animation: slideRight 0.2s ease-out;
+        }
+
+        .dropdown-content {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+        }
+
+        @keyframes slideRight {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .card-menu {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .card-menu:hover {
+            transform: translateY(-8px);
+            border-color: var(--blue);
+            box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.2);
+        }
+
+        .card-active {
+            border-color: var(--blue);
+            background: rgba(59, 130, 246, 0.15);
+            box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.5;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f87171'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.5rem center;
+            background-size: 1rem;
+        }
+
+        table {
+            border-collapse: separate;
+            border-spacing: 0 12px;
+        }
+
+        .row-hover:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Refined Sidebar */
+        aside {
+            background: rgba(15, 23, 42, 0.4) !important;
+            backdrop-filter: blur(25px) saturate(180%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .side-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .side-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .side-btn.active {
+            color: var(--blue);
+            background: rgba(59, 130, 246, 0.1);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+        }
+
+        .side-btn.active::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            width: 3px;
+            height: 18px;
+            background: var(--blue);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px var(--blue);
+        }
+
+        /* Sidebar Tooltip */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: calc(100% + 15px);
+            top: 50%;
+            transform: translateY(-50%) translateX(-5px);
+            background: rgba(15, 17, 26, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        /* Voice Lounge Floating Panel */
+        #voice-lounge-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 320px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2.5rem;
+            z-index: 1000;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(120%);
+        }
+
+        #voice-lounge-panel.active {
+            transform: translateY(0);
+        }
+
+        .voice-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s;
+        }
+
+        .voice-user.speaking {
+            background: rgba(248, 113, 113, 0.1);
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.2);
+        }
+
+        .pulse-mic {
+            animation: mic-pulse 2s infinite;
+        }
+
+        @keyframes mic-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .custom-scrollbar {
+            will-change: transform;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--blue);
+        }
+
+        /* FORCE 3-COLUMN CARD LAYOUT */
+        .card-grid-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (min-width: 768px) {
+            .card-grid-container {
+                flex-direction: row !important;
+                gap: 2rem !important;
+            }
+
+            .card-grid-container>.card-menu {
+                flex: 1 1 0% !important;
+                min-width: 0 !important;
+                max-width: 33.333333% !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-row text-slate-200 overflow-x-hidden">
+    <!-- Aurora Background -->
+    <div id="aurora-container">
+        <div class="aurora aurora-1" style="background: var(--blue);"></div>
+        <div class="aurora aurora-2" style="background: #4f46e5;"></div>
+        <div class="aurora aurora-3" style="background: #06b6d4;"></div>
+    </div>
+
+    <aside class="w-20 h-screen fixed left-0 top-0 flex flex-col items-center py-8 z-50">
+        <div class="mb-14">
+            <a href="dashboard-super.html">
+                <div
+                    class="w-12 h-12 bg-slate-800/50 rounded-2xl shadow-lg shadow-blue-500/10 flex items-center justify-center border border-white/5 hover:scale-110 transition-all">
+                    <img src="kensho-logo.png" alt="Logo" class="w-8 h-8 object-contain">
+                </div>
+            </a>
+        </div>
+        <nav class="flex-1 flex flex-col items-center">
+            <a href="dashboard-super.html" data-tooltip="Beranda Dashboard" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+            <div class="relative group">
+                <button data-tooltip="Kelola Personel" class="side-btn">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-content space-y-3">
+                        <p class="text-[8px] font-black opacity-30 tracking-[0.2em] mb-1">KELOLA PERSONEL</p>
+                        <a href="data-official.html"
+                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-blue-500 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span><span>Data Official</span>
+                        </a>
+                        <div class="h-[1px] bg-white/5 mx-1"></div>
+                        <a href="data-admin.html"
+                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-blue-500 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span><span>Data Admin</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <a href="data-pertandingan.html" data-tooltip="Data Pertandingan" class="side-btn active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </a>
+            <a id="linkScoringHub" href="scoring-home.html" data-tooltip="Pusat Scoring" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+            </a>
+            <a href="build.html" data-tooltip="Bracket Builder" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </a>
+            <button onclick="toggleVoiceLounge()" data-tooltip="Kensho Voice Lounge" class="side-btn" id="btn-voice">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+        </nav>
+    </aside>
+
+    <main class="ml-20 flex-1 p-10">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <div
+                    class="flex items-center space-x-4 mb-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+                    <a href="data-pertandingan.html" class="hover:text-blue-500 transition-colors">PERTANDINGAN</a>
+                    <span>/</span>
+                    <span id="breadcrumbEventName"
+                        class="text-blue-500 opacity-100 uppercase font-black tracking-widest">LOADING...</span>
+                </div>
+                <h1 class="text-4xl font-black italic tracking-tighter uppercase leading-none text-white">Kontrol Event
+                </h1>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-3 text-blue-500 italic">
+                    Manajemen Kompetisi Teknis</p>
+            </div>
+            <div class="flex items-center gap-6">
+                <button onclick="toggleModal('modal-settings', true)"
+                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-blue-500 hover:text-white transition-all">Pengaturan
+                    Event</button>
+                <div class="flex items-center gap-4 neu-inset px-6 py-3 rounded-2xl border border-white/5">
+                    <div class="text-right">
+                        <p
+                            class="text-[8px] font-black uppercase opacity-40 tracking-widest leading-none mb-1 text-slate-400">
+                            Authenticated As</p>
+                        <p id="userNameDisplay" class="text-xs font-black uppercase tracking-wider text-blue-500">
+                            Loading...</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="card-grid-container">
+            <div onclick="switchTab('tab-atlet', this)"
+                class="neu-flat p-8 rounded-[2.5rem] card-menu card-active flex-1 cursor-pointer">
+                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">BASIS DATA</p>
+                <h3 class="text-xl font-black italic uppercase">Data Atlet</h3>
+                <div class="mt-4 flex justify-between items-center">
+                    <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0 Atlet</span>
+                    <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div onclick="switchTab('tab-kelas', this)"
+                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
+                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">KATEGORI</p>
+                <h3 class="text-xl font-black italic uppercase">Kelas Tanding</h3>
+                <div class="mt-4 flex justify-between items-center">
+                    <span id="countKelas" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0
+                        Kelas</span>
+                    <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+            </div>
+
+            <div onclick="switchTab('tab-bracket', this)"
+                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
+                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">BAGAN LIVE</p>
+                <h3 class="text-xl font-black italic uppercase text-yellow-500">Bagan Pertandingan</h3>
+                <div class="mt-4 flex justify-between items-center">
+                    <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Peta Turnamen</span>
+                    <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-area">
+            <div id="tab-atlet" class="tab-content">
+                <div class="neu-flat p-8 rounded-[2.5rem]">
+                    <div class="mb-8 flex justify-between items-center">
+                        <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-96">
+                            <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" onkeyup="filterTable(this, 'tableAtlet')"
+                                placeholder="CARI NAMA ATLET..."
+                                class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
+                        </div>
+
+                        <button onclick="toggleModal('modal-atlet', true)"
+                            class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
+                            <div
+                                class="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-blue-500">Tambah
+                                Atlet
+                                (Darurat)</span>
+                        </button>
+                    </div>
+
+                    <table class="w-full text-left" id="tableAtlet">
+                        <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">
+                            <tr>
+                                <th class="pb-4 pl-6">Detail Peserta</th>
+                                <th class="pb-4">Kontingen</th>
+                                <th class="pb-4">Kategori</th>
+                                <th class="pb-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="uppercase italic">
+                            <tr>
+                                <td colspan="4"
+                                    class="py-20 text-center opacity-30 font-black uppercase tracking-widest text-[10px]">
+                                    Belum ada data atlet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="tab-kelas" class="tab-content hidden">
+                <div class="neu-flat p-8 rounded-[2.5rem]">
+                    <div class="mb-8 flex justify-between items-center">
+                        <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-96">
+                            <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" onkeyup="filterTable(this, 'tableKelas')" placeholder="CARI KELAS..."
+                                class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-white placeholder-slate-500">
+                        </div>
+
+                        <button onclick="toggleModal('modal-kelas', true)"
+                            class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
+                            <div
+                                class="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-blue-500">Tambah
+                                Kelas
+                                Baru</span>
+                        </button>
+                    </div>
+
+                    <table class="w-full text-left" id="tableKelas">
+                        <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">
+                            <tr>
+                                <th class="pb-4 pl-6">Detail Kelas</th>
+                                <th class="pb-4">Kategori Umur</th>
+                                <th class="pb-4">Gender</th>
+                                <th class="pb-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="uppercase">
+                            <tr>
+                                <td colspan="4"
+                                    class="py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">
+                                    Belum ada data kelas tanding.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="tab-bracket" class="tab-content hidden">
+                <div class="neu-flat p-8 rounded-[2.5rem]">
+                    <div class="mb-12 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-2xl font-black italic uppercase text-slate-200">Bagan Pertandingan</h3>
+                            <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1">Kelola dan
+                                Visualisasikan
+                                Alur Turnamen</p>
+                        </div>
+
+                        <a id="btnBagan" href="#"
+                            class="neu-button px-8 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
+                            <div
+                                class="w-8 h-8 rounded-xl bg-yellow-400/10 flex items-center justify-center text-yellow-500 group-hover:bg-yellow-400 group-hover:text-dark transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-500">Buat
+                                Bagan
+                                Baru</span>
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div
+                            class="neu-inset p-8 rounded-[2rem] border border-white/5 flex flex-col items-center justify-center text-center opacity-40 py-20">
+                            <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <p class="text-xs font-black uppercase tracking-widest">Belum ada bagan yang dibuat</p>
+                            <p class="text-[9px] mt-2 max-w-[200px]">Silakan klik tombol di atas untuk mulai
+                                menyusun
+                                bagan pertandingan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-atlet" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
+        <div
+            class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <header class="mb-6 text-center">
+                <div class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-red-400 mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black italic uppercase shimmer-text">Entri Darurat</h2>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mt-2 text-blue-500">
+                    Pendaftaran
+                    Darurat Atlet Baru</p>
+            </header>
+
+            <form id="formAthlete" class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
+                        Lengkap Atlet</label>
+                    <input type="text" id="athleteName" required
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                        placeholder="NAMA ATLET...">
+                </div>
+
+                <div class="col-span-2">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kontingen
+                        / Tim</label>
+                    <input type="text" id="athleteTeam" required
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                        placeholder="MASUKKAN NAMA KONTINGEN...">
+                </div>
+
+                <div>
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Jenis
+                        Kelamin</label>
+                    <select id="athleteGender"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
+                        <option value="Laki-Laki">Laki-Laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Tanggal
+                        Lahir</label>
+                    <input type="date" id="athleteBirth" required
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5">
+                </div>
+
+                <div>
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Berat
+                        Badan (KG)</label>
+                    <input type="number" id="athleteWeight" step="0.1"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                        placeholder="00.0">
+                </div>
+
+                <div>
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kelas
+                        Pertandingan</label>
+                    <select id="athleteClass"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
+                        <option value="">PIlih Kelas...</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2 flex space-x-4 mt-2">
+                    <button type="button" onclick="toggleModal('modal-atlet', false)"
+                        class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.3em] opacity-50">Batalkan</button>
+                    <button type="submit"
+                        class="flex-1 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(59,130,246,0.3)]">Simpan
+                        Atlet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-kelas" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
+        <div
+            class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <header class="mb-6 text-center">
+                <div class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-red-400 mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black italic uppercase shimmer-text">Pengaturan Kelas</h2>
+                <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mt-2 text-blue-500">Tambah
+                    Kategori
+                    Tanding Baru</p>
+            </header>
+
+            <form id="formClass" class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
+                        Kelas</label>
+                    <input type="text" id="className" required
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                        placeholder="CONTOH: KUMITE PUTRA -55KG...">
+                </div>
+
+                <div class="col-span-2">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kategori
+                        Umur</label>
+                    <input list="kategori-umur" id="classAgeCategory" required
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                        placeholder="Pilih atau Ketik Kategori...">
+                    <datalist id="kategori-umur">
+                        <option value="Pra Usia Dini">
+                        <option value="Usia Dini">
+                        <option value="Pra Pemula">
+                        <option value="Pemula">
+                        <option value="Kadet">
+                        <option value="Junior">
+                        <option value="Under 21">
+                        <option value="Senior">
+                        <option value="Veteran">
+                    </datalist>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Jenis
+                        Kelamin</label>
+                    <select id="classGender"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
+                        <option value="Putra">Putra</option>
+                        <option value="Putri">Putri</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 col-span-2">
+                    <div>
+                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Usia
+                            (Batas Bawah)</label>
+                        <input type="number" id="classAgeMin"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                            placeholder="MIN">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Usia
+                            (Batas Atas)</label>
+                        <input type="number" id="classAgeMax"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                            placeholder="MAX">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 col-span-2">
+                    <div>
+                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Berat
+                            (Batas Bawah)</label>
+                        <input type="number" step="0.1" id="classWeightMin"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                            placeholder="MIN">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Berat
+                            (Batas Atas)</label>
+                        <input type="number" step="0.1" id="classWeightMax"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                            placeholder="MAX">
+                    </div>
+                </div>
+
+                <div class="col-span-2 flex space-x-4 mt-2">
+                    <button type="button" onclick="toggleModal('modal-kelas', false)"
+                        class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.3em] opacity-50">Batalkan</button>
+                    <button type="submit"
+                        class="flex-1 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(59,130,246,0.3)]">Simpan
+                        Kelas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
+        <div
+            class="neu-flat w-full max-w-xl p-10 rounded-[3rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar border-white">
+            <header class="mb-4 text-center">
+                <div
+                    class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-blue-500 mx-auto mb-4 border-slate-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-xl font-black italic uppercase shimmer-text">Pengaturan Event</h2>
+                <p class="text-[8px] font-black uppercase tracking-[0.3em] opacity-40 mt-1 text-blue-500">
+                    Konfigurasi
+                    Nama, Deadline, & Biaya</p>
+            </header>
+
+            <form id="formSettings" class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-1 block tracking-widest">Nama
+                        Event</label>
+                    <input type="text" id="settingEventName" required
+                        class="w-full neu-inset bg-slate-900/50 px-5 py-4 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                        placeholder="NAMA EVENT...">
+                </div>
+
+                <div class="col-span-2">
+                    <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-1 block tracking-widest">Batas
+                        Akhir Pendaftaran</label>
+                    <input type="date" id="settingDeadline" required
+                        class="w-full neu-inset bg-slate-900/50 px-5 py-4 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5">
+                </div>
+
+                <div class="col-span-2 mt-2">
+                    <p class="text-[8px] font-black uppercase tracking-[0.3em] mb-3 text-center text-slate-400">
+                        Biaya
+                        Pendaftaran (Rp)</p>
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                        <div>
+                            <label
+                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Open
+                                Perorangan</label>
+                            <input type="number" id="feeOpenIndiv" required
+                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
+                                placeholder="0">
+                        </div>
+                        <div>
+                            <label
+                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Open
+                                Bergu</label>
+                            <input type="number" id="feeOpenTeam" required
+                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
+                                placeholder="0">
+                        </div>
+                        <div>
+                            <label
+                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Festival
+                                Perorangan</label>
+                            <input type="number" id="feeFestIndiv" required
+                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
+                                placeholder="0">
+                        </div>
+                        <div>
+                            <label
+                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Festival
+                                Bergu</label>
+                            <input type="number" id="feeFestTeam" required
+                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
+                                placeholder="0">
+                        </div>
+                        <div class="col-span-2">
+                            <label
+                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Biaya
+                                Kontingen (Flat)</label>
+                            <input type="number" id="feeContingent" required
+                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
+                                placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-2 mt-2 space-y-3">
+                    <p class="text-[8px] font-black uppercase tracking-[0.3em] mb-2 text-center text-slate-400">
+                        Informasi Pembayaran (Transfer)</p>
+                    <div>
+                        <label class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Nama
+                            Bank</label>
+                        <input type="text" id="bankName"
+                            class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                            placeholder="CONTOH: BANK MANDIRI / BCA...">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Nomor
+                                Rekening</label>
+                            <input type="text" id="bankAccount"
+                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-slate-200 border-white/5"
+                                placeholder="0000000000">
+                        </div>
+                        <div>
+                            <label
+                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Nama
+                                Pemilik</label>
+                            <input type="text" id="bankOwner"
+                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                                placeholder="NAMA SESUAI BUKU TABUNGAN...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-2 flex space-x-3 mt-4">
+                    <button type="button" onclick="toggleModal('modal-settings', false)"
+                        class="flex-1 py-3 rounded-xl neu-button text-[9px] font-black uppercase tracking-[0.2em] opacity-50">Batalkan</button>
+                    <button type="submit"
+                        class="flex-1 py-4 rounded-xl bg-blue-500 text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-[0_8px_20px_rgba(59,130,246,0.3)]">Simpan
+                        Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UI: Kensho Voice Lounge Panel -->
+    <div id="voice-lounge-panel" class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black tracking-widest uppercase">Voice Lounge</h4>
+                    <p class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Live Coordination
+                    </p>
+                </div>
+            </div>
+            <button onclick="toggleVoiceLounge()" class="text-slate-500 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="voice-users-list" class="space-y-3 mb-8 max-h-48 overflow-y-auto custom-scrollbar">
+            <!-- Joined users will appear here -->
+            <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
+                <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button id="btn-join-voice" onclick="handleJoinVoice()"
+                class="flex-1 py-4 rounded-xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                Join Lounge
+            </button>
+            <button id="btn-mute-voice" onclick="toggleMute()"
+                class="hidden w-14 h-14 rounded-xl border border-white/10 flex items-center justify-center text-slate-500 hover:text-white transition-all">
+                <svg id="mute-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+            <button id="btn-leave-voice" onclick="handleLeaveVoice()"
+                class="hidden w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from './js/firebase-init.js';
+        import { handleLogout } from './js/auth-helpers.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, getDoc, updateDoc, collection, addDoc, onSnapshot, query, where, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
+
+        window.handleLogout = handleLogout;
+
+        // Voice Lounge UI Logic
+        window.toggleVoiceLounge = () => {
+            const panel = document.getElementById('voice-lounge-panel');
+            panel.classList.toggle('active');
+            const btn = document.getElementById('btn-voice');
+            btn.classList.toggle('active');
+        };
+
+        window.handleJoinVoice = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+            const btnJoin = document.getElementById('btn-join-voice');
+            btnJoin.disabled = true;
+            try {
+                await joinVoice(user);
+                btnJoin.classList.add('hidden');
+                document.getElementById('btn-mute-voice').classList.remove('hidden');
+                document.getElementById('btn-leave-voice').classList.remove('hidden');
+            } catch (err) {
+                alert("Gagal join Voice Lounge: " + err.message);
+                btnJoin.disabled = false;
+            }
+        };
+
+        window.handleLeaveVoice = async () => {
+            await leaveVoice();
+            document.getElementById('btn-join-voice').classList.remove('hidden');
+            document.getElementById('btn-join-voice').disabled = false;
+            document.getElementById('btn-mute-voice').classList.add('hidden');
+            document.getElementById('btn-leave-voice').classList.add('hidden');
+        };
+
+        window.toggleMute = () => {
+            const isMuted = toggleMicMute();
+            const icon = document.getElementById('mute-icon');
+            const btn = document.getElementById('btn-mute-voice');
+            if (isMuted) {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
+                btn.classList.add('text-red-400');
+            } else {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
+                btn.classList.remove('text-red-400');
+            }
+        };
+
+        // Get Event ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+
+        if (!eventId) {
+            alert("ID Event tidak ditemukan!");
+            window.location.href = 'data-pertandingan.html';
+        }
+
+        // Protect Route
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                if (document.getElementById('userNameDisplay')) {
+                    document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
+                }
+                const btnBagan = document.getElementById('btnBagan');
+                if (btnBagan) btnBagan.href = `event-bracket.html?id=${eventId}`;
+
+                const linkScoringHub = document.getElementById('linkScoringHub');
+                if (linkScoringHub) linkScoringHub.href = `scoring-home.html?id=${eventId}`;
+            }
+        });
+
+        // Load Event Basic Info
+        async function loadEventInfo() {
+            const docRef = doc(db, "events", eventId);
+            onSnapshot(docRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    document.getElementById('breadcrumbEventName').innerText = data.name;
+
+                    // Update modal fields if settings exist
+                    document.getElementById('settingEventName').value = data.name || '';
+                    if (data.settings) {
+                        document.getElementById('settingDeadline').value = data.settings.deadline || '';
+                        document.getElementById('feeOpenIndiv').value = data.settings.feeOpenIndiv || 0;
+                        document.getElementById('feeOpenTeam').value = data.settings.feeOpenTeam || 0;
+                        document.getElementById('feeFestIndiv').value = data.settings.feeFestIndiv || 0;
+                        document.getElementById('feeFestTeam').value = data.settings.feeFestTeam || 0;
+                        document.getElementById('feeContingent').value = data.settings.feeContingent || 0;
+                        document.getElementById('bankName').value = data.settings.bankName || '';
+                        document.getElementById('bankAccount').value = data.settings.bankAccount || '';
+                        document.getElementById('bankOwner').value = data.settings.bankOwner || '';
+                    }
+                }
+            });
+        }
+        loadEventInfo();
+
+        // Save Event Settings
+        document.getElementById('formSettings').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = "MENYIMPAN...";
+
+            const newName = document.getElementById('settingEventName').value.toUpperCase();
+            const settings = {
+                deadline: document.getElementById('settingDeadline').value,
+                feeOpenIndiv: parseInt(document.getElementById('feeOpenIndiv').value),
+                feeOpenTeam: parseInt(document.getElementById('feeOpenTeam').value),
+                feeFestIndiv: parseInt(document.getElementById('feeFestIndiv').value),
+                feeFestTeam: parseInt(document.getElementById('feeFestTeam').value),
+                feeContingent: parseInt(document.getElementById('feeContingent').value),
+                bankName: document.getElementById('bankName').value.toUpperCase(),
+                bankAccount: document.getElementById('bankAccount').value,
+                bankOwner: document.getElementById('bankOwner').value.toUpperCase()
+            };
+
+            try {
+                await updateDoc(doc(db, "events", eventId), {
+                    name: newName,
+                    settings: settings
+                });
+                toggleModal('modal-settings', false);
+            } catch (err) {
+                alert("Gagal menyimpan: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "SIMPAN PERUBAHAN";
+            }
+        };
+
+        // Real-time Counts & Lists
+        const athleteTableBody = document.querySelector('#tableAtlet tbody');
+        const classTableBody = document.querySelector('#tableKelas tbody');
+        const countAtletLabel = document.querySelector('div[onclick*="tab-atlet"] span');
+        const countKelasLabel = document.getElementById('countKelas');
+        const athleteClassSelect = document.getElementById('athleteClass');
+
+        // Sync Athletes
+        const qAthletes = query(collection(db, `events/${eventId}/athletes`), orderBy("createdAt", "desc"));
+        onSnapshot(qAthletes, (snapshot) => {
+            countAtletLabel.innerText = `${snapshot.size} Atlet`;
+            if (snapshot.empty) {
+                athleteTableBody.innerHTML = `<tr><td colspan="4" class="py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Belum ada data atlet.</td></tr>`;
+                return;
+            }
+            athleteTableBody.innerHTML = '';
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                athleteTableBody.innerHTML += `
+                    <tr class="row-hover group transition-all duration-300">
+                        <td class="py-6 pl-6">
+                            <div class="flex items-center space-x-4">
+                                 <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500/30">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                </div>
+                                <div class="text-xl font-black italic shimmer-text">${data.name}</div>
+                            </div>
+                        </td>
+                        <td class="py-6">${data.team}</td>
+                         <td class="py-6"><span class="text-blue-500 font-bold">${data.className || '-'}</span></td>
+                        <td class="py-6 text-center">
+                            <button onclick="deleteData('athlete', '${docSnap.id}')" class="w-8 h-8 rounded-lg neu-button text-slate-500 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
+                                <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+
+        // Sync Classes
+        const qClasses = query(collection(db, `events/${eventId}/classes`), orderBy("name", "asc"));
+        onSnapshot(qClasses, (snapshot) => {
+            countKelasLabel.innerText = `${snapshot.size} Kelas`;
+            athleteClassSelect.innerHTML = '<option value="">Pilih Kelas...</option>';
+            if (snapshot.empty) {
+                classTableBody.innerHTML = `<tr><td colspan="4" class="py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Belum ada data kelas.</td></tr>`;
+                return;
+            }
+            classTableBody.innerHTML = '';
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                athleteClassSelect.innerHTML += `<option value="${data.name}">${data.name}</option>`;
+                classTableBody.innerHTML += `
+                    <tr class="row-hover group transition-all duration-300">
+                        <td class="py-6 pl-6">
+                             <div class="text-xl font-black italic text-slate-200">${data.name}</div>
+                        </td>
+                        <td class="py-6 opacity-60">${data.ageCategory}</td>
+                         <td class="py-6"><span class="text-blue-500 font-bold">${data.gender}</span></td>
+                        <td class="py-6 text-center">
+                            <button onclick="deleteData('class', '${docSnap.id}')" class="w-8 h-8 rounded-lg neu-button text-slate-500 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100">
+                                <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+
+        // Form Handlers
+        document.getElementById('formAthlete').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('athleteName').value.toUpperCase(),
+                team: document.getElementById('athleteTeam').value.toUpperCase(),
+                gender: document.getElementById('athleteGender').value,
+                birth: document.getElementById('athleteBirth').value,
+                weight: document.getElementById('athleteWeight').value,
+                className: document.getElementById('athleteClass').value,
+                createdAt: new Date().toISOString()
+            };
+            try {
+                await addDoc(collection(db, `events/${eventId}/athletes`), data);
+                toggleModal('modal-atlet', false);
+                e.target.reset();
+            } catch (err) { alert(err.message); }
+        };
+
+        document.getElementById('formClass').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('className').value.toUpperCase(),
+                ageCategory: document.getElementById('classAgeCategory').value,
+                gender: document.getElementById('classGender').value,
+                ageMin: document.getElementById('classAgeMin').value,
+                ageMax: document.getElementById('classAgeMax').value,
+                weightMin: document.getElementById('classWeightMin').value,
+                weightMax: document.getElementById('classWeightMax').value
+            };
+            try {
+                await addDoc(collection(db, `events/${eventId}/classes`), data);
+                toggleModal('modal-kelas', false);
+                e.target.reset();
+            } catch (err) { alert(err.message); }
+        };
+
+        // Global functions for inline attributes
+        window.deleteData = async (type, id) => {
+            if (confirm(`Hapus ${type} ini?`)) {
+                const path = type === 'athlete' ? `events/${eventId}/athletes` : `events/${eventId}/classes`;
+                await deleteDoc(doc(db, path, id));
+            }
+        };
+
+        window.switchTab = (tabId, element) => {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelectorAll('.card-menu').forEach(card => card.classList.remove('card-active'));
+            element.classList.add('card-active');
+        };
+
+        window.toggleModal = (modalId, show) => {
+            const modal = document.getElementById(modalId);
+            modal.classList.toggle('hidden', !show);
+            modal.classList.toggle('flex', show);
+            document.body.classList.toggle('overflow-hidden', show);
+        };
+
+        window.filterTable = (input, tableId) => {
+            let filter = input.value.toUpperCase();
+            let tr = document.getElementById(tableId).getElementsByTagName("tr");
+            for (let i = 1; i < tr.length; i++) {
+                let text = tr[i].textContent || tr[i].innerText;
+                tr[i].style.display = text.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spartan Sport | Pusat Kendali</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            /* Slate 900 */
+            --light: #1e293b;
+            /* Slate 800 */
+            --dark: #020617;
+            /* Slate 950 */
+            --text: #f8fafc;
+            /* Slate 50 */
+            --accent: #ef4444;
+            /* Red 500 */
+            --blue: #3b82f6;
+            /* Blue 500 */
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .neu-flat {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(15px);
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.4), -5px -5px 20px rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .neu-inset {
+            background: rgba(2, 6, 23, 0.3);
+            backdrop-filter: blur(5px);
+            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.5), inset -2px -2px 8px rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .neu-button {
+            background: var(--light);
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3), -2px -2px 8px rgba(255, 255, 255, 0.03);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+
+        .neu-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.4), -3px -3px 10px rgba(255, 255, 255, 0.05);
+            color: var(--blue);
+        }
+
+        /* Aurora Background */
+        #aurora-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+            background: var(--bg);
+        }
+
+        .aurora {
+            position: absolute;
+            width: 80vmax;
+            height: 80vmax;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.10;
+            mix-blend-mode: multiply;
+            animation: drift 20s infinite alternate linear;
+        }
+
+        .aurora-1 {
+            background: var(--accent);
+            top: -20%;
+            left: -20%;
+        }
+
+        .aurora-2 {
+            background: #4f46e5;
+            bottom: -20%;
+            right: -20%;
+            animation-delay: -5s;
+        }
+
+        .aurora-3 {
+            background: #06b6d4;
+            top: 40%;
+            left: 30%;
+            animation-duration: 25s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(10%, 10%) scale(1.1);
+            }
+        }
+
+        /* Staggered Entry Animation */
+        .stagger-card {
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: fadeInLeft 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Modern Dashboard Cards - Dark Mode */
+        .stat-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 2rem;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle at center, var(--accent-color), transparent 70%);
+            opacity: 0.1;
+            filter: blur(20px);
+            transition: opacity 0.4s;
+        }
+
+        .stat-card:hover::after {
+            opacity: 0.2;
+        }
+
+        .stat-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-accent);
+            color: var(--accent-color);
+            flex-shrink: 0;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.03) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-pulse 1.5s infinite;
+            border-radius: 0.5rem;
+            display: inline-block;
+            min-width: 50px;
+            height: 1em;
+        }
+
+        @keyframes skeleton-pulse {
+            from {
+                background-position: 200% 0;
+            }
+
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        .shimmer-text {
+            background: linear-gradient(to right, var(--text) 20%, #ffffff 50%, var(--text) 80%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+
+        .shimmer-accent {
+            background: linear-gradient(to right, var(--accent) 20%, #ffdada 50%, var(--accent) 80%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            padding-left: 20px;
+            z-index: 100;
+            min-width: 200px;
+        }
+
+        .group:hover .dropdown-menu {
+            display: block;
+            animation: slideRight 0.2s ease-out;
+        }
+
+        .dropdown-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ffffff;
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+        }
+
+        @keyframes slideRight {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Refined Sidebar - Dark Mode */
+        aside {
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(25px) saturate(180%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .side-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .side-btn:hover {
+            color: var(--blue);
+            background: rgba(59, 130, 246, 0.08);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .side-btn.active {
+            color: var(--accent);
+            background: rgba(248, 113, 113, 0.1);
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.05);
+            border: 1px solid rgba(248, 113, 113, 0.15);
+        }
+
+        .side-btn.active::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            width: 3px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Sidebar Tooltip */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: calc(100% + 15px);
+            top: 50%;
+            transform: translateY(-50%) translateX(-5px);
+            background: rgba(15, 17, 26, 0.9);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        /* Voice Lounge Floating Panel */
+        #voice-lounge-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 320px;
+            background: rgba(15, 17, 26, 0.9);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            z-index: 1000;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(120%);
+        }
+
+        #voice-lounge-panel.active {
+            transform: translateY(0);
+        }
+
+        .voice-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s;
+        }
+
+        .voice-user.speaking {
+            background: rgba(248, 113, 113, 0.1);
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.2);
+        }
+
+        .pulse-mic {
+            animation: mic-pulse 2s infinite;
+        }
+
+        @keyframes mic-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex text-slate-100 bg-[#020617]">
+    <!-- Aurora Background -->
+    <div id="aurora-container">
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+    </div>
+
+    <aside class="w-20 h-screen fixed left-0 top-0 flex flex-col items-center py-8 z-50">
+        <div class="mb-14">
+            <a href="dashboard-super.html">
+                <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform">
+            </a>
+        </div>
+        <nav class="flex-1 flex flex-col items-center">
+            <a href="dashboard-super.html" data-tooltip="Beranda Dashboard" class="side-btn active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+            <div class="relative group">
+                <button data-tooltip="Kelola Personel" class="side-btn" id="btn-personnel">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-content space-y-3">
+                        <p class="text-[8px] font-black opacity-30 tracking-[0.2em] mb-1">KELOLA PERSONEL</p>
+                        <a href="data-official.html"
+                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Official</span>
+                        </a>
+                        <div class="h-[1px] bg-slate-100 mx-1"></div>
+                        <a href="data-admin.html"
+                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Admin</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <a href="data-pertandingan.html" data-tooltip="Data Pertandingan" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </a>
+            <a href="scoring-home.html" data-tooltip="Pusat Scoring" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+            </a>
+            <a href="build.html" data-tooltip="Bracket Builder" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </a>
+            <button onclick="toggleVoiceLounge()" data-tooltip="Kensho Voice Lounge" class="side-btn" id="btn-voice">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+        </nav>
+        <!-- LOGOUT BUTTON -->
+        <button onclick="handleLogout()" data-tooltip="Keluar Sistem" class="side-btn mb-8 mt-auto">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013-3h1" />
+            </svg>
+        </button>
+    </aside>
+
+    <main class="ml-20 flex-1 p-10">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-black italic tracking-tighter uppercase leading-none"><span
+                        class="shimmer-text">KENSHO</span> <span class="shimmer-accent">TECH</span></h1>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-3">MANAJEMEN PERTANDINGAN</p>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <!-- TABS IN HEADER -->
+                <div class="flex neu-inset p-1 rounded-2xl mr-4">
+                    <button onclick="switchTab('overview')" id="btn-overview"
+                        class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all tab-active">Ringkasan</button>
+                    <button onclick="switchTab('activity-log')" id="btn-activity-log"
+                        class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all hover:text-white hidden super-only">Logs</button>
+                </div>
+
+                <!-- USER INFO -->
+                <div onclick="openProfileModal()"
+                    class="flex items-center gap-4 neu-inset px-6 py-3 rounded-2xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
+                    <div class="text-right">
+                        <p id="userRoleDisplay"
+                            class="text-[8px] font-black uppercase opacity-60 tracking-widest leading-none mb-1 text-slate-600">
+                            Loading...</p>
+                        <p id="userNameDisplay" class="text-xs font-black uppercase tracking-wider text-blue-500">
+                            Loading...
+                        </p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div id="overview" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Total Atlet -->
+                <div class="stat-card stagger-card"
+                    style="animation-delay: 0.1s; --accent-color: #3b82f6; --bg-accent: rgba(59, 130, 246, 0.1)">
+                    <div class="stat-icon">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest text-blue-400">Total
+                            Atlet</p>
+                        <h3 id="statTotalAtlet" class="text-3xl font-black italic tracking-tighter shimmer-text">
+                            <span class="skeleton w-16 h-8"></span>
+                        </h3>
+                    </div>
+                </div>
+
+                <!-- Total Event -->
+                <div class="stat-card stagger-card"
+                    style="animation-delay: 0.2s; --accent-color: #f87171; --bg-accent: rgba(248, 113, 113, 0.1)">
+                    <div class="stat-icon">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest text-slate-600">Total
+                            Event</p>
+                        <h3 id="statTotalEvent" class="text-3xl font-black italic tracking-tighter text-blue-500">
+                            <span class="skeleton w-16 h-8"></span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="activity-log" class="tab-content hidden">
+            <div class="neu-flat p-10 rounded-[2.5rem] stagger-card">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-2xl font-black italic tracking-tighter shimmer-text">LOG AKTIVITAS REAL-TIME
+                        </h2>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-1">Monitoring Aksi
+                            Admin & Personnel</p>
+                    </div>
+                </div>
+
+                <div class="overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 border-b border-slate-200">
+                                <th class="pb-4">Waktu</th>
+                                <th class="pb-4">Admin</th>
+                                <th class="pb-4">Aksi</th>
+                                <th class="pb-4">Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTableBody" class="divide-y divide-slate-100">
+                            <!-- Logs will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- UI: Modal Pengaturan Profil -->
+    <div id="profileModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-overlay">
+        <div class="neu-flat w-full max-w-md rounded-[2.5rem] p-10 stagger-card relative">
+            <button onclick="closeProfileModal()" class="absolute top-8 right-8 text-slate-500 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-black italic tracking-tighter shimmer-text">PENGATURAN PROFIL</h2>
+                <p class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-2">Update Identitas Admin</p>
+            </div>
+
+            <form id="profileForm" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-black uppercase opacity-40 mb-2 tracking-widest">Nama
+                        Lengkap</label>
+                    <input type="text" id="profileName" required
+                        class="w-full px-5 py-3 rounded-xl border border-white/5 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-sm font-bold bg-black/20 text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase opacity-40 mb-2 tracking-widest">Email
+                        Terdaftar</label>
+                    <input type="email" id="profileEmail" required
+                        class="w-full px-5 py-3 rounded-xl border border-white/5 outline-none transition-all text-sm font-bold opacity-60 cursor-not-allowed bg-black/40 text-slate-400"
+                        readonly>
+                    <p class="text-[9px] text-slate-500 mt-2 italic">* Email hanya bisa dibaca (read-only) demi
+                        keamanan.</p>
+                </div>
+
+                <div class="pt-4 space-y-4">
+                    <button type="button" onclick="handleResetPassword()"
+                        class="w-full py-3 rounded-xl border border-blue-500/30 text-blue-500 text-[10px] font-black uppercase tracking-widest hover:bg-blue-500/10 transition-all">
+                        Reset Password via Email
+                    </button>
+                    <button type="submit"
+                        class="w-full py-4 rounded-xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:brightness-110 active:scale-95 transition-all">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UI: Kensho Voice Lounge Panel -->
+    <div id="voice-lounge-panel" class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center text-red-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black tracking-widest uppercase">Voice Lounge</h4>
+                    <p class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Live Coordination</p>
+                </div>
+            </div>
+            <button onclick="toggleVoiceLounge()" class="text-slate-500 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="voice-users-list" class="space-y-3 mb-8 max-h-48 overflow-y-auto custom-scrollbar">
+            <!-- Joined users will appear here -->
+            <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
+                <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button id="btn-join-voice" onclick="handleJoinVoice()"
+                class="flex-1 py-4 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                Join Lounge
+            </button>
+            <button id="btn-mute-voice" onclick="toggleMute()"
+                class="hidden w-14 h-14 rounded-xl border border-white/10 flex items-center justify-center text-slate-500 hover:text-white transition-all">
+                <svg id="mute-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+            <button id="btn-leave-voice" onclick="handleLeaveVoice()"
+                class="hidden w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013-3h1" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from './js/firebase-init.js';
+        import { handleLogout } from './js/auth-helpers.js';
+        import { onAuthStateChanged, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, onSnapshot, collectionGroup, query, orderBy, limit, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { logActivity } from './js/activity-logger.js';
+        import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
+
+        window.handleLogout = handleLogout;
+
+        // Voice Lounge UI Logic
+        window.toggleVoiceLounge = () => {
+            const panel = document.getElementById('voice-lounge-panel');
+            panel.classList.toggle('active');
+
+            const btn = document.getElementById('btn-voice');
+            btn.classList.toggle('active');
+        };
+
+        window.handleJoinVoice = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const btnJoin = document.getElementById('btn-join-voice');
+            btnJoin.innerHTML = '<span class="skeleton w-20 h-3"></span>';
+            btnJoin.disabled = true;
+
+            try {
+                await joinVoice(user);
+                btnJoin.classList.add('hidden');
+                document.getElementById('btn-mute-voice').classList.remove('hidden');
+                document.getElementById('btn-leave-voice').classList.remove('hidden');
+            } catch (err) {
+                alert("Gagal join Voice Lounge: " + err.message);
+                btnJoin.innerHTML = 'Join Lounge';
+                btnJoin.disabled = false;
+            }
+        };
+
+        window.handleLeaveVoice = async () => {
+            await leaveVoice();
+            document.getElementById('btn-join-voice').classList.remove('hidden');
+            document.getElementById('btn-join-voice').disabled = false;
+            document.getElementById('btn-join-voice').innerHTML = 'Join Lounge';
+            document.getElementById('btn-mute-voice').classList.add('hidden');
+            document.getElementById('btn-leave-voice').classList.add('hidden');
+        };
+
+        window.toggleMute = () => {
+            const isMuted = toggleMicMute();
+            const icon = document.getElementById('mute-icon');
+            const btn = document.getElementById('btn-mute-voice');
+
+            if (isMuted) {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
+                btn.classList.add('text-red-400');
+            } else {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
+                btn.classList.remove('text-red-400');
+            }
+        };
+
+        // Modal Logic
+        window.openProfileModal = () => {
+            const user = auth.currentUser;
+            if (user) {
+                document.getElementById('profileName').value = user.displayName || "";
+                document.getElementById('profileEmail').value = user.email || "";
+                document.getElementById('profileModal').classList.remove('hidden');
+            }
+        };
+
+        window.closeProfileModal = () => {
+            document.getElementById('profileModal').classList.add('hidden');
+        };
+
+        // Handle Profile Update
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const newName = document.getElementById('profileName').value;
+
+            try {
+                const oldName = auth.currentUser.displayName;
+                await updateProfile(auth.currentUser, { displayName: newName });
+                document.getElementById('userNameDisplay').innerText = newName;
+
+                // Track Profile Change Activity
+                await logActivity("Update Profil", `Mengubah nama profil dari "${oldName}" menjadi "${newName}"`);
+
+                alert("Profil berhasil diperbarui!");
+                closeProfileModal();
+            } catch (error) {
+                alert("Gagal memperbarui profil: " + error.message);
+            }
+        };
+
+        // Handle Reset Password
+        window.handleResetPassword = async () => {
+            const email = auth.currentUser.email;
+            if (confirm(`Kirim link reset password ke email ${email}?`)) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    alert("Email reset password telah dikirim! Silakan cek kotak masuk Anda.");
+                } catch (error) {
+                    alert("Gagal mengirim email reset: " + error.message);
+                }
+            }
+        };
+
+        // Protect Route & Role Check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
+
+                // Check if Super Admin & Set Role Display
+                const q = query(collection(db, "admins"), where("email", "==", user.email));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    const adminData = snap.docs[0].data();
+
+                    // Display actual role
+                    const roleEl = document.getElementById('userRoleDisplay');
+                    if (roleEl) roleEl.innerText = adminData.level.toUpperCase();
+
+                    if (adminData.level === 'Super Admin') {
+                        document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
+                        initActivityLogs(); // Only start listening if Super Admin
+                    }
+                } else {
+                    // Default fallback if not in admins collection
+                    const roleEl = document.getElementById('userRoleDisplay');
+                    if (roleEl) roleEl.innerText = "ADMIN";
+                }
+            }
+        });
+
+        // Activity Logs Real-time Sync
+        function initActivityLogs() {
+            const tableBody = document.getElementById('logTableBody');
+            const q = query(collection(db, "activity_logs"), orderBy("timestamp", "desc"), limit(50));
+
+            onSnapshot(q, (snapshot) => {
+                tableBody.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const log = doc.data();
+                    const date = log.timestamp ? log.timestamp.toDate() : new Date();
+                    const timeStr = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                    const tr = document.createElement('tr');
+                    tr.className = 'text-[11px] group hover:bg-white/5 transition-all';
+                    tr.innerHTML = `
+                        <td class="py-4 text-slate-500 font-bold">${timeStr}</td>
+                        <td class="py-4">
+                            <span class="text-white font-black uppercase tracking-tighter">${log.adminName}</span>
+                            <br><span class="text-[8px] opacity-30">${log.adminEmail}</span>
+                        </td>
+                        <td class="py-4">
+                            <span class="px-2 py-0.5 rounded bg-red-500/10 text-red-400 font-bold uppercase text-[9px]">${log.action}</span>
+                        </td>
+                        <td class="py-4 text-slate-400 font-medium">${log.details}${log.tatami ? ` <span class="text-red-500 font-black italic">(TATAMI ${log.tatami})</span>` : ''}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            });
+        }
+
+        // Statistics Real-time Sync
+        function syncStats() {
+            // Count Events
+            onSnapshot(collection(db, "events"), (snap) => {
+                document.getElementById('statTotalEvent').innerText = String(snap.size).padStart(2, '0');
+            });
+
+            // Count Officials
+            onSnapshot(collection(db, "officials"), (snap) => {
+                document.getElementById('statTotalOfficial').innerText = String(snap.size).padStart(2, '0');
+            });
+
+            // Count Admins
+            onSnapshot(collection(db, "admins"), (snap) => {
+                document.getElementById('statTotalAdmin').innerText = String(snap.size).padStart(2, '0');
+            });
+
+            // Count Athletes (Collection Group)
+            // Note: Collection group requires index, but simple listener works for counting if data is small.
+            // For production with many docs, use aggregation count() or cloud functions.
+            onSnapshot(collectionGroup(db, "athletes"), (snap) => {
+                document.getElementById('statTotalAtlet').innerText = String(snap.size).padStart(2, '0');
+            });
+        }
+
+        syncStats();
+
+        window.switchTab = function (tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelectorAll('[id^="btn-"]').forEach(btn => btn.classList.remove('tab-active'));
+            document.getElementById('btn-' + tabId).classList.add('tab-active');
+
+            // Update URL for persistence
+            const url = new URL(window.location);
+            url.searchParams.set('tab', tabId);
+            window.history.replaceState({}, '', url);
+        }
+
+        // Initialize from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab');
+        if (activeTab && document.getElementById(activeTab)) {
+            switchTab(activeTab);
+        }
+    </script>
+    <script type="module" src="./js/security-guard.js"></script>
+</body>
+
+</html>

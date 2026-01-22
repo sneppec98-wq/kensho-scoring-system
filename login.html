@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk | Kensho Tech Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
+            color: #f8fafc;
+            overflow: hidden;
+        }
+
+        /* Aurora Animation */
+        .aurora-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            filter: blur(100px);
+            opacity: 0.3;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 {
+            background: #f87171;
+            top: -10%;
+            left: -10%;
+        }
+
+        .blob-2 {
+            background: #3b82f6;
+            bottom: -10%;
+            right: -10%;
+            animation-duration: 30s;
+        }
+
+        .blob-3 {
+            background: #de2b2b;
+            top: 40%;
+            left: 30%;
+            width: 300px;
+            height: 300px;
+            animation-duration: 25s;
+            opacity: 0.3;
+        }
+
+        @keyframes move {
+            from {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            to {
+                transform: translate(200px, 100px) rotate(360deg);
+            }
+        }
+
+        /* Glassmorphism Card - Dark Mode */
+        .discord-card {
+            background: rgba(15, 23, 42, 0.7) !important;
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-dark {
+            background: rgba(0, 0, 0, 0.4) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #f8fafc !important;
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+            border: none;
+        }
+
+        .btn-premium:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Watermark Background Text */
+        .bg-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 12vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            font-style: italic;
+            user-select: none;
+        }
+    </style>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f87171">
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4">
+    <!-- Aurora Background -->
+    <div class="aurora-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Background Watermark -->
+    <div class="bg-watermark">
+        KENSHO TECH SCORING
+    </div>
+
+    <div class="discord-card w-full max-w-[420px] rounded-2xl p-10 z-10">
+
+        <div class="text-center mb-10">
+            <img src="kensho-logo.png" alt="Kensho Tech Logo" class="w-16 mx-auto mb-6 drop-shadow-xl">
+            <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
+            <p id="dynamicGreeting"
+                class="text-slate-500 text-sm font-medium transition-opacity duration-500 opacity-100">
+                Senang melihat Anda lagi!
+            </p>
+        </div>
+
+        <form id="loginForm" class="space-y-6" onsubmit="handleLogin(event)">
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Email</label>
+                <input type="email" id="email" required
+                    class="w-full px-4 py-3 input-dark rounded focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm"
+                    placeholder="nama@kensho.com">
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Kata
+                    Sandi</label>
+                <div class="relative">
+                    <input type="password" id="password" required
+                        class="w-full px-4 py-3 input-dark rounded focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm"
+                        placeholder="••••••••">
+                    <button type="button" onclick="togglePassword()"
+                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" id="btnSubmit"
+                class="w-full btn-premium text-white font-bold py-3.5 rounded-lg transition-all active:scale-[0.98] text-sm mt-4">
+                <span id="btnText">Log In</span>
+            </button>
+
+            <!-- Launch in Browser Button (Only for Electron) -->
+            <div id="electronOnly" class="hidden">
+                <div class="flex items-center my-6">
+                    <div class="flex-1 h-[1px] bg-white/5"></div>
+                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Atau</span>
+                    <div class="flex-1 h-[1px] bg-white/5"></div>
+                </div>
+                <button type="button" onclick="launchInBrowser()"
+                    class="w-full py-3 rounded-lg border border-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Buka di Browser
+                </button>
+            </div>
+        </form>
+
+        <!-- Minimalist Serial Display -->
+        <div class="mt-10 pt-6 border-t border-white/5 flex flex-col items-center">
+            <span class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Copy Serial for
+                Activation</span>
+            <div
+                class="flex items-center gap-2 bg-black/40 border border-white/10 pl-4 pr-1 py-1 rounded-2xl w-full group hover:border-blue-400 transition-all">
+                <span id="displaySerial"
+                    class="text-[10px] font-mono text-blue-500 font-bold tracking-wider flex-1 truncate">MENUNGGU...</span>
+                <button type="button" onclick="copySerial()"
+                    class="w-8 h-8 rounded-xl bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-init.js';
+        import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { logActivity } from './js/activity-logger.js';
+
+        // Cek jika sudah login
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'dashboard-super.html';
+            }
+        });
+
+        // Fungsi Show/Hide Password
+        window.togglePassword = function () {
+            const pwInput = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+
+            if (pwInput.type === 'password') {
+                pwInput.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />';
+            } else {
+                pwInput.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+            }
+        }
+
+        window.copySerial = function () {
+            const serial = document.getElementById('displaySerial').innerText;
+            if (serial === 'MENUNGGU...') return;
+            navigator.clipboard.writeText(serial);
+            alert("Serial Number disalin ke clipboard!");
+        }
+
+
+        // Global state for license
+        let currentHwid = "";
+        let boundEmail = "";
+        let licenseStatus = "pending";
+        let isExpired = false;
+
+        // Fungsi Login Firebase
+        window.handleLogin = async function (e) {
+            e.preventDefault();
+
+            // SECURITY CHECK: License State
+            if (licenseStatus !== 'active') {
+                alert("Lisensi Anda belum aktif. Silakan hubungi Admin.");
+                return;
+            }
+            if (isExpired) {
+                alert("Masa berlaku lisensi Anda telah habis.");
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmit');
+            const text = document.getElementById('btnText');
+            const email = document.getElementById('email').value.toLowerCase();
+            const password = document.getElementById('password').value;
+
+            // Check Binding: 1 Email = 1 HWID
+            if (boundEmail && boundEmail !== email) {
+                alert("⚠️ AKSES DITOLAK\n\nPerangkat ini sudah terikat dengan email: " + boundEmail + ".\nSilakan gunakan email tersebut untuk login.");
+                return;
+            }
+
+            // Beri efek loading
+            const originalText = text.innerHTML;
+            text.innerHTML = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.disabled = true;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 1. Check License (Desktop Only)
+                if (window.electronAPI) {
+                    if (licenseStatus !== 'active' || isExpired) {
+                        await signOut(auth);
+                        alert("Lisensi aplikasi tidak aktif atau kedaluwarsa.");
+                        location.reload();
+                        return;
+                    }
+                }
+
+                // 2. Find User in Firestore (admins or users)
+                // We need to query by email since doc ID might not match email
+
+                let userData = null;
+                let userDocPath = null;
+
+                // Check admins collection
+                const qAdmin = query(collection(db, "admins"), where("email", "==", email));
+                const snapAdmin = await getDocs(qAdmin);
+                if (!snapAdmin.empty) {
+                    userData = snapAdmin.docs[0].data();
+                    userDocPath = doc(db, "admins", snapAdmin.docs[0].id);
+                } else {
+                    // Check users collection
+                    const qUser = query(collection(db, "users"), where("email", "==", email));
+                    const snapUser = await getDocs(qUser);
+                    if (!snapUser.empty) {
+                        userData = snapUser.docs[0].data();
+                        userDocPath = doc(db, "users", snapUser.docs[0].id);
+                    }
+                }
+
+                if (!userData) {
+                    await signOut(auth);
+                    alert("Akun Anda tidak ditemukan di database Spartan.");
+                    location.reload();
+                    return;
+                }
+
+                // 3. Check Account Status
+                if (userData.status === 'pending') {
+                    await signOut(auth);
+                    alert("⏳ AKUN MENUNGGU PERSETUJUAN\n\nAkun Anda sedang diverifikasi oleh Super Admin. Silakan hubungi Spartan Sport.");
+                    location.reload();
+                    return;
+                }
+                if (userData.status === 'blocked') {
+                    await signOut(auth);
+                    alert("🚫 AKUN DIBLOKIR\n\nAkun Anda telah dinonaktifkan.");
+                    location.reload();
+                    return;
+                }
+
+                // 4. Session Management (Single Login)
+                const sessionId = Date.now().toString() + "_" + Math.random().toString(36).substring(2, 7);
+                await updateDoc(userDocPath, {
+                    currentSessionId: sessionId,
+                    lastLogin: serverTimestamp()
+                });
+                localStorage.setItem('kensho_session_id', sessionId);
+
+                // 5. Desktop-HWID Binding (if applicable)
+                if (window.electronAPI && !boundEmail) {
+                    await updateDoc(doc(db, "installations", currentHwid), {
+                        boundEmail: email
+                    });
+                }
+
+                console.log("Login Success:", user.uid);
+                await logActivity("Masuk ke Sistem", `Admin ${email} berhasil masuk.`);
+
+                // Manual redirect because onAuthStateChanged might be too fast
+                window.location.href = 'dashboard-super.html';
+
+            } catch (error) {
+                console.error("Login Error:", error);
+                let errorMsg = "Login Gagal. Silakan periksa email dan password Anda.";
+
+                if (error.code === 'auth/invalid-credential') {
+                    errorMsg = "Email atau password salah, atau akun tidak ditemukan. Pastikan Anda sudah mendaftar.";
+                } else if (error.code === 'auth/user-disabled') {
+                    errorMsg = "Akun ini telah dinonaktifkan.";
+                } else if (error.code === 'auth/network-request-failed') {
+                    errorMsg = "Koneksi gagal. Periksa jaringan Anda.";
+                }
+
+                alert(errorMsg);
+                text.innerHTML = originalText;
+                btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                btn.disabled = false;
+            }
+        }
+
+        // Dynamic Greeting Rotation
+        const greetings = [
+            "Senang melihat Anda lagi!",
+            "Siap untuk mengelola pertandingan?",
+            "Ayo Kerja Yang Benar!",
+            "Dibalik Kesalahan Inputmu, terdapat Jiwa yang nanti Pusing lihat Kertas Bagan.",
+            "Tetap Semangat untuk event hari ini!"
+        ];
+        let greetingIndex = 0;
+        const greetingEl = document.getElementById('dynamicGreeting');
+
+        setInterval(() => {
+            greetingEl.classList.add('opacity-0');
+            setTimeout(() => {
+                greetingIndex = (greetingIndex + 1) % greetings.length;
+                greetingEl.innerText = greetings[greetingIndex];
+                greetingEl.classList.remove('opacity-0');
+            }, 500);
+        }, 4000);
+
+        // Check if running in Electron
+        const isElectron = window.electronAPI !== undefined;
+        if (isElectron) {
+            document.getElementById('electronOnly').classList.remove('hidden');
+        }
+
+        window.launchInBrowser = function () {
+            // Buka versi website produksi
+            const url = "https://adm-spartan-sport-2f4ec.web.app";
+            window.electronAPI.openInBrowser(url);
+        };
+
+        // Licencing & Hardware ID Logic
+        const APP_VERSION = "1.0.0";
+        async function checkLicense() {
+            // Mock HWID for Browser testing
+            if (!window.electronAPI) {
+                const displaySerial = document.getElementById('displaySerial');
+                if (displaySerial) displaySerial.innerText = "BROWSER-MODE-DEMO";
+                licenseStatus = 'active'; // Allow demo login in browser
+                return;
+            }
+
+            try {
+                // Version Check
+                const settingsSnap = await getDoc(doc(db, "settings", "app"));
+                if (settingsSnap.exists()) {
+                    const minVer = settingsSnap.data().minVersion;
+                    if (minVer && APP_VERSION < minVer) {
+                        const btn = document.getElementById('btnSubmit');
+                        const btnText = document.getElementById('btnText');
+                        btn.disabled = true;
+                        btnText.innerHTML = 'UPDATE APLIKASI';
+                        btn.classList.add('opacity-50', 'bg-slate-800');
+                        alert("⚠️ VERSI KEDALUWARSA\n\nVersi aplikasi Anda (v" + APP_VERSION + ") sudah tidak didukung. Silakan unduh versi terbaru untuk melanjutkan.");
+                        return;
+                    }
+                }
+
+                currentHwid = await window.electronAPI.getMachineId();
+                const pcName = await window.electronAPI.getPCName();
+                const docRef = doc(db, "installations", currentHwid);
+
+                // Initialize if not exists (one time check)
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    const serial = 'KENSHO-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                    await setDoc(docRef, {
+                        hwid: currentHwid,
+                        serial: serial,
+                        status: 'pending',
+                        deviceName: pcName || 'New Device',
+                        pcName: pcName || 'Unknown PC',
+                        registeredAt: serverTimestamp(),
+                        lastActive: serverTimestamp(),
+                        expiryDate: null,
+                        boundEmail: ""
+                    });
+                } else {
+                    // Update pcName field if missing or changed
+                    const currentData = docSnap.data();
+                    if (pcName && currentData.pcName !== pcName) {
+                        await updateDoc(docRef, { pcName: pcName });
+                    }
+                }
+
+                // Subscribe to changes (Real-time Kill Switch)
+                onSnapshot(docRef, (snapshot) => {
+                    if (!snapshot.exists()) return;
+
+                    const data = snapshot.data();
+                    licenseStatus = data.status;
+                    boundEmail = data.boundEmail;
+
+                    // Expiry Check
+                    isExpired = false;
+                    if (data.expiryDate) {
+                        const expiry = data.expiryDate.toDate();
+                        if (new Date() > expiry) isExpired = true;
+                    }
+
+                    // Update UI Real-time
+                    const btn = document.getElementById('btnSubmit');
+                    const btnText = document.getElementById('btnText');
+                    const displaySerial = document.getElementById('displaySerial');
+                    if (displaySerial) displaySerial.innerText = data.serial;
+
+                    // Cleanup existing footer
+                    const oldFooter = document.getElementById('licenseFooter');
+                    if (oldFooter) oldFooter.remove();
+
+                    const footer = document.createElement('div');
+                    footer.id = 'licenseFooter';
+                    footer.className = 'fixed bottom-4 left-0 w-full text-center text-[9px] text-slate-600 font-mono tracking-widest uppercase';
+                    footer.innerHTML = `Device ID: ${currentHwid.substring(0, 10)}... | Serial: ${data.serial} | Expiry: ${data.expiryDate ? data.expiryDate.toDate().toLocaleDateString() : 'PERMANENT'} | Status: <span class="${licenseStatus === 'active' && !isExpired ? 'text-emerald-500' : 'text-red-500'} font-bold">${isExpired ? 'EXPIRED' : licenseStatus}</span>`;
+                    document.body.appendChild(footer);
+
+                    if (licenseStatus === 'blocked' || isExpired) {
+                        btn.disabled = true;
+                        btnText.innerHTML = isExpired ? 'LISENSI EXPIRED' : 'AKSES DIBLOKIR';
+                        btn.classList.add('opacity-50', 'bg-slate-800');
+                        btn.classList.remove('btn-premium');
+
+                        // Force Logout if already inside
+                        if (auth.currentUser) signOut(auth);
+                    } else if (licenseStatus === 'pending') {
+                        btn.disabled = true;
+                        btnText.innerHTML = 'MENUNGGU AKTIVASI';
+                        btn.classList.add('opacity-50', 'bg-amber-600');
+                        btn.classList.remove('btn-premium');
+                    } else {
+                        btn.disabled = false;
+                        btnText.innerHTML = 'Log In';
+                        btn.classList.remove('opacity-50', 'bg-slate-800', 'bg-amber-600');
+                        btn.classList.add('btn-premium');
+                    }
+                });
+
+            } catch (err) {
+                console.error("License Check Error:", err);
+            }
+        }
+
+        // Run license check
+        checkLicense();
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered!', reg))
+                    .catch(err => console.log('SW Registration Failed!', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

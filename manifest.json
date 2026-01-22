@@ -1,0 +1,21 @@
+{
+  "name": "Kensho Tech Scoring System",
+  "short_name": "KenshoTech",
+  "description": "Kensho Tech - Premium Scoring Management System",
+  "start_url": "/login.html",
+  "display": "standalone",
+  "background_color": "#1a1f2c",
+  "theme_color": "#f87171",
+  "icons": [
+    {
+      "src": "kensho-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "kensho-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+    "name": "kensho-tech",
+    "version": "1.0.0",
+    "description": "Kensho Tech - Premium Scoring Management System",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "clean": "powershell -Command \"taskkill /F /IM 'Kensho Tech.exe' /T 2>$null; taskkill /F /IM 'electron.exe' /T 2>$null; if (Test-Path dist_production) { Remove-Item -Path dist_production -Recurse -Force -ErrorAction SilentlyContinue }; if (Test-Path dist_staging) { Remove-Item -Path dist_staging -Recurse -Force -ErrorAction SilentlyContinue }\"",
+        "prebuild": "npm run clean",
+        "build": "npm run prebuild && electron-builder",
+        "build:secure": "npm run clean && node obfuscate.js && cd dist_staging && npm install --production && npx electron-builder --projectDir .."
+    },
+    "author": "Kensho Tech",
+    "license": "ISC",
+    "devDependencies": {
+        "electron": "^31.7.7",
+        "electron-builder": "^26.4.0",
+        "javascript-obfuscator": "^5.1.0"
+    },
+    "build": {
+        "appId": "com.kensho.tech",
+        "productName": "Kensho Tech",
+        "publish": [
+            {
+                "provider": "github",
+                "owner": "kenshotechno-prog",
+                "repo": "kensho-scoring-system"
+            }
+        ],
+        "win": {
+            "target": "nsis",
+            "icon": "Kensho.ico"
+        },
+        "directories": {
+            "output": "dist_production"
+        },
+        "asar": true,
+        "asarUnpack": [
+            "assets/**",
+            "js/**"
+        ]
+    }
+}

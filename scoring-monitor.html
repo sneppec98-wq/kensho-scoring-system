@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoring Monitor | Kensho Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --aka-color: #dc2626;
+            --ao-color: #2563eb;
+            --bg-dark: #020617;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .shimmer-text {
+            background: linear-gradient(90deg, #fff, #94a3b8, #fff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 5s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .score-box {
+            font-size: 45vh;
+            font-weight: 800;
+            line-height: 0.8;
+            letter-spacing: -0.05em;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .score-box-kata {
+            font-size: 32vh !important;
+            transform: translateY(5vh) !important;
+        }
+
+        .timer-display {
+            font-size: 15vh;
+            font-weight: 800;
+            font-style: italic;
+        }
+
+        .penalty-dot {
+            width: 3vh;
+            height: 3vh;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .penalty-dot.active {
+            box-shadow: 0 0 20px currentColor;
+            border-color: currentColor;
+        }
+
+        .active-red {
+            color: #ef4444;
+            background-color: #ef4444;
+        }
+
+        .active-blue {
+            color: #3b82f6;
+            background-color: #3b82f6;
+        }
+
+        .active-yellow {
+            color: #f59e0b;
+            background-color: #f59e0b;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .winner-banner {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(40px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Fullscreen Button Placeholder - usually hidden */
+        #fsButton {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            opacity: 0.2;
+            transition: opacity 0.3s;
+        }
+
+        #fsButton:hover {
+            opacity: 1;
+        }
+
+        .atoshi-baraku {
+            animation: pulse-border 1s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: inset 0 0 0 0px #ef4444;
+            }
+
+            50% {
+                box-shadow: inset 0 0 0 20px rgba(239, 68, 68, 0.2);
+            }
+
+            100% {
+                box-shadow: inset 0 0 0 0px #ef4444;
+            }
+        }
+
+        @keyframes bounce-in {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .senshu-arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 25;
+            animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .senshu-arrow.aka {
+            color: #ef4444;
+        }
+
+        .senshu-arrow.ao {
+            color: #3b82f6;
+        }
+
+        .arrow-icon {
+            font-size: 8vh;
+            filter: drop-shadow(0 0 20px currentColor);
+            line-height: 1;
+        }
+
+        .label-s {
+            font-size: 2vh;
+            font-weight: 900;
+            background: currentColor;
+            color: white;
+            padding: 0.5vh 1.5vh;
+            border-radius: 0.5vh;
+            margin-top: -1vh;
+            filter: drop-shadow(0 0 10px currentColor);
+            border: 2px solid white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Aurora Background -->
+    <div id="aurora-container" class="fixed inset-0 pointer-events-none -z-10 bg-[#020617] overflow-hidden">
+        <style>
+            .aurora {
+                position: absolute;
+                width: 80vw;
+                height: 80vh;
+                border-radius: 50%;
+                filter: blur(120px);
+                opacity: 0.15;
+            }
+
+            .aurora-1 {
+                top: -20%;
+                left: -10%;
+                background: #ef4444;
+                animation: drift 20s infinite alternate;
+            }
+
+            .aurora-2 {
+                bottom: -20%;
+                right: -10%;
+                background: #3b82f6;
+                animation: drift 25s infinite alternate-reverse;
+            }
+
+            .aurora-3 {
+                top: 40%;
+                left: 30%;
+                background: #8b5cf6;
+                animation: drift 18s infinite alternate;
+            }
+
+            @keyframes drift {
+                from {
+                    transform: translate(0, 0) scale(1);
+                }
+
+                to {
+                    transform: translate(100px, 50px) scale(1.1);
+                }
+            }
+        </style>
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+    </div>
+
+    <!-- Main Display Grid -->
+    <div class="h-full w-full grid grid-cols-2 relative h-screen">
+
+        <!-- Senshu Center Arrow -->
+        <div id="mon_senshuCenter" class="senshu-arrow">
+            <div id="senshuArrowIcon" class="arrow-icon">▶</div>
+            <div class="label-s">SENSHU</div>
+        </div>
+
+        <!-- Center Top Overlay (Timer & Info) -->
+        <div id="centerUI"
+            class="absolute top-8 left-1/2 -translate-x-1/2 flex flex-col items-center z-30 w-full max-w-2xl">
+            <!-- Match Info Header -->
+            <div
+                class="glass-panel px-10 py-3 rounded-full mb-4 flex flex-col items-center shadow-xl border border-white/10 w-auto">
+                <p id="monitorCategory"
+                    class="text-[1.5vh] font-black uppercase tracking-[0.6em] text-slate-400 mb-0.5">KUMITE MALE -60KG
+                </p>
+                <div class="flex items-center gap-4">
+                    <div class="h-[1px] w-8 bg-white/20"></div>
+                    <p id="monitorRound" class="text-[1.8vh] font-black uppercase tracking-widest shimmer-text italic">
+                        ROUND 1</p>
+                    <div class="h-[1px] w-8 bg-white/20"></div>
+                </div>
+            </div>
+
+            <!-- Timer -->
+            <div class="relative flex flex-col items-center">
+                <div id="timerContainer"
+                    class="glass-panel rounded-[2.5rem] px-24 py-4 border-2 border-white/10 relative overflow-hidden group shadow-2xl min-w-[45vh] flex justify-center">
+                    <div id="monitorTimer" class="timer-display relative z-10 shimmer-text text-[10vh]">01:00</div>
+                </div>
+
+                <!-- Atoshi Baraku Label -->
+                <div id="atoshiLabel"
+                    class="mt-3 px-8 py-1.5 rounded-full bg-red-600 text-[1.2vh] font-black uppercase tracking-[0.4em] hidden animate-pulse shadow-[0_0_30px_rgba(239,68,68,0.4)]">
+                    ATOSHI BARAKU
+                </div>
+            </div>
+        </div>
+
+        <!-- AO SIDE (LEFT) -->
+        <div id="sideAo"
+            class="flex flex-col items-center justify-center relative border-r border-white/5 bg-gradient-to-br from-blue-950/10 to-transparent">
+            <!-- Athlete Name -->
+            <div class="absolute top-32 left-12 right-12 z-10">
+                <p class="text-[2vh] font-black uppercase tracking-[0.5em] text-blue-500 mb-2">AO</p>
+                <h2 id="monitorNameAo" class="text-[6vh] font-black uppercase tracking-tight leading-none truncate">
+                    ATLET AO</h2>
+                <div class="flex items-center gap-4 mt-2">
+                    <p id="monitorTeamAo"
+                        class="text-[2.5vh] font-bold text-slate-400 uppercase tracking-widest truncate">KONTINGEN BLUE
+                    </p>
+                    <div id="mon_kataAoContainer"
+                        class="hidden px-4 py-1 rounded bg-blue-600/20 border border-blue-500/30">
+                        <p id="monitorKataNameAo" class="text-[1.8vh] font-black italic text-blue-400 uppercase">KANKU
+                            DAI</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Score -->
+            <div id="monitorScoreAo" class="score-box text-blue-500 italic -translate-x-20">00</div>
+
+            <!-- Individual Judge Scores (Kata) -->
+            <div id="mon_judgeListAo" class="hidden absolute bottom-12 flex gap-4 z-20">
+                <!-- Will be populated by JS -->
+            </div>
+
+            <!-- Penalties -->
+            <div id="mon_penaltiesAo" class="absolute bottom-12 flex gap-4">
+                <div id="mon_ao_c1" class="penalty-dot" title="C1"></div>
+                <div id="mon_ao_c2" class="penalty-dot" title="C2"></div>
+                <div id="mon_ao_c3" class="penalty-dot" title="C3"></div>
+                <div id="mon_ao_hc" class="penalty-dot" title="HC"></div>
+                <div id="mon_ao_h" class="penalty-dot" title="H"></div>
+            </div>
+
+            <!-- Indicators -->
+            <div class="absolute top-1/2 -right-8 -translate-y-1/2 flex flex-col gap-6 z-20">
+                <div id="mon_vrAo"
+                    class="w-16 h-16 rounded-full bg-yellow-500 border-4 border-white flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.5)] hidden bounce-in">
+                    <span class="text-xl font-black italic text-black">VR</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AKA SIDE (RIGHT) -->
+        <div id="sideAka"
+            class="flex flex-col items-center justify-center relative bg-gradient-to-bl from-red-950/10 to-transparent">
+            <!-- Athlete Name -->
+            <div class="absolute top-32 left-12 right-12 text-right z-10">
+                <p class="text-[2vh] font-black uppercase tracking-[0.5em] text-red-500 mb-2">AKA</p>
+                <h2 id="monitorNameAka" class="text-[6vh] font-black uppercase tracking-tight leading-none truncate">
+                    ATLET AKA</h2>
+                <div class="flex items-center justify-end gap-4 mt-2">
+                    <div id="mon_kataAkaContainer"
+                        class="hidden px-4 py-1 rounded bg-red-600/20 border border-red-500/30">
+                        <p id="monitorKataNameAka"
+                            class="text-[1.8vh] font-black italic text-red-400 uppercase text-right">KANKU DAI</p>
+                    </div>
+                    <p id="monitorTeamAka"
+                        class="text-[2.5vh] font-bold text-slate-400 uppercase tracking-widest truncate">KONTINGEN RED
+                    </p>
+                </div>
+            </div>
+
+            <!-- Score -->
+            <div id="monitorScoreAka" class="score-box text-red-500 italic translate-x-20">00</div>
+
+            <!-- Individual Judge Scores (Kata) -->
+            <div id="mon_judgeListAka" class="hidden absolute bottom-12 flex gap-4 z-20">
+                <!-- Will be populated by JS -->
+            </div>
+
+            <!-- Penalties -->
+            <div id="mon_penaltiesAka" class="absolute bottom-12 flex gap-4">
+                <div id="mon_aka_c1" class="penalty-dot" title="C1"></div>
+                <div id="mon_aka_c2" class="penalty-dot" title="C2"></div>
+                <div id="mon_aka_c3" class="penalty-dot" title="C3"></div>
+                <div id="mon_aka_hc" class="penalty-dot" title="HC"></div>
+                <div id="mon_aka_h" class="penalty-dot" title="H"></div>
+            </div>
+
+            <!-- Indicators -->
+            <div class="absolute top-1/2 -left-8 -translate-y-1/2 flex flex-col gap-6 z-20">
+                <div id="mon_vrAka"
+                    class="w-16 h-16 rounded-full bg-yellow-500 border-4 border-white flex items-center justify-center shadow-[0_0_30px_rgba(245,158,11,0.5)] hidden bounce-in">
+                    <span class="text-xl font-black italic text-black">VR</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Branding -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 opacity-30">
+            <div class="h-[1px] w-16 bg-white/40"></div>
+            <p class="text-[1.5vh] font-black tracking-[1em] uppercase text-white/60">KENSHO TECH SCORING SYSTEM</p>
+            <div class="h-[1px] w-16 bg-white/40"></div>
+        </div>
+    </div>
+
+    <!-- WINNER BANNER -->
+    <div id="winnerBanner" class="winner-banner">
+        <div class="relative flex flex-col items-center">
+            <div id="winnerSideLabel"
+                class="px-8 py-2 rounded-full bg-white/10 border border-white/20 text-[2vh] font-black tracking-[0.8em] text-slate-400 mb-6 uppercase">
+                PEMENANG</div>
+            <h1 id="winnerName"
+                class="text-[14vh] font-black uppercase tracking-tighter leading-none mb-4 italic shimmer-text">NAME
+                HERE</h1>
+            <div id="winnerLine" class="h-3 w-96 bg-yellow-500 rounded-full mb-10 shadow-[0_0_30px_currentColor]"></div>
+            <div id="winnerScoreContainer" class="px-16 py-6 rounded-[3rem] glass-panel border border-white/20">
+                <p id="winnerScore" class="text-[8vh] font-black text-white italic tracking-widest">08 - 00</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- BUTTONS (HIDDEN IN PRODUCTION) -->
+    <button id="fsButton" onclick="toggleFullscreen()"
+        class="p-4 bg-white/5 hover:bg-white/10 rounded-full transition-all">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+        </svg>
+    </button>
+
+    <script type="module">
+        import { listenToScoreUpdates } from './js/scoring-firebase.js';
+
+        // URL Params
+        const urlParams = new URLSearchParams(window.location.search);
+        const tatamiId = urlParams.get('tatami') || '1';
+
+        // State Tracking
+        let lastWinnerState = false;
+
+        // Initialize Listener
+        listenToScoreUpdates(tatamiId, (data) => {
+            if (!data) return;
+            updateUI(data);
+        });
+
+        function updateUI(data) {
+            // General Info
+            document.getElementById('monitorCategory').innerText = (data.category || '---').toUpperCase();
+            document.getElementById('monitorRound').innerText = (data.round || 'PRELIMINARY').toUpperCase();
+            document.getElementById('monitorTimer').innerText = data.timerText || '00:00';
+
+            // ATOSHI BARAKU logic
+            const timerContainer = document.getElementById('timerContainer');
+            const atoshiLabel = document.getElementById('atoshiLabel');
+            if (data.isAtoshiBaraku) {
+                timerContainer.classList.add('atoshi-baraku', 'border-red-500/50');
+                atoshiLabel.classList.remove('hidden');
+            } else {
+                timerContainer.classList.remove('atoshi-baraku', 'border-red-500/50');
+                atoshiLabel.classList.add('hidden');
+            }
+
+            // AO Data (LEFT)
+            document.getElementById('monitorNameAo').innerText = data.nameAo || 'ATLET AO';
+            document.getElementById('monitorTeamAo').innerText = data.nameAo ? (data.teamAo || 'KONTINGEN') : '---';
+            document.getElementById('monitorScoreAo').innerText = data.scoringMode === 'kata' ?
+                data.kataScoreAo.toFixed(1) : (data.aoScore < 10 ? '0' + data.aoScore : data.aoScore);
+
+            const kataAoContainer = document.getElementById('mon_kataAoContainer');
+            if (data.scoringMode === 'kata' && data.kataAo) {
+                kataAoContainer.classList.remove('hidden');
+                document.getElementById('monitorKataNameAo').innerText = data.kataAo;
+            } else {
+                kataAoContainer.classList.add('hidden');
+            }
+
+            // AKA Data (RIGHT)
+            document.getElementById('monitorNameAka').innerText = data.nameAka || 'ATLET AKA';
+            document.getElementById('monitorTeamAka').innerText = data.nameAka ? (data.teamAka || 'KONTINGEN') : '---';
+            document.getElementById('monitorScoreAka').innerText = data.scoringMode === 'kata' ?
+                data.kataScoreAka.toFixed(1) : (data.akaScore < 10 ? '0' + data.akaScore : data.akaScore);
+
+            const kataAkaContainer = document.getElementById('mon_kataAkaContainer');
+            if (data.scoringMode === 'kata' && data.kataAka) {
+                kataAkaContainer.classList.remove('hidden');
+                document.getElementById('monitorKataNameAka').innerText = data.kataAka;
+            } else {
+                kataAkaContainer.classList.add('hidden');
+            }
+
+            // Judge Scores (Kata)
+            if (data.scoringMode === 'kata' && data.kataType === 'score') {
+                updateJudgeScores('aka', data.judgeScoresAka);
+                updateJudgeScores('ao', data.judgeScoresAo);
+                document.getElementById('mon_judgeListAka').classList.remove('hidden');
+                document.getElementById('mon_judgeListAo').classList.remove('hidden');
+                document.getElementById('mon_penaltiesAka').classList.add('hidden');
+                document.getElementById('mon_penaltiesAo').classList.add('hidden');
+            } else {
+                document.getElementById('mon_judgeListAka').classList.add('hidden');
+                document.getElementById('mon_judgeListAo').classList.add('hidden');
+                document.getElementById('mon_penaltiesAka').classList.remove('hidden');
+                document.getElementById('mon_penaltiesAo').classList.remove('hidden');
+            }
+
+            // Penalties
+            updatePenaltyDots('aka', data.penaltiesAka);
+            updatePenaltyDots('ao', data.penaltiesAo);
+
+            // Senshu Center Arrow logic
+            const senshuCenter = document.getElementById('mon_senshuCenter');
+            const senshuIcon = document.getElementById('senshuArrowIcon');
+            if (data.senshu && data.senshu !== 'none' && data.senshu !== '') {
+                senshuCenter.style.display = 'flex';
+                senshuCenter.className = `senshu-arrow ${data.senshu}`;
+                // Set arrow direction: AO (Left) gets ◀, AKA (Right) gets ▶
+                senshuIcon.innerText = data.senshu === 'ao' ? '◀' : '▶';
+            } else {
+                senshuCenter.style.display = 'none';
+            }
+
+            // VR Indicators
+            toggleElement('mon_vrAka', data.vrAka);
+            toggleElement('mon_vrAo', data.vrAo);
+
+            // Winner Banner
+            handleWinnerBanner(data);
+
+            // Mode specific tweaks
+            const sideAka = document.getElementById('sideAka');
+            const sideAo = document.getElementById('sideAo');
+            const scoreAka = document.getElementById('monitorScoreAka');
+            const scoreAo = document.getElementById('monitorScoreAo');
+
+            if (data.scoringMode === 'kata') {
+                sideAka.classList.add('from-slate-900/40');
+                sideAo.classList.add('from-slate-900/40');
+                scoreAka.classList.add('score-box-kata');
+                scoreAo.classList.add('score-box-kata');
+            } else {
+                sideAka.classList.remove('from-slate-900/40');
+                sideAo.classList.remove('from-slate-900/40');
+                scoreAka.classList.remove('score-box-kata');
+                scoreAo.classList.remove('score-box-kata');
+            }
+        }
+
+        function updateJudgeScores(side, scores) {
+            const container = document.getElementById(`mon_judgeList${side.charAt(0).toUpperCase() + side.slice(1)}`);
+            if (!container || !scores) return;
+
+            const scoresStr = JSON.stringify(scores);
+            if (container.dataset.lastScores === scoresStr) return;
+            container.dataset.lastScores = scoresStr;
+
+            container.innerHTML = scores.map((val, idx) => `
+                <div class="flex flex-col items-center">
+                    <p class="text-[1.2vh] font-black opacity-40 mb-1 uppercase">J${idx + 1}</p>
+                    <div class="px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-[2.8vh] font-black text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] min-w-[5vw] text-center">
+                        ${val.toFixed(1)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updatePenaltyDots(side, penalties) {
+            const levels = ['c1', 'c2', 'c3', 'hc', 'h'];
+            levels.forEach(lvl => {
+                const el = document.getElementById(`mon_${side}_${lvl}`);
+                if (!el) return;
+
+                if (penalties && penalties[lvl]) {
+                    el.classList.add('active');
+                    if (lvl === 'h') el.classList.add('active-red');
+                    else if (lvl === 'hc') el.classList.add('active-yellow');
+                    else el.classList.add('active-yellow');
+                } else {
+                    el.classList.remove('active', 'active-red', 'active-yellow');
+                }
+            });
+        }
+
+        function toggleElement(id, show) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('hidden', !show);
+        }
+
+        function handleWinnerBanner(data) {
+            const banner = document.getElementById('winnerBanner');
+
+            if (data.showWinnerBanner && data.winnerSide) {
+                if (!lastWinnerState) {
+                    const name = data.winnerSide === 'aka' ? data.nameAka : data.nameAo;
+                    document.getElementById('winnerName').innerText = name || 'UNKNOWN';
+                    document.getElementById('winnerScore').innerText = `${data.akaScore} - ${data.aoScore}`;
+
+                    const underline = document.getElementById('winnerLine');
+                    underline.className = `h-3 w-96 rounded-full mb-10 shadow-[0_0_30px_currentColor] ${data.winnerSide === 'aka' ? 'bg-red-500' : 'bg-blue-500'}`;
+
+                    banner.style.display = 'flex';
+                    lastWinnerState = true;
+                }
+            } else {
+                banner.style.display = 'none';
+                lastWinnerState = false;
+            }
+        }
+
+        window.toggleFullscreen = function () {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'karate_display_command') {
+                try {
+                    const cmd = JSON.parse(e.newValue);
+                    if (cmd.type === 'toggleFullscreen') {
+                        window.toggleFullscreen();
+                    }
+                } catch (err) { }
+            }
+        });
+    </script>
+</body>
+
+</html>

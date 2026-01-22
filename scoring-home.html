@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pusat Scoring | Kensho Tech</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            /* Slate 900 */
+            --light: #1e293b;
+            /* Slate 800 */
+            --dark: #020617;
+            /* Slate 950 */
+            --text: #f8fafc;
+            /* Slate 50 */
+            --accent: #ef4444;
+            /* Red 500 */
+            --blue: #3b82f6;
+            /* Blue 500 */
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Neumorphism UI - Dark Mode */
+        .neu-flat {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(15px);
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.4), -5px -5px 20px rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .neu-inset {
+            background: rgba(2, 6, 23, 0.3);
+            backdrop-filter: blur(5px);
+            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.5), inset -2px -2px 8px rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .neu-button {
+            background: var(--light);
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3), -2px -2px 8px rgba(255, 255, 255, 0.03);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text);
+        }
+
+        .neu-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.4), -3px -3px 10px rgba(255, 255, 255, 0.05);
+            color: var(--blue);
+        }
+
+        /* Aurora Background */
+        #aurora-container {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+            background: var(--bg);
+        }
+
+        .aurora {
+            position: absolute;
+            width: 80vmax;
+            height: 80vmax;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.10;
+            mix-blend-mode: multiply;
+            animation: drift 20s infinite alternate linear;
+        }
+
+        .aurora-1 {
+            background: var(--accent);
+            top: -20%;
+            left: -20%;
+        }
+
+        .aurora-2 {
+            background: #4f46e5;
+            bottom: -20%;
+            right: -20%;
+            animation-delay: -5s;
+        }
+
+        .aurora-3 {
+            background: #06b6d4;
+            top: 40%;
+            left: 30%;
+            animation-duration: 25s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(10%, 10%) scale(1.1);
+            }
+        }
+
+        /* Staggered Entry Animation */
+        .stagger-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shimmer-text {
+            background: linear-gradient(to right, var(--text) 20%, #ffffff 50%, var(--text) 80%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* SIDEBAR DROPDOWN SYSTEM */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            padding-left: 20px;
+            z-index: 100;
+            min-width: 200px;
+        }
+
+        .group:hover .dropdown-menu {
+            display: block;
+            animation: slideRight 0.2s ease-out;
+        }
+
+        .dropdown-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ffffff;
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+        }
+
+        @keyframes slideRight {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Discord-style Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .input-profile {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+
+        .input-profile:focus {
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2);
+        }
+
+        /* Refined Sidebar - Dark Mode */
+        aside {
+            background: rgba(15, 23, 42, 0.8) !important;
+            backdrop-filter: blur(25px) saturate(180%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            transition: background 0.3s;
+        }
+
+        .side-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .side-btn:hover {
+            color: var(--blue);
+            background: rgba(59, 130, 246, 0.08);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .side-btn.active {
+            color: var(--accent);
+            background: rgba(248, 113, 113, 0.1);
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.05);
+            border: 1px solid rgba(248, 113, 113, 0.15);
+        }
+
+        .side-btn.active::before {
+            content: '';
+            position: absolute;
+            left: -18px;
+            width: 3px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Sidebar Tooltip */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: calc(100% + 15px);
+            top: 50%;
+            transform: translateY(-50%) translateX(-5px);
+            background: rgba(15, 17, 26, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        /* Voice Lounge Floating Panel */
+        #voice-lounge-panel {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 320px;
+            background: rgba(15, 17, 26, 0.9);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            z-index: 1000;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(120%);
+        }
+
+        #voice-lounge-panel.active {
+            transform: translateY(0);
+        }
+
+        .voice-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s;
+        }
+
+        .voice-user.speaking {
+            background: rgba(248, 113, 113, 0.1);
+            box-shadow: 0 0 15px rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.2);
+        }
+
+        .pulse-mic {
+            animation: mic-pulse 2s infinite;
+        }
+
+        @keyframes mic-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1f2c">
+</head>
+
+<body class="min-h-screen flex text-slate-100 bg-[#020617]">
+    <!-- Aurora Background -->
+    <div id="aurora-container">
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+    </div>
+
+    <!-- SIDEBAR (Fixed & Full Navigation) -->
+    <aside class="w-20 h-screen fixed left-0 top-0 flex flex-col items-center py-8 z-50">
+        <div class="mb-14">
+            <a href="dashboard-super.html">
+                <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform">
+            </a>
+        </div>
+        <nav class="flex-1 flex flex-col items-center">
+            <a href="dashboard-super.html" data-tooltip="Beranda Dashboard" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+            <div class="relative group">
+                <button data-tooltip="Kelola Personel" class="side-btn">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-content space-y-3">
+                        <p class="text-[8px] font-black opacity-30 tracking-[0.2em] mb-1">KELOLA PERSONEL</p>
+                        <a href="data-official.html"
+                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Official</span>
+                        </a>
+                        <div class="h-[1px] bg-slate-100 mx-1"></div>
+                        <a href="data-admin.html"
+                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Admin</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <a href="data-pertandingan.html" data-tooltip="Data Pertandingan" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </a>
+            <a href="scoring-home.html" data-tooltip="Pusat Scoring" class="side-btn active">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+            </a>
+            <a href="build.html" data-tooltip="Bracket Builder" class="side-btn">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </a>
+            <button onclick="toggleVoiceLounge()" data-tooltip="Kensho Voice Lounge" class="side-btn" id="btn-voice">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+        </nav>
+        <!-- LOGOUT BUTTON -->
+        <button onclick="handleLogout()" data-tooltip="Keluar Sistem" class="side-btn mb-8 mt-auto">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+        </button>
+    </aside>
+
+    <main class="ml-20 flex-1 min-h-screen p-10 relative">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-4xl font-black italic tracking-tighter uppercase leading-none"><span
+                        class="shimmer-text">PUSAT</span> <span class="shimmer-accent">SCORING</span></h1>
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-3">SISTEM KONTROL TATAMI</p>
+            </div>
+
+            <!-- EVENT SELECTOR -->
+            <div id="eventSelectorContainer" class="flex-1 max-w-sm mx-12">
+                <div class="relative group">
+                    <label
+                        class="absolute -top-6 left-1 text-[8px] font-black uppercase tracking-[0.3em] text-red-500/50">Pilih
+                        Event Aktif</label>
+                    <div class="relative">
+                        <select id="eventSelector" onchange="window.handleEventChange(this.value)"
+                            class="w-full bg-slate-900/60 border border-white/10 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest text-white appearance-none focus:border-red-500/50 outline-none transition-all cursor-pointer">
+                            <option value="">-- MEMUAT EVENT --</option>
+                        </select>
+                        <div class="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <!-- TABS IN HEADER -->
+                <div class="flex neu-inset p-1 rounded-2xl">
+                    <button onclick="switchTab('overview')" id="tab-overview"
+                        class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all tab-active">Tatami</button>
+                    <button onclick="switchTab('logs')" id="tab-logs"
+                        class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 transition-all hover:text-white">Logs</button>
+                </div>
+
+                <!-- DEV UTILITY -->
+                <button onclick="window.triggerSeeding()"
+                    class="w-8 h-8 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-700 hover:text-red-500 hover:bg-red-500/10 transition-all group"
+                    title="Seed Dummy Data">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                    </svg>
+                </button>
+
+                <!-- USER INFO -->
+                <div onclick="openProfileModal()"
+                    class="flex items-center gap-4 neu-inset px-6 py-3 rounded-2xl border border-white/5 cursor-pointer hover:bg-white/5 transition-all">
+                    <div class="text-right">
+                        <p id="userRoleDisplay"
+                            class="text-[8px] font-black uppercase opacity-60 tracking-widest leading-none mb-1 text-slate-600">
+                            Loading...</p>
+                        <p id="userNameDisplay" class="text-xs font-black uppercase tracking-wider text-blue-500">
+                            Loading...</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN SCROLLABLE AREA -->
+        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <!-- TAB CONTENT: OVERVIEW -->
+            <div id="content-overview" class="tab-content transition-all duration-500">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
+                    <!-- Tatami Card 1 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 1</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div class="h-24 flex items-center justify-center opacity-10">
+                            <p class="text-[9px] font-black uppercase tracking-[0.4em] italic text-center">Menunggu
+                                Match
+                            </p>
+                        </div>
+                        <a href="scoring.html?tatami=1"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 2 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 2</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">
+                                    ISTIRAHAT
+                                </p>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        </div>
+                        <div class="h-24 flex items-center justify-center opacity-10">
+                            <p class="text-[9px] font-black uppercase tracking-[0.4em] italic">Menunggu Match</p>
+                        </div>
+                        <a href="scoring.html?tatami=2"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 3 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 3</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
+                            Siap</div>
+                        <a href="scoring.html?tatami=3"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 4 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 4</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
+                            Siap</div>
+                        <a href="scoring.html?tatami=4"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 5 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 5</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
+                            Siap</div>
+                        <a href="scoring.html?tatami=5"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 6 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 6</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
+                            Siap</div>
+                        <a href="scoring.html?tatami=6"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 7 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 7</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
+                            Siap</div>
+                        <a href="scoring.html?tatami=7"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 8 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 8</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
+                            Siap</div>
+                        <a href="scoring.html?tatami=8"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 9 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 9</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div>
+                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
+                            Siap</div>
+                        <a href="scoring.html?tatami=9"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                            Konsol</a>
+                    </div>
+
+                    <!-- Tatami Card 10 -->
+                    <div
+                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 10</h3>
+                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
+                            </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                        </div>
+                        <div
+                            class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
+                            Siap</div>
+                        <a href="scoring.html?tatami=10"
+                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
+                            Konsol</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB CONTENT: LOGS -->
+            <div id="content-logs" class="tab-content hidden transition-all duration-500">
+                <section class="bg-[#2b2d31] p-6 rounded-lg border border-white/5">
+                    <header class="mb-6">
+                        <h3 class="text-lg font-bold text-white">Log Pertandingan Global</h3>
+                        <p class="text-xs text-slate-400">Status real-time dari seluruh Tatami aktif</p>
+                    </header>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left" id="logTable">
+                            <thead>
+                                <tr
+                                    class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 border-b border-slate-200">
+                                    <th class="pb-6 pl-6">ID</th>
+                                    <th class="pb-6">Tatami</th>
+                                    <th class="pb-6">Kategori</th>
+                                    <th class="pb-6">AKA (Merah)</th>
+                                    <th class="pb-6">AO (Biru)</th>
+                                    <th class="pb-6">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logTableBody" class="text-[11px] font-bold uppercase tracking-widest">
+                                <!-- Rows will be generated via JS for simulation -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINATION CONTROLS -->
+                    <footer class="mt-10 flex justify-between items-center border-t border-white/5 pt-8">
+                        <p class="text-[10px] font-black uppercase opacity-30 tracking-widest">Menampilkan <span
+                                id="logRange">1 - 15</span> dari <span id="logTotal">30</span> Data</p>
+                        <div class="flex space-x-3">
+                            <button onclick="prevPage()" id="btnPrev"
+                                class="px-6 py-3 rounded-xl neu-button text-slate-500 text-[9px] font-black uppercase tracking-widest transition-all">Sebelumnya</button>
+                            <div class="flex items-center px-4 space-x-2 text-[10px] font-black opacity-40 italic">
+                                Halaman <span id="currentPageNum" class="text-red-400 opacity-100">1</span>
+                            </div>
+                            <button onclick="nextPage()" id="btnNext"
+                                class="px-6 py-3 rounded-xl neu-button text-slate-500 text-[9px] font-black uppercase tracking-widest transition-all">Selanjutnya</button>
+                        </div>
+                    </footer>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- UI: Modal Pengaturan Profil -->
+    <div id="profileModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-overlay">
+        <div class="neu-flat w-full max-w-md rounded-[2.5rem] p-10 stagger-card relative">
+            <button onclick="closeProfileModal()" class="absolute top-8 right-8 text-slate-500 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-black italic tracking-tighter shimmer-text">PENGATURAN PROFIL</h2>
+                <p class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-2">Update Identitas Admin</p>
+            </div>
+
+            <form id="profileForm" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-black uppercase opacity-40 mb-2 tracking-widest">Nama
+                        Lengkap</label>
+                    <input type="text" id="profileName" required
+                        class="w-full px-5 py-3 rounded-xl input-profile outline-none transition-all text-sm font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black uppercase opacity-40 mb-2 tracking-widest">Email
+                        Terdaftar</label>
+                    <input type="email" id="profileEmail" required
+                        class="w-full px-5 py-3 rounded-xl input-profile outline-none transition-all text-sm font-bold opacity-60 cursor-not-allowed"
+                        readonly>
+                    <p class="text-[9px] text-slate-500 mt-2 italic">* Email hanya bisa dibaca (read-only) demi
+                        keamanan.</p>
+                </div>
+
+                <div class="pt-4 space-y-4">
+                    <button type="button" onclick="handleResetPassword()"
+                        class="w-full py-3 rounded-xl border border-blue-500/30 text-blue-500 text-[10px] font-black uppercase tracking-widest hover:bg-blue-500/10 transition-all">
+                        Reset Password via Email
+                    </button>
+                    <button type="submit"
+                        class="w-full py-4 rounded-xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:brightness-110 active:scale-95 transition-all">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UI: Kensho Voice Lounge Panel -->
+    <div id="voice-lounge-panel" class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center text-red-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black tracking-widest uppercase">Voice Lounge</h4>
+                    <p class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Live Coordination</p>
+                </div>
+            </div>
+            <button onclick="toggleVoiceLounge()" class="text-slate-500 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="voice-users-list" class="space-y-3 mb-8 max-h-48 overflow-y-auto custom-scrollbar">
+            <!-- Joined users will appear here -->
+            <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
+                <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button id="btn-join-voice" onclick="handleJoinVoice()"
+                class="flex-1 py-4 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                Join Lounge
+            </button>
+            <button id="btn-mute-voice" onclick="toggleMute()"
+                class="hidden w-14 h-14 rounded-xl border border-white/10 flex items-center justify-center text-slate-500 hover:text-white transition-all">
+                <svg id="mute-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </button>
+            <button id="btn-leave-voice" onclick="handleLeaveVoice()"
+                class="hidden w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013-3h1" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { rtdb, auth, db } from './js/firebase-init.js';
+        import { handleLogout } from './js/auth-helpers.js';
+        import { onAuthStateChanged, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { ref, onValue, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { collection, query, where, onSnapshot, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { logActivity } from './js/activity-logger.js';
+        import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
+        import { seedDummyEvents } from '../seed-events.js';
+
+        window.triggerSeeding = seedDummyEvents;
+
+        // Theme logic removed - Permanent Dark Mode
+
+        window.handleLogout = handleLogout;
+        // Voice Lounge UI Logic
+        window.toggleVoiceLounge = () => {
+            const panel = document.getElementById('voice-lounge-panel');
+            panel.classList.toggle('active');
+            const btn = document.getElementById('btn-voice');
+            btn.classList.toggle('active');
+        };
+
+        window.handleJoinVoice = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+            const btnJoin = document.getElementById('btn-join-voice');
+            btnJoin.disabled = true;
+            try {
+                await joinVoice(user);
+                btnJoin.classList.add('hidden');
+                document.getElementById('btn-mute-voice').classList.remove('hidden');
+                document.getElementById('btn-leave-voice').classList.remove('hidden');
+            } catch (err) {
+                alert("Gagal join Voice Lounge: " + err.message);
+                btnJoin.disabled = false;
+            }
+        };
+
+        window.handleLeaveVoice = async () => {
+            await leaveVoice();
+            document.getElementById('btn-join-voice').classList.remove('hidden');
+            document.getElementById('btn-join-voice').disabled = false;
+            document.getElementById('btn-mute-voice').classList.add('hidden');
+            document.getElementById('btn-leave-voice').classList.add('hidden');
+        };
+
+        window.toggleMute = () => {
+            const isMuted = toggleMicMute();
+            const icon = document.getElementById('mute-icon');
+            const btn = document.getElementById('btn-mute-voice');
+            if (isMuted) {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
+                btn.classList.add('text-red-400');
+            } else {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
+                btn.classList.remove('text-red-400');
+            }
+        };
+        // Export to window for HTML onclick
+        window.switchTab = switchTab;
+        window.prevPage = prevPage;
+        window.nextPage = nextPage;
+
+        // Initialize state
+        window.selectedEventId = new URLSearchParams(window.location.search).get('id') || '';
+
+        // --- EVENT SELECTOR LOGIC ---
+        const loadActiveEvents = () => {
+            const selector = document.getElementById('eventSelector');
+            const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                selector.innerHTML = '<option value="">-- PILIH EVENT --</option>';
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const isSelected = docSnap.id === window.selectedEventId ? 'selected' : '';
+                    selector.innerHTML += `<option value="${docSnap.id}" ${isSelected}>${data.name}</option>`;
+                });
+
+                if (window.selectedEventId) {
+                    window.updateTatamiLinks();
+                }
+            });
+        };
+
+        window.handleEventChange = (val) => {
+            window.selectedEventId = val;
+            window.updateTatamiLinks();
+
+            // Optional: Update URL without reloading to persist state
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('id', val);
+            window.history.replaceState({}, '', newUrl);
+
+            console.log('[ScoringHome] Event changed to:', val);
+        };
+
+        window.updateTatamiLinks = () => {
+            const links = document.querySelectorAll('a[href^="scoring.html"]');
+            links.forEach(link => {
+                const url = new URL(link.href, window.location.origin);
+                if (window.selectedEventId) {
+                    url.searchParams.set('id', window.selectedEventId);
+                } else {
+                    url.searchParams.delete('id');
+                }
+                link.href = url.pathname + url.search;
+            });
+        };
+
+        // Call initialization
+        loadActiveEvents();
+
+        // Protect Route & Role Check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                // Set Display Name
+                const displayName = user.displayName || "Admin Kensho";
+                document.getElementById('userNameDisplay').innerText = displayName;
+
+                console.log('[DEBUG] User logged in:', user.email);
+
+                // Sync Level/Role from Firestore & Check if Super Admin (menggunakan email query seperti dashboard)
+                const q = query(collection(db, "admins"), where("email", "==", user.email));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    const adminData = snap.docs[0].data();
+
+                    // Display actual role
+                    const roleEl = document.getElementById('userRoleDisplay');
+                    if (roleEl) roleEl.innerText = adminData.level.toUpperCase();
+
+                    if (adminData.level === 'Super Admin') {
+                        document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
+                    }
+                } else {
+                    // Default fallback if not in admins collection
+                    const roleEl = document.getElementById('userRoleDisplay');
+                    if (roleEl) roleEl.innerText = "ADMIN";
+                }
+            }
+        });
+
+        // Modal Logic
+        window.openProfileModal = () => {
+            const user = auth.currentUser;
+            if (user) {
+                document.getElementById('profileName').value = user.displayName || "";
+                document.getElementById('profileEmail').value = user.email || "";
+                document.getElementById('profileModal').classList.remove('hidden');
+            }
+        };
+
+        window.closeProfileModal = () => {
+            document.getElementById('profileModal').classList.add('hidden');
+        };
+
+        // Handle Profile Update
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const newName = document.getElementById('profileName').value;
+
+            try {
+                const oldName = auth.currentUser.displayName;
+                await updateProfile(auth.currentUser, { displayName: newName });
+                document.getElementById('userNameDisplay').innerText = newName;
+
+                // Track Profile Change Activity
+                await logActivity("Update Profil", `Mengubah nama profil dari "${oldName}" menjadi "${newName}"`);
+
+                alert("Profil berhasil diperbarui!");
+                closeProfileModal();
+            } catch (error) {
+                alert("Gagal memperbarui profil: " + error.message);
+            }
+        };
+
+        // Handle Reset Password
+        window.handleResetPassword = async () => {
+            const email = auth.currentUser.email;
+            if (confirm(`Kirim link reset password ke email ${email}?`)) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    alert("Email reset password telah dikirim! Silakan cek kotak masuk Anda.");
+                } catch (error) {
+                    alert("Gagal mengirim email reset: " + error.message);
+                }
+            }
+        };
+
+        // Protect Route & Role Check
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                // Set Display Name
+                const displayName = user.displayName || "Admin Kensho";
+                document.getElementById('userNameDisplay').innerText = displayName;
+
+                console.log('[DEBUG] User logged in:', user.email);
+
+                // Sync Level/Role from Firestore & Check if Super Admin (menggunakan email query seperti dashboard)
+                const q = query(collection(db, "admins"), where("email", "==", user.email));
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    const adminData = snap.docs[0].data();
+
+                    // Display actual role
+                    const roleEl = document.getElementById('userRoleDisplay');
+                    if (roleEl) roleEl.innerText = adminData.level.toUpperCase();
+
+                    if (adminData.level === 'Super Admin') {
+                        document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
+                    }
+                } else {
+                    // Default fallback if not in admins collection
+                    const roleEl = document.getElementById('userRoleDisplay');
+                    if (roleEl) roleEl.innerText = "ADMIN";
+                }
+            }
+        });
+
+        // Mock Data for Logging
+        const logData = [];
+
+        let currentPage = 1;
+        const rowsPerPage = 15;
+
+        function renderLogs() {
+            const body = document.getElementById('logTableBody');
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = logData.slice(start, end);
+
+            body.innerHTML = pageData.map(item => `
+                <tr class="border-b border-white/5 hover:bg-white/5 transition-all group">
+                    <td class="py-5 pl-6 opacity-40">${item.id}</td>
+                    <td class="py-5 italic text-slate-400">${item.tatami}</td>
+                    <td class="py-5 text-slate-300 font-medium">${item.category}</td>
+                    <td class="py-5 text-red-400/80">${item.aka}</td>
+                    <td class="py-5 text-blue-400/80">${item.ao}</td>
+                    <td class="py-5">
+                        <span class="px-3 py-1 ${getStatusStyles(item.status)} rounded-full text-[8px] font-black border">
+                            ${item.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+
+            // UI Updates
+            document.getElementById('logRange').innerText = `${start + 1} - ${Math.min(end, logData.length)}`;
+            document.getElementById('logTotal').innerText = logData.length;
+            document.getElementById('currentPageNum').innerText = currentPage;
+
+            document.getElementById('btnPrev').disabled = currentPage === 1;
+            document.getElementById('btnPrev').style.opacity = currentPage === 1 ? '0.3' : '1';
+
+            const totalPages = Math.ceil(logData.length / rowsPerPage);
+            document.getElementById('btnNext').disabled = currentPage === totalPages;
+            document.getElementById('btnNext').style.opacity = currentPage === totalPages ? '0.3' : '1';
+        }
+
+        function getStatusStyles(status) {
+            switch (status) {
+                case 'LIVE': return 'bg-red-500/10 text-red-500 border-red-500/20';
+                case 'FINISH': return 'bg-green-500/10 text-green-500 border-green-500/20';
+                default: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
+            }
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; renderLogs(); } }
+        function nextPage() {
+            const totalPages = Math.ceil(logData.length / rowsPerPage);
+            if (currentPage < totalPages) { currentPage++; renderLogs(); }
+        }
+
+        function switchTab(tab) {
+            const overview = document.getElementById('content-overview');
+            const logs = document.getElementById('content-logs');
+            const btnOverview = document.getElementById('tab-overview');
+            const btnLogs = document.getElementById('tab-logs');
+
+            if (tab === 'overview') {
+                overview.classList.remove('hidden');
+                logs.classList.add('hidden');
+                btnOverview.classList.add('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
+                btnLogs.classList.remove('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
+                btnLogs.classList.add('text-slate-500');
+            } else {
+                overview.classList.add('hidden');
+                logs.classList.remove('hidden');
+                btnLogs.classList.add('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
+                btnOverview.classList.remove('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
+                btnOverview.classList.add('text-slate-500');
+                renderLogs(); // Re-render logic when switching to logs tab
+            }
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            renderLogs();
+        };
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered!', reg))
+                    .catch(err => console.log('SW Registration Failed!', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

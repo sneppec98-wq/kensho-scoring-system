@@ -1,0 +1,12 @@
+node_modules/
+dist_production/
+dist_staging/
+dist/
+*.log
+.DS_Store
+.env
+bin/
+obj/
+*.exe
+*.msi
+*.zip

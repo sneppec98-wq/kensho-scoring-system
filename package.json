@@ -23,7 +23,7 @@
         "publish": [
             {
                 "provider": "github",
-                "owner": "kenshotechno-prog",
+                "owner": "sneppec98-wq",
                 "repo": "kensho-scoring-system"
             }
         ],

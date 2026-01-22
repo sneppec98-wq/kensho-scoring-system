@@ -206,7 +206,9 @@
         async function initForm() {
             try {
                 // 1. Fetch registered admins
-                const querySnapshot = await getDocs(collection(db, "admins"));
+                const adminsRef = collection(db, "admins");
+                const querySnapshot = await getDocs(adminsRef);
+
                 const registeredNames = [];
                 const registeredEmails = [];
 
@@ -242,8 +244,8 @@
                 setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
 
             } catch (error) {
-                console.warn("Firestore Sync Error:", error);
-                alert("Gagal sinkronisasi data personil: " + error.message + " (Cek Console untuk detail)");
+                console.error("Critical Firestore Sync Error:", error);
+                alert("Gagal sinkronisasi data personil: " + error.message + " (Cek Console untuk detail teknis)");
             }
         }
 

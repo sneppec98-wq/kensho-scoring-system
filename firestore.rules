@@ -12,8 +12,7 @@ service cloud.firestore {
     }
 
     match /admins/{adminName} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      allow get, list, create: if true; 
       allow update, delete: if false;
     }
 

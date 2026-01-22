@@ -1,4 +1,7 @@
 {
+    "firestore": {
+        "rules": "firestore.rules"
+    },
     "hosting": [
         {
             "site": "kenshotech",
@@ -8,12 +11,7 @@
                 "**/.*",
                 "**/node_modules/**"
             ],
-            "rewrites": [
-                {
-                    "source": "**",
-                    "destination": "/index.html"
-                }
-            ]
+            "rewrites": []
         }
     ]
 }

@@ -490,7 +490,7 @@
         };
 
         // Licencing & Hardware ID Logic
-        const APP_VERSION = "1.0.0";
+        const APP_VERSION = "1.2.0";
         async function checkLicense() {
             // Jika di Browser (PWA Mode)
             if (!window.electronAPI) {
@@ -523,8 +523,11 @@
                     }
                 }
 
-                currentHwid = await window.electronAPI.getMachineId();
-                const pcName = await window.electronAPI.getPCName();
+                let pcName = "Web User";
+                if (window.electronAPI) {
+                    currentHwid = await window.electronAPI.getMachineId();
+                    pcName = await window.electronAPI.getPCName();
+                }
                 const docRef = doc(db, "installations", currentHwid);
 
                 // Initialize if not exists (one time check)
@@ -570,16 +573,6 @@
                     const btnText = document.getElementById('btnText');
                     const displaySerial = document.getElementById('displaySerial');
                     if (displaySerial) displaySerial.innerText = data.serial;
-
-                    // Cleanup existing footer
-                    const oldFooter = document.getElementById('licenseFooter');
-                    if (oldFooter) oldFooter.remove();
-
-                    const footer = document.createElement('div');
-                    footer.id = 'licenseFooter';
-                    footer.className = 'fixed bottom-4 left-0 w-full text-center text-[9px] text-slate-600 font-mono tracking-widest uppercase';
-                    footer.innerHTML = `Device ID: ${currentHwid.substring(0, 10)}... | Serial: ${data.serial} | Expiry: ${data.expiryDate ? data.expiryDate.toDate().toLocaleDateString() : 'PERMANENT'} | Status: <span class="${licenseStatus === 'active' && !isExpired ? 'text-emerald-500' : 'text-red-500'} font-bold">${isExpired ? 'EXPIRED' : licenseStatus}</span>`;
-                    document.body.appendChild(footer);
 
                     if (licenseStatus === 'blocked' || isExpired) {
                         btn.disabled = true;

@@ -1,0 +1,164 @@
+:root {
+    --bg-canvas: #f8fafc;
+    --bg-sidebar: rgba(255, 255, 255, 0.85);
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent-red: #ef4444;
+    --accent-blue: #3b82f6;
+    --grid-color: rgba(15, 23, 42, 0.08); /* More visible grid */
+    --panel-border: rgba(15, 23, 42, 0.1);
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    background: var(--bg-canvas);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-main);
+    overflow: hidden;
+    margin: 0;
+}
+
+/* CANVAS GRID - Professional Drafting Grid */
+#canvas-container {
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background-image: 
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-color: var(--bg-canvas);
+    position: relative;
+}
+
+#canvas {
+    width: 5000px;
+    height: 5000px;
+    position: relative;
+    transform-origin: 0 0;
+}
+
+/* TOP TOOLBAR - Minimalist Glass */
+.top-toolbar {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 20px;
+    background: var(--bg-sidebar);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--panel-border);
+    border-radius: 50px;
+    box-shadow: var(--shadow-soft);
+    z-index: 1000;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* SIDEBAR - Nexus Studio Style */
+.sidebar {
+    position: fixed;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background: var(--bg-sidebar);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    z-index: 999;
+}
+
+.side-icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.side-icon-btn:hover {
+    background: #fff;
+    color: var(--accent-blue);
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.side-icon-btn.active {
+    background: var(--accent-blue);
+    color: white;
+}
+
+/* DRAGGABLE ITEM - Clean Design */
+.draggable-item {
+    position: absolute;
+    background: white;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    padding: 5px;
+    transition: border-color 0.2s;
+}
+
+.draggable-item.selected {
+    border: 2px solid var(--accent-blue);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.indicator {
+    width: 4px;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-radius: 8px 0 0 8px;
+}
+.indicator.red { background: var(--accent-red); }
+.indicator.blue { background: var(--accent-blue); }
+
+/* AKA/AO STATUS COLORS */
+.draggable-item.status-bye {
+    background: #f1f5f9;
+    border-style: dashed;
+    opacity: 0.7;
+}
+
+.draggable-item.status-inactive {
+    opacity: 0.3;
+    border-style: dotted;
+}
+
+/* FLYOUT PANEL */
+.flyout-panel {
+    position: fixed;
+    left: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 220px;
+    background: var(--bg-sidebar);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--panel-border);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1001;
+    padding: 15px;
+}
+
+.flyout-panel.show { display: block; }

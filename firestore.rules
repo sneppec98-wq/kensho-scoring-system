@@ -58,5 +58,15 @@ service cloud.firestore {
     match /voice_calls/{callId} { allow read, write: if isAuthenticated(); }
     match /voice_signals/{signalId} { allow read, write: if isAuthenticated(); }
 
+    // Activity Logs
+    match /activity_logs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Collection Group for Athletes (Scoring System)
+    match /{path=**}/athletes/{athleteId} {
+      allow read, write: if isAuthenticated();
+    }
+
   }
 }

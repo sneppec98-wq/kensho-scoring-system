@@ -298,7 +298,7 @@
         // Cek jika sudah login
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                window.location.href = 'dashboard-super.html';
+                window.location.href = 'dashboard.html';
             }
         });
 
@@ -335,7 +335,8 @@
             e.preventDefault();
 
             // SECURITY CHECK: License State
-            if (licenseStatus !== 'active') {
+            const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (licenseStatus !== 'active' && !isLocalDev) {
                 alert("Lisensi Anda belum aktif. Silakan hubungi Admin.");
                 return;
             }
@@ -425,6 +426,7 @@
                     lastLogin: serverTimestamp()
                 });
                 localStorage.setItem('kensho_session_id', sessionId);
+                localStorage.setItem('kensho_login_time', Date.now().toString());
 
                 // 5. Desktop-HWID Binding (if applicable)
                 if (window.electronAPI && !boundEmail) {
@@ -437,7 +439,7 @@
                 await logActivity("Masuk ke Sistem", `Admin ${email} berhasil masuk.`);
 
                 // Manual redirect because onAuthStateChanged might be too fast
-                window.location.href = 'dashboard-super.html';
+                window.location.href = 'dashboard.html';
 
             } catch (error) {
                 console.error("Login Error:", error);
@@ -499,10 +501,17 @@
                 currentHwid = urlParams.get('hwid') || localStorage.getItem('kensho_hwid');
 
                 if (!currentHwid) {
-                    const displaySerial = document.getElementById('displaySerial');
-                    if (displaySerial) displaySerial.innerText = "AKSES DIBATASI (BUKA VIA DESKTOP)";
-                    licenseStatus = 'restricted';
-                    return;
+                    const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+                    if (isLocalDev) {
+                        currentHwid = "LOCAL-DEV-DEVICE";
+                        licenseStatus = 'active';
+                        console.log("Local Dev Mode: Bypassing License");
+                    } else {
+                        const displaySerial = document.getElementById('displaySerial');
+                        if (displaySerial) displaySerial.innerText = "AKSES DIBATASI (BUKA VIA DESKTOP)";
+                        licenseStatus = 'restricted';
+                        return;
+                    }
                 }
                 // Simpan agar sesi PWA tetap jalan tanpa parameter URL di kemudian hari
                 localStorage.setItem('kensho_hwid', currentHwid);

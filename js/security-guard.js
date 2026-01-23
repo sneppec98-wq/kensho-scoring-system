@@ -15,7 +15,23 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    // A. MONITOR ACCOUNT STATUS & SESSION (Web & Desktop)
+    // A. MONITOR SESSION DURATION (12 Hours Limit)
+    const loginTime = localStorage.getItem('kensho_login_time');
+    const MAX_SESSION_DURATION = 12 * 60 * 60 * 1000; // 12 jam dalam milidetik
+
+    if (loginTime) {
+        const elapsedTime = Date.now() - parseInt(loginTime);
+        if (elapsedTime > MAX_SESSION_DURATION) {
+            handleViolation("⌛ SESI BERAKHIR\nSesi login Anda telah habis (maksimal 12 jam). Silakan login ulang.");
+            return;
+        }
+    } else {
+        // Jika tidak ada login_time tapi user terautentikasi (mungkin baru update versi)
+        // Set waktu sekarang sebagai fallback
+        localStorage.setItem('kensho_login_time', Date.now().toString());
+    }
+
+    // B. MONITOR ACCOUNT STATUS & SESSION (Web & Desktop)
     try {
         let userDocRef = null;
         const email = user.email.toLowerCase();

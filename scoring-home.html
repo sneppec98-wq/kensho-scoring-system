@@ -158,10 +158,10 @@
         }
 
         .dropdown-content {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ffffff;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(25px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 1.25rem;
             border-radius: 1.25rem;
         }
@@ -198,8 +198,70 @@
 
         /* Modal Styles */
         .modal-overlay {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(15px);
+            animation: fadeInOverlay 0.4s ease-out;
+        }
+
+        @keyframes fadeInOverlay {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .console-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .console-card:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .warning-glow {
+            animation: warningPulse 1.5s infinite alternate;
+        }
+
+        @keyframes warningPulse {
+            from {
+                box-shadow: 0 0 5px rgba(239, 68, 68, 0.2), inset 0 0 5px rgba(239, 68, 68, 0.1);
+                border-color: rgba(239, 68, 68, 0.4);
+            }
+
+            to {
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.3);
+                border-color: rgba(239, 68, 68, 0.8);
+            }
+        }
+
+        .mode-card-stagger {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .modal-show .mode-card-stagger {
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(3) {
+            animation-delay: 0.3s;
         }
 
         .input-profile {
@@ -381,64 +443,18 @@
     <!-- SIDEBAR (Fixed & Full Navigation) -->
     <aside class="w-20 h-screen fixed left-0 top-0 flex flex-col items-center py-8 z-50">
         <div class="mb-8 flex flex-col items-center">
-            <a href="dashboard-super.html">
+            <a href="dashboard.html">
                 <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform mb-3">
             </a>
             <div class="badge-version">v1.2.0-b</div>
         </div>
-        <nav class="flex-1 flex flex-col items-center">
-            <a href="dashboard-super.html" data-tooltip="Beranda Dashboard" class="side-btn">
+        <nav class="flex-1 flex flex-col items-center space-y-6">
+            <a href="dashboard.html" data-tooltip="Dashboard Hub" class="side-btn">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
             </a>
-            <div class="relative group">
-                <button data-tooltip="Kelola Personel" class="side-btn">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </button>
-                <div class="dropdown-menu">
-                    <div class="dropdown-content space-y-3">
-                        <p class="text-[8px] font-black opacity-30 tracking-[0.2em] mb-1">KELOLA PERSONEL</p>
-                        <a href="data-official.html"
-                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Official</span>
-                        </a>
-                        <div class="h-[1px] bg-slate-100 mx-1"></div>
-                        <a href="data-admin.html"
-                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Admin</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <a href="data-pertandingan.html" data-tooltip="Data Pertandingan" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            </a>
-            <a href="scoring-home.html" data-tooltip="Pusat Scoring" class="side-btn active">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-            </a>
-            <a href="build.html" data-tooltip="Bracket Builder" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-            </a>
-            <button onclick="toggleVoiceLounge()" data-tooltip="Kensho Voice Lounge" class="side-btn" id="btn-voice">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-            </button>
         </nav>
         <!-- LOGOUT BUTTON -->
         <button onclick="handleLogout()" data-tooltip="Keluar Sistem" class="side-btn mb-8 mt-auto">
@@ -538,9 +554,9 @@
                                 Match
                             </p>
                         </div>
-                        <a href="scoring.html?tatami=1"
+                        <button onclick="openConsoleSelector(1)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 2 -->
@@ -558,9 +574,9 @@
                         <div class="h-24 flex items-center justify-center opacity-10">
                             <p class="text-[9px] font-black uppercase tracking-[0.4em] italic">Menunggu Match</p>
                         </div>
-                        <a href="scoring.html?tatami=2"
+                        <button onclick="openConsoleSelector(2)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 3 -->
@@ -576,9 +592,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
                             Siap</div>
-                        <a href="scoring.html?tatami=3"
+                        <button onclick="openConsoleSelector(3)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 4 -->
@@ -594,9 +610,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
                             Siap</div>
-                        <a href="scoring.html?tatami=4"
+                        <button onclick="openConsoleSelector(4)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 5 -->
@@ -612,9 +628,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
                             Siap</div>
-                        <a href="scoring.html?tatami=5"
+                        <button onclick="openConsoleSelector(5)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 6 -->
@@ -630,9 +646,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
                             Siap</div>
-                        <a href="scoring.html?tatami=6"
+                        <button onclick="openConsoleSelector(6)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 7 -->
@@ -647,9 +663,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
                             Siap</div>
-                        <a href="scoring.html?tatami=7"
+                        <button onclick="openConsoleSelector(7)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 8 -->
@@ -664,9 +680,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
                             Siap</div>
-                        <a href="scoring.html?tatami=8"
+                        <button onclick="openConsoleSelector(8)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 9 -->
@@ -682,9 +698,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
                             Siap</div>
-                        <a href="scoring.html?tatami=9"
+                        <button onclick="openConsoleSelector(9)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
 
                     <!-- Tatami Card 10 -->
@@ -699,9 +715,9 @@
                         <div
                             class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
                             Siap</div>
-                        <a href="scoring.html?tatami=10"
+                        <button onclick="openConsoleSelector(10)"
                             class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
-                            Konsol</a>
+                            Konsol</button>
                     </div>
                 </div>
             </div>
@@ -848,7 +864,237 @@
         </div>
     </div>
 
+    <!-- UI: Modal Pemilihan Konsol Scoring (Premium Version) -->
+    <div id="consoleSelectorModal"
+        class="hidden fixed inset-0 z-[120] flex items-center justify-center p-6 modal-overlay">
+        <div
+            class="neu-flat w-full max-w-5xl rounded-[4rem] p-12 stagger-card relative overflow-hidden border border-white/5">
+            <!-- Dynamic Background Effects -->
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px]"></div>
+            <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-red-600/10 rounded-full blur-[100px]"></div>
+
+            <button onclick="closeConsoleSelector()"
+                class="absolute top-10 right-10 text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <div class="relative z-10 text-center mb-16">
+                <span
+                    class="text-red-500 font-black text-[10px] uppercase tracking-[0.6em] mb-4 block animate-pulse">Preparation
+                    Mode</span>
+                <h2 class="text-5xl font-black italic tracking-tighter shimmer-text uppercase leading-none">Pilih Mode
+                    Konsol</h2>
+                <div class="h-1 w-24 bg-gradient-to-r from-transparent via-red-500/50 to-transparent mx-auto mt-6">
+                </div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500 mt-6">
+                    Menganalisa Tatami <span id="selectedTatamiLabel"
+                        class="text-white px-3 py-1 bg-red-500/10 rounded-lg border border-red-500/20 ml-2"></span>
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
+                <!-- Mode Kumite Card -->
+                <div onclick="selectConsoleMode('kumite')"
+                    class="console-card p-10 rounded-[3rem] group cursor-pointer relative overflow-hidden mode-card-stagger">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-red-500/10 to-red-600/5 flex items-center justify-center text-red-500 mb-10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative z-10">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <div class="relative z-10 text-left">
+                        <h3
+                            class="text-2xl font-black italic uppercase tracking-tight mb-4 group-hover:text-red-400 transition-colors">
+                            Kumite</h3>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-6">
+                            Penilaian Pertarungan Kontak<br>Regulasi WKF 2024</p>
+                        <div
+                            class="flex items-center gap-2 text-[8px] font-black text-red-500/50 uppercase tracking-[0.2em]">
+                            <span>Active Control</span>
+                            <span class="w-1 h-1 rounded-full bg-red-500/50"></span>
+                            <span>RTDB Ready</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode Kata Score Card -->
+                <div onclick="selectConsoleMode('kata_score')"
+                    class="console-card p-10 rounded-[3rem] group cursor-pointer relative overflow-hidden mode-card-stagger">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-blue-500/10 to-blue-600/5 flex items-center justify-center text-blue-500 mb-10 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 relative z-10">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <div class="relative z-10 text-left">
+                        <h3
+                            class="text-2xl font-black italic uppercase tracking-tight mb-4 group-hover:text-blue-400 transition-colors">
+                            Kata Score</h3>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-6">
+                            Penilaian Artistik & Teknik<br>Sistem 7 Juri Pro</p>
+                        <div
+                            class="flex items-center gap-2 text-[8px] font-black text-blue-500/50 uppercase tracking-[0.2em]">
+                            <span>Precision Logic</span>
+                            <span class="w-1 h-1 rounded-full bg-blue-500/50"></span>
+                            <span>Multi-Judge</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode Kata Flag Card -->
+                <div onclick="selectConsoleMode('kata_flag')"
+                    class="console-card p-10 rounded-[3rem] group cursor-pointer relative overflow-hidden mode-card-stagger">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div
+                        class="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 flex items-center justify-center text-yellow-500 mb-10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative z-10">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-7h.01" />
+                        </svg>
+                    </div>
+                    <div class="relative z-10 text-left">
+                        <h3
+                            class="text-2xl font-black italic uppercase tracking-tight mb-4 group-hover:text-yellow-400 transition-colors">
+                            Kata Flag</h3>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-6">
+                            Sistem Bendera Tradisional<br>Eliminasi Aka - Ao</p>
+                        <div
+                            class="flex items-center gap-2 text-[8px] font-black text-yellow-500/50 uppercase tracking-[0.2em]">
+                            <span>Fast Decision</span>
+                            <span class="w-1 h-1 rounded-full bg-yellow-500/50"></span>
+                            <span>Legacy Mode</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative z-10 mt-16 text-center">
+                <p class="text-[8px] font-black text-slate-600 uppercase tracking-[0.8em] animate-pulse">Secure
+                    Connection & Anti-Cheat Protocol Active</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI: Premium Warning Notification -->
+    <div id="premiumWarning"
+        class="hidden fixed top-10 left-1/2 -translate-x-1/2 z-[200] w-full max-w-md animate-bounce-in">
+        <div
+            class="neu-flat p-6 rounded-3xl border border-red-500/30 flex items-center gap-6 shadow-[0_20px_50px_rgba(239,68,68,0.2)] overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent"></div>
+            <div
+                class="w-14 h-14 rounded-2xl bg-red-500 flex items-center justify-center text-white shadow-lg shadow-red-500/30 shrink-0 relative z-10">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div class="relative z-10">
+                <h4 class="text-xs font-black uppercase tracking-widest text-red-500 mb-1">Akses Ditolak</h4>
+                <p class="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-wider">Silakan pilih
+                    event aktif di panel atas terlebih dahulu.</p>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes bounce-in {
+            0% {
+                transform: translate(-50%, -100%) scale(0.9);
+                opacity: 0;
+            }
+
+            70% {
+                transform: translate(-50%, 10%) scale(1.05);
+            }
+
+            100% {
+                transform: translate(-50%, 0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .animate-bounce-in {
+            animation: bounce-in 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) forwards;
+        }
+    </style>
+
     <script type="module">
+        // [Existing imports and logic continue...]
+
+        // Global variables for console selection
+        window.selectedTatamiId = null;
+
+        window.openConsoleSelector = function (tatamiId) {
+            if (!window.selectedEventId) {
+                // Premium Notification Logic
+                const warningEl = document.getElementById('premiumWarning');
+                warningEl.classList.remove('hidden');
+
+                // Highlight selector
+                const selector = document.getElementById('eventSelector');
+                if (selector) {
+                    selector.classList.add('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
+                    selector.focus();
+                }
+
+                // Auto hide warning after 4s
+                setTimeout(() => {
+                    warningEl.classList.add('opacity-0');
+                    setTimeout(() => {
+                        warningEl.classList.add('hidden');
+                        warningEl.classList.remove('opacity-0');
+                        if (selector) selector.classList.remove('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
+                    }, 500);
+                }, 4000);
+
+                return;
+            }
+
+            window.selectedTatamiId = tatamiId;
+            document.getElementById('selectedTatamiLabel').innerText = tatamiId;
+            const modal = document.getElementById('consoleSelectorModal');
+            modal.classList.remove('hidden');
+
+            // Trigger stagger animations
+            setTimeout(() => {
+                modal.classList.add('modal-show');
+            }, 50);
+
+            const card = modal.querySelector('.stagger-card');
+            if (card) {
+                card.style.animation = 'none';
+                card.offsetHeight;
+                card.style.animation = null;
+            }
+        }
+
+        window.closeConsoleSelector = function () {
+            const modal = document.getElementById('consoleSelectorModal');
+            modal.classList.remove('modal-show');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 400);
+        }
+
+        window.selectConsoleMode = function (mode) {
+            const eventId = new URLSearchParams(window.location.search).get('id');
+            let url = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}`;
+            if (eventId) url += `&id=${eventId}`;
+            window.location.href = url;
+        }
+
         import { rtdb, auth, db } from './js/firebase-init.js';
         import { handleLogout } from './js/auth-helpers.js';
         import { onAuthStateChanged, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -984,7 +1230,7 @@
                     if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
 
                     if (adminData.role === 'owner') {
-                        document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
+                        document.querySelectorAll('.owner-only').forEach(el => el.classList.remove('hidden'));
                     }
                 } else {
                     // Default fallback if not in admins collection
@@ -1063,7 +1309,7 @@
                     if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
 
                     if (adminData.role === 'owner') {
-                        document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
+                        document.querySelectorAll('.owner-only').forEach(el => el.classList.remove('hidden'));
                     }
                 } else {
                     // Default fallback if not in admins collection

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kensho Builder | Coming Soon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: #020617;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: white;
+        }
+
+        .glow-text {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 30px rgba(129, 140, 248, 0.4));
+        }
+
+        .shimmer {
+            animation: move-shimmer 3s infinite linear;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            background-size: 200% 100%;
+        }
+
+        @keyframes move-shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="text-center stagger-card">
+        <div class="mb-8 relative inline-block">
+            <div
+                class="w-24 h-24 rounded-3xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-6 relative overflow-hidden shimmer">
+                <span class="text-4xl">🚀</span>
+            </div>
+            <div class="absolute -top-2 -right-2 bg-rose-500 text-[10px] font-black px-2 py-1 rounded-lg shadow-lg">NEW
+            </div>
+        </div>
+
+        <h1 class="text-6xl font-black italic tracking-tighter mb-4 glow-text uppercase">Coming Soon</h1>
+        <p class="text-slate-400 text-sm font-bold uppercase tracking-[0.5em] mb-12 opacity-60">Something Premium is
+            Building</p>
+
+        <div class="max-w-xs mx-auto p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
+            <p class="text-[10px] text-slate-300 leading-relaxed font-bold uppercase tracking-widest text-center">
+                Kami sedang merombak sistem <span class="text-indigo-400">Builder</span> untuk pengalaman yang lebih
+                mewah dan cerdas.
+            </p>
+        </div>
+
+        <a href="../dashboard.html"
+            class="inline-block mt-12 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hover:text-white transition-all border-b border-white/10 pb-1">
+            Back to Dashboard
+        </a>
+    </div>
+</body>
+
+</html>

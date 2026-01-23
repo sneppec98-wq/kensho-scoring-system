@@ -201,6 +201,31 @@
             filter: drop-shadow(0 0 10px currentColor);
             border: 2px solid white;
         }
+
+        /* Kata Score Discarded Style */
+        .kata-monitor-discarded {
+            opacity: 0.25;
+            position: relative;
+        }
+
+        .kata-monitor-discarded div {
+            text-decoration: line-through;
+            border-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: none !important;
+        }
+
+        .kata-monitor-discarded::after {
+            content: '';
+            position: absolute;
+            top: 60%;
+            left: 5%;
+            right: 5%;
+            height: 3px;
+            background: #ef4444;
+            transform: rotate(-15deg);
+            z-index: 10;
+            opacity: 0.6;
+        }
     </style>
 </head>
 
@@ -545,14 +570,27 @@
             if (container.dataset.lastScores === scoresStr) return;
             container.dataset.lastScores = scoresStr;
 
-            container.innerHTML = scores.map((val, idx) => `
-                <div class="flex flex-col items-center">
-                    <p class="text-[1.2vh] font-black opacity-40 mb-1 uppercase">J${idx + 1}</p>
-                    <div class="px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-[2.8vh] font-black text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] min-w-[5vw] text-center">
-                        ${val.toFixed(1)}
+            // WKF Logic: Identify highest and lowest scores to discard
+            const validEntries = scores.map((val, idx) => ({ val, idx }));
+            const sorted = [...validEntries].sort((a, b) => a.val - b.val);
+
+            const discarded = [];
+            if (sorted.length >= 3) {
+                discarded.push(sorted[0].idx); // Lowest
+                discarded.push(sorted[sorted.length - 1].idx); // Highest
+            }
+
+            container.innerHTML = scores.map((val, idx) => {
+                const isDiscarded = discarded.includes(idx) && val > 0;
+                return `
+                    <div class="flex flex-col items-center ${isDiscarded ? 'kata-monitor-discarded' : ''}">
+                        <p class="text-[1.2vh] font-black opacity-40 mb-1 uppercase">J${idx + 1}</p>
+                        <div class="px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-[2.8vh] font-black text-white shadow-[0_10px_30px_rgba(0,0,0,0.3)] min-w-[5vw] text-center">
+                            ${val.toFixed(1)}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function updatePenaltyDots(side, penalties) {

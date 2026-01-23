@@ -165,6 +165,32 @@
             opacity: 0.2;
         }
 
+        /* Bento Grid Specific Styles */
+        .bento-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bento-card:hover {
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
         .stat-icon {
             width: 64px;
             height: 64px;
@@ -239,10 +265,10 @@
         }
 
         .dropdown-content {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ffffff;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(25px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 1.25rem;
             border-radius: 1.25rem;
         }
@@ -476,178 +502,248 @@
     </div>
 
     <aside class="w-20 h-screen fixed left-0 top-0 flex flex-col items-center py-8 z-50">
-        <div class="mb-8 flex flex-col items-center">
-            <a href="dashboard-super.html">
+        <div class="mb-10 flex flex-col items-center">
+            <a href="dashboard.html">
                 <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform mb-3">
             </a>
             <div class="badge-version">v1.2.0-b</div>
         </div>
-        <nav class="flex-1 flex flex-col items-center">
-            <a href="dashboard-super.html" data-tooltip="Beranda Dashboard" class="side-btn active">
+        <nav class="flex-1 flex flex-col items-center space-y-6">
+            <a href="dashboard.html" data-tooltip="Dashboard Hub" class="side-btn active">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
             </a>
-            <div class="relative group">
-                <button data-tooltip="Kelola Personel" class="side-btn" id="btn-personnel">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </button>
-                <div class="dropdown-menu">
-                    <div class="dropdown-content space-y-3">
-                        <p class="text-[8px] font-black opacity-30 tracking-[0.2em] mb-1">KELOLA PERSONEL</p>
-                        <a href="data-official.html"
-                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Official</span>
-                        </a>
-                        <div class="h-[1px] bg-slate-100 mx-1"></div>
-                        <a href="data-admin.html"
-                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-blue-500 transition-colors">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span><span>Data Admin</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <a href="data-pertandingan.html" data-tooltip="Data Pertandingan" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            </a>
-            <a href="scoring-home.html" data-tooltip="Pusat Scoring" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-            </a>
-            <a href="build.html" data-tooltip="Bracket Builder" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-            </a>
-            <button onclick="toggleVoiceLounge()" data-tooltip="Kensho Voice Lounge" class="side-btn" id="btn-voice">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-            </button>
         </nav>
         <!-- LOGOUT BUTTON -->
         <button onclick="handleLogout()" data-tooltip="Keluar Sistem" class="side-btn mb-8 mt-auto">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013-3h1" />
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
         </button>
     </aside>
 
-    <main class="ml-20 flex-1 p-10">
-        <header class="flex justify-between items-center mb-12">
+    <main class="ml-20 flex-1 p-10 max-w-7xl mx-auto">
+        <!-- HEADER -->
+        <header class="flex justify-between items-end mb-12">
             <div>
-                <h1 class="text-4xl font-black italic tracking-tighter uppercase leading-none"><span
-                        class="shimmer-text">KENSHO</span> <span class="shimmer-accent">TECH</span></h1>
-                <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-3">MANAJEMEN PERTANDINGAN</p>
+                <h1 class="text-5xl font-black italic tracking-tighter uppercase leading-tight py-2 mb-2">
+                    <span class="shimmer-text">CENTRAL</span> <span class="shimmer-accent">HUB</span>
+                </h1>
+                <p class="text-[10px] font-black uppercase tracking-[0.5em] opacity-40">Kensho Technology Ecosystem</p>
             </div>
-
-            <div class="flex items-center gap-6">
-                <!-- TABS IN HEADER -->
-                <div class="flex neu-inset p-1 rounded-2xl mr-4">
-                    <button onclick="switchTab('overview')" id="btn-overview"
-                        class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all tab-active">Ringkasan</button>
-                    <button onclick="switchTab('activity-log')" id="btn-activity-log"
-                        class="px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400 transition-all hover:text-white hidden super-only">Logs</button>
-                </div>
-
-                <!-- USER INFO -->
-                <div onclick="openProfileModal()"
-                    class="flex items-center gap-4 neu-inset px-6 py-3 rounded-2xl border border-white/5 cursor-pointer hover:bg-white/10 transition-all">
-                    <div class="text-right">
-                        <p id="userRoleDisplay"
-                            class="text-[8px] font-black uppercase opacity-60 tracking-widest leading-none mb-1 text-slate-600">
-                            Loading...</p>
-                        <p id="userNameDisplay" class="text-xs font-black uppercase tracking-wider text-blue-500">
-                            Loading...
-                        </p>
-                    </div>
-                    <div
-                        class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                </div>
+            <div class="flex flex-col items-end">
+                <p id="userRoleDisplay" class="text-[10px] font-black uppercase tracking-[0.3em] text-blue-500 mb-1">
+                    OWNER</p>
+                <p id="userNameDisplay" class="text-2xl font-black italic tracking-tight uppercase">LOADING...</p>
             </div>
         </header>
-        <div id="overview" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Total Atlet -->
-                <div class="stat-card stagger-card"
-                    style="animation-delay: 0.1s; --accent-color: #3b82f6; --bg-accent: rgba(59, 130, 246, 0.1)">
-                    <div class="stat-icon">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
+
+        <!-- BENTO GRID -->
+        <div class="grid grid-cols-12 gap-6 auto-rows-[140px]">
+            <!-- Welcome Card -->
+            <div
+                class="col-span-12 lg:col-span-8 row-span-2 bento-card p-10 flex flex-col justify-between group overflow-hidden relative">
+                <div class="relative z-10">
+                    <h2 class="text-4xl font-black italic tracking-tighter shimmer-text mb-4">SELAMAT DATANG DI KENSHO
+                        TECH</h2>
+                    <p class="text-slate-400 text-sm max-w-lg leading-relaxed font-medium">Sistem manajemen pertandingan
+                        terpadu dengan integrasi scoring real-time dan generator bagan otomatis. Silakan pilih modul di
+                        bawah untuk memulai operasional.</p>
+                </div>
+                <div class="flex gap-10 relative z-10">
+                    <div class="flex flex-col">
+                        <span id="statTotalAtlet"
+                            class="text-3xl font-black italic tracking-tighter shimmer-text">--</span>
+                        <span class="text-[9px] font-black uppercase tracking-widest opacity-40">Total Atlet</span>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest text-blue-400">Total
-                            Atlet</p>
-                        <h3 id="statTotalAtlet" class="text-3xl font-black italic tracking-tighter shimmer-text">
-                            <span class="skeleton w-16 h-8"></span>
-                        </h3>
+                    <div class="flex flex-col">
+                        <span id="statTotalEvent"
+                            class="text-3xl font-black italic tracking-tighter text-amber-500">--</span>
+                        <span class="text-[9px] font-black uppercase tracking-widest opacity-40">Event Aktif</span>
                     </div>
                 </div>
+                <!-- Interactive Glow -->
+                <div
+                    class="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-500/10 rounded-full blur-[100px] group-hover:bg-blue-500/20 transition-all duration-700">
+                </div>
+            </div>
 
-                <!-- Total Event -->
-                <div class="stat-card stagger-card"
-                    style="animation-delay: 0.2s; --accent-color: #f87171; --bg-accent: rgba(248, 113, 113, 0.1)">
-                    <div class="stat-icon">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <!-- Jam/Waktu Card -->
+            <div
+                class="col-span-12 lg:col-span-4 row-span-1 bento-card p-2 flex flex-col justify-center items-center overflow-visible">
+                <div id="digitalClock" class="text-3xl md:text-4xl font-black tracking-tight shimmer-accent px-2 py-1">
+                    00:00:00</div>
+                <div class="text-[9px] font-black uppercase tracking-widest opacity-40 mt-1">WAKTU LOKAL SISTEM</div>
+            </div>
+
+            <!-- Profile Shortcut -->
+            <div onclick="openProfileModal()"
+                class="col-span-12 lg:col-span-4 row-span-1 bento-card p-6 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500/30 transition-all group">
+                <div
+                    class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 mb-3 group-hover:scale-110 transition-transform">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-widest opacity-40">PROFIL</span>
+            </div>
+
+            <!-- Data Pertandingan (Wide) -->
+            <a href="data-pertandingan.html"
+                class="col-span-12 lg:col-span-6 row-span-2 bento-card p-10 flex flex-col justify-between group cursor-pointer border-blue-500/10 hover:border-blue-500/40 relative overflow-hidden transition-all">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform duration-500">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black italic tracking-tighter uppercase mb-2">MANAJEMEN PERTANDINGAN</h3>
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Kelola
+                        pendaftaran atlet, penjadwalan, dan bagan kompetisi.</p>
+                </div>
+                <div
+                    class="absolute right-0 top-0 w-32 h-32 bg-blue-500/5 group-hover:bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 transition-all">
+                </div>
+            </a>
+
+            <!-- Scoring Card -->
+            <a href="scoring-home.html"
+                class="col-span-12 lg:col-span-3 row-span-2 bento-card p-8 flex flex-col justify-between group cursor-pointer border-amber-500/10 hover:border-amber-500/40 transition-all">
+                <div
+                    class="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-black italic tracking-tighter uppercase mb-2 leading-none">PUSAT SCORING
+                    </h3>
+                    <p class="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Penilaian pertandingan
+                        real-time.</p>
+                </div>
+            </a>
+
+            <!-- Personel Hub -->
+            <div
+                class="col-span-12 lg:col-span-3 row-span-2 bento-card p-8 flex flex-col justify-between border-slate-100/5 transition-all">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+                <div class="space-y-4">
+                    <a href="data-official.html" class="flex items-center justify-between group cursor-pointer">
+                        <span
+                            class="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">Data
+                            Official</span>
+                        <svg class="w-4 h-4 text-slate-600 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
+                    </a>
+                    <div class="h-[1px] bg-white/5"></div>
+                    <a href="data-admin.html" class="flex items-center justify-between group cursor-pointer">
+                        <span
+                            class="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">Data
+                            Admin</span>
+                        <svg class="w-4 h-4 text-slate-600 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bracket Builder -->
+            <a href="KenshoBuilder/coming-soon.html"
+                class="col-span-12 lg:col-span-4 row-span-2 bento-card p-10 flex flex-col justify-between group cursor-pointer border-indigo-500/10 hover:border-indigo-500/40 transition-all">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform relative">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <!-- Surprise Lock Overlay -->
+                    <div
+                        class="absolute inset-0 flex items-center justify-center bg-indigo-500/20 rounded-2xl backdrop-blur-[2px]">
+                        <span class="text-xs">🔒</span>
                     </div>
-                    <div>
-                        <p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest text-slate-600">Total
-                            Event</p>
-                        <h3 id="statTotalEvent" class="text-3xl font-black italic tracking-tighter text-blue-500">
-                            <span class="skeleton w-16 h-8"></span>
-                        </h3>
-                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black italic tracking-tighter uppercase mb-2">BRACKET BUILDER</h3>
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Sistem dalam pemeliharaan.
+                        Kejutan segera hadir!</p>
+                </div>
+            </a>
+
+            <!-- Voice Lounge -->
+            <div onclick="toggleVoiceLounge()"
+                class="col-span-12 lg:col-span-4 row-span-2 bento-card p-10 flex flex-col justify-between group cursor-pointer border-rose-500/10 hover:border-rose-500/40 transition-all">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-400 group-hover:scale-110 transition-transform">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black italic tracking-tighter uppercase mb-2">VOICE LOUNGE</h3>
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Koordinasi tim secara
+                        langsung.</p>
+                </div>
+            </div>
+
+            <!-- Activity Logs (Owner Only) -->
+            <div onclick="switchTab('activity-log')"
+                class="col-span-12 lg:col-span-4 row-span-2 bento-card p-10 flex flex-col justify-between group cursor-pointer border-slate-400/10 hover:border-white/20 transition-all hidden owner-only">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-slate-500/10 flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-black italic tracking-tighter uppercase mb-2">LOG AKTIVITAS</h3>
+                    <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Monitoring keamanan sistem
+                        Owner.</p>
                 </div>
             </div>
         </div>
 
-        <div id="activity-log" class="tab-content hidden">
-            <div class="neu-flat p-10 rounded-[2.5rem] stagger-card">
-                <div class="flex justify-between items-center mb-8">
+        <!-- ACTIVITY LOG MODAL/TAB (Keep hidden logic) -->
+        <div id="activity-log" class="tab-content hidden pt-12">
+            <div class="bento-card p-10 overflow-hidden">
+                <div class="flex justify-between items-center mb-10">
                     <div>
-                        <h2 class="text-2xl font-black italic tracking-tighter shimmer-text">LOG AKTIVITAS REAL-TIME
+                        <h2 class="text-3xl font-black italic tracking-tighter shimmer-text">LOG AKTIVITAS REAL-TIME
                         </h2>
-                        <p class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-1">Monitoring Aksi
-                            Admin & Personnel</p>
+                        <p class="text-[10px] font-black uppercase tracking-[0.3em] opacity-40 mt-1">Sistem Otoritas
+                            Kensho Tech</p>
                     </div>
+                    <button onclick="switchTab('overview')"
+                        class="px-6 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">Kembali</button>
                 </div>
-
-                <div class="overflow-hidden">
+                <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
                             <tr
-                                class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 border-b border-slate-200">
-                                <th class="pb-4">Waktu</th>
-                                <th class="pb-4">Admin</th>
-                                <th class="pb-4">Aksi</th>
-                                <th class="pb-4">Detail</th>
+                                class="text-[9px] font-black uppercase tracking-[0.2em] opacity-40 border-b border-white/5">
+                                <th class="pb-6">Waktu</th>
+                                <th class="pb-6">Admin</th>
+                                <th class="pb-6">Aksi</th>
+                                <th class="pb-6">Detail</th>
                             </tr>
                         </thead>
-                        <tbody id="logTableBody" class="divide-y divide-slate-100">
-                            <!-- Logs will be injected here -->
-                        </tbody>
+                        <tbody id="logTableBody" class="divide-y divide-white/[0.02]"></tbody>
                     </table>
                 </div>
             </div>
@@ -765,8 +861,34 @@
             const panel = document.getElementById('voice-lounge-panel');
             panel.classList.toggle('active');
 
-            const btn = document.getElementById('btn-voice');
-            btn.classList.toggle('active');
+            const btn = document.getElementById('btn-side-voice');
+            if (btn) btn.classList.toggle('active');
+        };
+
+        // Digital Clock
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            if (document.getElementById('digitalClock')) {
+                document.getElementById('digitalClock').innerText = timeStr;
+            }
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Tab Switching Logic
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+                // If it's the Bento Grid HUB, we call it 'overview' for backward compatibility
+                if (tabId === 'activity-log') {
+                    document.querySelector('.grid').classList.add('hidden');
+                } else {
+                    document.querySelector('.grid').classList.remove('hidden');
+                }
+            }
         };
 
         window.handleJoinVoice = async () => {
@@ -877,7 +999,7 @@
                     if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
 
                     if (adminData.role === 'owner') {
-                        document.querySelectorAll('.super-only').forEach(el => el.classList.remove('hidden'));
+                        document.querySelectorAll('.owner-only').forEach(el => el.classList.remove('hidden'));
                         initActivityLogs(); // Only start listening if Owner
                     }
                 } else {

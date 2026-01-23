@@ -4,7 +4,7 @@
     },
     "hosting": [
         {
-            "site": "kenshotech",
+            "target": "kenshotech",
             "public": "landing_page",
             "ignore": [
                 "firebase.json",
@@ -13,7 +13,7 @@
             ]
         },
         {
-            "site": "kensho-scoring",
+            "target": "kensho-scoring",
             "public": ".",
             "ignore": [
                 "firebase.json",

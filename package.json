@@ -1,6 +1,6 @@
 {
     "name": "kensho-tech",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "Kensho Tech - Premium Scoring Management System",
     "main": "main.js",
     "scripts": {

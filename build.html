@@ -26,6 +26,20 @@
 
     <link rel="stylesheet" href="builder/build.css">
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        .badge-version {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(248, 113, 113, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            border-radius: 6px;
+            font-size: 0.55rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+    </style>
 </head>
 
 
@@ -67,13 +81,14 @@
     <div class="main-container">
         <div class="sidebar">
             <!-- Back to Dashboard Super -->
-            <a href="dashboard-super.html" class="side-icon-btn mb-4 border border-white/10"
+            <a href="dashboard-super.html" class="side-icon-btn mb-3 border border-white/10"
                 title="Kembali ke Dashboard">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
+            <div class="badge-version mb-4">v1.1.0</div>
 
             <div class="w-8 h-px bg-white/5 mb-2"></div>
 

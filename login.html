@@ -113,6 +113,21 @@
             font-style: italic;
             user-select: none;
         }
+
+        /* Version Badge */
+        .badge-version {
+            display: table;
+            margin: 0 auto;
+            padding: 3px 10px;
+            background: rgba(248, 113, 113, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
     </style>
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -135,7 +150,8 @@
     <div class="discord-card w-full max-w-[420px] rounded-2xl p-10 z-10">
 
         <div class="text-center mb-10">
-            <img src="kensho-logo.png" alt="Kensho Tech Logo" class="w-16 mx-auto mb-6 drop-shadow-xl">
+            <img src="kensho-logo.png" alt="Kensho Tech Logo" class="w-16 mx-auto mb-4 drop-shadow-xl">
+            <div class="badge-version mb-6">v1.1.0-stable</div>
             <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
             <p id="dynamicGreeting"
                 class="text-slate-500 text-sm font-medium transition-opacity duration-500 opacity-100">
@@ -410,20 +426,27 @@
         }
 
         window.launchInBrowser = function () {
-            // Buka versi website produksi
-            const url = "https://adm-spartan-sport-2f4ec.web.app";
+            // Buka versi website produksi dengan meneruskan HWID untuk keamanan lisensi
+            const url = `https://kensho-scoring.web.app?hwid=${currentHwid}`;
             window.electronAPI.openInBrowser(url);
         };
 
         // Licencing & Hardware ID Logic
         const APP_VERSION = "1.0.0";
         async function checkLicense() {
-            // Mock HWID for Browser testing
+            // Jika di Browser (PWA Mode)
             if (!window.electronAPI) {
-                const displaySerial = document.getElementById('displaySerial');
-                if (displaySerial) displaySerial.innerText = "BROWSER-MODE-DEMO";
-                licenseStatus = 'active'; // Allow demo login in browser
-                return;
+                const urlParams = new URLSearchParams(window.location.search);
+                currentHwid = urlParams.get('hwid') || localStorage.getItem('kensho_hwid');
+
+                if (!currentHwid) {
+                    const displaySerial = document.getElementById('displaySerial');
+                    if (displaySerial) displaySerial.innerText = "AKSES DIBATASI (BUKA VIA DESKTOP)";
+                    licenseStatus = 'restricted';
+                    return;
+                }
+                // Simpan agar sesi PWA tetap jalan tanpa parameter URL di kemudian hari
+                localStorage.setItem('kensho_hwid', currentHwid);
             }
 
             try {

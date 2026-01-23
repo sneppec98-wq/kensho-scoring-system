@@ -10,8 +10,29 @@
                 "firebase.json",
                 "**/.*",
                 "**/node_modules/**"
+            ]
+        },
+        {
+            "site": "kensho-scoring",
+            "public": ".",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**",
+                "landing_page/**",
+                "dist_production/**",
+                "builder/**",
+                "package.json",
+                "package-lock.json",
+                "main.js",
+                "preload.js"
             ],
-            "rewrites": []
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/login.html"
+                }
+            ]
         }
     ]
 }

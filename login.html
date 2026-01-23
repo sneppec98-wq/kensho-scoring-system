@@ -128,6 +128,60 @@
             letter-spacing: 0.05em;
             text-transform: uppercase;
         }
+
+        /* Update Modal Styling */
+        #updateModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .update-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 400px;
+            padding: 2.5rem;
+            border-radius: 2rem;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .update-logo {
+            width: 80px;
+            margin: 0 auto 1.5rem;
+            animation: pulse-logo 2s infinite alternate;
+        }
+
+        @keyframes pulse-logo {
+            from {
+                transform: scale(1);
+                filter: drop-shadow(0 0 5px rgba(248, 113, 113, 0.3));
+            }
+
+            to {
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 20px rgba(248, 113, 113, 0.6));
+            }
+        }
     </style>
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -151,7 +205,7 @@
 
         <div class="text-center mb-10">
             <img src="kensho-logo.png" alt="Kensho Tech Logo" class="w-16 mx-auto mb-4 drop-shadow-xl">
-            <div class="badge-version mb-6">v1.1.0-stable</div>
+            <div class="badge-version mb-6">v1.2.0-stable</div>
             <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
             <p id="dynamicGreeting"
                 class="text-slate-500 text-sm font-medium transition-opacity duration-500 opacity-100">
@@ -159,30 +213,34 @@
             </p>
         </div>
 
-        <form id="loginForm" class="space-y-6" onsubmit="handleLogin(event)">
-            <div>
-                <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Email</label>
-                <input type="email" id="email" required
-                    class="w-full px-4 py-3 input-dark rounded focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm"
-                    placeholder="nama@kensho.com">
-            </div>
-
-            <div>
-                <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Kata
-                    Sandi</label>
-                <div class="relative">
-                    <input type="password" id="password" required
+        <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label
+                        class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Email</label>
+                    <input type="email" id="email" required
                         class="w-full px-4 py-3 input-dark rounded focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm"
-                        placeholder="••••••••">
-                    <button type="button" onclick="togglePassword()"
-                        class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
-                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </button>
+                        placeholder="nama@kensho.com">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Kata
+                        Sandi</label>
+                    <div class="relative">
+                        <input type="password" id="password" required
+                            class="w-full px-4 py-3 input-dark rounded focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm"
+                            placeholder="••••••••">
+                        <button type="button" onclick="togglePassword()"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+                            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -560,7 +618,51 @@
                     .catch(err => console.log('SW Registration Failed!', err));
             });
         }
+
+        // Custom Update UI Handling
+        if (window.electronAPI && window.electronAPI.onUpdateAvailable) {
+            window.electronAPI.onUpdateAvailable((version) => {
+                console.log("Update tersedia: " + version);
+                // Kita bisa menampilkan toast kecil di sini jika mau
+            });
+
+            window.electronAPI.onUpdateDownloaded((version) => {
+                const modal = document.getElementById('updateModal');
+                const versionEl = document.getElementById('newVersionText');
+                if (versionEl) versionEl.innerText = version;
+                if (modal) modal.style.display = 'flex';
+            });
+        }
+
+        window.installUpdate = function () {
+            if (window.electronAPI && window.electronAPI.restartApp) {
+                window.electronAPI.restartApp();
+            }
+        }
     </script>
+
+    <!-- UPDATE MODAL (DISCORD STYLE) -->
+    <div id="updateModal">
+        <div class="update-card">
+            <img src="kensho-logo.png" alt="Kensho Logo" class="update-logo">
+            <h2 class="text-2xl font-black text-white mb-2">Pembaruan Tersedia</h2>
+            <p class="text-slate-400 text-sm mb-6">
+                Versi baru <span id="newVersionText" class="text-rose-400 font-bold">1.1.0</span> telah siap. Mari
+                nikmati fitur terbaru dengan satu klik!
+            </p>
+
+            <div class="space-y-3">
+                <button onclick="installUpdate()"
+                    class="w-full py-4 btn-premium rounded-xl font-bold text-white tracking-widest uppercase transition-all">
+                    Update Sekarang
+                </button>
+                <button onclick="document.getElementById('updateModal').style.display='none'"
+                    class="text-[10px] text-slate-500 font-bold uppercase tracking-widest hover:text-slate-300">
+                    Nanti Saja
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

@@ -84,6 +84,11 @@ app.whenReady().then(() => {
     // Check for updates
     autoUpdater.checkForUpdatesAndNotify();
 
+    // Listen for restart request from UI
+    ipcMain.handle('restart-app', () => {
+        autoUpdater.quitAndInstall();
+    });
+
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
@@ -97,19 +102,16 @@ app.on('window-all-closed', () => {
     }
 });
 
-// AUTO-UPDATE LOGIC
-autoUpdater.on('update-available', () => {
-    console.log('Update available.');
+// AUTO-UPDATE LOGIC - IPC Communication
+autoUpdater.on('update-available', (info) => {
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-available', info.version);
+    });
 });
 
-autoUpdater.on('update-downloaded', () => {
-    dialog.showMessageBox({
-        type: 'info',
-        title: 'Update Siap',
-        message: 'Versi baru sudah siap dipasang. Aplikasi akan restart sekarang.',
-        buttons: ['OK']
-    }).then(() => {
-        autoUpdater.quitAndInstall();
+autoUpdater.on('update-downloaded', (info) => {
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-downloaded', info.version);
     });
 });
 

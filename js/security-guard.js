@@ -15,7 +15,8 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    // A. MONITOR SESSION DURATION (12 Hours Limit)
+    // A. MONITOR SESSION DURATION (DISABLED)
+    /*
     const loginTime = localStorage.getItem('kensho_login_time');
     const MAX_SESSION_DURATION = 12 * 60 * 60 * 1000; // 12 jam dalam milidetik
 
@@ -30,6 +31,7 @@ onAuthStateChanged(auth, async (user) => {
         // Set waktu sekarang sebagai fallback
         localStorage.setItem('kensho_login_time', Date.now().toString());
     }
+    */
 
     // B. MONITOR ACCOUNT STATUS & SESSION (Web & Desktop)
     try {

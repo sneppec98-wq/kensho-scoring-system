@@ -7,18 +7,20 @@
     <title>Generator Bagan | Spartan Sport</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg: #0f172a;
-            /* Slate 900 */
-            --light: #1e293b;
-            /* Slate 800 */
-            --dark: #020617;
-            /* Slate 950 */
-            --text: #f8fafc;
+            --bg: #f8fafc;
             /* Slate 50 */
+            --light: #f1f5f9;
+            /* Slate 100 */
+            --dark: #e2e8f0;
+            /* Slate 200 */
+            --text: #0f172a;
+            /* Slate 900 */
             --accent: #ef4444;
             /* Red 500 */
             --blue: #3b82f6;
@@ -34,26 +36,26 @@
 
         /* NEUMORPHISM UI */
         .neu-flat {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(248, 250, 252, 0.8);
             backdrop-filter: blur(20px);
-            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.4), -5px -5px 20px rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.05), -5px -5px 20px rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.03);
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .neu-inset {
-            background: rgba(2, 6, 23, 0.4);
+            background: rgba(241, 245, 249, 0.5);
             backdrop-filter: blur(5px);
-            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.5), inset -2px -2px 8px rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.05), inset -2px -2px 8px rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.02);
         }
 
         .neu-button {
-            background: var(--light);
-            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3), -2px -2px 8px rgba(255, 255, 255, 0.03);
+            background: #ffffff;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.05), -2px -2px 8px rgba(255, 255, 255, 0.8);
             transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.03);
             color: var(--text);
         }
 
@@ -80,8 +82,9 @@
             height: 80vmax;
             border-radius: 50%;
             filter: blur(100px);
-            opacity: 0.15;
-            mix-blend-mode: plus-lighter;
+            opacity: 0.05;
+            /* Even softer for light theme */
+            mix-blend-mode: multiply;
             animation: drift 20s infinite alternate linear;
         }
 
@@ -177,7 +180,7 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--light);
+            background: var(--dark);
             border-radius: 10px;
         }
 
@@ -327,10 +330,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 60px;
-            padding: 60px;
+            gap: 40px;
+            padding: 20px;
             position: relative;
-            min-width: 800px;
+
+            /* F4 Landscape Proportions (330:210 = 1.57:1) */
+            width: 100%;
+            max-width: 100%;
+            aspect-ratio: 1.57;
+            margin: 0 auto;
         }
 
         .bracket-round {
@@ -541,7 +549,7 @@
     </style>
 </head>
 
-<body class="min-h-screen flex text-slate-100 bg-[#020617]">
+<body class="min-h-screen flex text-slate-900 bg-[#f8fafc]">
     <!-- Aurora Background -->
     <div id="aurora-container">
         <div class="aurora aurora-1"></div>
@@ -549,610 +557,1407 @@
         <div class="aurora aurora-3"></div>
     </div>
 
-    <aside class="w-20 h-screen fixed left-0 top-0 flex flex-col items-center py-8 z-50">
-        <div class="mb-14">
-            <a href="dashboard.html">
+    <main class="flex-1 p-10 overflow-y-auto custom-scrollbar">
+        <header class="flex justify-between items-end mb-12">
+            <div>
                 <div
-                    class="w-12 h-12 bg-black/40 rounded-2xl shadow-lg shadow-blue-500/10 flex items-center justify-center border border-white/10 hover:scale-110 transition-all">
-                    <img src="kensho-logo.png" alt="Logo" class="w-8 h-8 object-contain">
+                    class="flex items-center space-x-4 mb-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
+                    <a href="data-pertandingan.html" class="hover:text-blue-500 transition-colors">PERTANDINGAN</a>
+                    <span>/</span>
+                    <a href="javascript:window.history.back()"
+                        class="hover:text-blue-500 transition-colors uppercase font-bold text-slate-700">PIALA
+                        SPARTAN
+                        2026</a>
+                    <span>/</span>
+                    <span class="text-blue-500 opacity-100 font-extrabold">GENERATOR BAGAN</span>
                 </div>
-            </a>
-        </div>
-        <nav class="flex-1 flex flex-col items-center">
-            <a href="dashboard.html" data-tooltip="Beranda Dashboard" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-            </a>
-            <div class="relative group">
-                <button data-tooltip="Kelola Personel" class="side-btn">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                </button>
-                <div class="dropdown-menu">
-                    <div class="dropdown-content space-y-3">
-                        <p class="text-[8px] font-black opacity-30 tracking-[0.2em] mb-1">KELOLA PERSONEL</p>
-                        <a href="data-official.html"
-                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-blue-500 transition-colors">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span><span>Data Official</span>
-                        </a>
-                        <div class="h-[1px] bg-white/5 mx-1"></div>
-                        <a href="data-admin.html"
-                            class="flex items-center space-x-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-blue-500 transition-colors">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span><span>Data Admin</span>
-                        </a>
+                <h1 class="text-5xl font-black italic tracking-tighter uppercase leading-none shimmer-text">
+                    Generator
+                    Bagan</h1>
+            </div>
+            <div class="flex items-center gap-6">
+                <!-- USER INFO REMOVED -->
+                <button onclick="window.history.back()"
+                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Kembali</button>
+            </div>
+        </header>
+
+        <div class="space-y-12">
+            <!-- SECTION 1: KONFIGURASI (HORIZONTAL BAR) -->
+            <section class="neu-flat p-10 rounded-[3rem] border border-white/5">
+                <div class="flex flex-col gap-10">
+                    <!-- Step 1 Header -->
+                    <div
+                        class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-8">
+                        <div>
+                            <p class="text-[9px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2">Langkah 1
+                            </p>
+                            <h3 class="text-3xl font-black italic uppercase">Konfigurasi Turnamen</h3>
+                            <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1 italic">Sesuaikan
+                                parameter
+                                event dan kelas tanding</p>
+                        </div>
+                        <div class="flex gap-4 w-full md:w-auto">
+                            <!-- Tombol Excel, Generate, dan Reset dihapus untuk otomatisasi penuh -->
+                        </div>
+                    </div>
+
+                    <!-- Step 1 Inputs -->
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                        <div class="space-y-4">
+                            <label
+                                class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em] text-blue-500">Kategori
+                                Tanding</label>
+                            <select
+                                class="w-full neu-inset px-8 py-6 rounded-[2rem] outline-none text-sm font-black uppercase tracking-widest text-slate-900 border border-slate-200 focus:border-blue-400/50 transition-all cursor-pointer bg-white">
+                                <option>Kumite Putra -55KG</option>
+                                <option>Kumite Putri -50KG</option>
+                                <option>Kata Perorangan Putra</option>
+                                <option>Kumite Perorangan Putri -50KG (Senior)</option>
+                                <option>Kumite Perorangan Putri +68KG (Senior)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-slate-100 pb-8">
+                            <div class="space-y-4">
+                                <label
+                                    class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em]">Event
+                                    Aktif</label>
+                                <div
+                                    class="neu-inset px-8 py-6 rounded-[2rem] text-sm font-black text-slate-400 border border-slate-100 uppercase italic bg-white">
+                                    PIALA SPARTAN 2026</div>
+                            </div>
+                            <div class="space-y-4">
+                                <label
+                                    class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em]">Jumlah
+                                    Peserta</label>
+                                <div class="flex items-center gap-4">
+                                    <input id="participantCount" type="number" min="2" max="16" value="0" readonly
+                                        class="w-full neu-inset px-8 py-6 rounded-[2rem] outline-none text-sm font-black uppercase tracking-widest text-slate-400 border border-slate-200 bg-slate-50/50 cursor-not-allowed transition-all">
+                                    <span class="text-[11px] font-black opacity-30 italic pr-6">ORG</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </section>
+
+            <!-- SECTION 2: LIST ATLET (TABBED INTERFACE) -->
+            <section class="neu-flat p-10 rounded-[3rem] border border-white">
+                <div class="flex flex-col gap-10">
+                    <!-- HEADER & ACTIONS -->
+                    <div
+                        class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 border-b border-slate-100 pb-10">
+                        <div class="space-y-1">
+                            <h3 class="text-3xl font-black italic uppercase text-slate-900">Peserta</h3>
+                            <p id="athleteTotalLabel" class="text-xs font-black italic text-blue-500 opacity-60">0 ATLET
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-6">
+                            <!-- ACTION: DRAW -->
+                            <button onclick="smartDrawParticipants()"
+                                class="px-8 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 shadow-[0_15px_30px_rgba(59,130,246,0.3)] transition-all flex items-center gap-3 group">
+                                <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg> SMART DRAW (OTO)
+                            </button>
+
+                            <!-- TABS NAVIGATION -->
+                            <div class="flex p-1.5 bg-slate-100 rounded-[1.5rem] border border-slate-200/50">
+                                <button onclick="switchStep2Tab('text')" id="tabBtnText"
+                                    class="px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-blue-600 shadow-md">
+                                    1. DATA FIX
+                                </button>
+                                <button onclick="switchStep2Tab('visual')" id="tabBtnVisual"
+                                    class="px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
+                                    2. ATUR BAGIAN
+                                </button>
+                                <button onclick="switchStep2Tab('magic')" id="tabBtnMagic"
+                                    class="hidden px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
+                                    3. MAGIC BEREGU 🪄
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MAIN CONTENT AREA -->
+                    <div class="space-y-8">
+                        <!-- TAB CONTENT 1: DATA FIX (TEXTAREA) -->
+                        <div id="step2TabText" class="block">
+                            <textarea id="manualNames" rows="10" readonly
+                                placeholder="Daftar peserta resmi akan muncul di sini..."
+                                class="w-full neu-inset px-8 py-6 rounded-[2.5rem] outline-none text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500 border border-slate-200 bg-slate-50/50 cursor-not-allowed transition-all custom-scrollbar resize-none font-mono leading-relaxed"></textarea>
+                        </div>
+
+                        <!-- TAB CONTENT 2: ATUR BAGIAN (VISUAL) -->
+                        <div id="step2TabVisual" class="hidden">
+                            <div
+                                class="p-8 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100/50 mb-6 group hover:bg-indigo-50 transition-colors">
+                                <div class="flex items-start gap-4">
+                                    <div class="p-3 bg-white rounded-2xl shadow-sm text-indigo-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <p class="text-[10px] font-black uppercase text-indigo-600 tracking-wider">Mode
+                                            Pengaturan Visual</p>
+                                        <p class="text-[11px] font-bold text-slate-500 leading-relaxed">Klik dua kartu
+                                            atlet di bawah ini untuk menukar posisi tanding mereka secara langsung pada
+                                            bagan SVG.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="athleteTags"
+                                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <!-- Visual cards rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- TAB CONTENT 3: MAGIC BEREGU -->
+                        <div id="step2TabMagic" class="hidden">
+                            <div class="p-10 rounded-[2.5rem] bg-blue-50/50 border border-blue-100/50 mb-8">
+                                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                                    <div class="flex items-start gap-5">
+                                        <div
+                                            class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-blue-500 text-2xl">
+                                            🪄</div>
+                                        <div>
+                                            <h4 class="text-xl font-black italic uppercase text-slate-900 mb-1">Magic
+                                                Team Builder</h4>
+                                            <p class="text-xs font-bold text-slate-500">Otomatis menggabungkan 3 atlet
+                                                dari kontingen yang sama menjadi satu tim.</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="groupAthletesByTeamMagic()"
+                                        class="px-10 py-5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+                                        🪄 SULAP JADI TIM
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="magicTeamList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                <!-- Grouped teams will be rendered here -->
+                                <div
+                                    class="col-span-full py-20 text-center opacity-30 italic font-bold uppercase tracking-widest text-xs">
+                                    Klik tombol sulap untuk memproses data anggota...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: VISUALISASI BAGAN (LARGE AREA) -->
+            <section class="neu-flat p-6 rounded-[3rem] border border-white/5 min-h-[600px] flex flex-col">
+                <header class="mb-12 flex justify-between items-end border-b border-white/5 pb-8">
+                    <div>
+                        <p id="bracketCategoryLabel"
+                            class="text-xs font-black uppercase tracking-[0.4em] text-blue-500 mb-2">Kumite Putra
+                            -55KG
+                        </p>
+                        <h3 id="bracketEventLabel" class="text-3xl font-black italic uppercase">PIALA SPARTAN 2026
+                        </h3>
+                        <p
+                            class="text-[10px] font-bold opacity-30 tracking-widest mt-2 italic border-t border-white/5 pt-2">
+                            Bagan Pertandingan Otomatis</p>
+                    </div>
+
+                    <div class="flex space-x-4 mb-1">
+                        <button onclick="exportToPremium('pdf', event)"
+                            class="neu-button px-8 py-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/5 border border-blue-500/10 hover:bg-blue-600 hover:text-white transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            EXPORT PDF (F4)
+                        </button>
+                    </div>
+                </header>
+
+                <div
+                    class="flex-1 rounded-[3rem] border border-slate-200 flex items-center justify-center bg-white overflow-x-auto custom-scrollbar relative p-4 shadow-xl">
+                    <div id="bracketVisualArea"
+                        class="bracket-container w-full h-full flex items-center justify-center transition-all duration-700 bg-white">
+                        <!-- Generated by JavaScript -->
+                    </div>
+                </div>
+
+                <footer class="mt-12 flex justify-end space-x-6 items-center">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/10 italic mr-auto">Power
+                        by
+                        Spartan Tournament Engine v2.0</p>
+                    <button onclick="window.history.back()"
+                        class="px-10 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batalkan</button>
+                    <button id="btnSaveBracket" onclick="saveBracket()"
+                        class="px-16 py-5 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(59,130,246,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
+                        <span id="saveStatus">SIMPAN & SELESAI</span>
+                    </button>
+                </footer>
+            </section>
+        </div>
+    </main>
+    <!-- UI: Kensho Voice Lounge Panel -->
+    <div id="voice-lounge-panel" class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center text-red-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-xs font-black tracking-widest uppercase">Voice Lounge</h4>
+                    <p class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Live Coordination
+                    </p>
+                </div>
             </div>
-            <a href="data-pertandingan.html" data-tooltip="Data Pertandingan" class="side-btn active">
+            <button onclick="toggleVoiceLounge()" class="text-slate-500 hover:text-white transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
-            </a>
-            <a href="scoring-home.html" data-tooltip="Pusat Scoring" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                </svg>
-            </a>
-            <a href="build.html" data-tooltip="Bracket Builder" class="side-btn">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-            </a>
-            <button onclick="toggleVoiceLounge()" data-tooltip="Kensho Voice Lounge" class="side-btn" id="btn-voice">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            </button>
+        </div>
+
+        <div id="voice-users-list" class="space-y-3 mb-8 max-h-48 overflow-y-auto custom-scrollbar">
+            <!-- Joined users will appear here -->
+            <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
+                <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button id="btn-join-voice" onclick="handleJoinVoice()"
+                class="flex-1 py-4 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2">
+                Join Lounge
+            </button>
+            <button id="btn-mute-voice" onclick="toggleMute()"
+                class="hidden w-14 h-14 rounded-xl border border-white/10 flex items-center justify-center text-slate-500 hover:text-white transition-all">
+                <svg id="mute-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                 </svg>
             </button>
-        </nav>
-
-        <main class="ml-20 flex-1 p-10 overflow-y-auto custom-scrollbar">
-            <header class="flex justify-between items-end mb-12">
-                <div>
-                    <div
-                        class="flex items-center space-x-4 mb-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-                        <a href="data-pertandingan.html" class="hover:text-blue-500 transition-colors">PERTANDINGAN</a>
-                        <span>/</span>
-                        <a href="javascript:window.history.back()"
-                            class="hover:text-blue-500 transition-colors uppercase font-bold text-slate-100">PIALA
-                            SPARTAN
-                            2026</a>
-                        <span>/</span>
-                        <span class="text-blue-500 opacity-100 font-black">GENERATOR BAGAN</span>
-                    </div>
-                    <h1 class="text-5xl font-black italic tracking-tighter uppercase leading-none shimmer-text">
-                        Generator
-                        Bagan</h1>
-                </div>
-                <div class="flex items-center gap-6">
-                    <!-- USER INFO -->
-                    <div class="flex items-center gap-4 neu-inset px-6 py-3 rounded-2xl border border-white/5">
-                        <div class="text-right">
-                            <p
-                                class="text-[8px] font-black uppercase opacity-40 tracking-widest leading-none mb-1 text-slate-600">
-                                Authenticated As</p>
-                            <p id="userNameDisplay" class="text-xs font-black uppercase tracking-wider text-blue-500">
-                                Loading...</p>
-                        </div>
-                        <div
-                            class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <button onclick="window.history.back()"
-                        class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Kembali</button>
-                </div>
-            </header>
-
-            <div class="space-y-12">
-                <!-- SECTION 1: KONFIGURASI (HORIZONTAL BAR) -->
-                <section class="neu-flat p-10 rounded-[3rem] border border-white/5">
-                    <div class="flex flex-col gap-10">
-                        <!-- Step 1 Header -->
-                        <div
-                            class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-8">
-                            <div>
-                                <p class="text-[9px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2">Langkah 1
-                                </p>
-                                <h3 class="text-3xl font-black italic uppercase">Konfigurasi Turnamen</h3>
-                                <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1 italic">Sesuaikan
-                                    parameter
-                                    event dan kelas tanding</p>
-                            </div>
-                            <div class="flex gap-4 w-full md:w-auto">
-                                <input type="file" id="excelFile" accept=".xlsx, .xls" class="hidden"
-                                    onchange="handleExcelUpload(this)">
-                                <button onclick="document.getElementById('excelFile').click()"
-                                    class="flex-1 md:flex-none px-8 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-red-400 border border-white/5 hover:border-red-400/30 transition-all flex items-center justify-center gap-3">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                    </svg>
-                                    EXCEL
-                                </button>
-                                <button onclick="generateBracket()"
-                                    class="flex-1 md:flex-none px-12 py-5 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_15px_30px_rgba(59,130,246,0.25)] hover:scale-[1.05] active:scale-95 transition-all">
-                                    GENERATE
-                                </button>
-                                <button onclick="resetBracket()"
-                                    class="px-8 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 hover:text-red-400 transition-all">
-                                    RESET
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Step 1 Inputs -->
-                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                            <div class="space-y-4">
-                                <label
-                                    class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em] text-blue-500">Kategori
-                                    Tanding</label>
-                                <select
-                                    class="w-full neu-inset px-8 py-6 rounded-[2rem] outline-none text-sm font-black uppercase tracking-widest text-white border border-white/5 focus:border-blue-400/50 transition-all cursor-pointer">
-                                    <option>Kumite Putra -55KG</option>
-                                    <option>Kumite Putri -50KG</option>
-                                    <option>Kata Perorangan Putra</option>
-                                    <option>Kumite Perorangan Putri -50KG (Senior)</option>
-                                    <option>Kumite Perorangan Putri +68KG (Senior)</option>
-                                </select>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div class="space-y-4">
-                                    <label
-                                        class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em]">Event
-                                        Aktif</label>
-                                    <div
-                                        class="neu-inset px-8 py-6 rounded-[2rem] text-sm font-black text-slate-400 border border-white/5 uppercase italic">
-                                        PIALA SPARTAN 2026
-                                    </div>
-                                </div>
-                                <div class="space-y-4">
-                                    <label
-                                        class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em]">Jumlah
-                                        Peserta</label>
-                                    <div class="flex items-center gap-4">
-                                        <input id="participantCount" type="number" min="2" max="16" value="8"
-                                            class="w-full neu-inset px-8 py-6 rounded-[2rem] outline-none text-sm font-black uppercase tracking-widest text-white border border-white/5 focus:border-blue-400/50 transition-all">
-                                        <span class="text-[11px] font-black opacity-30 italic pr-6">ORG</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECTION 2: LIST ATLET (COMPACT HORIZONTAL) -->
-                <section class="neu-flat p-10 rounded-[3rem] border border-white">
-                    <div class="flex flex-col lg:flex-row items-center gap-8">
-                        <div class="lg:w-1/6 border-r border-white/5 pr-8">
-                            <p class="text-[9px] font-black uppercase tracking-[0.3em] text-blue-500 mb-1">Langkah 2</p>
-                            <h3 class="text-lg font-black italic uppercase">Peserta</h3>
-                            <p id="athleteTotalLabel" class="text-[12px] font-black italic text-blue-500 mt-1">8 ATLET
-                            </p>
-                        </div>
-
-                        <div id="athleteList" class="flex-1">
-                            <textarea id="manualNames" rows="3" placeholder="Masukkan nama peserta (satu per baris)..."
-                                class="w-full neu-inset px-6 py-4 rounded-2xl outline-none text-[10px] font-bold uppercase tracking-widest text-white border border-white/5 focus:border-blue-400/50 transition-all custom-scrollbar resize-none"></textarea>
-                            <div id="athleteTags" class="flex flex-wrap gap-2 mt-4">
-                                <!-- Visual tags will be here -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECTION 3: VISUALISASI BAGAN (LARGE AREA) -->
-                <section class="neu-flat p-6 rounded-[3rem] border border-white/5 min-h-[600px] flex flex-col">
-                    <header class="mb-12 flex justify-between items-end border-b border-white/5 pb-8">
-                        <div>
-                            <p id="bracketCategoryLabel"
-                                class="text-xs font-black uppercase tracking-[0.4em] text-blue-500 mb-2">Kumite Putra
-                                -55KG
-                            </p>
-                            <h3 id="bracketEventLabel" class="text-3xl font-black italic uppercase">PIALA SPARTAN 2026
-                            </h3>
-                            <p
-                                class="text-[10px] font-bold opacity-30 tracking-widest mt-2 italic border-t border-white/5 pt-2">
-                                Bagan Pertandingan Otomatis</p>
-                        </div>
-
-                        <div class="flex space-x-4 mb-1">
-                            <button onclick="window.print()"
-                                class="neu-button px-8 py-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/5 border border-blue-500/10 hover:bg-blue-500 hover:text-white transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                </svg>
-                                CETAK BAGAN
-                            </button>
-                        </div>
-                    </header>
-
-                    <div
-                        class="flex-1 rounded-[3rem] border border-white/5 flex items-center justify-center bg-black/20 overflow-x-auto custom-scrollbar relative p-4">
-                        <div id="bracketVisualArea"
-                            class="bracket-container w-full h-full flex items-center justify-center transition-all duration-700">
-                            <!-- Generated by JavaScript -->
-                        </div>
-                    </div>
-
-            </div>
-
-            <footer class="mt-12 flex justify-end space-x-6 items-center">
-                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/10 italic mr-auto">Power by
-                    Spartan Tournament Engine v2.0</p>
-                <button onclick="window.history.back()"
-                    class="px-10 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batalkan</button>
-                <button
-                    class="px-16 py-5 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(59,130,246,0.3)] hover:scale-105 active:scale-95 transition-all">Simpan
-                    & Selesai</button>
-            </footer>
-            </section>
-            </div>
-        </main>
-        <!-- UI: Kensho Voice Lounge Panel -->
-        <div id="voice-lounge-panel" class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center text-red-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-black tracking-widest uppercase">Voice Lounge</h4>
-                        <p class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Live Coordination
-                        </p>
-                    </div>
-                </div>
-                <button onclick="toggleVoiceLounge()" class="text-slate-500 hover:text-white transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-            </div>
-
-            <div id="voice-users-list" class="space-y-3 mb-8 max-h-48 overflow-y-auto custom-scrollbar">
-                <!-- Joined users will appear here -->
-                <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
-                    <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button id="btn-join-voice" onclick="handleJoinVoice()"
-                    class="flex-1 py-4 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2">
-                    Join Lounge
-                </button>
-                <button id="btn-mute-voice" onclick="toggleMute()"
-                    class="hidden w-14 h-14 rounded-xl border border-white/10 flex items-center justify-center text-slate-500 hover:text-white transition-all">
-                    <svg id="mute-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                </button>
-                <button id="btn-leave-voice" onclick="handleLeaveVoice()"
-                    class="hidden w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                </button>
-            </div>
+            <button id="btn-leave-voice" onclick="handleLeaveVoice()"
+                class="hidden w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+            </button>
         </div>
+    </div>
 
-        <script type="module">
-            import { db, auth } from './js/firebase-init.js';
-            import { handleLogout } from './js/auth-helpers.js';
-            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-            import { collection, onSnapshot, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-            import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
+    <script type="module">
+        import { db, auth } from './js/firebase-init.js';
+        import { handleLogout } from './js/auth-helpers.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, onSnapshot, query, where, getDocs, doc, getDoc, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
 
-            window.handleLogout = handleLogout;
+        window.handleLogout = handleLogout;
 
-            // Voice Lounge UI Logic
-            window.toggleVoiceLounge = () => {
-                const panel = document.getElementById('voice-lounge-panel');
-                panel.classList.toggle('active');
-                const btn = document.getElementById('btn-voice');
-                btn.classList.toggle('active');
-            };
+        // Voice Lounge UI Logic
+        window.toggleVoiceLounge = () => {
+            const panel = document.getElementById('voice-lounge-panel');
+            panel.classList.toggle('active');
+            const btn = document.getElementById('btn-voice');
+            btn.classList.toggle('active');
+        };
 
-            window.handleJoinVoice = async () => {
-                const user = auth.currentUser;
-                if (!user) return;
-                const btnJoin = document.getElementById('btn-join-voice');
-                btnJoin.disabled = true;
-                try {
-                    await joinVoice(user);
-                    btnJoin.classList.add('hidden');
-                    document.getElementById('btn-mute-voice').classList.remove('hidden');
-                    document.getElementById('btn-leave-voice').classList.remove('hidden');
-                } catch (err) {
-                    alert("Gagal join Voice Lounge: " + err.message);
-                    btnJoin.disabled = false;
-                }
-            };
+        window.handleJoinVoice = async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+            const btnJoin = document.getElementById('btn-join-voice');
+            btnJoin.disabled = true;
+            try {
+                await joinVoice(user);
+                btnJoin.classList.add('hidden');
+                document.getElementById('btn-mute-voice').classList.remove('hidden');
+                document.getElementById('btn-leave-voice').classList.remove('hidden');
+            } catch (err) {
+                alert("Gagal join Voice Lounge: " + err.message);
+                btnJoin.disabled = false;
+            }
+        };
 
-            window.handleLeaveVoice = async () => {
-                await leaveVoice();
-                document.getElementById('btn-join-voice').classList.remove('hidden');
-                document.getElementById('btn-join-voice').disabled = false;
-                document.getElementById('btn-mute-voice').classList.add('hidden');
-                document.getElementById('btn-leave-voice').classList.add('hidden');
-            };
+        window.handleLeaveVoice = async () => {
+            await leaveVoice();
+            document.getElementById('btn-join-voice').classList.remove('hidden');
+            document.getElementById('btn-join-voice').disabled = false;
+            document.getElementById('btn-mute-voice').classList.add('hidden');
+            document.getElementById('btn-leave-voice').classList.add('hidden');
+        };
 
-            window.toggleMute = () => {
-                const isMuted = toggleMicMute();
-                const icon = document.getElementById('mute-icon');
-                const btn = document.getElementById('btn-mute-voice');
-                if (isMuted) {
-                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
-                    btn.classList.add('text-red-400');
+        window.toggleMute = () => {
+            const isMuted = toggleMicMute();
+            const icon = document.getElementById('mute-icon');
+            const btn = document.getElementById('btn-mute-voice');
+            if (isMuted) {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
+                btn.classList.add('text-red-400');
+            } else {
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
+                btn.classList.remove('text-red-400');
+            }
+        };
+
+        // Get Context from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        const classId = urlParams.get('classId');
+        const initialClass = urlParams.get('class');
+
+        if (!eventId) {
+            alert("ID Event tidak ditemukan!");
+            window.location.href = 'data-pertandingan.html';
+        }
+
+        // Protect Route
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else {
+                // Load Data
+                loadEventContext();
+            }
+        });
+
+        async function loadEventContext() {
+            // 1. Load Event Info
+            const eventDoc = await getDoc(doc(db, "events", eventId));
+            if (eventDoc.exists()) {
+                const eventData = eventDoc.data();
+                document.getElementById('bracketEventLabel').innerText = eventData.name;
+                // Simpan host kontingen secara global
+                window.hostKontingen = eventData.settings?.hostKontingen || "";
+                // Breadcrumb
+                const breadcrumbEvent = document.querySelector('a[href="javascript:window.history.back()"]');
+                if (breadcrumbEvent) breadcrumbEvent.innerText = eventData.name;
+            }
+
+            // 2. Load All Classes for Dropdown
+            const qClasses = query(collection(db, `events/${eventId}/classes`), orderBy("name", "asc"));
+            const classSnap = await getDocs(qClasses);
+            const categorySelect = document.querySelector('select');
+            categorySelect.innerHTML = '<option value="">Pilih Kategori...</option>';
+
+            classSnap.forEach(snap => {
+                const cls = snap.data();
+                const option = document.createElement('option');
+                option.value = cls.name;
+                option.textContent = cls.name;
+                if (initialClass && cls.name === initialClass) option.selected = true;
+                categorySelect.appendChild(option);
+            });
+
+            // 3. Listener for Change
+            categorySelect.addEventListener('change', (e) => {
+                if (e.target.value) loadAthletesForClass(e.target.value);
+            });
+
+            // 4. Initial Load if class is set
+            if (initialClass) {
+                await loadAthletesForClass(initialClass);
+            }
+
+            // 5. APPLY GLOBAL BRACKET MAPPING (Auto-sync dari Pengaturan Pemetaan Global)
+            // DISABLED: This was conflicting with per-class bracket restoration
+            // The mapping is now handled in generateBracket() for each class
+            /*
+            const eventData = eventDoc.data();
+            const mapping = eventData.globalBracketMapping;
+
+            if (mapping) {
+                const checkSVG = setInterval(() => {
+                    if (svgDoc) {
+                        applyBracketMapping(mapping);
+                        clearInterval(checkSVG);
+                    }
+                }, 500);
+            }
+            */
+        }
+
+        async function loadAthletesForClass(className) {
+            currentClass = className;
+            // Update the visual label in the bracket area
+            if (document.getElementById('bracketCategoryLabel')) {
+                document.getElementById('bracketCategoryLabel').innerText = className;
+            }
+
+            const qAthletes = query(
+                collection(db, `events/${eventId}/athletes`),
+                where("className", "==", className)
+            );
+            const snap = await getDocs(qAthletes);
+            const athletes = [];
+            snap.forEach(docSnap => {
+                const d = docSnap.data();
+                athletes.push({
+                    name: d.name,
+                    team: d.team || d.kontingen || "-"
+                });
+            });
+
+            // Check if this class is BEREGU to show Magic Tab
+            try {
+                const qClass = query(collection(db, `events/${eventId}/classes`), where("name", "==", className));
+                const classSnap = await getDocs(qClass);
+                const magicBtn = document.getElementById('tabBtnMagic');
+                if (!classSnap.empty && classSnap.docs[0].data().type === 'BEREGU') {
+                    if (magicBtn) magicBtn.classList.remove('hidden');
                 } else {
-                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
-                    btn.classList.remove('text-red-400');
+                    if (magicBtn) {
+                        magicBtn.classList.add('hidden');
+                        if (currentStep2Tab === 'magic') switchStep2Tab('text');
+                    }
                 }
+            } catch (err) { console.error("Error checking class type:", err); }
+
+            // Simpan ke peserta global
+            participants = JSON.parse(JSON.stringify(athletes));
+            console.log(`Loaded ${participants.length} athletes for class "${className}"`);
+
+            // Update UI
+            document.getElementById('participantCount').value = Math.max(2, athletes.length);
+            document.getElementById('manualNames').value = athletes.map((a, i) => `${i + 1}. ${a.name} [${a.team}]`).join('\n');
+            renderAthleteList();
+
+            // CRITICAL: Load SVG first before fetching saved data
+            if (!svgDoc) {
+                console.log("📄 Loading SVG template...");
+                await loadSVG();
+            }
+
+            // Sinkronisasi dengan Firebase (Ambil urutan & data terakhir)
+            console.log("Fetching saved bracket for:", className);
+            await fetchSavedBracket(className.trim());
+
+            // Only generate empty bracket if no cloud data was found
+            if (!window.isBracketDrawn) {
+                console.log("No saved bracket found, showing empty template");
+                await generateBracket();
+            }
+        }
+
+        function syncHeadersToSVG() {
+            if (!svgDoc) return;
+
+            const eventName = document.getElementById('bracketEventLabel')?.innerText || "";
+            const className = document.getElementById('bracketCategoryLabel')?.innerText || "";
+
+            // Populate SVG IDs - Pakai querySelector dan dukung tspan agar teks muncul dengan benar
+            const eventEl = svgDoc.querySelector('#Nama_event');
+            if (eventEl) {
+                const target = eventEl.querySelector('tspan') || eventEl;
+                target.textContent = eventName;
+            }
+
+            const classEl = svgDoc.querySelector('#Kelas_Kategori');
+            if (classEl) {
+                const target = classEl.querySelector('tspan') || classEl;
+                target.textContent = className;
+            }
+        }
+
+        // Global variable declarations
+        let currentClass = initialClass;
+        window.isBracketDrawn = false;
+        let participants = [];
+        let svgDoc = null;
+
+        const names = [];
+
+        function cleanSVGPlaceholders() {
+            if (!svgDoc) return;
+            const placeholders = [
+                "NAMA PESERTA", "SKOR", "NAMA EVENT", "KONTINGEN PESERTA",
+                "SENSHU / PENALTY", "NAMA KATA", "-", "DASH -", "SKOR 1", "SKOR 2",
+                "KELAS KATEGORI", "18 AGUSTUS 2025", "08.30 - 08.30 (30 menit)", "1/1"
+            ];
+
+            const headerIds = ["Nama_event", "Kelas_Kategori", "tanggal", "durasi", "tatami", "pool"];
+
+            svgDoc.querySelectorAll('text, tspan').forEach(el => {
+                const text = el.textContent.trim();
+                const id = el.id || (el.parentElement && el.parentElement.id);
+
+                const isParticipantId = (id) => {
+                    if (!id) return false;
+                    // Babak R1 (P), R2 (Q), R3 (S), R4 (F)
+                    return id.startsWith('p_n_') || id.startsWith('p_k_') || id.startsWith('n_k_') ||
+                        id.startsWith('qn') || id.startsWith('qk') || id.startsWith('qnk') ||
+                        id.startsWith('sn') || id.startsWith('sk') || id.startsWith('snk') ||
+                        id.startsWith('fn') || id.startsWith('fk') || id.startsWith('fnk') ||
+                        id === 'p_nama_1' || id === 'text5989' || id === 'text5993' || id === 'text5997';
+                };
+
+                if (placeholders.includes(text) || headerIds.includes(id) || isParticipantId(id)) {
+                    el.textContent = "";
+                }
+            });
+        }
+
+        /**
+         * DYNAMIC LAYOUT ENGINE
+         * Mengatur visibilitas komponen bagan secara cerdas.
+         */
+        /**
+         * SMART PATH VISIBILITY ENGINE
+         * Menghitung dan menampilkan hanya jalur pertandingan yang relevan dari titik mulai peserta.
+         */
+        function applyBracketMapping(mapping) {
+            if (!svgDoc || !mapping) return;
+
+            const visibleSlots = new Set();
+
+            // 1. Hitung Jalur Hilir (Downstream Path) untuk setiap peserta
+            Object.values(mapping).forEach(startId => {
+                if (!startId) return;
+
+                let current = startId;
+                visibleSlots.add(current);
+
+                // Jalur ke Kualifikasi (Q)
+                if (current.startsWith('p_n_')) {
+                    let x = parseInt(current.replace('p_n_', ''));
+                    current = 'qn' + Math.ceil(x / 2);
+                    visibleSlots.add(current);
+                }
+                // Jalur ke Semi Final (S)
+                if (current.startsWith('qn')) {
+                    let x = parseInt(current.replace('qn', ''));
+                    current = 'sn' + Math.ceil(x / 2);
+                    visibleSlots.add(current);
+                }
+                // Jalur ke Final (F)
+                if (typeof current === 'string' && current.startsWith('sn')) {
+                    let x = parseInt(current.replace('sn', ''));
+                    current = 'fn' + (x <= 2 ? '1' : '2');
+                    visibleSlots.add(current);
+                }
+            });
+
+            // 2. Terapkan Visibilitas ke seluruh SVG berdasarkan Logical Slots
+            // Reset semua (Sembunyikan)
+            toggleAllLogicalSlots(false);
+
+            // Tampilkan yang masuk dalam path
+            visibleSlots.forEach(slotId => {
+                const componentIds = getComponentsForSlot(slotId);
+                componentIds.forEach(id => toggleSVG(id, true));
+            });
+        }
+
+        function getComponentsForSlot(slotId) {
+            // P Round
+            if (slotId.startsWith('p_n_')) {
+                const x = slotId.replace('p_n_', '');
+                return [(x === "1" ? `p_nama_1` : `p_n_${x}`), `p_k_${x}`, `n_k_${x}`, `S_${x}`, `sp_${x}`];
+            }
+            // Q Round
+            if (slotId.startsWith('qn')) {
+                const x = slotId.replace('qn', '');
+                return [`qn${x}`, `qk${x}`, `qnk${x}`, `qs${x}`, `qsp${x}`];
+            }
+            // S Round
+            if (slotId.startsWith('sn')) {
+                const x = slotId.replace('sn', '');
+                return [`sn${x}`, `sk${x}`, `snk${x}`, `ss${x}`, `ssp${x}`];
+            }
+            // F Round
+            if (slotId === 'fn1') return [`text5989`, `text5993`, `text5997`, `fs1`, `text5985`];
+            if (slotId === 'fn2') return [`fn2`, `fk2`, `fnk2`, `fs2`, `fsp2`];
+
+            return [];
+        }
+
+        function toggleAllLogicalSlots(active) {
+            for (let i = 1; i <= 16; i++) {
+                getComponentsForSlot(`p_n_${i}`).forEach(id => toggleSVG(id, active));
+                if (i <= 8) getComponentsForSlot(`qn${i}`).forEach(id => toggleSVG(id, active));
+                if (i <= 4) getComponentsForSlot(`sn${i}`).forEach(id => toggleSVG(id, active));
+                if (i <= 2) getComponentsForSlot(`fn${i}`).forEach(id => toggleSVG(id, active));
+            }
+        }
+
+        function toggleSVG(id, active) {
+            const el = svgDoc.getElementById(id);
+            if (el) {
+                el.style.opacity = active ? "1" : "0";
+                el.style.pointerEvents = active ? "auto" : "none";
+                console.log(`    ${active ? '✅' : '❌'} #${id} opacity=${el.style.opacity}`);
+            } else {
+                console.warn(`    ⚠️ Element #${id} not found in SVG!`);
+            }
+        }
+
+        async function loadSVG() {
+            const visualArea = document.getElementById('bracketVisualArea');
+            try {
+                const response = await fetch('assets/Master.svg');
+                if (!response.ok) throw new Error('File not found');
+                const svgText = await response.text();
+                visualArea.innerHTML = svgText;
+                svgDoc = visualArea.querySelector('svg');
+
+                if (svgDoc) {
+                    svgDoc.style.display = 'block';
+                    svgDoc.style.margin = 'auto';
+
+                    // Ukuran normal untuk browser (tidak ada scrolling)
+                    svgDoc.style.width = '1000px';
+                    svgDoc.style.height = '620px';
+                    svgDoc.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                }
+
+                setupSVGInteractivity();
+                cleanSVGPlaceholders();
+                syncHeadersToSVG();
+
+                // After SVG is ready, try to load saved state
+                // Moved fetchSavedBracket to loadAthletesForClass
+            } catch (error) {
+                console.error('Error loading SVG:', error);
+                visualArea.innerHTML = '<p class="text-red-400 font-bold text-xs uppercase text-center mt-10">Gagal memuat file assets/Master.svg.<br>Harap pastikan file tersebut ada di folder assets.</p>';
+            }
+        }
+
+        function setupSVGInteractivity() {
+            if (!svgDoc) return;
+
+            svgDoc.querySelectorAll('text').forEach(textEl => {
+                const id = textEl.id;
+                if (id && (id.includes('Nama') || id.includes('W_Nama'))) {
+                    textEl.style.cursor = 'pointer';
+                    textEl.addEventListener('click', () => handleWinnerClick(id));
+
+                    textEl.addEventListener('mouseenter', () => {
+                        if (textEl.textContent.trim() !== "-") textEl.style.filter = 'brightness(1.5)';
+                    });
+                    textEl.addEventListener('mouseleave', () => {
+                        textEl.style.filter = 'none';
+                    });
+                }
+            });
+        }
+
+        function handleWinnerClick(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const name = el.textContent.trim();
+            if (name === "" || name === "-") return;
+
+            let targetId = "";
+            let numMatches = id.match(/\d+/);
+            let num = numMatches ? parseInt(numMatches[0]) : 0;
+
+            if (id.startsWith('qn')) {
+                targetId = `sn${Math.ceil(num / 2)}`;
+            } else if (id.startsWith('sn')) {
+                targetId = `fn${Math.ceil(num / 2)}`;
+            } else if (id.startsWith('fn')) {
+                targetId = `winner_nama`;
+            }
+
+            if (targetId) {
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    const tspan = targetEl.querySelector('tspan') || targetEl;
+                    tspan.textContent = name;
+                    targetEl.setAttribute('fill', '#f87171');
+                    targetEl.style.opacity = "1";
+                }
+            }
+        }
+
+        async function handleExcelUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+                // Convert to JSON
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                // Extract names from first column
+                let namesFromExcel = jsonData
+                    .map(row => row[0]) // First column
+                    .filter(cell => cell && cell.toString().trim() !== ""); // Filter empty
+
+                // Optional: Skip header if it looks like a label
+                if (namesFromExcel.length > 0) {
+                    const first = namesFromExcel[0].toString().toLowerCase();
+                    if (first.includes("nama") || first.includes("name") || first.includes("peserta")) {
+                        namesFromExcel.shift();
+                    }
+                }
+
+                if (namesFromExcel.length === 0) {
+                    alert("Tidak ada data nama yang ditemukan di kolom pertama Excel.");
+                    return;
+                }
+
+                // Limit to 16 and set count
+                const count = Math.min(namesFromExcel.length, 16);
+                document.getElementById('participantCount').value = count;
+                document.getElementById('manualNames').value = namesFromExcel.slice(0, 16).join('\n');
+
+                // Trigger generation
+                await generateBracket();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function resetBracket() {
+            document.getElementById('participantCount').value = 8;
+            document.getElementById('manualNames').value = '';
+            document.getElementById('excelFile').value = ''; // Clear file input
+            participants = [];
+            window.isBracketDrawn = false;
+            generateBracket();
+        }
+
+        const GOLDEN_PRESETS = {
+            2: ['fn1', 'fn2'],
+            3: ['sn3', 'sn4', 'fn1'],
+            4: ['sn1', 'sn2', 'sn3', 'sn4'],
+            5: ['qn7', 'qn8', 'sn1', 'sn2', 'sn3'],
+            6: ['qn3', 'qn4', 'qn7', 'qn8', 'sn1', 'sn3'],
+            7: ['qn3', 'qn4', 'qn5', 'qn6', 'qn7', 'qn8', 'sn1'],
+            8: ['qn1', 'qn2', 'qn3', 'qn4', 'qn5', 'qn6', 'qn7', 'qn8'],
+            9: ['p_n_15', 'p_n_16', 'qn1', 'qn2', 'qn3', 'qn4', 'qn5', 'qn6', 'qn7'],
+            10: ['p_n_7', 'p_n_8', 'p_n_15', 'p_n_16', 'qn1', 'qn2', 'qn3', 'qn5', 'qn6', 'qn7'],
+            11: ['p_n_7', 'p_n_8', 'p_n_11', 'p_n_12', 'p_n_15', 'p_n_16', 'qn1', 'qn2', 'qn3', 'qn5', 'qn7'],
+            12: ['p_n_3', 'p_n_4', 'p_n_7', 'p_n_8', 'p_n_11', 'p_n_12', 'p_n_15', 'p_n_16', 'qn1', 'qn3', 'qn5', 'qn7'],
+            13: ['p_n_3', 'p_n_4', 'p_n_7', 'p_n_8', 'p_n_11', 'p_n_12', 'p_n_13', 'p_n_14', 'p_n_15', 'p_n_16', 'qn1', 'qn3', 'qn5'],
+            14: ['p_n_3', 'p_n_4', 'p_n_5', 'p_n_6', 'p_n_7', 'p_n_8', 'p_n_11', 'p_n_12', 'p_n_13', 'p_n_14', 'p_n_15', 'p_n_16', 'qn1', 'qn5'],
+            15: ['p_n_3', 'p_n_4', 'p_n_5', 'p_n_6', 'p_n_7', 'p_n_8', 'p_n_9', 'p_n_10', 'p_n_11', 'p_n_12', 'p_n_13', 'p_n_14', 'p_n_15', 'p_n_16', 'qn1'],
+            16: ['p_n_1', 'p_n_2', 'p_n_3', 'p_n_4', 'p_n_5', 'p_n_6', 'p_n_7', 'p_n_8', 'p_n_9', 'p_n_10', 'p_n_11', 'p_n_12', 'p_n_13', 'p_n_14', 'p_n_15', 'p_n_16']
+        };
+
+        async function generateBracket() {
+            const count = parseInt(document.getElementById('participantCount').value);
+            if (count < 2 || count > 16) return;
+
+            console.log(`\ud83d\udc68\u200d\ud83d\udcbb generateBracket called:`, {
+                participantsLength: participants.length,
+                participantCountInput: count,
+                isBracketDrawn: window.isBracketDrawn
+            });
+
+            // Get names from textarea OR use the already populated global participants
+            const manualInput = document.getElementById('manualNames').value.trim();
+            if (manualInput && (!participants || participants.length === 0 || manualInput.split('\n').length !== participants.length)) {
+                // Parser Cerdas: Mengabaikan '1. ' dan menangkap 'NAMA [TEAM]'
+                // Versi Tangguh: mendukung spasi maupun tanpa spasi sebelum '['
+                const parsed = manualInput.split('\n').filter(n => n.trim() !== '').map(lineTxt => {
+                    const line = lineTxt.trim();
+                    // Regex Baru: mendukung opsional nomor di awal, nama, dan opsional [team] tanpa haris spasi kaku
+                    const match = line.match(/^(?:\d+\.\s*)?([^\[\]]+)(?:\s*\[(.*)\])?$/);
+                    if (match) {
+                        return {
+                            name: match[1].trim(),
+                            team: match[2] ? match[2].trim() : "-"
+                        };
+                    }
+                    return { name: line.trim(), team: "-" };
+                });
+                if (parsed.length > 0) participants = parsed.slice(0, count);
+            }
+
+            // Sync Nomor kembali ke Textarea agar admin tahu urutan realnya
+            document.getElementById('manualNames').value = participants.map((p, i) => `${i + 1}. ${p.name} [${p.team}]`).join('\n');
+
+            renderAthleteList();
+
+            if (!svgDoc) {
+                await loadSVG();
+            }
+            if (!svgDoc) return;
+
+            // Update bracket title with event/category
+            const categorySelect = document.querySelector('select');
+            const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+            const categoryLabel = document.getElementById('bracketCategoryLabel');
+            if (categoryLabel) categoryLabel.textContent = categoryName;
+
+            currentClass = categoryName;
+
+            // 1. Ambil Pola Emas berdasarkan jumlah peserta
+            const pattern = GOLDEN_PRESETS[participants.length] || [];
+            console.log(`📊 Pattern for ${participants.length} participants:`, pattern);
+
+            // 2. Reset All Visuals
+            toggleAllLogicalSlots(false);
+            console.log(`🔒 All slots hidden`);
+
+            // 2.1 Sync Headers (Event Name & Class Name) back to SVG
+            syncHeadersToSVG();
+
+            // 3. Create Mapping & Apply Path Visibility
+            const mapping = {};
+            pattern.forEach((slotId, i) => {
+                if (participants[i]) mapping[i + 1] = slotId;
+            });
+
+            // Make mapped slots visible
+            console.log(`🔓 Making ${Object.keys(mapping).length} slots visible:`);
+            Object.values(mapping).forEach(slotId => {
+                console.log(`  👁️ Showing slot: ${slotId}`);
+                const components = getComponentsForSlot(slotId);
+                components.forEach(id => toggleSVG(id, true));
+            });
+
+            // 4. Hitung Penomoran Visual (Berdasarkan urutan Kiri-ke-Kanan, Atas-ke-Bawah)
+            const getSlotPriority = (id) => {
+                if (id.startsWith('p_n_')) return 100 + parseInt(id.replace('p_n_', ''));
+                if (id.startsWith('qn')) return 200 + parseInt(id.replace('qn', ''));
+                if (id.startsWith('sn')) return 300 + parseInt(id.replace('sn', ''));
+                if (id === 'fn1') return 401;
+                if (id === 'fn2') return 402;
+                return 999;
             };
 
-            // Protect Route
-            onAuthStateChanged(auth, (user) => {
-                if (!user) {
-                    window.location.href = 'login.html';
-                } else {
-                    if (document.getElementById('userNameDisplay')) {
-                        document.getElementById('userNameDisplay').innerText = user.displayName || user.email.split('@')[0];
+            const activeSlots = Object.entries(mapping).sort((a, b) => getSlotPriority(a[1]) - getSlotPriority(b[1]));
+
+            // 5. Fill Participant Names & Kontingen to SVG (ONLY IF DRAWN)
+            if (window.isBracketDrawn) {
+                console.log(`🎨 Filling ${activeSlots.length} slots with participant names...`);
+                activeSlots.forEach(([idx, slotId], displayIndex) => {
+                    const athlete = participants[idx - 1];
+                    if (!athlete) return;
+
+                    const componentIds = getComponentsForSlot(slotId);
+                    const nameId = componentIds[0];
+                    const teamId = componentIds[1];
+
+                    // Fill Name
+                    const nameEl = svgDoc.getElementById(nameId);
+                    if (nameEl) {
+                        const tspan = nameEl.querySelector('tspan') || nameEl;
+                        tspan.textContent = athlete.name;
+                        nameEl.style.opacity = "1";
+                        console.log(`  ✏️ [${slotId}] Filled name: "${athlete.name}" → #${nameId}`);
+                    } else {
+                        console.warn(`❌ Name element not found: ${nameId}`);
+                    }
+
+                    // Fill Team/Kontingen
+                    const teamEl = svgDoc.getElementById(teamId);
+                    if (teamEl) {
+                        const tspan = teamEl.querySelector('tspan') || teamEl;
+                        tspan.textContent = athlete.team;
+                        teamEl.style.opacity = "1";
+                        console.log(`  ✏️ [${slotId}] Filled team: "${athlete.team}" → #${teamId}`);
+                    }
+                });
+
+                // 6. Apply Current Font Sizes
+                updateBracketTextSizes();
+            } else {
+                console.log(`⏸️ Skipping name fill (isBracketDrawn = false)`);
+            }
+        }
+
+        async function saveBracket() {
+            if (!currentClass || !eventId) return;
+
+            const btn = document.getElementById('btnSaveBracket');
+            const label = document.getElementById('saveStatus');
+            btn.disabled = true;
+            label.innerText = "MENYIMPAN... ⏳";
+
+            // Extract all data from SVG - AUTOMATIC CAPTURE
+            const bracketData = {};
+
+            if (svgDoc) {
+                // Capture ALL text elements automatically
+                const allTextElements = svgDoc.querySelectorAll('text');
+                allTextElements.forEach(el => {
+                    const id = el.id;
+                    if (id && id.trim() !== '') {
+                        const tspan = el.querySelector('tspan') || el;
+                        const val = tspan.textContent.trim();
+                        if (val !== "" && val !== "-") {
+                            bracketData[id] = val;
+                        }
+                    }
+                });
+            }
+
+            console.log("Saving bracket data:", {
+                eventId,
+                currentClass,
+                participantsCount: participants.length,
+                bracketDataKeys: Object.keys(bracketData).length,
+                isDrawn: window.isBracketDrawn
+            });
+
+            // Validation: Prevent saving empty brackets
+            if (!window.isBracketDrawn) {
+                label.innerText = "GAGAL ❌";
+                btn.disabled = false;
+                alert("⚠️ Bracket belum di-generate!\n\nSilakan klik tombol SMART DRAW terlebih dahulu untuk mengisi nama peserta ke dalam bagan.");
+                return;
+            }
+
+            if (Object.keys(bracketData).length < 5) {
+                label.innerText = "GAGAL ❌";
+                btn.disabled = false;
+                alert("⚠️ Data bracket terlalu sedikit!\n\nPastikan:\n1. Tombol SMART DRAW sudah ditekan\n2. Nama peserta muncul di bagan\n3. Baru klik SIMPAN & SELESAI");
+                return;
+            }
+
+            try {
+                const path = `events/${eventId}/brackets/${currentClass}`;
+
+                await setDoc(doc(db, `events/${eventId}/brackets`, currentClass), {
+                    class: currentClass,
+                    data: bracketData,
+                    participants: participants,
+                    isDrawn: window.isBracketDrawn,
+                    status: 'complete',  // Track bracket completion status
+                    lastModified: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                });
+
+                console.log("✅ Save successful:", path);
+                label.innerText = "TERSIMPAN! ✅";
+                setTimeout(() => { label.innerText = "SIMPAN & SELESAI"; }, 2000);
+            } catch (err) {
+                console.error("❌ Save failed:", err);
+                alert("Gagal menyimpan bagan: " + err.message);
+                label.innerText = "GAGAL SIMPAN ❌";
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function fetchSavedBracket(className) {
+            if (!eventId || !className || !svgDoc) return;
+
+            const snap = await getDoc(doc(db, `events/${eventId}/brackets`, className));
+            if (snap.exists()) {
+                const cloudData = snap.data();
+                const saved = cloudData.data;
+                const cloudParticipants = cloudData.participants;
+                const cloudIsDrawn = cloudData.isDrawn;
+
+                console.log(`☁️ Cloud data found for "${className}":`, {
+                    participantsCount: cloudParticipants?.length || 0,
+                    isDrawn: cloudIsDrawn,
+                    svgKeysCount: Object.keys(saved || {}).length
+                });
+
+                // 1. Restore Participants & Draw State
+                if (cloudParticipants && cloudParticipants.length > 0) {
+                    participants = cloudParticipants;
+                    window.isBracketDrawn = cloudIsDrawn || false;
+
+                    console.log(`✅ Restored ${participants.length} participants from cloud`);
+
+                    // Re-sync UI
+                    document.getElementById('manualNames').value = participants.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
+                    document.getElementById('participantCount').value = participants.length;
+
+                    // If BEREGU and we have teams, render them
+                    if (participants.length > 0 && participants[0].members) {
+                        renderMagicTeams(participants);
+                    }
+
+                    renderAthleteList();
+                } else if (cloudIsDrawn !== undefined) {
+                    window.isBracketDrawn = cloudIsDrawn;
+                    console.log(`⚠️ No participants in cloud, using local data (${participants.length})`);
+                }
+
+                // 2. ALWAYS Redraw if we found cloud data to ensure names are filled
+                await generateBracket();
+
+                // 3. Restore ALL SVG Text from cloud (scores, winners, etc.)
+                if (saved && svgDoc) {
+                    console.log(`📥 Restoring ${Object.keys(saved).length} SVG elements from cloud:`);
+                    Object.entries(saved).forEach(([id, text]) => {
+                        const el = svgDoc.getElementById(id);
+                        if (el) {
+                            const tspan = el.querySelector('tspan') || el;
+                            tspan.textContent = text;
+                            el.style.opacity = "1";
+                            console.log(`  📝 #${id} ← "${text}"`);
+                            // Highlight winners
+                            if (!id.startsWith('p_') && !id.startsWith('qn') && !id.startsWith('Nama_') && !id.startsWith('Kelas_') && !id.startsWith('tanggal') && !id.startsWith('durasi') && !id.startsWith('tatami') && !id.startsWith('pool')) {
+                                el.setAttribute('fill', '#f87171');
+                            }
+                        } else {
+                            console.warn(`  ⚠️ Element #${id} not found in SVG`);
+                        }
+                    });
+                    console.log(`✅ Restored ${Object.keys(saved).length} SVG text elements`);
+                }
+
+                const label = document.getElementById('saveStatus');
+                if (label) label.innerText = "LOADED FROM CLOUD ☁️";
+                setTimeout(() => { if (label) label.innerText = "SIMPAN & SELESAI"; }, 2000);
+            } else {
+                console.log(`ℹ️ No cloud data for "${className}"`);
+            }
+        }
+
+        async function exportToPremium(format = 'pdf', event) {
+            const area = document.getElementById('bracketVisualArea');
+            if (!area || !svgDoc) {
+                alert("Data bagan belum siap.");
+                return;
+            }
+
+            // Gunakan event.currentTarget agar lebih aman (elemen button itu sendiri)
+            const btn = (event && (event.currentTarget || event.target)) || null;
+            const originalText = btn ? btn.innerHTML : "EXPORT";
+
+            if (btn) {
+                btn.innerHTML = "PREPARING... ⏳";
+                btn.disabled = true;
+            }
+
+            // Simpan status class asli
+            const originalClasses = area.className;
+
+            try {
+                // TRIK 'Shrink-to-Fit': Hilangkan w-full/h-full agar container menciut mengikuti ukuran SVG
+                // Ini memastikan tidak ada ruang hampa yang ikut ter-capture
+                area.classList.remove('w-full', 'h-full', 'flex', 'items-center', 'justify-center');
+                area.style.display = 'inline-block';
+                area.style.width = 'auto';
+                area.style.height = 'auto';
+
+                // Ambil capture dari container yang sudah menciut presisi (mengikuti ukuran SVG murni)
+                const capture = await html2canvas(area, {
+                    backgroundColor: '#ffffff',
+                    scale: 3, // 3x sudah cukup tajam untuk PDF F4
+                    useCORS: true,
+                    logging: false
+                });
+
+                const imgData = capture.toDataURL('image/png');
+
+                if (format === 'pdf') {
+                    const { jsPDF } = window.jspdf;
+                    const pdfWidthMm = 330;
+                    const pdfHeightMm = 210;
+                    const pdf = new jsPDF('l', 'mm', [pdfWidthMm, pdfHeightMm]);
+
+                    // Margin 0 karena container sudah menciut presisi mengikuti SVG
+                    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidthMm, pdfHeightMm);
+                    pdf.save(`Kensho_Bracket_${currentClass}_${new Date().getTime()}.pdf`);
+                }
+
+            } catch (err) {
+                console.error("Export failed:", err);
+                alert("Gagal ekspor: " + (err ? (err.message || err.toString()) : "Unknown Error"));
+            } finally {
+                // Kembalikan tampilan browser ke semula
+                area.className = originalClasses;
+                area.style.display = '';
+                area.style.width = '';
+                area.style.height = '';
+
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        let selectedAthleteIndex = null;
+
+
+
+        function smartDrawParticipants() {
+            if (participants.length < 2) return; window.isBracketDrawn = true;
+
+            // 1. Group by Kontingen
+            const groups = {};
+            participants.forEach(p => {
+                const t = p.team || "-";
+                if (!groups[t]) groups[t] = [];
+                groups[t].push(p);
+            });
+
+            const total = participants.length;
+            const mid = Math.floor(total / 2); // Split Top & Bottom 
+
+            // Siapkan slot kosong
+            let newOrder = new Array(total).fill(null);
+
+            // Indeks tersedia: Top (0 s/d mid-1), Bottom (mid s/d total-1)
+            let topAvailable = Array.from({ length: mid }, (_, i) => i);
+            let bottomAvailable = Array.from({ length: total - mid }, (_, i) => i + mid);
+
+            // 2. Sort kelompok: Host / Penyelenggara dulu, baru yang terbanyak
+            const sortedTeams = Object.keys(groups).sort((a, b) => {
+                if (a === window.hostKontingen) return -1;
+                if (b === window.hostKontingen) return 1;
+                return groups[b].length - groups[a].length;
+            });
+
+            // 3. Distribusi Cerdas
+            sortedTeams.forEach(team => {
+                const members = groups[team].sort(() => Math.random() - 0.5);
+
+                // Bagikan rata ke atas dan bawah
+                // Aturan user: Jika ganjil (misal 5), maka 2 atas, 3 bawah (Berat Bawah)
+                const toTopCount = Math.floor(members.length / 2);
+                const toBottomCount = members.length - toTopCount;
+
+                for (let i = 0; i < toTopCount; i++) {
+                    if (topAvailable.length > 0) {
+                        newOrder[topAvailable.shift()] = members.pop();
+                    } else {
+                        bottomAvailable.length > 0 && (newOrder[bottomAvailable.shift()] = members.pop());
+                    }
+                }
+                for (let i = 0; i < toBottomCount; i++) {
+                    if (bottomAvailable.length > 0) {
+                        newOrder[bottomAvailable.shift()] = members.pop();
+                    } else {
+                        topAvailable.length > 0 && (newOrder[topAvailable.shift()] = members.pop());
                     }
                 }
             });
 
-            window.loadSVG = loadSVG;
-            window.setupSVGInteractivity = setupSVGInteractivity;
-            window.generateBracket = generateBracket;
-            window.handleWinnerClick = handleWinnerClick;
-            window.handleExcelUpload = handleExcelUpload;
-            window.resetBracket = resetBracket;
+            participants = newOrder.filter(p => p !== null);
+            document.getElementById('manualNames').value = participants.map((a, i) => `${i + 1}. ${a.name} [${a.team}]`).join('\n');
+            generateBracket();
+        }
 
-            let participants = [];
-            let svgDoc = null;
+        function handleAthleteClick(index) {
+            if (selectedAthleteIndex === null) {
+                // First selection
+                selectedAthleteIndex = index;
+                renderAthleteList(); // Re-render to show active state
+            } else {
+                // Second selection - SWAP
+                if (selectedAthleteIndex !== index) {
+                    window.isBracketDrawn = true;
+                    const temp = participants[selectedAthleteIndex];
+                    participants[selectedAthleteIndex] = participants[index];
+                    participants[index] = temp;
 
-            const names = [];
-
-            async function loadSVG() {
-                const visualArea = document.getElementById('bracketVisualArea');
-                try {
-                    const response = await fetch('assets/OPEN.svg');
-                    if (!response.ok) throw new Error('File not found');
-                    const svgText = await response.text();
-                    visualArea.innerHTML = svgText;
-                    svgDoc = visualArea.querySelector('svg');
-
-                    if (svgDoc) {
-                        // Make SVG responsive and filling the container
-                        svgDoc.setAttribute('width', '100%');
-                        svgDoc.setAttribute('height', '100%');
-                        svgDoc.style.display = 'block';
-                        svgDoc.style.margin = 'auto';
-                        svgDoc.style.filter = 'drop-shadow(0 15px 35px rgba(0,0,0,0.08))';
-
-                        // Reduced size to fit screen without zooming (based on 80% feedback)
-                        svgDoc.style.minWidth = '950px';
-                        svgDoc.style.minHeight = '650px';
-                    }
-
-                    setupSVGInteractivity();
-                } catch (error) {
-                    console.error('Error loading SVG:', error);
-                    visualArea.innerHTML = '<p class="text-red-400 font-bold text-xs uppercase text-center mt-10">Gagal memuat file assets/OPEN.svg.<br>Harap pastikan file tersebut ada di folder assets.</p>';
+                    document.getElementById('manualNames').value = participants.map((a, i) => `${i + 1}. ${a.name} [${a.team}]`).join('\n');
+                    generateBracket();
                 }
-            }
-
-            function setupSVGInteractivity() {
-                if (!svgDoc) return;
-
-                svgDoc.querySelectorAll('text').forEach(textEl => {
-                    const id = textEl.id;
-                    if (id && (id.includes('Nama') || id.includes('W_Nama'))) {
-                        textEl.style.cursor = 'pointer';
-                        textEl.addEventListener('click', () => handleWinnerClick(id));
-
-                        textEl.addEventListener('mouseenter', () => {
-                            if (textEl.textContent.trim() !== "-") textEl.style.filter = 'brightness(1.5)';
-                        });
-                        textEl.addEventListener('mouseleave', () => {
-                            textEl.style.filter = 'none';
-                        });
-                    }
-                });
-            }
-
-            function handleWinnerClick(id) {
-                const el = document.getElementById(id);
-                if (!el) return;
-                const name = el.textContent.trim();
-                if (name === "" || name === "-") return;
-
-                let targetId = "";
-                let numMatches = id.match(/\d+/);
-                let num = numMatches ? parseInt(numMatches[0]) : 0;
-
-                if (id.startsWith('Nama_')) {
-                    targetId = `Qf_Nama_${Math.ceil(num / 2)}`;
-                } else if (id.startsWith('Qf_Nama_')) {
-                    targetId = `SM_Nama_${Math.ceil(num / 2)}`;
-                } else if (id.startsWith('SM_Nama_')) {
-                    targetId = `F_Nama_${Math.ceil(num / 2)}`;
-                } else if (id.startsWith('F_Nama_')) {
-                    targetId = `W_Nama`;
-                }
-
-                if (targetId) {
-                    const targetEl = document.getElementById(targetId);
-                    if (targetEl) {
-                        const tspan = targetEl.querySelector('tspan') || targetEl;
-                        tspan.textContent = name;
-                        targetEl.setAttribute('fill', '#f87171');
-                        targetEl.style.opacity = "1";
-                    }
-                }
-            }
-
-            async function handleExcelUpload(input) {
-                const file = input.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-
-                    // Convert to JSON
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-
-                    // Extract names from first column
-                    let namesFromExcel = jsonData
-                        .map(row => row[0]) // First column
-                        .filter(cell => cell && cell.toString().trim() !== ""); // Filter empty
-
-                    // Optional: Skip header if it looks like a label
-                    if (namesFromExcel.length > 0) {
-                        const first = namesFromExcel[0].toString().toLowerCase();
-                        if (first.includes("nama") || first.includes("name") || first.includes("peserta")) {
-                            namesFromExcel.shift();
-                        }
-                    }
-
-                    if (namesFromExcel.length === 0) {
-                        alert("Tidak ada data nama yang ditemukan di kolom pertama Excel.");
-                        return;
-                    }
-
-                    // Limit to 16 and set count
-                    const count = Math.min(namesFromExcel.length, 16);
-                    document.getElementById('participantCount').value = count;
-                    document.getElementById('manualNames').value = namesFromExcel.slice(0, 16).join('\n');
-
-                    // Trigger generation
-                    await generateBracket();
-                };
-                reader.readAsArrayBuffer(file);
-            }
-
-            function resetBracket() {
-                document.getElementById('participantCount').value = 8;
-                document.getElementById('manualNames').value = '';
-                document.getElementById('excelFile').value = ''; // Clear file input
-                participants = [];
-                generateBracket();
-            }
-
-            async function generateBracket() {
-                const count = parseInt(document.getElementById('participantCount').value);
-                if (count < 2 || count > 16) return;
-
-                // Get names from textarea or use defaults
-                const manualInput = document.getElementById('manualNames').value.trim();
-                if (manualInput) {
-                    participants = manualInput.split('\n').filter(n => n.trim() !== '').slice(0, count);
-                } else {
-                    participants = names.slice(0, count);
-                }
-
+                selectedAthleteIndex = null;
                 renderAthleteList();
-
-                if (!svgDoc) {
-                    await loadSVG();
-                }
-
-                if (!svgDoc) return;
-
-                // Update bracket title with event/category
-                const categorySelect = document.querySelector('select');
-                const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
-
-                const categoryLabel = document.getElementById('bracketCategoryLabel');
-                const eventLabel = document.getElementById('bracketEventLabel');
-
-                if (categoryLabel) categoryLabel.textContent = categoryName;
-                // Event name is static context from Piala Spartan 2026, could be dynamic later
-
-                // Reset
-                const allTextIds = [
-                    ...Array.from({ length: 16 }, (_, i) => `Nama_${i + 1}`),
-                    ...Array.from({ length: 8 }, (_, i) => `Qf_Nama_${i + 1}`),
-                    ...Array.from({ length: 4 }, (_, i) => `SM_Nama_${i + 1}`),
-                    'F_Nama_1', 'F_Nama_2', 'W_Nama'
-                ];
-
-                allTextIds.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        const tspan = el.querySelector('tspan') || el;
-                        tspan.textContent = "-";
-                        el.setAttribute('fill', '#000000');
-                        el.style.opacity = "0.2";
-                    }
-                });
-
-                // Fill
-                participants.forEach((name, i) => {
-                    const id = `Nama_${i + 1}`;
-                    const el = document.getElementById(id);
-                    if (el) {
-                        const tspan = el.querySelector('tspan') || el;
-                        tspan.textContent = name;
-                        el.style.opacity = "1";
-                    }
-                });
-
-                // Bye logic
-                setTimeout(() => {
-                    for (let i = 1; i <= 16; i += 2) {
-                        const p1El = document.getElementById(`Nama_${i}`);
-                        const p2El = document.getElementById(`Nama_${i + 1}`);
-                        if (!p1El || !p2El) continue;
-                        if (p1El.textContent.trim() !== "-" && p2El.textContent.trim() === "-") handleWinnerClick(`Nama_${i}`);
-                        else if (p1El.textContent.trim() === "-" && p2El.textContent.trim() !== "-") handleWinnerClick(`Nama_${i + 1}`);
-                    }
-                }, 500);
             }
+        }
 
-            function renderAthleteList() {
-                const list = document.getElementById('athleteTags');
-                const totalLabel = document.getElementById('athleteTotalLabel');
-                if (!list || !totalLabel) return;
-                list.innerHTML = '';
-                totalLabel.innerText = `${participants.length} ATLET`;
+        function renderAthleteList() {
+            const list = document.getElementById('athleteTags');
+            const totalLabel = document.getElementById('athleteTotalLabel');
+            if (!list || !totalLabel) return;
 
-                participants.forEach((name, i) => {
-                    const div = document.createElement('div');
-                    div.className = "neu-inset px-4 py-2 rounded-xl flex items-center space-x-3 border border-white/5 group hover:border-red-400/30 transition-all";
-                    div.innerHTML = `
-                    <span class="text-[9px] font-black text-red-400 italic">${(i + 1).toString().padStart(2, '0')}</span>
-                    <span class="text-[10px] font-extrabold uppercase tracking-wider text-white">${name}</span>
+            list.innerHTML = '';
+            totalLabel.innerText = `${participants.length} ATLET`;
+
+            // 2. Render Daftar Atlet - KARTU VISUAL UNTUK TUKAR POSISI
+            participants.forEach((athlete, i) => {
+                const matchIndex = Math.floor(i / 2) + 1;
+                const isSelected = selectedAthleteIndex === i;
+
+                const div = document.createElement('div');
+                const borderColor = isSelected ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'border-slate-200';
+                const bgColor = isSelected ? 'bg-blue-50' : 'bg-white';
+
+                div.className = `px-4 py-3 rounded-xl flex flex-col border ${borderColor} ${bgColor} transition-all relative overflow-hidden cursor-pointer hover:border-blue-400 group`;
+                div.onclick = () => handleAthleteClick(i);
+
+                const matchIndicator = `<span class="absolute right-2 top-1 text-[7px] font-black opacity-10 uppercase tracking-tighter">M${matchIndex}</span>`;
+
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-[10px] font-black ${isSelected ? 'text-blue-600' : 'text-slate-300'} italic">${(i + 1).toString().padStart(2, '0')}</span>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-black uppercase tracking-wide text-slate-800">${athlete.name}</span>
+                            <span class="text-[8px] font-bold text-blue-500 opacity-60 uppercase tracking-widest">${athlete.team}</span>
+                        </div>
+                    </div>
+                    ${matchIndicator}
                 `;
-                    list.appendChild(div);
-                });
+                list.appendChild(div);
+            });
+        }
+
+        let currentStep2Tab = 'text';
+        function switchStep2Tab(tab) {
+            currentStep2Tab = tab;
+            const textTab = document.getElementById('step2TabText');
+            const visualTab = document.getElementById('step2TabVisual');
+            const magicTab = document.getElementById('step2TabMagic');
+            const textBtn = document.getElementById('tabBtnText');
+            const visualBtn = document.getElementById('tabBtnVisual');
+            const magicBtn = document.getElementById('tabBtnMagic');
+
+            // Hide all tabs
+            [textTab, visualTab, magicTab].forEach(t => t && (t.style.display = 'none'));
+
+            // Reset all buttons style
+            [textBtn, visualBtn, magicBtn].forEach(btn => {
+                if (btn) {
+                    btn.classList.remove('bg-white', 'text-blue-600', 'shadow-md');
+                    btn.classList.add('text-slate-400');
+                    btn.classList.remove('text-blue-600');
+                }
+            });
+
+            if (tab === 'text') {
+                textTab.style.display = 'block';
+                textBtn.classList.add('bg-white', 'text-blue-600', 'shadow-md');
+                textBtn.classList.remove('text-slate-400');
+            } else if (tab === 'visual') {
+                visualTab.style.display = 'block';
+                visualBtn.classList.add('bg-white', 'text-blue-600', 'shadow-md');
+                visualBtn.classList.remove('text-slate-400');
+            } else if (tab === 'magic') {
+                magicTab.style.display = 'block';
+                magicBtn.classList.add('bg-white', 'text-blue-600', 'shadow-md');
+                magicBtn.classList.remove('text-slate-400');
+            }
+        }
+
+        function getFirstName(fullName) {
+            if (!fullName) return "";
+            // Ambil kata pertama, bersihkan dari angka atau simbol, dan ubah ke UPPERCASE
+            return fullName.trim().split(' ')[0].split('-')[0].replace(/[^a-zA-Z]/g, '').toUpperCase();
+        }
+
+        window.groupAthletesByTeamMagic = () => {
+            if (participants.length === 0) {
+                alert("Tidak ada data atlet untuk diproses.");
+                return;
             }
 
-            window.onload = () => {
-                generateBracket();
-            };
+            // Group by Kontingen
+            const groups = {};
+            participants.forEach(p => {
+                const t = p.team || "-";
+                if (!groups[t]) groups[t] = [];
+                groups[t].push(p);
+            });
 
-        </script>
+            const magicTeams = [];
+            Object.keys(groups).forEach(teamName => {
+                const members = groups[teamName];
+                // Split into groups of 3
+                for (let i = 0; i < members.length; i += 3) {
+                    const chunk = members.slice(i, i + 3);
+                    const teamNum = Math.floor(i / 3) + 1;
+
+                    // Format: Team Dominores 1 - AFIF, RIZAL, RONAL
+                    const namesStr = chunk.map(m => getFirstName(m.name)).join(', ');
+                    const formattedTeamName = `TEAM ${teamName} ${teamNum} - ${namesStr}`;
+
+                    magicTeams.push({
+                        name: formattedTeamName,
+                        team: teamName,
+                        members: chunk
+                    });
+                }
+            });
+
+            // Update global participants with these teams
+            participants = JSON.parse(JSON.stringify(magicTeams));
+            window.isBracketDrawn = true; // Mark as drawn so names appear
+
+            // Sync to textarea & UI
+            document.getElementById('manualNames').value = participants.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
+            document.getElementById('participantCount').value = participants.length;
+
+            renderMagicTeams(magicTeams);
+            renderAthleteList();
+            generateBracket();
+
+            alert(`🪄 Magic Berhasil! ${magicTeams.length} Tim telah terbentuk.`);
+        };
+
+        function renderMagicTeams(teams) {
+            const container = document.getElementById('magicTeamList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            teams.forEach((t, i) => {
+                const card = document.createElement('div');
+                card.className = "neu-flat p-6 rounded-2xl border border-white/5 flex flex-col gap-3 group hover:border-blue-500/30 transition-all";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="text-[9px] font-black text-blue-500 uppercase tracking-widest">TIM #${i + 1}</span>
+                        <span class="text-[8px] font-bold opacity-30 italic truncate max-w-[100px]">${t.team}</span>
+                    </div>
+                    <div class="text-sm font-black text-slate-200 leading-tight">${t.name}</div>
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        ${t.members.map(m => `<span class="px-3 py-1.5 rounded-xl bg-white/5 text-[9px] font-black text-blue-400 uppercase tracking-widest border border-blue-500/10">${getFirstName(m.name)}</span>`).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateBracketTextSizes() {
+            const nameEl = document.getElementById('fontSizeName');
+            const teamEl = document.getElementById('fontSizeTeam');
+            if (!nameEl || !teamEl) return;
+
+            const nameSize = nameEl.value;
+            const teamSize = teamEl.value;
+
+            document.getElementById('fontSizeNameVal').innerText = nameSize + "PX";
+            document.getElementById('fontSizeTeamVal').innerText = teamSize + "PX";
+
+            // Preview pada SVG
+            const nodes = document.querySelectorAll('text');
+            nodes.forEach(node => {
+                const id = node.id || "";
+                if (id.match(/^(qn|sn|fn|p_n_)\d+$/)) {
+                    node.style.fontSize = nameSize + "px";
+                }
+                else if (id.match(/^(qk|sk|fk|p_k_)\d+$/)) {
+                    node.style.fontSize = teamSize + "px";
+                }
+            });
+        }
+
+        // Export all functions to global scope (MUST be after all function definitions)
+        window.loadSVG = loadSVG;
+        window.setupSVGInteractivity = setupSVGInteractivity;
+        window.generateBracket = generateBracket;
+        window.handleWinnerClick = handleWinnerClick;
+        window.handleExcelUpload = handleExcelUpload;
+        window.resetBracket = resetBracket;
+        window.saveBracket = saveBracket;
+        window.fetchSavedBracket = fetchSavedBracket;
+        window.exportToPremium = exportToPremium;
+        window.smartDrawParticipants = smartDrawParticipants;
+        window.handleAthleteClick = handleAthleteClick;
+        window.renderAthleteList = renderAthleteList;
+        window.switchStep2Tab = switchStep2Tab;
+        window.updateBracketTextSizes = updateBracketTextSizes;
+        window.groupAthletesByTeamMagic = groupAthletesByTeamMagic;
+        window.renderMagicTeams = renderMagicTeams;
+
+        // NOTE: Initial loading is handled by loadEventContext() 
+        // which is called from the auth state listener below
+        // DO NOT add window.onload handler here as it will conflict!
+
+    </script>
 </body>
 
 </html>

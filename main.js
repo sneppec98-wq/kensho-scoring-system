@@ -2,7 +2,7 @@ const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 const os = require('os');
-const { autoUpdater } = require('electron-updater');
+
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -81,16 +81,6 @@ ipcMain.handle('get-machine-id', async () => {
 app.whenReady().then(() => {
     createWindow();
 
-    // Check for updates every 60 minutes
-    setInterval(() => {
-        autoUpdater.checkForUpdates();
-    }, 60 * 60 * 1000);
-
-    // Listen for restart request from UI
-    ipcMain.handle('restart-app', () => {
-        autoUpdater.quitAndInstall();
-    });
-
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
@@ -104,19 +94,4 @@ app.on('window-all-closed', () => {
     }
 });
 
-// AUTO-UPDATE LOGIC - IPC Communication
-autoUpdater.on('update-available', (info) => {
-    BrowserWindow.getAllWindows().forEach(win => {
-        win.webContents.send('update-available', info.version);
-    });
-});
 
-autoUpdater.on('update-downloaded', (info) => {
-    BrowserWindow.getAllWindows().forEach(win => {
-        win.webContents.send('update-downloaded', info.version);
-    });
-});
-
-autoUpdater.on('error', (err) => {
-    console.error('Update error:', err);
-});

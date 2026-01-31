@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Cetak Daftar Kontingen F4</title>
+    <style>
+        /* Pengaturan Ukuran Kertas F4 */
+        @page {
+            size: 210mm 330mm;
+            margin: 15mm; /* Memberi ruang agar tidak terpotong printer */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.4;
+        }
+
+        /* Container utama untuk membungkus seluruh konten */
+        .wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Bagian Konten Atas */
+        .content {
+            flex: 1;
+        }
+
+        header { text-align: center; margin-bottom: 20px; }
+        .logo-header { width: 80px; margin-bottom: 10px; }
+        .judul-utama { font-size: 20px; margin: 0; font-weight: bold; }
+
+        .kontingen-info { margin: 20px 0; font-weight: bold; }
+
+        /* Tabel Data */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+        th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+
+        /* FOOTER: Dipaksa ke bawah */
+        footer {
+            height: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #ccc;
+            margin-top: 20px;
+        }
+
+        .logo-footer { width: 40px; }
+
+        /* Pengaturan Khusus Saat Print */
+        @media print {
+            body { margin: 0; }
+            footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+            /* Mencegah tabel terpotong di tengah baris */
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="content">
+            <header>
+                <img src="https://via.placeholder.com/80" alt="Logo" class="logo-header">
+                <div class="judul-utama">DAFTAR KONTINGEN ATLET</div>
+                <div>Turnamen Olahraga Persahabatan 2026</div>
+            </header>
+
+            <div class="kontingen-info">
+                NAMA KONTINGEN: <span style="text-decoration: underline;">KOTA PROBOLINGGO</span>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">No</th>
+                        <th>Nama Atlet</th>
+                        <th width="15%">L/P</th>
+                        <th width="35%">Kelas Pertandingan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td style="text-align: left;">Budi Sudarsono</td><td>L</td><td>Kumite Putra -60kg</td></tr>
+                    <tr><td>2</td><td style="text-align: left;">Siti Rahma</td><td>P</td><td>Kata Perorangan Putri</td></tr>
+                    </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <img src="https://via.placeholder.com/40" alt="Logo Footer" class="logo-footer">
+            <div style="font-size: 12px;">Halaman 1 dari 1</div>
+        </footer>
+    </div>
+
+</body>
+</html>

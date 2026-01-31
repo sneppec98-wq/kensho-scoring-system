@@ -262,10 +262,11 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
                         <td class="p-4 opacity-60">${athlete.team}</td>
                         <td class="p-4 ${!isOk ? 'text-red-500' : 'text-blue-400'} font-black italic">
                             ${athlete.code}</td>
-                        <td class="p-4">
-                            <span class="${isOk ? 'text-green-400' : 'text-red-500'}">
-                                ${isOk ? '✅ ' + athlete.className : '❌ ' + athlete.className}
-                            </span>
+                        <td class="py-4 text-blue-400 font-bold text-xs">
+                            <div class="flex flex-col">
+                                <span class="text-[8px] opacity-40 font-black">${athlete.code || ''}</span>
+                                ${athlete.className || '-'}
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -309,6 +310,7 @@ export const proceedWithConfirmedImport = async (eventId) => {
                 gender: a.gender,
                 birthDate: a.birthDate,
                 weight: a.weight,
+                classCode: a.code,
                 className: a.className,
                 members: a.members,
                 createdAt: new Date().toISOString()

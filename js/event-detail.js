@@ -35,6 +35,7 @@ import {
     editAthlete,
     saveAthleteEdit,
     deleteAthlete,
+    deleteContingentAthletes,
     deleteAllAthletes
 } from './modules/athletes-manager.js';
 
@@ -57,12 +58,10 @@ import {
 // Import Verification Display
 import { renderVerificationData } from './modules/verification-display.js';
 
-// Import Schedule Generator
-import {
-    generateSchedule,
-    renderSchedule,
-    printSchedule
-} from './modules/schedule-generator.js';
+// Import Schedule Generator & Printing
+import { renderSchedule } from './modules/schedule-generator.js';
+import { prepareJadwalPrint } from './modules/print/print-jadwal.js';
+import { prepareBracketPrint } from './modules/print/print-bracket.js';
 
 // Import Firestore Listeners
 import {
@@ -85,6 +84,7 @@ let latestBrackets = [];
 let currentSubTab = 'OPEN'; // For Classes & Brackets
 let currentAthleteSubTab = 'OPEN'; // For Athletes Table
 let currentVerifikasiSubTab = 'PESERTA'; // For Verification Tab
+let pendingLogoBase64 = null;
 
 // ===================================
 // Sub-Tab Management
@@ -145,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===================================
     // Settings Save
     // ===================================
-    let pendingLogoBase64 = null;
     const formSettings = document.getElementById('formSettings');
     if (formSettings) {
         formSettings.onsubmit = async (e) => {
@@ -228,6 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupClassesListener(eventId, (classes) => {
             console.log('🏅 Classes updated:', classes.length);
             latestClasses = classes;
+            renderAthleteData(latestAthletes, classes, currentAthleteSubTab);
             renderClassesData(classes, latestAthletes, currentSubTab, eventId);
             renderBracketsConfig(classes, latestBrackets);
             renderVerificationData(latestAthletes, classes, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
@@ -259,33 +259,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===================================
-// Export Functions to Window (Global)
+// UI Methods
 // ===================================
-window.showProgress = showProgress;
-window.hideProgress = hideProgress;
-window.toggleModal = toggleModal;
-window.filterTable = filterTable;
-window.switchTab = switchTab;
-window.downloadClassTemplate = downloadClassTemplate;
-window.importClassesFromExcel = (e) => importClassesFromExcel(e, eventId);
-window.importAthletesFromExcel = (e) => importAthletesFromExcel(e, eventId, latestClasses);
-window.proceedWithConfirmedImport = () => proceedWithConfirmedImport(eventId);
-window.editAthlete = (id) => editAthlete(id, eventId);
-window.saveAthleteEdit = () => saveAthleteEdit(eventId);
-window.deleteAthlete = (id) => deleteAthlete(id, eventId);
-window.deleteAllAthletes = () => deleteAllAthletes(eventId);
-window.addNewClass = () => addNewClass(eventId);
-window.deleteClass = (code) => deleteClass(code, eventId);
-window.deleteAllClasses = () => deleteAllClasses(eventId);
-window.openBracketConfig = (code) => openBracketConfig(code, eventId, latestClasses);
-window.saveBracketConfig = () => saveBracketConfig(eventId);
-window.deleteBracketConfig = (code) => deleteBracketConfig(code, eventId);
-window.generateSchedule = generateSchedule;
-window.printSchedule = (name, data, logo) => printSchedule(name || eventName, data || [], logo || eventLogo);
-window.joinVoice = joinVoice;
-window.leaveVoice = leaveVoice;
-window.toggleMicMute = toggleMicMute;
-
 function updateLogoPreview(url) {
     const preview = document.getElementById('logoPreviewImage');
     const placeholder = document.getElementById('logoPlaceholder');
@@ -355,3 +330,43 @@ function toggleVoiceLounge() {
     }
 }
 window.toggleVoiceLounge = toggleVoiceLounge;
+
+// ===================================
+// Global Exports (for HTML onclick)
+// ===================================
+window.switchTab = switchTab;
+window.toggleModal = toggleModal;
+window.showProgress = showProgress;
+window.updateProgress = updateProgress;
+window.hideProgress = hideProgress;
+window.downloadClassTemplate = downloadClassTemplate;
+window.importClassesFromExcel = (e) => importClassesFromExcel(e, eventId);
+window.importAthletesFromExcel = (e) => importAthletesFromExcel(e, eventId, latestClasses);
+window.proceedWithConfirmedImport = () => proceedWithConfirmedImport(eventId);
+window.editAthlete = (id) => editAthlete(id, eventId);
+window.saveAthleteEdit = () => saveAthleteEdit(eventId, latestClasses);
+window.deleteAthlete = (id) => deleteAthlete(id, eventId);
+window.deleteContingentAthletes = (teamName) => deleteContingentAthletes(teamName, eventId);
+window.deleteAllAthletes = () => deleteAllAthletes(eventId);
+window.addNewClass = () => addNewClass(eventId);
+window.deleteClass = (code) => deleteClass(code, eventId);
+window.deleteAllClasses = () => deleteAllClasses(eventId);
+window.openBracketConfig = (code) => openBracketConfig(code, eventId, latestClasses);
+window.saveBracketConfig = () => saveBracketConfig(eventId);
+window.deleteBracketConfig = (code) => deleteBracketConfig(code, eventId);
+window.joinVoice = joinVoice;
+window.leaveVoice = leaveVoice;
+window.toggleMicMute = toggleMicMute;
+window.setSubTab = setSubTab;
+window.setAthleteSubTab = setAthleteSubTab;
+window.setVerifikasiSubTab = setVerifikasiSubTab;
+window.printSchedule = (name, logo) => prepareJadwalPrint(name || eventName, logo || eventLogo);
+window.handlePrintFestivalBracket = () => {
+    const bracketsMap = {};
+    if (latestBrackets && latestBrackets.length > 0) {
+        latestBrackets.forEach(b => {
+            bracketsMap[b.class] = b;
+        });
+    }
+    prepareBracketPrint(latestAthletes, latestClasses, eventName, eventLogo, bracketsMap);
+};

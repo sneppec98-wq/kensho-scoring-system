@@ -767,6 +767,16 @@
                     </div>
 
                     <div class="flex space-x-4 mb-1">
+                        <button id="btnPreviewFestival" onclick="handlePreviewFestival()"
+                            class="neu-button px-8 py-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-600 hover:text-white transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            PRATINJAU FESTIVAL
+                        </button>
                         <button onclick="exportToPremium('pdf', event)"
                             class="neu-button px-8 py-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/5 border border-blue-500/10 hover:bg-blue-600 hover:text-white transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -858,6 +868,7 @@
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { collection, onSnapshot, query, where, getDocs, doc, getDoc, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
+        import { prepareBracketPrint } from './js/modules/print/print-bracket.js';
 
         window.handleLogout = handleLogout;
 
@@ -911,6 +922,7 @@
         const eventId = urlParams.get('id');
         const classId = urlParams.get('classId');
         const initialClass = urlParams.get('class');
+        let currentClassCode = classId || "";
 
         if (!eventId) {
             alert("ID Event tidak ditemukan!");
@@ -990,31 +1002,52 @@
                 document.getElementById('bracketCategoryLabel').innerText = className;
             }
 
-            const qAthletes = query(
-                collection(db, `events/${eventId}/athletes`),
-                where("className", "==", className)
-            );
-            const snap = await getDocs(qAthletes);
-            const athletes = [];
-            snap.forEach(docSnap => {
-                const d = docSnap.data();
-                athletes.push({
-                    name: d.name,
-                    team: d.team || d.kontingen || "-"
-                });
-            });
+            // 1. Dapatkan Kode Kelas Terlebih Dahulu
+            let classCode = "";
+            try {
+                const qClass = query(collection(db, `events/${eventId}/classes`), where("name", "==", className));
+                const classSnap = await getDocs(qClass);
+                if (!classSnap.empty) {
+                    const classData = classSnap.docs[0].data();
+                    classCode = classData.code || "";
+                    currentClassCode = classCode;
+                }
+            } catch (err) { console.error("Error getting class code:", err); }
 
-            // Check if this class is BEREGU to show Magic Tab
+            // 2. Cari Atlet Berdasarkan Kode (Utama) atau Nama (Lama)
+            let athletes = [];
+            try {
+                // Mencari atlet yang memiliki classCode sama ATAU className sama
+                const qAthletes = query(collection(db, `events/${eventId}/athletes`));
+                const snap = await getDocs(qAthletes);
+
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    // Cocokkan berdasarkan Kode (F01) atau Nama (KATA...)
+                    if ((classCode && d.classCode === classCode) || (d.className === className)) {
+                        athletes.push({
+                            name: d.name,
+                            team: d.team || d.kontingen || "-"
+                        });
+                    }
+                });
+            } catch (err) { console.error("Error loading athletes:", err); }
+
+            // Check if this class is BEREGU or FESTIVAL
             try {
                 const qClass = query(collection(db, `events/${eventId}/classes`), where("name", "==", className));
                 const classSnap = await getDocs(qClass);
                 const magicBtn = document.getElementById('tabBtnMagic');
-                if (!classSnap.empty && classSnap.docs[0].data().type === 'BEREGU') {
-                    if (magicBtn) magicBtn.classList.remove('hidden');
-                } else {
-                    if (magicBtn) {
-                        magicBtn.classList.add('hidden');
-                        if (currentStep2Tab === 'magic') switchStep2Tab('text');
+                const bracketArea = document.getElementById('bracketVisualArea');
+
+                if (!classSnap.empty) {
+                    const classData = classSnap.docs[0].data();
+                    currentClassCode = classData.code || "";
+
+                    if (classData.type === 'BEREGU') {
+                        if (magicBtn) magicBtn.classList.remove('hidden');
+                    } else {
+                        if (magicBtn) magicBtn.classList.add('hidden');
                     }
                 }
             } catch (err) { console.error("Error checking class type:", err); }
@@ -1038,10 +1071,16 @@
             console.log("Fetching saved bracket for:", className);
             await fetchSavedBracket(className.trim());
 
-            // Only generate empty bracket if no cloud data was found
+            // Only generate if no cloud data was found
             if (!window.isBracketDrawn) {
-                console.log("No saved bracket found, showing empty template");
-                await generateBracket();
+                const isFestival = (currentClassCode || "").toString().toUpperCase().startsWith('F');
+                if (isFestival && participants.length >= 2) {
+                    console.log("Festival class detected, performing auto-draw...");
+                    smartDrawParticipants();
+                } else {
+                    console.log("No saved bracket found, showing empty template");
+                    await generateBracket();
+                }
             }
         }
 
@@ -1324,6 +1363,7 @@
             document.getElementById('excelFile').value = ''; // Clear file input
             participants = [];
             window.isBracketDrawn = false;
+            window.festivalResults = {}; // Clear festival results on reset
             generateBracket();
         }
 
@@ -1345,8 +1385,118 @@
             16: ['p_n_1', 'p_n_2', 'p_n_3', 'p_n_4', 'p_n_5', 'p_n_6', 'p_n_7', 'p_n_8', 'p_n_9', 'p_n_10', 'p_n_11', 'p_n_12', 'p_n_13', 'p_n_14', 'p_n_15', 'p_n_16']
         };
 
+        window.setFestivalWinner = (matchIdx, side) => {
+            if (!window.festivalResults) window.festivalResults = {};
+            if (window.festivalResults[matchIdx] === side) {
+                // If already selected, deselect
+                delete window.festivalResults[matchIdx];
+            } else {
+                window.festivalResults[matchIdx] = side;
+            }
+            renderFestivalTable();
+        };
+
+        function renderFestivalTable() {
+            const visualArea = document.getElementById('bracketVisualArea');
+            if (!visualArea) return;
+
+            // Sync Textarea with participants first
+            document.getElementById('manualNames').value = participants.map((p, i) => `${i + 1}. ${p.name} [${p.team}]`).join('\n');
+            renderAthleteList();
+
+            const groups = {};
+            participants.forEach(p => {
+                const t = p.team || "-";
+                if (!groups[t]) groups[t] = [];
+                groups[t].push(p);
+            });
+            const totalAthletes = participants.length;
+
+            let html = `
+                <div class="w-full h-full p-8 overflow-y-auto custom-scrollbar bg-white text-slate-900">
+                    <table class="w-full text-left border-collapse border-[3px] border-slate-900">
+                        <thead class="bg-slate-900 text-[9px] font-black uppercase tracking-widest text-white">
+                            <tr>
+                                <th class="p-4 text-center border-2 border-slate-700 w-24">HASIL AKA</th>
+                                <th class="p-4 text-center border-2 border-slate-700 bg-red-600">PESERTA (AKA)</th>
+                                <th class="p-4 text-center border-2 border-slate-700 bg-red-600">KONTINGEN</th>
+                                <th class="p-4 text-center border-2 border-slate-700 bg-red-600 w-16">AKSI</th>
+                                <th class="p-4 text-center border-2 border-slate-700 w-12 bg-slate-800">VS</th>
+                                <th class="p-4 text-center border-2 border-slate-700 bg-blue-600 w-16">AKSI</th>
+                                <th class="p-4 text-center border-2 border-slate-700 bg-blue-600">PESERTA (AO)</th>
+                                <th class="p-4 text-center border-2 border-slate-700 bg-blue-600">KONTINGEN</th>
+                                <th class="p-4 text-center border-2 border-slate-700 w-24">HASIL AO</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-900 font-black italic uppercase text-[10px]">
+            `;
+
+            for (let i = 0; i < participants.length; i += 2) {
+                const matchIdx = i / 2;
+                const aka = participants[i];
+                const ao = participants[i + 1];
+                const winnerSide = (window.festivalResults || {})[matchIdx]; // 'aka' or 'ao'
+
+                // Smart Alert Logic
+                const isSameTeam = ao && aka.team === ao.team && aka.team !== "-";
+                const isForced = isSameTeam && (groups[aka.team].length > Math.ceil(totalAthletes / 2));
+                const showAlert = isSameTeam && !isForced;
+
+                const rowStyle = showAlert ? 'background: #fee2e2; border: 3px solid #ef4444;' : '';
+                const alertBanner = showAlert ? `<div style="color: #ef4444; font-size: 8px; font-weight: 900; margin-top: 4px;">⚠️ SESAMA TIM (BISA DIPISAH)</div>` : '';
+
+                // Result Badges
+                let akaResult = `<div class="text-slate-300 opacity-20">. . .</div>`;
+                let aoResult = `<div class="text-slate-300 opacity-20">. . .</div>`;
+
+                if (winnerSide === 'aka') {
+                    akaResult = `<div class="px-2 py-1 bg-yellow-400 text-black text-[8px] font-black rounded shadow-sm">JUARA 1</div>`;
+                    aoResult = `<div class="px-2 py-1 bg-slate-200 text-slate-600 text-[8px] font-black rounded">JUARA 2</div>`;
+                } else if (winnerSide === 'ao') {
+                    aoResult = `<div class="px-2 py-1 bg-yellow-400 text-black text-[8px] font-black rounded shadow-sm">JUARA 1</div>`;
+                    akaResult = `<div class="px-2 py-1 bg-slate-200 text-slate-600 text-[8px] font-black rounded">JUARA 2</div>`;
+                }
+
+                html += `
+                    <tr class="border-b-2 border-slate-900 hover:bg-slate-50 transition-colors" style="${rowStyle}">
+                        <td class="p-4 text-center border-r-2 border-slate-900">
+                            ${akaResult}
+                        </td>
+                        <td class="p-4 text-red-600 border-r-2 border-slate-900">
+                            ${aka.name}
+                            ${alertBanner}
+                        </td>
+                        <td class="p-4 text-slate-500 border-r-2 border-slate-900">${aka.team || '-'}</td>
+                        <td class="p-4 text-center border-r-2 border-slate-900">
+                             <button onclick="window.setFestivalWinner(${matchIdx}, 'aka')" class="w-8 h-8 rounded ${winnerSide === 'aka' ? 'bg-red-600 text-white shadow-lg scale-110' : 'bg-slate-100 text-slate-400 hover:bg-red-500 hover:text-white'} transition-all text-[10px] font-black">W</button>
+                        </td>
+                        <td class="p-4 text-center font-black bg-slate-100 border-r-2 border-slate-900">VS</td>
+                        <td class="p-4 text-center border-r-2 border-slate-900">
+                             <button onclick="window.setFestivalWinner(${matchIdx}, 'ao')" class="w-8 h-8 rounded ${winnerSide === 'ao' ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-slate-100 text-slate-400 hover:bg-blue-500 hover:text-white'} transition-all text-[10px] font-black">W</button>
+                        </td>
+                        <td class="p-4 text-blue-600 border-r-2 border-slate-900 text-right">${ao ? ao.name : 'BYE'}</td>
+                        <td class="p-4 text-slate-500 border-r-2 border-slate-900 text-right">${ao ? ao.team : '-'}</td>
+                        <td class="p-4 text-center">
+                            ${aoResult}
+                        </td>
+                    </tr>
+                `;
+            }
+
+            html += `</tbody></table></div>`;
+            visualArea.innerHTML = html;
+        }
+
         async function generateBracket() {
             const count = parseInt(document.getElementById('participantCount').value);
+            const isFestival = (currentClassCode || "").toString().toUpperCase().startsWith('F');
+
+            const visualArea = document.getElementById('bracketVisualArea');
+            if (isFestival) {
+                renderFestivalTable();
+                return;
+            }
+
             if (count < 2 || count > 16) return;
 
             console.log(`\ud83d\udc68\u200d\ud83d\udcbb generateBracket called:`, {
@@ -1495,23 +1645,27 @@
                 });
             }
 
+            const isFestival = (currentClassCode || "").toString().toUpperCase().startsWith('F');
+
             console.log("Saving bracket data:", {
                 eventId,
                 currentClass,
                 participantsCount: participants.length,
                 bracketDataKeys: Object.keys(bracketData).length,
-                isDrawn: window.isBracketDrawn
+                isDrawn: window.isBracketDrawn,
+                isFestival: isFestival,
+                festivalResultsKeys: isFestival ? Object.keys(window.festivalResults || {}).length : 0
             });
 
             // Validation: Prevent saving empty brackets
-            if (!window.isBracketDrawn) {
+            if (!isFestival && !window.isBracketDrawn) {
                 label.innerText = "GAGAL ❌";
                 btn.disabled = false;
                 alert("⚠️ Bracket belum di-generate!\n\nSilakan klik tombol SMART DRAW terlebih dahulu untuk mengisi nama peserta ke dalam bagan.");
                 return;
             }
 
-            if (Object.keys(bracketData).length < 5) {
+            if (!isFestival && Object.keys(bracketData).length < 5) {
                 label.innerText = "GAGAL ❌";
                 btn.disabled = false;
                 alert("⚠️ Data bracket terlalu sedikit!\n\nPastikan:\n1. Tombol SMART DRAW sudah ditekan\n2. Nama peserta muncul di bagan\n3. Baru klik SIMPAN & SELESAI");
@@ -1521,15 +1675,22 @@
             try {
                 const path = `events/${eventId}/brackets/${currentClass}`;
 
-                await setDoc(doc(db, `events/${eventId}/brackets`, currentClass), {
+                const dataToSave = {
                     class: currentClass,
                     data: bracketData,
                     participants: participants,
+                    athleteCount: participants.length, // Store athlete count for revision monitoring
                     isDrawn: window.isBracketDrawn,
                     status: 'complete',  // Track bracket completion status
                     lastModified: new Date().toISOString(),
                     updatedAt: new Date().toISOString()
-                });
+                };
+
+                if (isFestival) {
+                    dataToSave.festivalResults = window.festivalResults || {};
+                }
+
+                await setDoc(doc(db, `events/${eventId}/brackets`, currentClass), dataToSave);
 
                 console.log("✅ Save successful:", path);
                 label.innerText = "TERSIMPAN! ✅";
@@ -1552,33 +1713,65 @@
                 const saved = cloudData.data;
                 const cloudParticipants = cloudData.participants;
                 const cloudIsDrawn = cloudData.isDrawn;
+                const isFestival = (className || "").toString().toUpperCase().startsWith('F');
 
                 console.log(`☁️ Cloud data found for "${className}":`, {
                     participantsCount: cloudParticipants?.length || 0,
                     isDrawn: cloudIsDrawn,
-                    svgKeysCount: Object.keys(saved || {}).length
+                    svgKeysCount: Object.keys(saved || {}).length,
+                    isFestival: isFestival,
+                    festivalResultsKeys: isFestival ? Object.keys(cloudData.festivalResults || {}).length : 0
                 });
 
-                // 1. Restore Participants & Draw State
-                if (cloudParticipants && cloudParticipants.length > 0) {
-                    participants = cloudParticipants;
-                    window.isBracketDrawn = cloudIsDrawn || false;
+                // Restore festival results if any
+                if (isFestival) {
+                    window.festivalResults = cloudData.festivalResults || {};
+                }
 
-                    console.log(`✅ Restored ${participants.length} participants from cloud`);
+                // 1. Data Integrity Check: Compare Saved with Current Athletes
+                const currentAthletes = [...participants]; // 'participants' here is from loadEventContext (latest athletes)
+                const savedParticipants = cloudParticipants || [];
 
-                    // Re-sync UI
-                    document.getElementById('manualNames').value = participants.map((p, i) => `${i + 1}. ${p.name}`).join('\n');
-                    document.getElementById('participantCount').value = participants.length;
-
-                    // If BEREGU and we have teams, render them
-                    if (participants.length > 0 && participants[0].members) {
-                        renderMagicTeams(participants);
+                let isDataValid = true;
+                if (savedParticipants.length !== currentAthletes.length) {
+                    isDataValid = false;
+                } else {
+                    // Cek detail nama & team
+                    const currentKeys = currentAthletes.map(a => `${a.name}|${a.team}`).sort();
+                    const savedKeys = savedParticipants.map(a => `${a.name}|${a.team}`).sort();
+                    if (JSON.stringify(currentKeys) !== JSON.stringify(savedKeys)) {
+                        isDataValid = false;
                     }
+                }
 
-                    renderAthleteList();
-                } else if (cloudIsDrawn !== undefined) {
-                    window.isBracketDrawn = cloudIsDrawn;
-                    console.log(`⚠️ No participants in cloud, using local data (${participants.length})`);
+                if (!isDataValid) {
+                    console.warn("⚠️ Data mismatch detected! Saved bracket is outdated.");
+                    window.isBracketDrawn = false;
+                    // Keep participants from loadEventContext
+                } else {
+                    // Restore exact order from cloud if valid
+                    participants = savedParticipants;
+                    window.isBracketDrawn = cloudIsDrawn || false;
+                    console.log(`✅ Restored ${participants.length} participants from cloud (Data Valid)`);
+                }
+
+                // Update UI state based on validation
+                document.getElementById('manualNames').value = participants.map((p, i) => `${i + 1}. ${p.name} [${p.team}]`).join('\n');
+                document.getElementById('participantCount').value = participants.length;
+
+                if (participants.length > 0 && participants[0].members) {
+                    renderMagicTeams(participants);
+                }
+
+                renderAthleteList();
+
+                if (!isDataValid && window.isBracketDrawn === false) {
+                    const label = document.getElementById('saveStatus');
+                    if (label) {
+                        label.innerText = "⚠️ PERLU REVISI";
+                        label.classList.add('text-red-500');
+                    }
+                    console.log("Setting REVISI status for outdated bracket");
                 }
 
                 // 2. ALWAYS Redraw if we found cloud data to ensure names are filled
@@ -1615,10 +1808,12 @@
 
         async function exportToPremium(format = 'pdf', event) {
             const area = document.getElementById('bracketVisualArea');
-            if (!area || !svgDoc) {
+            if (!area) {
                 alert("Data bagan belum siap.");
                 return;
             }
+
+            const isFestival = (currentClassCode || "").toString().toUpperCase().startsWith('F');
 
             // Gunakan event.currentTarget agar lebih aman (elemen button itu sendiri)
             const btn = (event && (event.currentTarget || event.target)) || null;
@@ -1631,19 +1826,27 @@
 
             // Simpan status class asli
             const originalClasses = area.className;
+            const originalStyle = area.getAttribute('style');
 
             try {
-                // TRIK 'Shrink-to-Fit': Hilangkan w-full/h-full agar container menciut mengikuti ukuran SVG
-                // Ini memastikan tidak ada ruang hampa yang ikut ter-capture
-                area.classList.remove('w-full', 'h-full', 'flex', 'items-center', 'justify-center');
-                area.style.display = 'inline-block';
-                area.style.width = 'auto';
-                area.style.height = 'auto';
+                if (isFestival) {
+                    // Optimized for Festival Table Capture
+                    area.classList.remove('w-full', 'h-full', 'flex', 'items-center', 'justify-center');
+                    area.style.width = '1200px'; // Wide enough for the table
+                    area.style.height = 'auto';
+                    area.style.display = 'block';
+                    area.style.background = '#ffffff';
+                } else {
+                    // TRIK 'Shrink-to-Fit' for SVG
+                    area.classList.remove('w-full', 'h-full', 'flex', 'items-center', 'justify-center');
+                    area.style.display = 'inline-block';
+                    area.style.width = 'auto';
+                    area.style.height = 'auto';
+                }
 
-                // Ambil capture dari container yang sudah menciut presisi (mengikuti ukuran SVG murni)
                 const capture = await html2canvas(area, {
                     backgroundColor: '#ffffff',
-                    scale: 3, // 3x sudah cukup tajam untuk PDF F4
+                    scale: 3,
                     useCORS: true,
                     logging: false
                 });
@@ -1652,13 +1855,12 @@
 
                 if (format === 'pdf') {
                     const { jsPDF } = window.jspdf;
-                    const pdfWidthMm = 330;
+                    const pdfWidthMm = 330; // F4 Width (Landscape roughly)
                     const pdfHeightMm = 210;
                     const pdf = new jsPDF('l', 'mm', [pdfWidthMm, pdfHeightMm]);
 
-                    // Margin 0 karena container sudah menciut presisi mengikuti SVG
                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidthMm, pdfHeightMm);
-                    pdf.save(`Kensho_Bracket_${currentClass}_${new Date().getTime()}.pdf`);
+                    pdf.save(`Kensho_Bagan_${currentClass}_${new Date().getTime()}.pdf`);
                 }
 
             } catch (err) {
@@ -1667,9 +1869,8 @@
             } finally {
                 // Kembalikan tampilan browser ke semula
                 area.className = originalClasses;
-                area.style.display = '';
-                area.style.width = '';
-                area.style.height = '';
+                if (originalStyle) area.setAttribute('style', originalStyle);
+                else area.removeAttribute('style');
 
                 if (btn) {
                     btn.innerHTML = originalText;
@@ -1678,12 +1879,68 @@
             }
         }
 
+        window.handlePreviewFestival = async () => {
+            const btn = document.getElementById('btnPreviewFestival');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = 'GATHERING DATA... ⏳';
+            btn.disabled = true;
+
+            try {
+                // 1. Get All Festival Classes
+                const qClasses = query(collection(db, `events/${eventId}/classes`), orderBy("code", "asc"));
+                const classSnap = await getDocs(qClasses);
+                const allFestivalClasses = [];
+                classSnap.forEach(s => {
+                    const d = s.data();
+                    if ((d.code || "").toString().toUpperCase().startsWith('F')) {
+                        allFestivalClasses.push(d);
+                    }
+                });
+
+                if (allFestivalClasses.length === 0) {
+                    alert("Tidak ada kelas Festival yang ditemukan.");
+                    return;
+                }
+
+                // 2. Get All Athletes for the event (to ensure we have data for all classes)
+                const qAthletes = query(collection(db, `events/${eventId}/athletes`));
+                const athleteSnap = await getDocs(qAthletes);
+                const allAthletes = [];
+                athleteSnap.forEach(s => allAthletes.push(s.data()));
+
+                // 3. Get All Saved Brackets
+                const qBrackets = query(collection(db, `events/${eventId}/brackets`));
+                const bracketSnap = await getDocs(qBrackets);
+                const bracketsMap = {};
+                bracketSnap.forEach(s => {
+                    const d = s.data();
+                    bracketsMap[d.class] = d;
+                });
+
+                // 4. Call Print Module
+                const eventDoc = await getDoc(doc(db, "events", eventId));
+                const eventData = eventDoc.data();
+
+                prepareBracketPrint(allAthletes, allFestivalClasses, eventData.name, eventData.logo, bracketsMap);
+
+            } catch (err) {
+                console.error("Preview failed:", err);
+                alert("Gagal memuat pratinjau: " + err.message);
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        };
+
         let selectedAthleteIndex = null;
 
 
 
         function smartDrawParticipants() {
-            if (participants.length < 2) return; window.isBracketDrawn = true;
+            if (participants.length < 2) return;
+            window.isBracketDrawn = true;
+
+            const isFestival = (currentClassCode || "").toString().toUpperCase().startsWith('F');
 
             // 1. Group by Kontingen
             const groups = {};
@@ -1693,49 +1950,85 @@
                 groups[t].push(p);
             });
 
-            const total = participants.length;
-            const mid = Math.floor(total / 2); // Split Top & Bottom 
+            if (isFestival) {
+                // LOGIKA FESTIVAL: Priority Separation (Greedy Pairing)
+                let newOrder = [];
+                const sortedTeamNames = Object.keys(groups).sort((a, b) => groups[b].length - groups[a].length);
 
-            // Siapkan slot kosong
-            let newOrder = new Array(total).fill(null);
+                // Copy members to work with them
+                const teamQueues = {};
+                sortedTeamNames.forEach(name => {
+                    teamQueues[name] = [...groups[name]].sort(() => Math.random() - 0.5);
+                });
 
-            // Indeks tersedia: Top (0 s/d mid-1), Bottom (mid s/d total-1)
-            let topAvailable = Array.from({ length: mid }, (_, i) => i);
-            let bottomAvailable = Array.from({ length: total - mid }, (_, i) => i + mid);
+                let pool = [];
+                // Process largest team first against others
+                const mainTeamName = sortedTeamNames[0];
+                const mainQueue = teamQueues[mainTeamName];
 
-            // 2. Sort kelompok: Host / Penyelenggara dulu, baru yang terbanyak
-            const sortedTeams = Object.keys(groups).sort((a, b) => {
-                if (a === window.hostKontingen) return -1;
-                if (b === window.hostKontingen) return 1;
-                return groups[b].length - groups[a].length;
-            });
+                // Gather all other athletes
+                let otherAthletes = [];
+                for (let i = 1; i < sortedTeamNames.length; i++) {
+                    otherAthletes = otherAthletes.concat(teamQueues[sortedTeamNames[i]]);
+                }
+                // Shuffle others to randomize pairings
+                otherAthletes.sort(() => Math.random() - 0.5);
 
-            // 3. Distribusi Cerdas
-            sortedTeams.forEach(team => {
-                const members = groups[team].sort(() => Math.random() - 0.5);
+                // Pair Main Team with Others
+                while (mainQueue.length > 0 && otherAthletes.length > 0) {
+                    newOrder.push(mainQueue.pop());
+                    newOrder.push(otherAthletes.shift());
+                }
 
-                // Bagikan rata ke atas dan bawah
-                // Aturan user: Jika ganjil (misal 5), maka 2 atas, 3 bawah (Berat Bawah)
-                const toTopCount = Math.floor(members.length / 2);
-                const toBottomCount = members.length - toTopCount;
+                // If main team still has athletes, they get BYE (paired with null)
+                while (mainQueue.length > 0) {
+                    newOrder.push(mainQueue.pop());
+                    newOrder.push(null); // BYE
+                }
 
-                for (let i = 0; i < toTopCount; i++) {
-                    if (topAvailable.length > 0) {
-                        newOrder[topAvailable.shift()] = members.pop();
+                // If other teams still have athletes, pair them among themselves
+                while (otherAthletes.length > 0) {
+                    newOrder.push(otherAthletes.shift());
+                    if (otherAthletes.length > 0) {
+                        newOrder.push(otherAthletes.shift());
                     } else {
-                        bottomAvailable.length > 0 && (newOrder[bottomAvailable.shift()] = members.pop());
+                        newOrder.push(null); // BYE
                     }
                 }
-                for (let i = 0; i < toBottomCount; i++) {
-                    if (bottomAvailable.length > 0) {
-                        newOrder[bottomAvailable.shift()] = members.pop();
-                    } else {
-                        topAvailable.length > 0 && (newOrder[topAvailable.shift()] = members.pop());
-                    }
-                }
-            });
 
-            participants = newOrder.filter(p => p !== null);
+                participants = newOrder.filter(p => p !== null);
+            } else {
+                // LOGIKA PRESTASI (Eksisting): Split Top & Bottom
+                const total = participants.length;
+                const mid = Math.floor(total / 2);
+
+                let newOrder = new Array(total).fill(null);
+                let topAvailable = Array.from({ length: mid }, (_, i) => i);
+                let bottomAvailable = Array.from({ length: total - mid }, (_, i) => i + mid);
+
+                const sortedTeams = Object.keys(groups).sort((a, b) => {
+                    if (a === window.hostKontingen) return -1;
+                    if (b === window.hostKontingen) return 1;
+                    return groups[b].length - groups[a].length;
+                });
+
+                sortedTeams.forEach(team => {
+                    const members = groups[team].sort(() => Math.random() - 0.5);
+                    const toTopCount = Math.floor(members.length / 2);
+                    const toBottomCount = members.length - toTopCount;
+
+                    for (let i = 0; i < toTopCount; i++) {
+                        if (topAvailable.length > 0) newOrder[topAvailable.shift()] = members.pop();
+                        else if (bottomAvailable.length > 0) newOrder[bottomAvailable.shift()] = members.pop();
+                    }
+                    for (let i = 0; i < toBottomCount; i++) {
+                        if (bottomAvailable.length > 0) newOrder[bottomAvailable.shift()] = members.pop();
+                        else if (topAvailable.length > 0) newOrder[topAvailable.shift()] = members.pop();
+                    }
+                });
+                participants = newOrder.filter(p => p !== null);
+            }
+
             document.getElementById('manualNames').value = participants.map((a, i) => `${i + 1}. ${a.name} [${a.team}]`).join('\n');
             generateBracket();
         }
@@ -1769,32 +2062,74 @@
             list.innerHTML = '';
             totalLabel.innerText = `${participants.length} ATLET`;
 
-            // 2. Render Daftar Atlet - KARTU VISUAL UNTUK TUKAR POSISI
-            participants.forEach((athlete, i) => {
+            // Reset list container class for match-based layout
+            list.className = "flex flex-col gap-4 max-h-[600px] overflow-y-auto p-2 custom-scrollbar";
+
+            // Calculation for Conflict Detection
+            const groups = {};
+            participants.forEach(p => {
+                const t = p.team || "-";
+                if (!groups[t]) groups[t] = [];
+                groups[t].push(p);
+            });
+            const totalAthletes = participants.length;
+
+            for (let i = 0; i < participants.length; i += 2) {
                 const matchIndex = Math.floor(i / 2) + 1;
-                const isSelected = selectedAthleteIndex === i;
 
-                const div = document.createElement('div');
-                const borderColor = isSelected ? 'border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'border-slate-200';
-                const bgColor = isSelected ? 'bg-blue-50' : 'bg-white';
+                // Pair Logic
+                const aka = participants[i];
+                const ao = participants[i + 1];
 
-                div.className = `px-4 py-3 rounded-xl flex flex-col border ${borderColor} ${bgColor} transition-all relative overflow-hidden cursor-pointer hover:border-blue-400 group`;
-                div.onclick = () => handleAthleteClick(i);
+                const isSameTeam = aka && ao && aka.team === ao.team && aka.team !== "-";
+                const isForced = isSameTeam && (groups[aka.team].length > Math.ceil(totalAthletes / 2));
+                const matchConflict = isSameTeam && !isForced;
 
-                const matchIndicator = `<span class="absolute right-2 top-1 text-[7px] font-black opacity-10 uppercase tracking-tighter">M${matchIndex}</span>`;
+                const matchDiv = document.createElement('div');
+                matchDiv.className = `p-4 rounded-[2rem] border-2 transition-all ${matchConflict ? 'bg-red-50/50 border-red-200' : 'bg-slate-50/50 border-slate-100'} flex flex-col gap-3`;
 
-                div.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-[10px] font-black ${isSelected ? 'text-blue-600' : 'text-slate-300'} italic">${(i + 1).toString().padStart(2, '0')}</span>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-black uppercase tracking-wide text-slate-800">${athlete.name}</span>
-                            <span class="text-[8px] font-bold text-blue-500 opacity-60 uppercase tracking-widest">${athlete.team}</span>
+                let html = `
+                    <div class="flex justify-between items-center px-4">
+                        <span class="text-[9px] font-black ${matchConflict ? 'text-red-500' : 'text-slate-400'} uppercase tracking-[0.3em]">PARTAI #${matchIndex} ${matchConflict ? '⚠️ BENTROK KONTINGEN' : ''}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                `;
+
+                // Sub-function to render Card
+                const getCardHTML = (idx, label, colorClass) => {
+                    const athlete = participants[idx];
+                    if (!athlete) return `<div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center text-[10px] font-black opacity-20 uppercase italic">BYE / KOSONG</div>`;
+
+                    const isSelected = selectedAthleteIndex === idx;
+                    let cardBorder = isSelected ? 'border-blue-500 shadow-lg scale-[1.02]' : 'border-slate-200';
+                    let cardBg = isSelected ? 'bg-blue-50' : 'bg-white';
+
+                    return `
+                        <div onclick="window.handleAthleteClick(${idx})" class="p-4 rounded-2xl border-2 ${cardBorder} ${cardBg} cursor-pointer transition-all hover:border-blue-400 relative group">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[8px] font-black ${colorClass} uppercase tracking-widest">${label}</span>
+                                <span class="text-[10px] font-black text-slate-300 italic">#${(idx + 1).toString().padStart(2, '0')}</span>
+                            </div>
+                            <div class="text-[11px] font-black text-slate-800 uppercase italic truncate">${athlete.name}</div>
+                            <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">${athlete.team}</div>
+                        </div>
+                    `;
+                };
+
+                html += `
+                        <div class="relative">
+                            ${getCardHTML(i, "AKA (MERAH)", "text-red-500")}
+                        </div>
+                        <div class="relative">
+                            <div class="absolute -left-6 top-1/2 -translate-y-1/2 hidden md:flex w-8 h-8 rounded-full bg-slate-200 border-4 border-slate-50 items-center justify-center text-[8px] font-black text-slate-500 z-10">VS</div>
+                            ${getCardHTML(i + 1, "AO (BIRU)", "text-blue-500")}
                         </div>
                     </div>
-                    ${matchIndicator}
                 `;
-                list.appendChild(div);
-            });
+
+                matchDiv.innerHTML = html;
+                list.appendChild(matchDiv);
+            }
         }
 
         let currentStep2Tab = 'text';

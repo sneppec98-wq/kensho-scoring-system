@@ -37,32 +37,6 @@ export const filterTable = (input, tableId) => {
     }
 };
 
-export const EXPECTED_CONTINGENTS = [
-    "INKAI DOJO AVATAR",
-    "INKANAS DOJO DOMINORISE",
-    "INKANAS KALISAT",
-    "INKAI BRIGIF 9",
-    "SHOTOKAI DOJO ARGAPURO",
-    "SHOTOKAI DOJO DHARMA ALAM",
-    "TAKO DOJO TKTDW",
-    "INKAI DOJO RAMBIPUJI",
-    "INKAI DOJO AMBULU",
-    "INKAI DOJO KORAMIL WULUHAN",
-    "INKANAS SUMBERSARI",
-    "INKANAS DOJO LEDOKOMBO",
-    "INKAI DOJO SKYAIR JEMBER",
-    "INKAI GANESHA KARATE CLUB",
-    "INKAI DOJO KODIM 0824",
-    "INKAI SMK N 5",
-    "INKAI GEMA 45",
-    "INKAI DOJO CAHYA BANTALA",
-    "LEMKARI JEMBER",
-    "INKADO DOJO PENDOWO SEMBORO",
-    "INKADO DOJO ONE KODIM JEMBER KARATE AKADEMI",
-    "INKAI DOJO KTB",
-    "INKAI YONIF 509",
-    "INKANAS BHARADAKSA"
-];
 
 export const switchTab = (tabId, element) => {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));

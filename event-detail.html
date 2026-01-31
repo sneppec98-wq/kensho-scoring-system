@@ -146,13 +146,28 @@
                 class="neu-flat p-8 rounded-[2.5rem] card-menu card-active flex-1 cursor-pointer">
                 <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">BASIS DATA</p>
                 <h3 class="text-xl font-black italic uppercase">Data Atlet</h3>
-                <div class="mt-4 flex justify-between items-center">
-                    <span id="athlete-count-badge" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0
-                        Atlet</span>
-                    <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                <div class="mt-4 flex flex-col gap-2">
+                    <div class="flex justify-between items-center">
+                        <span id="athlete-count-badge" class="text-2xl font-black text-blue-500 italic">0</span>
+                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </div>
+                    <div class="flex items-center gap-3 opacity-40">
+                        <span class="text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                            <span id="dash-open-count">0</span> OPEN
+                        </span>
+                        <span class="text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
+                            <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                            <span id="dash-fest-count">0</span> FEST
+                        </span>
+                        <span class="text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
+                            <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                            <span id="dash-team-count">0</span> TEAM
+                        </span>
+                    </div>
                 </div>
             </div>
 

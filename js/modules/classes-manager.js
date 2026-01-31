@@ -53,7 +53,21 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
         return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
     });
 
-    if (classCountLabel) classCountLabel.innerText = `${filtered.length} KELAS (${currentSubTab})`;
+    // Calculate Active Classes (Open + Festival with participants)
+    const activeClassesCount = classes.filter(cls => {
+        const isFestival = (cls.code || "").toString().toUpperCase().startsWith('F');
+        const isPerorangan = cls.type === 'PERORANGAN' || !cls.type;
+        const isOpen = !isFestival && isPerorangan;
+
+        if (isFestival || isOpen) {
+            return allAthletes.some(a => a.className === cls.name);
+        }
+        return false;
+    }).length;
+
+    if (classCountLabel) {
+        classCountLabel.innerText = `${activeClassesCount} KELAS AKTIF`;
+    }
 
     tableBody.innerHTML = filtered.map(cls => `
         <tr class="row-hover border-b border-white/5 group">
@@ -83,22 +97,51 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
         </tr>
     `).join('');
 
-    // Render Brackets Cards
+    // Render Brackets Cards or Festival Table
     if (bracketListArea) {
         bracketListArea.innerHTML = '';
         if (filtered.length === 0) {
             bracketListArea.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Belum ada data ${currentSubTab}</div>`;
         } else {
+            // Global Actions for Festival
+            let globalActions = "";
+            if (currentSubTab === 'FESTIVAL') {
+                globalActions = `
+                    <div class="col-span-full mb-8 flex justify-between items-center no-print bg-slate-800/20 p-6 rounded-[2rem] border border-white/5">
+                        <div>
+                            <h3 class="text-xl font-black italic uppercase text-slate-200">Bagan Head-to-Head Festival</h3>
+                            <p class="text-[9px] font-black uppercase tracking-widest text-blue-500 opacity-40 mt-1">Cetak seluruh kelas festival yang sudah disimpan</p>
+                        </div>
+                        <button onclick="window.handlePrintFestivalBracket()" class="neu-button px-8 py-4 rounded-2xl flex items-center space-x-4 text-blue-400 font-black text-[10px] tracking-widest uppercase hover:bg-blue-600 hover:text-white transition-all shadow-xl">
+                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                             <span>CETAK SEMUA BAGAN FESTIVAL</span>
+                        </button>
+                    </div>
+                `;
+            }
+
             const renderPromises = filtered.map(async (data) => {
-                const athleteCount = allAthletes.filter(a => a.className === data.name).length;
+                const athleteCount = allAthletes.filter(a =>
+                    (a.classCode === data.code) || (a.className === data.name)
+                ).length;
                 if (athleteCount > 0) {
                     let statusBadge = '';
                     let statusReason = '';
                     try {
                         const bracketDoc = await getDoc(doc(db, `events/${eventId}/brackets`, data.name));
                         if (bracketDoc.exists() && bracketDoc.data().status === 'complete') {
-                            statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-green-500/20 text-green-400 border border-green-500/30">✅ OK</span>`;
-                            statusReason = `<p class="text-[8px] text-green-400/60 mt-1 uppercase">BAGAN SELESAI</p>`;
+                            const savedCount = bracketDoc.data().athleteCount || 0;
+                            const isRevised = athleteCount !== savedCount;
+
+                            if (isRevised) {
+                                const diff = athleteCount - savedCount;
+                                const diffText = diff > 0 ? `+ ${diff} ATLET BARU` : `${diff} ATLET DIHAPUS`;
+                                statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30">⚠️ REVISI</span>`;
+                                statusReason = `<p class="text-[8px] text-red-400/60 mt-1 uppercase font-black">${diffText}</p>`;
+                            } else {
+                                statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-green-500/20 text-green-400 border border-green-500/30">✅ OK</span>`;
+                                statusReason = `<p class="text-[8px] text-green-400/60 mt-1 uppercase">BAGAN SELESAI</p>`;
+                            }
                         } else {
                             statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30">⏳ PENDING</span>`;
                             statusReason = `<p class="text-[8px] text-orange-400/60 mt-1 italic">Bagan belum dibuat</p>`;
@@ -138,7 +181,7 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
             });
 
             const cards = await Promise.all(renderPromises);
-            bracketListArea.innerHTML = cards.join('');
+            bracketListArea.innerHTML = globalActions + cards.join('');
         }
     }
 };
@@ -189,8 +232,19 @@ export const addNewClass = async (eventId) => {
 export const deleteClass = async (classCode, eventId) => {
     if (confirm(`Yakin ingin menghapus kelas "${classCode}"?`)) {
         try {
-            await deleteDoc(doc(db, `events/${eventId}/classes`, classCode));
-            alert("Kelas berhasil dihapus!");
+            // 1. Get class name first (brackets are keyed by name)
+            const classRef = doc(db, `events/${eventId}/classes`, classCode);
+            const classSnap = await getDoc(classRef);
+
+            if (classSnap.exists()) {
+                const className = classSnap.data().name;
+                // 2. Delete Bracket if exists
+                await deleteDoc(doc(db, `events/${eventId}/brackets`, className));
+            }
+
+            // 3. Delete Class
+            await deleteDoc(classRef);
+            alert("Kelas dan bagan terkait berhasil dihapus!");
         } catch (err) {
             console.error("Delete Class Error:", err);
             alert("Gagal menghapus kelas: " + err.message);

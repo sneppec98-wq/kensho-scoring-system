@@ -280,18 +280,16 @@
         window.handleLogin = async function (e) {
             e.preventDefault();
 
-            // SECURITY CHECK: License State (Desktop Only)
-            // Web browser users can login without license activation
-            if (window.electronAPI) {
-                const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-                if (licenseStatus !== 'active' && !isLocalDev) {
-                    alert("Lisensi Anda belum aktif. Silakan hubungi Admin.");
-                    return;
-                }
-                if (isExpired) {
-                    alert("Masa berlaku lisensi Anda telah habis.");
-                    return;
-                }
+            // SECURITY CHECK: License State (ALL PLATFORMS)
+            // Both desktop and web browser require device activation
+            const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (licenseStatus !== 'active' && !isLocalDev) {
+                alert("Lisensi Anda belum aktif. Silakan hubungi Admin.");
+                return;
+            }
+            if (isExpired) {
+                alert("Masa berlaku lisensi Anda telah habis.");
+                return;
             }
 
             const btn = document.getElementById('btnSubmit');
@@ -443,27 +441,52 @@
 
         // Licencing & Hardware ID Logic
         const APP_VERSION = "2.5.0";
+
+        // Generate Browser Device ID (fingerprint)
+        function generateBrowserDeviceId() {
+            // Combine multiple browser characteristics for unique ID
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.fillText('fingerprint', 2, 2);
+            const canvasData = canvas.toDataURL();
+
+            const fingerprint = {
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                cpuClass: navigator.cpuClass || 'unknown',
+                hardwareConcurrency: navigator.hardwareConcurrency || 0,
+                deviceMemory: navigator.deviceMemory || 0,
+                screenResolution: `${screen.width}x${screen.height}`,
+                colorDepth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                canvas: canvasData.substring(0, 50)
+            };
+
+            // Generate hash from fingerprint
+            const fpString = JSON.stringify(fingerprint);
+            let hash = 0;
+            for (let i = 0; i < fpString.length; i++) {
+                const char = fpString.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+
+            return 'WEB-' + Math.abs(hash).toString(16).toUpperCase().padStart(12, '0');
+        }
+
         async function checkLicense() {
             // Jika di Browser (PWA Mode)
             if (!window.electronAPI) {
-                const urlParams = new URLSearchParams(window.location.search);
-                currentHwid = urlParams.get('hwid') || localStorage.getItem('kensho_hwid');
-
+                // Generate or retrieve browser device ID
+                currentHwid = localStorage.getItem('kensho_browser_device_id');
                 if (!currentHwid) {
-                    const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-                    if (isLocalDev) {
-                        currentHwid = "LOCAL-DEV-DEVICE";
-                        licenseStatus = 'active';
-                        console.log("Local Dev Mode: Bypassing License");
-                    } else {
-                        const displaySerial = document.getElementById('displaySerial');
-                        if (displaySerial) displaySerial.innerText = "AKSES DIBATASI (BUKA VIA DESKTOP)";
-                        licenseStatus = 'restricted';
-                        return;
-                    }
+                    currentHwid = generateBrowserDeviceId();
+                    localStorage.setItem('kensho_browser_device_id', currentHwid);
+                    console.log('Browser Device ID Generated:', currentHwid);
                 }
-                // Simpan agar sesi PWA tetap jalan tanpa parameter URL di kemudian hari
-                localStorage.setItem('kensho_hwid', currentHwid);
             }
 
             try {
@@ -556,19 +579,6 @@
 
             } catch (err) {
                 console.error("License Check Error:", err);
-                // For web browser users, allow login even if installation check fails
-                // This can happen if Firestore rules are restrictive or HWID is unavailable
-                if (!window.electronAPI) {
-                    const btn = document.getElementById('btnSubmit');
-                    const btnText = document.getElementById('btnText');
-                    if (btn && btnText) {
-                        btn.disabled = false;
-                        btnText.innerHTML = 'Log In';
-                        btn.classList.remove('opacity-50', 'bg-slate-800', 'bg-amber-600');
-                        btn.classList.add('btn-premium');
-                        licenseStatus = 'active'; // Allow web login
-                    }
-                }
             }
         }
 

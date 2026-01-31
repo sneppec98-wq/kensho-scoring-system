@@ -34,11 +34,14 @@ function createWindow() {
 
     // Handle window.open from renderer (e.g., monitor window)
     win.webContents.setWindowOpenHandler(({ url }) => {
-        if (url.startsWith('file://') || url.includes('scoring-monitor.html')) {
+        if (url.startsWith('file://') || url.includes('scoring-monitor.html') || url.includes('update-notification.html')) {
             return {
                 action: 'allow',
                 overrideBrowserWindowOptions: {
                     autoHideMenuBar: true,
+                    frame: url.includes('update-notification.html') ? false : true,
+                    width: url.includes('update-notification.html') ? 500 : 800,
+                    height: url.includes('update-notification.html') ? 450 : 600,
                     webPreferences: {
                         nodeIntegration: false,
                         contextIsolation: true,

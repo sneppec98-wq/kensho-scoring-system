@@ -569,6 +569,15 @@
         }
 
 
+
+        // Update notification handler
+        if (window.electronAPI && window.electronAPI.onUpdateAvailable) {
+            window.electronAPI.onUpdateAvailable((version) => {
+                console.log('Update tersedia: v' + version);
+                // Open update notification window
+                window.open(`update-notification.html?version=${version}`, '_blank', 'width=500,height=400,frame=false,transparent=true');
+            });
+        }
     </script>
 
 

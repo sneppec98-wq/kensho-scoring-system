@@ -40,5 +40,7 @@
             "js/**"
         ]
     },
-    "dependencies": {}
+    "dependencies": {
+        "electron-updater": "^6.7.3"
+    }
 }

@@ -2,6 +2,10 @@ const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
 const os = require('os');
+const { autoUpdater } = require('electron-updater');
+
+// Disable auto-downloading, we only want to notify the user
+autoUpdater.autoDownload = false;
 
 
 function createWindow() {
@@ -81,6 +85,16 @@ ipcMain.handle('get-machine-id', async () => {
 app.whenReady().then(() => {
     createWindow();
 
+    // Check for updates every 60 minutes
+    setInterval(() => {
+        autoUpdater.checkForUpdates();
+    }, 60 * 60 * 1000);
+
+    // Manual download trigger from UI
+    ipcMain.handle('download-update', () => {
+        shell.openExternal('https://github.com/sneppec98-wq/kensho-scoring-system/releases/latest');
+    });
+
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
@@ -95,3 +109,14 @@ app.on('window-all-closed', () => {
 });
 
 
+
+// AUTO-UPDATE LOGIC - IPC Communication
+autoUpdater.on('update-available', (info) => {
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-available', info.version);
+    });
+});
+
+autoUpdater.on('error', (err) => {
+    console.error('Update check error:', err);
+});

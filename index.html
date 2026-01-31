@@ -280,15 +280,18 @@
         window.handleLogin = async function (e) {
             e.preventDefault();
 
-            // SECURITY CHECK: License State
-            const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-            if (licenseStatus !== 'active' && !isLocalDev) {
-                alert("Lisensi Anda belum aktif. Silakan hubungi Admin.");
-                return;
-            }
-            if (isExpired) {
-                alert("Masa berlaku lisensi Anda telah habis.");
-                return;
+            // SECURITY CHECK: License State (Desktop Only)
+            // Web browser users can login without license activation
+            if (window.electronAPI) {
+                const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+                if (licenseStatus !== 'active' && !isLocalDev) {
+                    alert("Lisensi Anda belum aktif. Silakan hubungi Admin.");
+                    return;
+                }
+                if (isExpired) {
+                    alert("Masa berlaku lisensi Anda telah habis.");
+                    return;
+                }
             }
 
             const btn = document.getElementById('btnSubmit');

@@ -553,6 +553,19 @@
 
             } catch (err) {
                 console.error("License Check Error:", err);
+                // For web browser users, allow login even if installation check fails
+                // This can happen if Firestore rules are restrictive or HWID is unavailable
+                if (!window.electronAPI) {
+                    const btn = document.getElementById('btnSubmit');
+                    const btnText = document.getElementById('btnText');
+                    if (btn && btnText) {
+                        btn.disabled = false;
+                        btnText.innerHTML = 'Log In';
+                        btn.classList.remove('opacity-50', 'bg-slate-800', 'bg-amber-600');
+                        btn.classList.add('btn-premium');
+                        licenseStatus = 'active'; // Allow web login
+                    }
+                }
             }
         }
 

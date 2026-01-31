@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kensho-v1-b';
+const CACHE_NAME = 'kensho-v2-5-0';
 const ASSETS = [
   './',
   './login.html',

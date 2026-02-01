@@ -336,6 +336,7 @@ window.toggleVoiceLounge = toggleVoiceLounge;
 // ===================================
 window.switchTab = switchTab;
 window.toggleModal = toggleModal;
+window.filterTable = filterTable;
 window.showProgress = showProgress;
 window.updateProgress = updateProgress;
 window.hideProgress = hideProgress;

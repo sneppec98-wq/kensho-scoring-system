@@ -261,7 +261,7 @@ export const editAthlete = async (athleteId, eventId) => {
         'edit-athlete-gender': data.gender || '',
         'edit-athlete-birthDate': data.birthDate || '',
         'edit-athlete-weight': data.weight || '',
-        'edit-athlete-className': data.className || ''
+        'edit-athlete-classCode': data.classCode || ''
     };
 
     // Fill elements with safety check
@@ -275,15 +275,15 @@ export const editAthlete = async (athleteId, eventId) => {
 
 export const saveAthleteEdit = async (eventId, latestClasses = []) => {
     const idEl = document.getElementById('edit-athlete-id');
-    const classEl = document.getElementById('edit-athlete-className');
-    if (!idEl || !classEl) return;
+    const codeEl = document.getElementById('edit-athlete-classCode');
+    if (!idEl || !codeEl) return;
 
     const athleteId = idEl.value;
-    const className = classEl.value.toUpperCase().trim();
+    const classCode = codeEl.value.toUpperCase().trim();
 
-    // Find the class code for the new class name
-    const targetClass = latestClasses.find(c => (c.name || "").trim().toUpperCase() === className);
-    const classCode = targetClass?.code || '';
+    // Find the class name for the entered code
+    const targetClass = latestClasses.find(c => (c.code || "").toString().trim().toUpperCase() === classCode);
+    const className = targetClass?.name || '';
 
     const updatedData = {
         name: document.getElementById('edit-athlete-name')?.value.toUpperCase() || '',

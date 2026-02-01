@@ -837,6 +837,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             window.currentTatami = urlParams.get('tatami') || 1;
             window.eventId = urlParams.get('id');
+            const classParam = urlParams.get('class');
 
             if (document.getElementById('activeTatamiLabel')) {
                 document.getElementById('activeTatamiLabel').innerText = `${window.currentTatami}`;
@@ -863,6 +864,16 @@
                 window.setKataType('flag');
             } else {
                 window.setScoringMode('kumite'); // Default
+            }
+
+            // Sync Class from URL
+            if (classParam) {
+                const decodedClass = decodeURIComponent(classParam);
+                window.matchCategory = decodedClass;
+                const catDisplay = document.getElementById('categoryDisplay');
+                if (catDisplay) catDisplay.innerText = decodedClass;
+                const inputCat = document.getElementById('inputCategory');
+                if (inputCat) inputCat.value = decodedClass;
             }
         };
 

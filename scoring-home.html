@@ -248,6 +248,23 @@
             transform: translateY(30px);
         }
 
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
         .modal-show .mode-card-stagger {
             animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
@@ -262,6 +279,26 @@
 
         .modal-show .mode-card-stagger:nth-child(3) {
             animation-delay: 0.3s;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(7) {
+            animation-delay: 0.7s;
+        }
+
+        .modal-show .mode-card-stagger:nth-child(8) {
+            animation-delay: 0.8s;
         }
 
         .input-profile {
@@ -880,18 +917,18 @@
             <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-red-600/10 rounded-full blur-[100px]"></div>
 
             <button onclick="closeConsoleSelector()"
-                class="absolute top-10 right-10 text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+                class="absolute top-10 right-10 text-slate-500 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full z-50">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
 
-            <div class="relative z-10 text-center mb-16">
+            <div class="relative z-10 text-center mb-10">
                 <span
                     class="text-red-500 font-black text-[10px] uppercase tracking-[0.6em] mb-4 block animate-pulse">Preparation
                     Mode</span>
-                <h2 class="text-5xl font-black italic tracking-tighter shimmer-text uppercase leading-none">Pilih Mode
-                    Konsol</h2>
+                <h2 class="text-5xl font-black italic tracking-tighter shimmer-text uppercase leading-none">Daftar Kelas
+                </h2>
                 <div class="h-1 w-24 bg-gradient-to-r from-transparent via-red-500/50 to-transparent mx-auto mt-6">
                 </div>
                 <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-500 mt-6">
@@ -900,95 +937,16 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
-                <!-- Mode Kumite Card -->
-                <div onclick="selectConsoleMode('kumite')"
-                    class="console-card p-10 rounded-[3rem] group cursor-pointer relative overflow-hidden mode-card-stagger">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-red-500/10 to-red-600/5 flex items-center justify-center text-red-500 mb-10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative z-10">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <div class="relative z-10 text-left">
-                        <h3
-                            class="text-2xl font-black italic uppercase tracking-tight mb-4 group-hover:text-red-400 transition-colors">
-                            Kumite</h3>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-6">
-                            Penilaian Pertarungan Kontak<br>Regulasi WKF 2024</p>
-                        <div
-                            class="flex items-center gap-2 text-[8px] font-black text-red-500/50 uppercase tracking-[0.2em]">
-                            <span>Active Control</span>
-                            <span class="w-1 h-1 rounded-full bg-red-500/50"></span>
-                            <span>RTDB Ready</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mode Kata Score Card -->
-                <div onclick="selectConsoleMode('kata_score')"
-                    class="console-card p-10 rounded-[3rem] group cursor-pointer relative overflow-hidden mode-card-stagger">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-blue-500/10 to-blue-600/5 flex items-center justify-center text-blue-500 mb-10 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-500 relative z-10">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                    </div>
-                    <div class="relative z-10 text-left">
-                        <h3
-                            class="text-2xl font-black italic uppercase tracking-tight mb-4 group-hover:text-blue-400 transition-colors">
-                            Kata Score</h3>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-6">
-                            Penilaian Artistik & Teknik<br>Sistem 7 Juri Pro</p>
-                        <div
-                            class="flex items-center gap-2 text-[8px] font-black text-blue-500/50 uppercase tracking-[0.2em]">
-                            <span>Precision Logic</span>
-                            <span class="w-1 h-1 rounded-full bg-blue-500/50"></span>
-                            <span>Multi-Judge</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mode Kata Flag Card -->
-                <div onclick="selectConsoleMode('kata_flag')"
-                    class="console-card p-10 rounded-[3rem] group cursor-pointer relative overflow-hidden mode-card-stagger">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div
-                        class="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 flex items-center justify-center text-yellow-500 mb-10 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 relative z-10">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-7h.01" />
-                        </svg>
-                    </div>
-                    <div class="relative z-10 text-left">
-                        <h3
-                            class="text-2xl font-black italic uppercase tracking-tight mb-4 group-hover:text-yellow-400 transition-colors">
-                            Kata Flag</h3>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed mb-6">
-                            Sistem Bendera Tradisional<br>Eliminasi Aka - Ao</p>
-                        <div
-                            class="flex items-center gap-2 text-[8px] font-black text-yellow-500/50 uppercase tracking-[0.2em]">
-                            <span>Fast Decision</span>
-                            <span class="w-1 h-1 rounded-full bg-yellow-500/50"></span>
-                            <span>Legacy Mode</span>
-                        </div>
-                    </div>
+            <div id="classListContainer" class="relative z-10 max-h-[50vh] overflow-y-auto custom-scrollbar pr-4">
+                <!-- Classes will be rendered here dynamically -->
+                <div class="py-20 text-center opacity-30 italic font-black uppercase tracking-[0.3em]">
+                    Memuat Jadwal Tatami...
                 </div>
             </div>
 
-            <div class="relative z-10 mt-16 text-center">
-                <p class="text-[8px] font-black text-slate-600 uppercase tracking-[0.8em] animate-pulse">Secure
-                    Connection & Anti-Cheat Protocol Active</p>
+            <div class="relative z-10 mt-12 text-center">
+                <p class="text-[8px] font-black text-slate-600 uppercase tracking-[0.8em] animate-pulse">Pilihlah kelas
+                    yang akan dipertandingkan untuk membuka konsol</p>
             </div>
         </div>
     </div>
@@ -1044,7 +1002,7 @@
         import { collection, query, where, onSnapshot, getDocs, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { logActivity } from './js/activity-logger.js';
         import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
-        import { seedDummyEvents } from '../seed-events.js';
+        import { seedDummyEvents } from './js/seed-events.js';
 
         window.triggerSeeding = seedDummyEvents;
         window.handleLogout = handleLogout;
@@ -1139,7 +1097,7 @@
         };
 
         // --- CONSOLE SELECTOR LOGIC ---
-        window.openConsoleSelector = function (tatamiId) {
+        window.openConsoleSelector = async function (tatamiId) {
             if (!window.selectedEventId) {
                 const warningEl = document.getElementById('premiumWarning');
                 warningEl.classList.remove('hidden');
@@ -1162,8 +1120,83 @@
             window.selectedTatamiId = tatamiId;
             document.getElementById('selectedTatamiLabel').innerText = tatamiId;
             const modal = document.getElementById('consoleSelectorModal');
+            const container = document.getElementById('classListContainer');
+
             modal.classList.remove('hidden');
             setTimeout(() => modal.classList.add('modal-show'), 50);
+
+            container.innerHTML = `<div class="py-20 text-center animate-pulse opacity-30 italic font-black uppercase tracking-[0.3em]">Memuat Jadwal Tatami...</div>`;
+
+            try {
+                const scheduleDoc = await getDoc(doc(db, `events/${window.selectedEventId}/metadata`, 'schedule'));
+                if (!scheduleDoc.exists()) {
+                    container.innerHTML = `<div class="py-20 text-center opacity-30 italic font-black uppercase tracking-[0.3em]">Jadwal belum dikonfigurasi</div>`;
+                    return;
+                }
+
+                const scheduleData = scheduleDoc.data().schedule || [];
+                const classes = [];
+                scheduleData.forEach(block => {
+                    if (block.arena == tatamiId) {
+                        (block.classes || []).forEach(cls => {
+                            classes.push({
+                                ...cls,
+                                time: block.time,
+                                type: block.type
+                            });
+                        });
+                    }
+                });
+
+                if (classes.length === 0) {
+                    container.innerHTML = `<div class="py-20 text-center opacity-30 italic font-black uppercase tracking-[0.3em]">Tidak ada kelas dijadwalkan di Tatami ini</div>`;
+                    return;
+                }
+
+                container.innerHTML = classes.map((cls, idx) => {
+                    const className = cls.category || cls.name || 'Unknown';
+                    const categoryUpper = className.toUpperCase();
+                    // Auto-mode detection
+                    let mode = 'kumite';
+                    if (categoryUpper.includes('KATA')) {
+                        // Default to kata_score, but could be kata_flag if needed
+                        mode = 'kata_score';
+                    }
+
+                    return `
+                        <div onclick="selectClass('${mode}', '${className.replace(/'/g, "\\'")}')" 
+                             class="console-card p-6 mb-4 rounded-2xl group cursor-pointer flex items-center justify-between transition-all hover:bg-white/5 border border-white/5 mode-card-stagger">
+                            <div class="flex items-center gap-6">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center ${mode.includes('kata') ? 'bg-blue-500/10 text-blue-500' : 'bg-red-500/10 text-red-500'} font-black text-xl italic">
+                                    ${idx + 1}
+                                </div>
+                                <div class="text-left">
+                                    <h4 class="text-lg font-black italic uppercase tracking-tight group-hover:text-white transition-colors">${className}</h4>
+                                    <div class="flex items-center gap-3 mt-1 text-[8px] font-black uppercase tracking-widest opacity-40">
+                                        <span>${cls.athleteCount || cls.athletes || 0} Atlet</span>
+                                        <span class="w-1 h-1 rounded-full bg-slate-500"></span>
+                                        <span>${cls.time || '--:--'}</span>
+                                        <span class="w-1 h-1 rounded-full bg-slate-500"></span>
+                                        <span class="${mode.includes('kata') ? 'text-blue-500' : 'text-red-500'}">${mode.replace('_', ' ')}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="px-3 py-1 rounded-lg bg-white/5 text-[8px] font-black opacity-0 group-hover:opacity-100 transition-all tracking-[0.2em]">PILIH KELAS</span>
+                                <div class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-red-500/50 group-hover:bg-red-500/10 transition-all">
+                                    <svg class="w-3 h-3 text-slate-500 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Error fetching class list:", err);
+                container.innerHTML = `<div class="py-10 text-center text-red-500 uppercase text-[10px] font-black">Error: ${err.message}</div>`;
+            }
         }
 
         window.closeConsoleSelector = function () {
@@ -1172,8 +1205,9 @@
             setTimeout(() => modal.classList.add('hidden'), 400);
         }
 
-        window.selectConsoleMode = function (mode) {
-            window.location.href = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}&id=${window.selectedEventId}`;
+        window.selectClass = function (mode, category) {
+            const encodedCategory = encodeURIComponent(category);
+            window.location.href = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}&id=${window.selectedEventId}&class=${encodedCategory}`;
         }
 
         // --- UI & AUTH HANDLERS ---

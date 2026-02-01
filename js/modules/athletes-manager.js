@@ -294,13 +294,30 @@ export const saveAthleteEdit = async (eventId, latestClasses = []) => {
 };
 
 export const deleteAthlete = async (athleteId, eventId) => {
-    if (confirm("Yakin ingin menghapus data pendaftaran ini?")) {
+    if (confirm("❌ Yakin ingin menghapus data pendaftaran ini?\n\nData yang dihapus TIDAK DAPAT dikembalikan.")) {
         try {
+            // Show loading state
+            const deleteButtons = document.querySelectorAll(`button[onclick="deleteAthlete('${athleteId}')"]`);
+            deleteButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>';
+            });
+
+            // Delete from Firestore
             await deleteDoc(doc(db, `events/${eventId}/athletes`, athleteId));
-            alert("Data berhasil dihapus!");
+
+            // Success feedback
+            alert("✅ Data atlet berhasil dihapus dari database!\n\nCounter akan otomatis ter-update.");
         } catch (err) {
             console.error("Delete Athlete Error:", err);
-            alert("Gagal menghapus: " + err.message);
+            alert("❌ Gagal menghapus data: " + err.message);
+
+            // Restore button state on error
+            const deleteButtons = document.querySelectorAll(`button[onclick="deleteAthlete('${athleteId}')"]`);
+            deleteButtons.forEach(btn => {
+                btn.disabled = false;
+                btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>';
+            });
         }
     }
 };

@@ -2,6 +2,12 @@
 
 All notable changes to the Kensho Scoring System will be documented in this file.
 
+## [2.5.3] - 2026-02-01
+
+### Added
+- **Tab Locking System**: Admins can now lock/unlock Brackets, Winners, and Medal Tally tabs for public access.
+- **Enhanced Visuals**: Expanded event logo sizes in the official portal and admin settings for a more majestic and premium feel.
+
 ## [2.5.2] - 2026-02-01
 
 ### Added

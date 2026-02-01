@@ -1037,25 +1037,117 @@
     </style>
 
     <script type="module">
-        // [Existing imports and logic continue...]
+        import { rtdb, auth, db } from './js/firebase-init.js';
+        import { handleLogout } from './js/auth-helpers.js';
+        import { onAuthStateChanged, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { ref, onValue, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { collection, query, where, onSnapshot, getDocs, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { logActivity } from './js/activity-logger.js';
+        import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
+        import { seedDummyEvents } from '../seed-events.js';
 
-        // Global variables for console selection
+        window.triggerSeeding = seedDummyEvents;
+        window.handleLogout = handleLogout;
         window.selectedTatamiId = null;
+        window.selectedEventId = new URLSearchParams(window.location.search).get('id') || '';
 
+        // --- TATAMI RENDER LOGIC ---
+        const renderTatamiGrid = async (eventId) => {
+            const grid = document.getElementById('content-overview').querySelector('.grid');
+            if (!grid) return;
+
+            if (!eventId) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 italic font-black uppercase tracking-[0.4em]">Silakan pilih event aktif untuk melihat data Tatami</div>`;
+                return;
+            }
+
+            grid.innerHTML = `<div class="col-span-full py-20 text-center animate-pulse opacity-30 italic font-black uppercase tracking-[0.4em]">Memuat Data Tatami...</div>`;
+
+            try {
+                const scheduleDoc = await getDoc(doc(db, `events/${eventId}/metadata`, 'schedule'));
+                if (!scheduleDoc.exists()) {
+                    grid.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 italic font-black uppercase tracking-[0.4em]">Jadwal belum dikonfigurasi untuk event ini</div>`;
+                    return;
+                }
+
+                const scheduleData = scheduleDoc.data().schedule || [];
+                const config = scheduleDoc.data().config || { arenas: 0 };
+
+                // Group stats by Arena
+                const tatamiStats = {};
+                scheduleData.forEach(block => {
+                    const arena = block.arena;
+                    if (!tatamiStats[arena]) tatamiStats[arena] = { classCount: 0 };
+                    tatamiStats[arena].classCount += (block.classes || []).length;
+                });
+
+                // Render dynamic cards
+                const numArenas = config.arenas || Object.keys(tatamiStats).length;
+                let html = '';
+                for (let i = 1; i <= numArenas; i++) {
+                    const stats = tatamiStats[i] || { classCount: 0 };
+                    html += `
+                        <div class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02] stagger-card">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami ${i}</h3>
+                                    <p class="text-[8px] font-black ${stats.classCount > 0 ? 'text-blue-400' : 'text-yellow-500'} uppercase tracking-widest mt-1">
+                                        ${stats.classCount > 0 ? 'AKTIF' : 'IDLE'}
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full ${stats.classCount > 0 ? 'bg-blue-500 shadow-[0_0_10px_#3b82f6]' : 'bg-yellow-500 opacity-30'}"></span>
+                            </div>
+                            <div class="h-24 flex flex-col items-center justify-center">
+                                <span class="text-5xl font-black italic text-white/90">${stats.classCount}</span>
+                                <p class="text-[9px] font-black uppercase tracking-[0.4em] opacity-30 mt-2">Total Kelas</p>
+                            </div>
+                            <button onclick="openConsoleSelector(${i})"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">
+                                Buka Konsol
+                            </button>
+                        </div>
+                    `;
+                }
+                grid.innerHTML = html;
+            } catch (err) {
+                console.error("Error loading tatami stats:", err);
+                grid.innerHTML = `<div class="col-span-full text-red-500 text-center uppercase text-[10px] font-black">Error loading schedule: ${err.message}</div>`;
+            }
+        };
+
+        // --- EVENT SELECTOR LOGIC ---
+        const loadActiveEvents = () => {
+            const selector = document.getElementById('eventSelector');
+            const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                selector.innerHTML = '<option value="">-- PILIH EVENT --</option>';
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const isSelected = docSnap.id === window.selectedEventId ? 'selected' : '';
+                    selector.innerHTML += `<option value="${docSnap.id}" ${isSelected}>${data.name}</option>`;
+                });
+            });
+        };
+
+        window.handleEventChange = (val) => {
+            window.selectedEventId = val;
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.set('id', val);
+            window.history.replaceState({}, '', newUrl);
+            renderTatamiGrid(val);
+        };
+
+        // --- CONSOLE SELECTOR LOGIC ---
         window.openConsoleSelector = function (tatamiId) {
             if (!window.selectedEventId) {
-                // Premium Notification Logic
                 const warningEl = document.getElementById('premiumWarning');
                 warningEl.classList.remove('hidden');
-
-                // Highlight selector
                 const selector = document.getElementById('eventSelector');
                 if (selector) {
                     selector.classList.add('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
                     selector.focus();
                 }
-
-                // Auto hide warning after 4s
                 setTimeout(() => {
                     warningEl.classList.add('opacity-0');
                     setTimeout(() => {
@@ -1064,7 +1156,6 @@
                         if (selector) selector.classList.remove('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
                     }, 500);
                 }, 4000);
-
                 return;
             }
 
@@ -1072,77 +1163,58 @@
             document.getElementById('selectedTatamiLabel').innerText = tatamiId;
             const modal = document.getElementById('consoleSelectorModal');
             modal.classList.remove('hidden');
-
-            // Trigger stagger animations
-            setTimeout(() => {
-                modal.classList.add('modal-show');
-            }, 50);
-
-            const card = modal.querySelector('.stagger-card');
-            if (card) {
-                card.style.animation = 'none';
-                card.offsetHeight;
-                card.style.animation = null;
-            }
+            setTimeout(() => modal.classList.add('modal-show'), 50);
         }
 
         window.closeConsoleSelector = function () {
             const modal = document.getElementById('consoleSelectorModal');
             modal.classList.remove('modal-show');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 400);
+            setTimeout(() => modal.classList.add('hidden'), 400);
         }
 
         window.selectConsoleMode = function (mode) {
-            const eventId = new URLSearchParams(window.location.search).get('id');
-            let url = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}`;
-            if (eventId) url += `&id=${eventId}`;
-            window.location.href = url;
+            window.location.href = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}&id=${window.selectedEventId}`;
         }
 
-        import { rtdb, auth, db } from './js/firebase-init.js';
-        import { handleLogout } from './js/auth-helpers.js';
-        import { onAuthStateChanged, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { ref, onValue, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        import { collection, query, where, onSnapshot, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { logActivity } from './js/activity-logger.js';
-        import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
-        import { seedDummyEvents } from '../seed-events.js';
+        // --- UI & AUTH HANDLERS ---
+        window.switchTab = (tab) => {
+            const overview = document.getElementById('content-overview');
+            const logs = document.getElementById('content-logs');
+            const btnOverview = document.getElementById('tab-overview');
+            const btnLogs = document.getElementById('tab-logs');
 
-        window.triggerSeeding = seedDummyEvents;
+            if (tab === 'overview') {
+                overview.classList.remove('hidden');
+                logs.classList.add('hidden');
+                btnOverview.classList.add('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
+                btnLogs.classList.remove('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
+            } else {
+                overview.classList.add('hidden');
+                logs.classList.remove('hidden');
+                btnLogs.classList.add('text-red-400', 'bg-white/5', 'shadow-[0_0_20_px_rgba(248,113,113,0.2)]');
+                btnOverview.classList.remove('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
+                renderLogs();
+            }
+        };
 
-        // Theme logic removed - Permanent Dark Mode
-
-        window.handleLogout = handleLogout;
-        // Voice Lounge UI Logic
         window.toggleVoiceLounge = () => {
-            const panel = document.getElementById('voice-lounge-panel');
-            panel.classList.toggle('active');
-            const btn = document.getElementById('btn-voice');
-            btn.classList.toggle('active');
+            document.getElementById('voice-lounge-panel').classList.toggle('active');
         };
 
         window.handleJoinVoice = async () => {
             const user = auth.currentUser;
             if (!user) return;
-            const btnJoin = document.getElementById('btn-join-voice');
-            btnJoin.disabled = true;
             try {
                 await joinVoice(user);
-                btnJoin.classList.add('hidden');
+                document.getElementById('btn-join-voice').classList.add('hidden');
                 document.getElementById('btn-mute-voice').classList.remove('hidden');
                 document.getElementById('btn-leave-voice').classList.remove('hidden');
-            } catch (err) {
-                alert("Gagal join Voice Lounge: " + err.message);
-                btnJoin.disabled = false;
-            }
+            } catch (err) { alert(err.message); }
         };
 
         window.handleLeaveVoice = async () => {
             await leaveVoice();
             document.getElementById('btn-join-voice').classList.remove('hidden');
-            document.getElementById('btn-join-voice').disabled = false;
             document.getElementById('btn-mute-voice').classList.add('hidden');
             document.getElementById('btn-leave-voice').classList.add('hidden');
         };
@@ -1159,94 +1231,25 @@
                 btn.classList.remove('text-red-400');
             }
         };
-        // Export to window for HTML onclick
-        window.switchTab = switchTab;
-        window.prevPage = prevPage;
-        window.nextPage = nextPage;
 
-        // Initialize state
-        window.selectedEventId = new URLSearchParams(window.location.search).get('id') || '';
-
-        // --- EVENT SELECTOR LOGIC ---
-        const loadActiveEvents = () => {
-            const selector = document.getElementById('eventSelector');
-            const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
-
-            onSnapshot(q, (snapshot) => {
-                selector.innerHTML = '<option value="">-- PILIH EVENT --</option>';
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const isSelected = docSnap.id === window.selectedEventId ? 'selected' : '';
-                    selector.innerHTML += `<option value="${docSnap.id}" ${isSelected}>${data.name}</option>`;
-                });
-
-                if (window.selectedEventId) {
-                    window.updateTatamiLinks();
-                }
-            });
-        };
-
-        window.handleEventChange = (val) => {
-            window.selectedEventId = val;
-            window.updateTatamiLinks();
-
-            // Optional: Update URL without reloading to persist state
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('id', val);
-            window.history.replaceState({}, '', newUrl);
-
-            console.log('[ScoringHome] Event changed to:', val);
-        };
-
-        window.updateTatamiLinks = () => {
-            const links = document.querySelectorAll('a[href^="scoring.html"]');
-            links.forEach(link => {
-                const url = new URL(link.href, window.location.origin);
-                if (window.selectedEventId) {
-                    url.searchParams.set('id', window.selectedEventId);
-                } else {
-                    url.searchParams.delete('id');
-                }
-                link.href = url.pathname + url.search;
-            });
-        };
-
-        // Call initialization
-        loadActiveEvents();
-
-        // Protect Route & Role Check
+        // --- AUTH & PROFILE ---
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'login.html';
             } else {
-                // Set Display Name
-                const displayName = user.displayName || "Admin Kensho";
-                document.getElementById('userNameDisplay').innerText = displayName;
-
-                console.log('[DEBUG] User logged in:', user.email);
-
-                // Sync Role from Firestore & Check if Owner (menggunakan email query seperti dashboard)
+                document.getElementById('userNameDisplay').innerText = user.displayName || "Admin Kensho";
                 const q = query(collection(db, "admins"), where("email", "==", user.email));
                 const snap = await getDocs(q);
                 if (!snap.empty) {
                     const adminData = snap.docs[0].data();
-
-                    // Display actual role
-                    const roleEl = document.getElementById('userRoleDisplay');
-                    if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
-
-                    if (adminData.role === 'owner') {
-                        document.querySelectorAll('.owner-only').forEach(el => el.classList.remove('hidden'));
-                    }
+                    document.getElementById('userRoleDisplay').innerText = adminData.role.toUpperCase();
+                    if (adminData.role === 'owner') document.querySelectorAll('.owner-only').forEach(el => el.classList.remove('hidden'));
                 } else {
-                    // Default fallback if not in admins collection
-                    const roleEl = document.getElementById('userRoleDisplay');
-                    if (roleEl) roleEl.innerText = "ADMIN";
+                    document.getElementById('userRoleDisplay').innerText = "ADMIN";
                 }
             }
         });
 
-        // Modal Logic
         window.openProfileModal = () => {
             const user = auth.currentUser;
             if (user) {
@@ -1256,86 +1259,38 @@
             }
         };
 
-        window.closeProfileModal = () => {
-            document.getElementById('profileModal').classList.add('hidden');
-        };
+        window.closeProfileModal = () => document.getElementById('profileModal').classList.add('hidden');
 
-        // Handle Profile Update
         document.getElementById('profileForm').onsubmit = async (e) => {
             e.preventDefault();
             const newName = document.getElementById('profileName').value;
-
             try {
-                const oldName = auth.currentUser.displayName;
                 await updateProfile(auth.currentUser, { displayName: newName });
                 document.getElementById('userNameDisplay').innerText = newName;
-
-                // Track Profile Change Activity
-                await logActivity("Update Profil", `Mengubah nama profil dari "${oldName}" menjadi "${newName}"`);
-
-                alert("Profil berhasil diperbarui!");
+                alert("Profil diperbarui!");
                 closeProfileModal();
-            } catch (error) {
-                alert("Gagal memperbarui profil: " + error.message);
-            }
+            } catch (err) { alert(err.message); }
         };
 
-        // Handle Reset Password
         window.handleResetPassword = async () => {
             const email = auth.currentUser.email;
-            if (confirm(`Kirim link reset password ke email ${email}?`)) {
+            if (confirm(`Kirim link reset password ke ${email}?`)) {
                 try {
                     await sendPasswordResetEmail(auth, email);
-                    alert("Email reset password telah dikirim! Silakan cek kotak masuk Anda.");
-                } catch (error) {
-                    alert("Gagal mengirim email reset: " + error.message);
-                }
+                    alert("Email reset dikirim!");
+                } catch (err) { alert(err.message); }
             }
         };
 
-        // Protect Route & Role Check
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-            } else {
-                // Set Display Name
-                const displayName = user.displayName || "Admin Kensho";
-                document.getElementById('userNameDisplay').innerText = displayName;
-
-                console.log('[DEBUG] User logged in:', user.email);
-
-                // Sync Role from Firestore & Check if Owner (menggunakan email query seperti dashboard)
-                const q = query(collection(db, "admins"), where("email", "==", user.email));
-                const snap = await getDocs(q);
-                if (!snap.empty) {
-                    const adminData = snap.docs[0].data();
-
-                    // Display actual role
-                    const roleEl = document.getElementById('userRoleDisplay');
-                    if (roleEl) roleEl.innerText = adminData.role.toUpperCase();
-
-                    if (adminData.role === 'owner') {
-                        document.querySelectorAll('.owner-only').forEach(el => el.classList.remove('hidden'));
-                    }
-                } else {
-                    // Default fallback if not in admins collection
-                    const roleEl = document.getElementById('userRoleDisplay');
-                    if (roleEl) roleEl.innerText = "ADMIN";
-                }
-            }
-        });
-
-        // Mock Data for Logging
+        // --- LOGS LOGIC ---
         const logData = [];
-
         let currentPage = 1;
         const rowsPerPage = 15;
 
         function renderLogs() {
             const body = document.getElementById('logTableBody');
             const start = (currentPage - 1) * rowsPerPage;
-            const end = start + rowsPerPage;
-            const pageData = logData.slice(start, end);
+            const pageData = logData.slice(start, start + rowsPerPage);
 
             body.innerHTML = pageData.map(item => `
                 <tr class="border-b border-white/5 hover:bg-white/5 transition-all group">
@@ -1345,73 +1300,36 @@
                     <td class="py-5 text-red-400/80">${item.aka}</td>
                     <td class="py-5 text-blue-400/80">${item.ao}</td>
                     <td class="py-5">
-                        <span class="px-3 py-1 ${getStatusStyles(item.status)} rounded-full text-[8px] font-black border">
+                        <span class="px-3 py-1 ${getStatusStyles(item.status)} rounded-full text-[8px] font-black border uppercase">
                             ${item.status}
                         </span>
                     </td>
                 </tr>
             `).join('');
 
-            // UI Updates
-            document.getElementById('logRange').innerText = `${start + 1} - ${Math.min(end, logData.length)}`;
+            document.getElementById('logRange').innerText = `${start + 1} - ${Math.min(start + rowsPerPage, logData.length)}`;
             document.getElementById('logTotal').innerText = logData.length;
             document.getElementById('currentPageNum').innerText = currentPage;
-
             document.getElementById('btnPrev').disabled = currentPage === 1;
-            document.getElementById('btnPrev').style.opacity = currentPage === 1 ? '0.3' : '1';
-
-            const totalPages = Math.ceil(logData.length / rowsPerPage);
-            document.getElementById('btnNext').disabled = currentPage === totalPages;
-            document.getElementById('btnNext').style.opacity = currentPage === totalPages ? '0.3' : '1';
+            document.getElementById('btnNext').disabled = currentPage === Math.ceil(logData.length / rowsPerPage);
         }
 
         function getStatusStyles(status) {
-            switch (status) {
-                case 'LIVE': return 'bg-red-500/10 text-red-500 border-red-500/20';
-                case 'FINISH': return 'bg-green-500/10 text-green-500 border-green-500/20';
-                default: return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
-            }
+            if (status === 'LIVE') return 'bg-red-500/10 text-red-500 border-red-500/20';
+            if (status === 'FINISH') return 'bg-green-500/10 text-green-500 border-green-500/20';
+            return 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20';
         }
 
-        function prevPage() { if (currentPage > 1) { currentPage--; renderLogs(); } }
-        function nextPage() {
-            const totalPages = Math.ceil(logData.length / rowsPerPage);
-            if (currentPage < totalPages) { currentPage++; renderLogs(); }
-        }
+        window.prevPage = () => { if (currentPage > 1) { currentPage--; renderLogs(); } };
+        window.nextPage = () => { if (currentPage < Math.ceil(logData.length / rowsPerPage)) { currentPage++; renderLogs(); } };
 
-        function switchTab(tab) {
-            const overview = document.getElementById('content-overview');
-            const logs = document.getElementById('content-logs');
-            const btnOverview = document.getElementById('tab-overview');
-            const btnLogs = document.getElementById('tab-logs');
+        // --- INITIALIZATION ---
+        loadActiveEvents();
+        renderTatamiGrid(window.selectedEventId);
 
-            if (tab === 'overview') {
-                overview.classList.remove('hidden');
-                logs.classList.add('hidden');
-                btnOverview.classList.add('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
-                btnLogs.classList.remove('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
-                btnLogs.classList.add('text-slate-500');
-            } else {
-                overview.classList.add('hidden');
-                logs.classList.remove('hidden');
-                btnLogs.classList.add('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
-                btnOverview.classList.remove('text-red-400', 'bg-white/5', 'shadow-[0_0_20px_rgba(248,113,113,0.2)]');
-                btnOverview.classList.add('text-slate-500');
-                renderLogs(); // Re-render logic when switching to logs tab
-            }
-        }
-
-        // Initialize on load
-        window.onload = () => {
-            renderLogs();
-        };
-
-        // Register Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered!', reg))
-                    .catch(err => console.log('SW Registration Failed!', err));
+                navigator.serviceWorker.register('./sw.js').catch(console.error);
             });
         }
     </script>

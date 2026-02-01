@@ -246,7 +246,7 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
     }
 };
 
-export const editAthlete = async (athleteId, eventId) => {
+export const editAthlete = async (athleteId, eventId, latestClasses = []) => {
     const athleteDoc = await getDoc(doc(db, `events/${eventId}/athletes`, athleteId));
     if (!athleteDoc.exists()) {
         alert("Atlet tidak ditemukan.");
@@ -270,7 +270,35 @@ export const editAthlete = async (athleteId, eventId) => {
         if (el) el.value = val;
     });
 
+    // Set initial class preview
+    updateClassPreview(data.classCode || '', latestClasses);
+
     toggleModal('modal-edit-athlete', true);
+};
+
+export const handleClassCodeInput = (code, latestClasses = []) => {
+    updateClassPreview(code, latestClasses);
+};
+
+const updateClassPreview = (code, latestClasses) => {
+    const previewEl = document.getElementById('edit-athlete-class-preview');
+    if (!previewEl) return;
+
+    if (!code || code.trim() === "") {
+        previewEl.textContent = "";
+        return;
+    }
+
+    const targetClass = latestClasses.find(c => (c.code || "").toString().trim().toUpperCase() === code.toUpperCase().trim());
+    if (targetClass) {
+        previewEl.textContent = targetClass.name || "NAMA KELAS TIDAK TERDEFINISI";
+        previewEl.classList.remove('text-red-400');
+        previewEl.classList.add('text-blue-400');
+    } else {
+        previewEl.textContent = "KODE KELAS TIDAK DITEMUKAN";
+        previewEl.classList.remove('text-blue-400');
+        previewEl.classList.add('text-red-400');
+    }
 };
 
 export const saveAthleteEdit = async (eventId, latestClasses = []) => {

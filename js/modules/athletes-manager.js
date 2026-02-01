@@ -20,6 +20,15 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
 
     if (athleteCountBadge) athleteCountBadge.innerText = athletes.length;
 
+    // Helper to find class info robustly
+    const findClassInfo = (a) => {
+        return latestClasses.find(c =>
+            (c.id && a.classCode && c.id.toString().trim().toUpperCase() === a.classCode.toString().trim().toUpperCase()) ||
+            (c.code && a.classCode && c.code.toString().trim().toUpperCase() === a.classCode.toString().trim().toUpperCase()) ||
+            (c.name && a.className && c.name.toString().trim().toUpperCase() === a.className.toString().trim().toUpperCase())
+        );
+    };
+
     // Dashboard Breakdown Update
     const dashOpen = document.getElementById('dash-open-count');
     const dashFest = document.getElementById('dash-fest-count');
@@ -29,7 +38,7 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
         let festTotal = 0;
         let teamTotal = 0;
         athletes.forEach(a => {
-            const classInfo = latestClasses.find(c => c.name === a.className || c.code === a.classCode);
+            const classInfo = findClassInfo(a);
             if (!classInfo) return;
 
             if (classInfo.type === 'BEREGU') {
@@ -46,25 +55,25 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
 
     // Filter by sub-tab
     const filtered = athletes.filter(a => {
-        const classInfo = latestClasses.find(c => c.name === a.className);
+        const classInfo = findClassInfo(a);
         if (!classInfo) return currentAthleteSubTab === 'OPEN';
 
         if (currentAthleteSubTab === 'BEREGU') {
             return classInfo.type === 'BEREGU';
         }
 
-        const isFestival = (classInfo.code || "").toString().toUpperCase().startsWith('F');
-        const isPerorangan = classInfo.type === 'PERORANGAN' || !classInfo.type;
+        const isFestival = (classInfo.code || classInfo.id || "").toString().toUpperCase().startsWith('F');
 
-        if (currentAthleteSubTab === 'FESTIVAL') return isFestival && isPerorangan;
-        if (currentAthleteSubTab === 'OPEN') return !isFestival && isPerorangan;
+        if (currentAthleteSubTab === 'FESTIVAL') return isFestival;
+        if (currentAthleteSubTab === 'OPEN') return !isFestival;
+
         return false;
     });
 
     // Natural Sorting by Class Code
     filtered.sort((a, b) => {
-        const classA = latestClasses.find(c => c.name === a.className);
-        const classB = latestClasses.find(c => c.name === b.className);
+        const classA = findClassInfo(a);
+        const classB = findClassInfo(b);
         const codeA = (classA?.code || "").toString();
         const codeB = (classB?.code || "").toString();
 
@@ -77,8 +86,10 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
         <tr class="row-hover border-b border-white/5 group">
             <td class="p-4">
                 <div class="font-bold text-white text-lg">${athlete.name}</div>
-                ${athlete.members && athlete.members.length > 0 ?
-            `<div class="text-[10px] opacity-40 font-bold mt-1 uppercase">👥 TIM: ${athlete.members.join(' & ')}</div>` : ''}
+                ${athlete.name2 || athlete.name3 ?
+            `<div class="text-[10px] opacity-40 font-bold mt-1 uppercase">👥 TIM: ${[athlete.name, athlete.name2, athlete.name3].filter(n => n).join(' & ')}</div>` :
+            (athlete.members && athlete.members.length > 0 ?
+                `<div class="text-[10px] opacity-40 font-bold mt-1 uppercase">👥 TIM: ${athlete.members.join(' & ')}</div>` : '')}
             </td>
             <td class="p-4 opacity-70 text-sm font-bold">${athlete.team || '-'}</td>
             <td class="p-4">
@@ -90,15 +101,9 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
             <td class="p-4">
                 <div class="flex flex-col">
                     <span class="text-[9px] font-black text-blue-500 mb-1 tracking-widest">
-                        ${athlete.classCode ||
-        latestClasses.find(c => {
-            const n1 = (c.name || "").replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            const n2 = (athlete.className || "").replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-            return n1 === n2;
-        })?.code ||
-        'ERR'}
+                        ${athlete.classCode || findClassInfo(athlete)?.code || 'ERR'}
                     </span>
-                    <span class="text-xs font-bold text-slate-200">${athlete.className || '-'}</span>
+                    <span class="text-xs font-bold text-slate-200">${athlete.className || findClassInfo(athlete)?.name || '-'}</span>
                 </div>
             </td>
             <td class="p-4 font-bold text-yellow-400">${athlete.weight || '-'} kg</td>
@@ -136,7 +141,10 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
     let bereguCount = 0;
 
     athletes.forEach(a => {
-        const classInfo = latestClasses.find(c => c.name === a.className || c.code === a.classCode);
+        const classInfo = latestClasses.find(c =>
+            (c.code && a.classCode && c.code.toString().trim().toUpperCase() === a.classCode.toString().trim().toUpperCase()) ||
+            (c.name && a.className && c.name.toString().trim().toUpperCase() === a.className.toString().trim().toUpperCase())
+        );
         if (!classInfo) {
             openCount++; // Fallback
             return;
@@ -244,6 +252,17 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
             </div>
         `;
     }
+
+    // Auto-update Contingent Datalist
+    updateContingentDatalist(athletes);
+};
+
+const updateContingentDatalist = (athletes) => {
+    const datalist = document.getElementById('contingent-list');
+    if (!datalist) return;
+
+    const uniqueTeams = [...new Set(athletes.map(a => a.team).filter(t => t))].sort();
+    datalist.innerHTML = uniqueTeams.map(t => `<option value="${t}">`).join('');
 };
 
 export const editAthlete = async (athleteId, eventId, latestClasses = []) => {
@@ -261,7 +280,9 @@ export const editAthlete = async (athleteId, eventId, latestClasses = []) => {
         'edit-athlete-gender': data.gender || '',
         'edit-athlete-birthDate': data.birthDate || '',
         'edit-athlete-weight': data.weight || '',
-        'edit-athlete-classCode': data.classCode || ''
+        'edit-athlete-classCode': data.classCode || '',
+        'edit-athlete-name2': data.name2 || '',
+        'edit-athlete-name3': data.name3 || ''
     };
 
     // Fill elements with safety check
@@ -270,18 +291,22 @@ export const editAthlete = async (athleteId, eventId, latestClasses = []) => {
         if (el) el.value = val;
     });
 
-    // Set initial class preview
-    updateClassPreview(data.classCode || '', latestClasses);
+    // Set initial class preview and toggle members
+    updateClassPreview(data.classCode || '', latestClasses, 'edit-athlete-class-preview', 'edit-teamMembersContainer');
 
     toggleModal('modal-edit-athlete', true);
 };
 
 export const handleClassCodeInput = (code, latestClasses = []) => {
-    updateClassPreview(code, latestClasses);
+    updateClassPreview(code, latestClasses, 'edit-athlete-class-preview', 'edit-teamMembersContainer');
 };
 
-const updateClassPreview = (code, latestClasses) => {
-    const previewEl = document.getElementById('edit-athlete-class-preview');
+export const handleEmergencyClassCodeInput = (code, latestClasses = []) => {
+    updateClassPreview(code, latestClasses, 'athlete-class-preview', 'teamMembersContainer');
+};
+
+const updateClassPreview = (code, latestClasses, previewElId, teamContainerId = null) => {
+    const previewEl = document.getElementById(previewElId);
     if (!previewEl) return;
 
     if (!code || code.trim() === "") {
@@ -299,6 +324,79 @@ const updateClassPreview = (code, latestClasses) => {
         previewEl.classList.remove('text-blue-400');
         previewEl.classList.add('text-red-400');
     }
+
+    // Toggle Team Members visibility if container ID is provided
+    if (teamContainerId) {
+        const teamContainer = document.getElementById(teamContainerId);
+        if (teamContainer) {
+            if (targetClass?.type === 'BEREGU') {
+                teamContainer.classList.remove('hidden');
+            } else {
+                teamContainer.classList.add('hidden');
+            }
+        }
+    }
+};
+
+export const saveEmergencyAthlete = async (eventId, latestClasses = []) => {
+    const nameEl = document.getElementById('athleteName');
+    const teamEl = document.getElementById('athleteTeam');
+    const genderEl = document.getElementById('athleteGender');
+    const birthEl = document.getElementById('athleteBirth');
+    const weightEl = document.getElementById('athleteWeight');
+    const codeEl = document.getElementById('athlete-classCode');
+
+    if (!nameEl || !teamEl || !codeEl) return;
+
+    const classCode = codeEl.value.toUpperCase().trim();
+    if (!classCode) {
+        alert("Kode Kelas wajib diisi!");
+        return;
+    }
+
+    const targetClass = latestClasses.find(c => (c.code || "").toString().trim().toUpperCase() === classCode);
+    if (!targetClass) {
+        alert("Kode kelas tidak valid!");
+        return;
+    }
+
+    showProgress('MENYIMPAN ATLET', 0);
+
+    try {
+        const athleteData = {
+            name: nameEl.value.toUpperCase().trim(),
+            team: teamEl.value.toUpperCase().trim(),
+            gender: genderEl?.value || 'PUTRA',
+            birthDate: birthEl?.value || '',
+            weight: parseFloat(weightEl?.value) || 0,
+            classCode: classCode,
+            className: targetClass.name || '',
+            timestamp: new Date().getTime()
+        };
+
+        // Handle Team Members if BEREGU
+        if (targetClass.type === 'BEREGU') {
+            athleteData.name2 = document.getElementById('athleteName2')?.value.toUpperCase().trim() || '';
+            athleteData.name3 = document.getElementById('athleteName3')?.value.toUpperCase().trim() || '';
+        }
+
+        const newAthleteRef = doc(collection(db, `events/${eventId}/athletes`));
+        await setDoc(newAthleteRef, athleteData);
+
+        alert(`Atlet "${athleteData.name}" berhasil ditambahkan!`);
+        toggleModal('modal-atlet', false);
+
+        // Reset Form
+        document.getElementById('formAthlete').reset();
+        document.getElementById('athlete-class-preview').textContent = '';
+        document.getElementById('teamMembersContainer')?.classList.add('hidden');
+
+    } catch (err) {
+        console.error("Save Emergency Athlete Error:", err);
+        alert("Gagal menyimpan: " + err.message);
+    } finally {
+        hideProgress();
+    }
 };
 
 export const saveAthleteEdit = async (eventId, latestClasses = []) => {
@@ -311,6 +409,10 @@ export const saveAthleteEdit = async (eventId, latestClasses = []) => {
 
     // Find the class name for the entered code
     const targetClass = latestClasses.find(c => (c.code || "").toString().trim().toUpperCase() === classCode);
+    if (!targetClass) {
+        alert("Kode kelas tidak valid! Data tidak disimpan.");
+        return;
+    }
     const className = targetClass?.name || '';
 
     const updatedData = {
@@ -322,6 +424,12 @@ export const saveAthleteEdit = async (eventId, latestClasses = []) => {
         className: className,
         classCode: classCode
     };
+
+    // Include members if BEREGU
+    if (targetClass.type === 'BEREGU') {
+        updatedData.name2 = document.getElementById('edit-athlete-name2')?.value.toUpperCase().trim() || '';
+        updatedData.name3 = document.getElementById('edit-athlete-name3')?.value.toUpperCase().trim() || '';
+    }
 
     try {
         await updateDoc(doc(db, `events/${eventId}/athletes`, athleteId), updatedData);

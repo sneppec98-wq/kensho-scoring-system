@@ -6,19 +6,9 @@ import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from 
 export const renderClassesData = async (classes, allAthletes, currentSubTab = 'OPEN', eventId) => {
     const tableBody = document.getElementById('classes-table-body');
     const classCountLabel = document.getElementById('countKelas');
-    const athleteClassSelect = document.getElementById('athleteClass');
     const bracketListArea = document.querySelector('#tab-bracket .grid');
 
     if (!tableBody) return;
-
-    // Update Dropdown
-    if (athleteClassSelect) {
-        const currentVal = athleteClassSelect.value;
-        athleteClassSelect.innerHTML = '<option value="">Pilih Kelas...</option>';
-        classes.forEach(c => {
-            athleteClassSelect.innerHTML += `<option value="${c.name}" ${c.name === currentVal ? 'selected' : ''}>${c.name}</option>`;
-        });
-    }
 
     if (!classes || classes.length === 0) {
         tableBody.innerHTML = `<tr><td colspan="9" class="text-center p-12 opacity-40">BELUM ADA KELAS</td></tr>`;

@@ -2,6 +2,7 @@ import { renderSchedule } from './schedule-generator.js';
 import { preparePesertaPrint } from './print/print-peserta.js';
 import { prepareJuaraPrint, extractResultsFromBrackets } from './print/print-juara.js';
 import { prepareMedaliPrint } from './print/print-medali.js';
+import { prepareMedalTallyPrint } from './print/print-medal-tally.js';
 import { prepareBracketPrint } from './print/print-bracket.js';
 import { prepareJadwalPrint } from './print/print-jadwal.js';
 
@@ -9,6 +10,7 @@ import { prepareJadwalPrint } from './print/print-jadwal.js';
 import { renderPesertaView } from './verification/view-peserta.js';
 import { renderWinnersView } from './verification/view-juara.js';
 import { renderMedalView, calculateMedalTally } from './verification/view-medali.js';
+import { renderMedalTallyView, calculateMedalTallyNew } from './verification/view-medal-tally.js';
 
 // Global State for Search
 window.verifikasiSearchTerm = '';
@@ -71,6 +73,9 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
         const allContingents = [...new Set(athletes.map(a => a.team).filter(t => t))];
         const sortedTally = calculateMedalTally(results, allContingents);
         html += renderMedalView(sortedTally);
+    } else if (tab === 'MEDALI_TALLY') {
+        const sortedTally = calculateMedalTallyNew(athletes, classes, brackets);
+        html += renderMedalTallyView(sortedTally);
     }
 
     verifikasiContent.innerHTML = html;
@@ -97,6 +102,8 @@ window.printVerificationSubTab = (tab, eventName, eventLogo) => {
         prepareJuaraPrint(brackets, classes, athletes, eventName, eventLogo);
     } else if (tab === 'MEDALI') {
         prepareMedaliPrint(brackets, athletes, eventName, eventLogo);
+    } else if (tab === 'MEDALI_TALLY') {
+        prepareMedalTallyPrint(athletes, classes, eventName, eventLogo);
     } else if (tab === 'JADWAL_FESTIVAL') {
         prepareBracketPrint(athletes, classes, eventName, eventLogo);
     } else if (tab === 'JADWAL') {

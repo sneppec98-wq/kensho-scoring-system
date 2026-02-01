@@ -200,6 +200,7 @@
         </div>
 
         <div id="content-area">
+            <datalist id="contingent-list"></datalist>
             <div id="tab-atlet" class="tab-content">
                 <div class="neu-flat p-8 rounded-[2.5rem]">
                     <div class="mb-8 flex justify-between items-center">
@@ -495,6 +496,8 @@
                         data-sub="JUARA">DAFTAR JUARA</button>
                     <button onclick="setVerifikasiSubTab('MEDALI')" class="sub-tab-btn verifikasi-sub-tab"
                         data-sub="MEDALI">PEROLEHAN MEDALI</button>
+                    <button onclick="setVerifikasiSubTab('MEDALI_TALLY')" class="sub-tab-btn verifikasi-sub-tab"
+                        data-sub="MEDALI_TALLY">PENGHITUNGAN MEDALI</button>
                 </div>
 
                 <div id="verifikasiContent" class="text-slate-300">
@@ -522,7 +525,8 @@
                     Darurat Atlet Baru</p>
             </header>
 
-            <form id="formAthlete" class="grid grid-cols-2 gap-4">
+            <form id="formAthlete" onsubmit="event.preventDefault(); window.saveEmergencyAthlete();"
+                class="grid grid-cols-2 gap-4">
                 <input type="hidden" id="athleteId">
                 <div class="col-span-2">
                     <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
@@ -535,7 +539,7 @@
                 <div class="col-span-2">
                     <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kontingen
                         / Tim</label>
-                    <input type="text" id="athleteTeam" required
+                    <input type="text" id="athleteTeam" required list="contingent-list"
                         class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
                         placeholder="MASUKKAN NAMA KONTINGEN...">
                 </div>
@@ -566,12 +570,15 @@
                 </div>
 
                 <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kelas
-                        Pertandingan</label>
-                    <select id="athleteClass" onchange="checkClassType(this.value)"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
-                        <option value="">PIlih Kelas...</option>
-                    </select>
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kode
+                        Kelas</label>
+                    <input type="text" id="athlete-classCode" oninput="window.handleEmergencyClassCodeInput(this.value)"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                        placeholder="CONTOH: 001, 002...">
+                    <p id="athlete-class-preview"
+                        class="text-[10px] font-bold text-blue-400 mt-2 ml-4 uppercase tracking-wider h-4">
+                        <!-- Preview Nama Kelas -->
+                    </p>
                 </div>
 
                 <div id="teamMembersContainer" class="col-span-2 hidden space-y-4">
@@ -641,7 +648,7 @@
                     <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kontingen
                         /
                         Tim</label>
-                    <input type="text" id="edit-athlete-team" required
+                    <input type="text" id="edit-athlete-team" required list="contingent-list"
                         class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
                         placeholder="MASUKKAN NAMA KONTINGEN...">
                 </div>
@@ -682,6 +689,24 @@
                         class="text-[10px] font-bold text-blue-400 mt-2 ml-4 uppercase tracking-wider h-4">
                         <!-- Preview Nama Kelas -->
                     </p>
+                </div>
+
+                <!-- BEREGU Members for Edit Modal -->
+                <div id="edit-teamMembersContainer" class="col-span-2 hidden space-y-4">
+                    <div class="border-t border-white/5 pt-4">
+                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
+                            Anggota 2</label>
+                        <input type="text" id="edit-athlete-name2"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                            placeholder="NAMA ANGGOTA 2...">
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
+                            Anggota 3</label>
+                        <input type="text" id="edit-athlete-name3"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
+                            placeholder="NAMA ANGGOTA 3...">
+                    </div>
                 </div>
 
                 <div class="col-span-2 flex space-x-4 mt-2">

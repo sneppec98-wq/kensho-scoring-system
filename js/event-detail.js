@@ -35,6 +35,8 @@ import {
     editAthlete,
     saveAthleteEdit,
     handleClassCodeInput,
+    handleEmergencyClassCodeInput,
+    saveEmergencyAthlete,
     deleteAthlete,
     deleteContingentAthletes,
     deleteAllAthletes
@@ -348,6 +350,8 @@ window.proceedWithConfirmedImport = () => proceedWithConfirmedImport(eventId);
 window.editAthlete = (id) => editAthlete(id, eventId, latestClasses);
 window.saveAthleteEdit = () => saveAthleteEdit(eventId, latestClasses);
 window.handleClassCodeInput = (code) => handleClassCodeInput(code, latestClasses);
+window.handleEmergencyClassCodeInput = (code) => handleEmergencyClassCodeInput(code, latestClasses);
+window.saveEmergencyAthlete = () => saveEmergencyAthlete(eventId, latestClasses);
 window.deleteAthlete = (id) => deleteAthlete(id, eventId);
 window.deleteContingentAthletes = (teamName) => deleteContingentAthletes(teamName, eventId);
 window.deleteAllAthletes = () => deleteAllAthletes(eventId);

@@ -2,6 +2,17 @@
 
 All notable changes to the Kensho Scoring System will be documented in this file.
 
+## [2.5.2] - 2026-02-01
+
+### Added
+- **Penghitungan Medali**: Implemented medal tally calculation and display in verification tab.
+- **Improved Bracket Generation**: Refined participant drawing logic with conflict detection for teams.
+- **Navigation Fix**: Corrected back navigation from bracket view to return to the proper event tab.
+
+### Fixed
+- Resolved ReferenceError in scoring dashboard initialization.
+- Improved UI alignment and column sizing in athlete and class lists.
+
 ## [2.0.0] - 2026-01-23
 
 ### 🚀 Major Release: Kensho Next Generation

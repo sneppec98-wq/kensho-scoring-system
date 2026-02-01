@@ -874,6 +874,37 @@
                 if (catDisplay) catDisplay.innerText = decodedClass;
                 const inputCat = document.getElementById('inputCategory');
                 if (inputCat) inputCat.value = decodedClass;
+
+                // NEW: Auto-load participants if class is provided
+                setTimeout(() => {
+                    window.autoLoadParticipants(decodedClass);
+                }, 1000);
+            }
+        };
+
+        window.autoLoadParticipants = async function (className) {
+            console.log('[Scoring] Attempting to auto-load participants for:', className);
+            await loadParticipants(); // Re-uses the existing fetch logic
+
+            if (participantListData.length >= 2) {
+                const aka = participantListData[0];
+                const ao = participantListData[1];
+
+                console.log('[Scoring] Auto-loading:', aka.name, 'vs', ao.name);
+
+                // Silently load to sides without modal toggle
+                window.nameAka = aka.name;
+                window.teamAka = aka.team;
+                document.getElementById('nameAkaDisplay').innerText = aka.name.toUpperCase();
+
+                window.nameAo = ao.name;
+                window.teamAo = ao.team;
+                document.getElementById('nameAoDisplay').innerText = ao.name.toUpperCase();
+
+                window.matchCategory = className;
+                window.broadcastData();
+            } else {
+                console.log('[Scoring] Not enough participants for auto-load:', participantListData.length);
             }
         };
 
@@ -2052,12 +2083,13 @@
             if (side === 'aka') {
                 window.nameAka = name;
                 window.teamAka = team;
-                document.getElementById('nameAkaDisplay').innerText = name.toUpperCase();
-                // We keep the current category and round
+                const display = document.getElementById('nameAkaDisplay');
+                if (display) display.innerText = name.toUpperCase();
             } else {
                 window.nameAo = name;
                 window.teamAo = team;
-                document.getElementById('nameAoDisplay').innerText = name.toUpperCase();
+                const display = document.getElementById('nameAoDisplay');
+                if (display) display.innerText = name.toUpperCase();
             }
 
             // Sync match info if not set
@@ -2071,7 +2103,12 @@
             }
 
             window.broadcastData();
-            window.toggleParticipantModal();
+
+            // Close modal only if it's currently open
+            const modal = document.getElementById('participantModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                window.toggleParticipantModal();
+            }
         };
 
         // Close modal when clicking outside

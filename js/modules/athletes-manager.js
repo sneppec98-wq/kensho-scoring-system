@@ -254,31 +254,43 @@ export const editAthlete = async (athleteId, eventId) => {
     }
 
     const data = athleteDoc.data();
-    document.getElementById('edit-athlete-id').value = athleteId;
-    document.getElementById('edit-athlete-name').value = data.name || '';
-    document.getElementById('edit-athlete-team').value = data.team || '';
-    document.getElementById('edit-athlete-gender').value = data.gender || '';
-    document.getElementById('edit-athlete-birthDate').value = data.birthDate || '';
-    document.getElementById('edit-athlete-weight').value = data.weight || '';
-    document.getElementById('edit-athlete-className').value = data.className || '';
+    const elements = {
+        'edit-athlete-id': athleteId,
+        'edit-athlete-name': data.name || '',
+        'edit-athlete-team': data.team || '',
+        'edit-athlete-gender': data.gender || '',
+        'edit-athlete-birthDate': data.birthDate || '',
+        'edit-athlete-weight': data.weight || '',
+        'edit-athlete-className': data.className || ''
+    };
+
+    // Fill elements with safety check
+    Object.entries(elements).forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+    });
 
     toggleModal('modal-edit-athlete', true);
 };
 
 export const saveAthleteEdit = async (eventId, latestClasses = []) => {
-    const athleteId = document.getElementById('edit-athlete-id').value;
-    const className = document.getElementById('edit-athlete-className').value.toUpperCase().trim();
+    const idEl = document.getElementById('edit-athlete-id');
+    const classEl = document.getElementById('edit-athlete-className');
+    if (!idEl || !classEl) return;
+
+    const athleteId = idEl.value;
+    const className = classEl.value.toUpperCase().trim();
 
     // Find the class code for the new class name
     const targetClass = latestClasses.find(c => (c.name || "").trim().toUpperCase() === className);
     const classCode = targetClass?.code || '';
 
     const updatedData = {
-        name: document.getElementById('edit-athlete-name').value.toUpperCase(),
-        team: document.getElementById('edit-athlete-team').value.toUpperCase(),
-        gender: document.getElementById('edit-athlete-gender').value,
-        birthDate: document.getElementById('edit-athlete-birthDate').value,
-        weight: document.getElementById('edit-athlete-weight').value,
+        name: document.getElementById('edit-athlete-name')?.value.toUpperCase() || '',
+        team: document.getElementById('edit-athlete-team')?.value.toUpperCase() || '',
+        gender: document.getElementById('edit-athlete-gender')?.value || '',
+        birthDate: document.getElementById('edit-athlete-birthDate')?.value || '',
+        weight: document.getElementById('edit-athlete-weight')?.value || '',
         className: className,
         classCode: classCode
     };

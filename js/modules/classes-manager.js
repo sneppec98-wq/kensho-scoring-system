@@ -103,6 +103,17 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
         if (filtered.length === 0) {
             bracketListArea.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Belum ada data ${currentSubTab}</div>`;
         } else {
+            // Load schedule data for Tatami info
+            let scheduleData = [];
+            try {
+                const scheduleSnap = await getDoc(doc(db, `events/${eventId}/metadata`, 'schedule'));
+                if (scheduleSnap.exists()) {
+                    scheduleData = scheduleSnap.data().schedule || [];
+                }
+            } catch (err) {
+                console.warn("Could not load schedule for tatami display:", err);
+            }
+
             // Global Actions for Festival
             let globalActions = "";
             if (currentSubTab === 'FESTIVAL') {
@@ -122,11 +133,31 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
 
             const renderPromises = filtered.map(async (data) => {
                 const athleteCount = allAthletes.filter(a =>
-                    (a.classCode === data.code) || (a.className === data.name)
+                    (a.classCode === data.code) || (a.className.trim().toUpperCase() === data.name.trim().toUpperCase())
                 ).length;
+
                 if (athleteCount > 0) {
                     let statusBadge = '';
                     let statusReason = '';
+
+                    // Find Tatami info from schedule using robust matching
+                    const scheduleEntry = scheduleData.find(entry =>
+                        entry.classes && entry.classes.some(cls => {
+                            const cCode = (cls.code || "").toString().trim().toUpperCase();
+                            const cName = (cls.name || "").toString().trim().toUpperCase();
+                            const dCode = (data.code || "").toString().trim().toUpperCase();
+                            const dName = (data.name || "").toString().trim().toUpperCase();
+
+                            if (dCode && cCode && dCode === cCode) return true;
+                            if (dName && cName && dName === cName) return true;
+
+                            const fuzzyC = cName.replace(/[^A-Z0-9]/g, '');
+                            const fuzzyD = dName.replace(/[^A-Z0-9]/g, '');
+                            return fuzzyC && fuzzyD && fuzzyC === fuzzyD;
+                        })
+                    );
+                    const tatamiLabel = scheduleEntry ? `<div class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black tracking-widest uppercase mb-4 w-fit">TATAMI ${scheduleEntry.arena}</div>` : '';
+
                     try {
                         const bracketDoc = await getDoc(doc(db, `events/${eventId}/brackets`, data.name));
                         if (bracketDoc.exists() && bracketDoc.data().status === 'complete') {
@@ -159,6 +190,7 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
                                 </div>
                                 <span class="text-[9px] font-black uppercase text-blue-500/40 tracking-[0.2em]">${data.gender}</span>
                             </div>
+                            ${tatamiLabel}
                             <div class="flex items-start justify-between mb-2">
                                 <h4 class="text-lg font-black italic uppercase text-slate-100 leading-tight flex-1">
                                     <span class="block text-[10px] text-blue-400 not-italic tracking-[0.2em] mb-1">${data.code || 'CODE-PENDING'}</span>

@@ -8,8 +8,26 @@ export const renderSchedule = (classes, athletes, containerId = 'scheduleContent
     const container = typeof containerId === 'string' ? document.getElementById(containerId) : containerId;
     if (!container) return;
 
-    // Filter only classes that have athletes
-    const activeClasses = classes.filter(c => athletes.some(a => a.className === c.name));
+    // Helper for robust matching
+    const isClassMatch = (cls, athlete) => {
+        const cCode = (cls.code || "").toString().trim().toUpperCase();
+        const cName = (cls.name || "").toString().trim().toUpperCase();
+        const aCode = (athlete.classCode || "").toString().trim().toUpperCase();
+        const aName = (athlete.className || "").toString().trim().toUpperCase();
+
+        if (aCode && cCode && aCode === cCode) return true;
+        if (aName && cName && aName === cName) return true;
+
+        // Fuzzy match: strip non-alphanumeric
+        const fuzzyC = cName.replace(/[^A-Z0-9]/g, '');
+        const fuzzyA = aName.replace(/[^A-Z0-9]/g, '');
+        return fuzzyC && fuzzyA && fuzzyC === fuzzyA;
+    };
+
+    // Filter only classes that have athletes using robust matching
+    const activeClasses = classes.filter(c =>
+        athletes.some(a => isClassMatch(c, a))
+    );
 
     let html = `
         <div class="space-y-8 no-print">
@@ -48,7 +66,7 @@ export const renderSchedule = (classes, athletes, containerId = 'scheduleContent
         const days = parseInt(document.getElementById('schedDays').value) || 1;
         const arenas = parseInt(document.getElementById('schedArenas').value) || 1;
 
-        const schedule = generateBalancedSchedule(activeClasses, athletes, days, arenas);
+        const schedule = generateBalancedSchedule(activeClasses, athletes, days, arenas, isClassMatch);
         currentSchedule = schedule;
         renderScheduleResult(schedule);
     };
@@ -131,23 +149,27 @@ export const renderSchedule = (classes, athletes, containerId = 'scheduleContent
 
 export const getLatestSchedule = () => currentSchedule;
 
-const generateBalancedSchedule = (classes, athletes, numDays, numArenas) => {
+const generateBalancedSchedule = (classes, athletes, numDays, numArenas, isClassMatch) => {
     // 1. Prepare data: Calculate load per class accurately without double-counting
     const classData = classes.map(c => ({
         ...c,
         athleteCount: 0
     }));
 
+    let orphanAthletes = 0;
     athletes.forEach(a => {
-        // Match by classCode (persistent data) or className (fallback for older data)
-        const targetClass = classData.find(c =>
-            (a.classCode && c.code === a.classCode) ||
-            (!a.classCode && (c.name || "").trim().toUpperCase() === (a.className || "").trim().toUpperCase())
-        );
+        const targetClass = classData.find(c => isClassMatch(c, a));
         if (targetClass) {
             targetClass.athleteCount++;
+        } else {
+            orphanAthletes++;
+            console.warn(`⚠️ Atlet "${a.name}" memiliki kategori "${a.className}" [${a.classCode}] yang tidak terdaftar di database.`);
         }
     });
+
+    if (orphanAthletes > 0) {
+        console.error(`❌ Total ${orphanAthletes} atlet tidak bisa dijadwalkan karena kategori tidak ditemukan.`);
+    }
 
     // 1.1 Process Beregu classes: Convert 3 athletes -> 1 Team
     classData.forEach(c => {
@@ -161,21 +183,48 @@ const generateBalancedSchedule = (classes, athletes, numDays, numArenas) => {
     // Remove classes with 0 athletes for the scheduler
     const filteredClassData = classData.filter(c => c.athleteCount > 0);
 
-    // Priority Helper
+    // Priority Helper based on USER requirements
     const getPriority = (cls) => {
         const name = (cls.name || "").toUpperCase();
         const code = (cls.code || "").toString().toUpperCase();
-        const isFest = code.startsWith('F');
+        const ageCategory = (cls.ageCategory || "").toUpperCase();
+        const isFest = code.startsWith('F') || name.includes('FESTIVAL');
         const isBeregu = cls.type === 'BEREGU' || name.includes('BEREGU');
         const isKata = name.includes('KATA');
         const isKumite = name.includes('KUMITE');
 
-        if (!isFest && isBeregu && isKata) return 1; // KATA BEREGU OPEN
-        if (!isFest && isKata) return 2;             // KATA PERORANGAN OPEN
-        if (!isFest && isKumite) return 3;           // KUMITE PERORANGAN OPEN
-        if (isFest && isKata) return 4;              // KATA PERORANGAN FESTIVAL
-        if (isFest && isKumite) return 5;            // KUMITE PERORANGAN FESTIVAL
-        return 6; // Others
+        // 1. Category Type Priority (Primary)
+        let typeScore = 99;
+        if (!isFest && isBeregu) typeScore = 1;
+        else if (!isFest && isKata) typeScore = 2;
+        else if (!isFest && isKumite) typeScore = 3;
+        else if (isFest && isKata) typeScore = 4;
+        else if (isFest && isKumite) typeScore = 5;
+
+        // 2. Age Category Priority (Secondary)
+        let ageScore = 99;
+        if (!isFest) {
+            // OPEN Order
+            if (ageCategory.includes("PRA USIA DINI")) ageScore = 1;
+            else if (ageCategory.includes("USIA DINI")) ageScore = 2;
+            else if (ageCategory.includes("PRA PEMULA")) ageScore = 3;
+            else if (ageCategory.includes("PEMULA")) ageScore = 4;
+            else if (ageCategory.includes("KADET") || ageCategory.includes("CADET")) ageScore = 5;
+            else if (ageCategory.includes("JUNIOR")) ageScore = 6;
+            else if (ageCategory.includes("UNDER 21")) ageScore = 7;
+            else if (ageCategory.includes("SENIOR")) ageScore = 8;
+        } else {
+            // FESTIVAL Order
+            if (ageCategory.includes("TK")) ageScore = 1;
+            else if (ageCategory.includes("SD 1-3") || ageCategory.includes("SD 1 - 3")) ageScore = 2;
+            else if (ageCategory.includes("SD 4-6") || ageCategory.includes("SD 4 - 6")) ageScore = 3;
+            else if (ageCategory.includes("SMP")) ageScore = 4;
+            else if (ageCategory.includes("SMA")) ageScore = 5;
+            else if (ageCategory.includes("MHS") || ageCategory.includes("UMUM")) ageScore = 6;
+        }
+
+        // Combine: Type (Primary) + Age (Secondary)
+        return (typeScore * 100) + ageScore;
     };
 
     // Sort classes for allocation (still use count for general balance, but priority within buckets)

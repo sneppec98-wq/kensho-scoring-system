@@ -972,27 +972,21 @@
                 if (e.target.value) loadAthletesForClass(e.target.value);
             });
 
-            // 4. Initial Load if class is set
+            // 4. Load Schedule for Tatami Automation (Before initial class load)
+            try {
+                const scheduleSnap = await getDoc(doc(db, `events/${eventId}/metadata`, 'schedule'));
+                if (scheduleSnap.exists()) {
+                    window.currentEventSchedule = scheduleSnap.data().schedule || [];
+                    console.log(`📅 Schedule loaded: ${window.currentEventSchedule.length} entries`);
+                }
+            } catch (err) {
+                console.error("Error loading schedule:", err);
+            }
+
+            // 5. Initial Load if class is set
             if (initialClass) {
                 await loadAthletesForClass(initialClass);
             }
-
-            // 5. APPLY GLOBAL BRACKET MAPPING (Auto-sync dari Pengaturan Pemetaan Global)
-            // DISABLED: This was conflicting with per-class bracket restoration
-            // The mapping is now handled in generateBracket() for each class
-            /*
-            const eventData = eventDoc.data();
-            const mapping = eventData.globalBracketMapping;
-
-            if (mapping) {
-                const checkSVG = setInterval(() => {
-                    if (svgDoc) {
-                        applyBracketMapping(mapping);
-                        clearInterval(checkSVG);
-                    }
-                }, 500);
-            }
-            */
         }
 
         async function loadAthletesForClass(className) {
@@ -1101,6 +1095,45 @@
             if (classEl) {
                 const target = classEl.querySelector('tspan') || classEl;
                 target.textContent = className;
+            }
+
+            // --- Tatami & Pool Automation ---
+            let tatamiValue = "-";
+            if (window.currentEventSchedule) {
+                const targetName = (className || "").trim().toUpperCase();
+
+                // Find class in schedule using Code (Primary) or Name (Fallback)
+                const scheduleEntry = window.currentEventSchedule.find(entry =>
+                    entry.classes && entry.classes.some(cls =>
+                        (currentClassCode && cls.code === currentClassCode) ||
+                        (cls.name && targetName === cls.name.trim().toUpperCase())
+                    )
+                );
+
+                if (scheduleEntry) {
+                    tatamiValue = scheduleEntry.arena || "-";
+                } else {
+                    console.warn(`⚠️ Kategori "${className}" [${currentClassCode}] tidak ditemukan di jadwal.`);
+                }
+            }
+
+            // Update SVG: #tatami
+            const tatamiEl = svgDoc.querySelector('#tatami');
+            if (tatamiEl) {
+                const target = tatamiEl.querySelector('tspan') || tatamiEl;
+                target.textContent = tatamiValue.toString();
+            }
+
+            // Update SVG: #pool
+            const poolEl = svgDoc.querySelector('#pool');
+            if (poolEl) {
+                const target = poolEl.querySelector('tspan') || poolEl;
+                // Permintaan USER: 1/1 jika peserta tidak melebihi 16
+                if (participants && participants.length <= 16) {
+                    target.textContent = "1/1";
+                } else {
+                    target.textContent = "1";
+                }
             }
         }
 

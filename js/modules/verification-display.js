@@ -47,15 +47,15 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
             </div>
 
             <!-- Public Publication Toggle -->
-            ${(tab === 'JUARA' || tab === 'MEDALI') ? `
+            ${(tab === 'JUARA' || tab === 'MEDALI' || tab === 'JADWAL') ? `
             <div class="flex items-center gap-3 bg-slate-900/40 px-6 py-4 rounded-2xl border border-white/5 no-print">
                 <div class="text-right">
                     <p class="text-[8px] font-black uppercase opacity-40 tracking-widest text-slate-200">PUBLIKASIKAN HASIL</p>
                     <p class="text-[7px] font-bold opacity-30 uppercase mt-0.5">TERLIHAT DI PORTAL PESERTA</p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" onchange="window.updatePublicAccess('${tab === 'JUARA' ? 'isWinnersPublic' : 'isMedalsPublic'}', this.checked)" 
-                        ${(window.currentEventData && (tab === 'JUARA' ? window.currentEventData.isWinnersPublic : window.currentEventData.isMedalsPublic)) ? 'checked' : ''}
+                    <input type="checkbox" onchange="window.updatePublicAccess('${tab === 'JUARA' ? 'isWinnersPublic' : (tab === 'MEDALI' ? 'isMedalsPublic' : 'isSchedulePublic')}', this.checked)" 
+                        ${(window.currentEventData && (tab === 'JUARA' ? window.currentEventData.isWinnersPublic : (tab === 'MEDALI' ? window.currentEventData.isMedalsPublic : window.currentEventData.isSchedulePublic))) ? 'checked' : ''}
                         class="sr-only peer">
                     <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-500 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 peer-checked:after:bg-white"></div>
                 </label>
@@ -64,7 +64,6 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
 
             <!-- Print Button (Custom Styled for Kensho) -->
             <div class="flex gap-2">
-                ${tab === 'PESERTA' ? `
                 <button onclick="window.copyOfficialLink()" 
                     class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-blue-500 hover:text-white hover:bg-blue-500">
                     <div class="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
@@ -74,7 +73,6 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
                     </div>
                     <span class="text-[10px] font-black uppercase tracking-[0.1em]">BAGIKAN LINK</span>
                 </button>
-                ` : ''}
                 <button onclick="printVerificationSubTab('${tab}', '${eventName}', '${eventLogo || ''}')" 
                     class="neu-button px-8 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-green-500 hover:text-white hover:bg-green-500">
                     <div class="w-8 h-8 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-all">

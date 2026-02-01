@@ -78,7 +78,8 @@ async function init() {
                 const flagsChanged = currentEventData && (
                     newData.isBracketPublic !== currentEventData.isBracketPublic ||
                     newData.isWinnersPublic !== currentEventData.isWinnersPublic ||
-                    newData.isMedalsPublic !== currentEventData.isMedalsPublic
+                    newData.isMedalsPublic !== currentEventData.isMedalsPublic ||
+                    newData.isSchedulePublic !== currentEventData.isSchedulePublic
                 );
 
                 currentEventData = newData;
@@ -268,6 +269,7 @@ window.switchTab = (tab) => {
         if (tab === 'bracket' && !currentEventData.isBracketPublic) isLocked = true;
         if (tab === 'winners' && !currentEventData.isWinnersPublic) isLocked = true;
         if (tab === 'medals' && !currentEventData.isMedalsPublic) isLocked = true;
+        if (tab === 'schedule' && !currentEventData.isSchedulePublic) isLocked = true;
     }
 
     // Determine which view to show
@@ -276,7 +278,7 @@ window.switchTab = (tab) => {
     if (activeView) activeView.classList.remove('hidden');
 
     // Update buttons state
-    const tabs = ['roster', 'bracket', 'winners', 'medals'];
+    const tabs = ['roster', 'bracket', 'winners', 'medals', 'schedule'];
     tabs.forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         if (!btn) return;
@@ -294,6 +296,8 @@ window.switchTab = (tab) => {
             loadWinnersData('winners');
         } else if (tab === 'medals') {
             loadWinnersData('medals');
+        } else if (tab === 'schedule') {
+            loadScheduleData();
         }
     }
 };
@@ -730,6 +734,104 @@ function renderMedalTallyTable(data) {
         </div>
     `;
     container.innerHTML = html;
+}
+
+// --- Schedule Engine ---
+async function loadScheduleData() {
+    const listContainer = document.getElementById('scheduleList');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = `<div class="animate-pulse flex flex-col items-center gap-4 py-20">
+        <div class="w-12 h-12 bg-indigo-100 rounded-full"></div>
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">MENGAMBIL JADWAL PERTANDINGAN...</p>
+    </div>`;
+
+    try {
+        const snap = await getDoc(doc(db, `events/${eventId}/metadata`, 'schedule'));
+        if (!snap.exists()) {
+            listContainer.innerHTML = `<div class="py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Jadwal belum dikonfigurasi oleh panitia.</div>`;
+            return;
+        }
+
+        const data = snap.data();
+        const flattened = data.schedule;
+        const { days, arenas } = data.config;
+
+        // Reconstruct 2D array Day -> Arena
+        const schedule = [];
+        for (let d = 1; d <= days; d++) {
+            const dayData = flattened.filter(b => b.day === d);
+            dayData.sort((a, b) => a.arena - b.arena);
+            schedule.push(dayData);
+        }
+
+        renderPublicSchedule(schedule);
+
+    } catch (err) {
+        console.error("Load Schedule Error:", err);
+        listContainer.innerHTML = `<p class="text-red-400 text-xs font-bold text-center">Gagal memuat jadwal: ${err.message}</p>`;
+    }
+}
+
+function renderPublicSchedule(schedule) {
+    const output = document.getElementById('scheduleList');
+    if (!output) return;
+
+    let html = '';
+    schedule.forEach((dayData, dayIdx) => {
+        html += `
+            <div class="mb-16 stagger-card">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black italic shadow-lg shadow-indigo-100">D${dayIdx + 1}</div>
+                    <div>
+                        <h3 class="text-xl font-black uppercase tracking-tighter text-slate-900">JADWAL HARI KE-${dayIdx + 1}</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">REAL-TIME MATCH FLOW</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        `;
+
+        dayData.forEach((arena, arenaIdx) => {
+            const totalLoad = arena.classes.reduce((sum, cls) => sum + (cls.athleteCount || 0), 0);
+            html += `
+                <div class="premium-card overflow-hidden">
+                    <div class="p-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                        <span class="text-[10px] font-black uppercase text-indigo-600 tracking-[0.2em]">TATAMI ${arenaIdx + 1}</span>
+                        <div class="bg-white px-3 py-1 rounded-lg border border-slate-200">
+                             <span class="text-[9px] font-black text-slate-500 uppercase">${arena.classes.length} KELAS</span>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        ${arena.classes.map((cls, idx) => `
+                            <div class="flex items-start justify-between p-4 rounded-2xl bg-white border border-slate-100 transition-all hover:border-indigo-100 group">
+                                <div class="flex-1">
+                                    <span class="text-[8px] font-black text-indigo-500 uppercase tracking-widest block mb-1 opacity-60">${cls.code}</span>
+                                    <h5 class="text-[11px] font-extrabold uppercase leading-tight text-slate-800">${cls.name}</h5>
+                                </div>
+                                <div class="flex flex-col items-center justify-center ml-4">
+                                    <div class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-900 text-[10px] font-black group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all">
+                                        ${cls.athleteCount}
+                                    </div>
+                                    <span class="text-[7px] font-black text-slate-300 uppercase mt-1">MATCH</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${arena.classes.length === 0 ? '<p class="text-[10px] italic opacity-20 py-4 text-center">Tidak ada jadwal</p>' : ''}
+                    </div>
+                    ${arena.classes.length > 0 ? `
+                        <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center">
+                            <span class="text-[9px] font-black uppercase text-slate-400 tracking-widest">ESTIMASI BEBAN</span>
+                            <span class="text-xs font-black text-indigo-600">${totalLoad} PERTANDINGAN</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+
+        html += '</div></div>';
+    });
+
+    output.innerHTML = html;
 }
 
 // --- Bulk Print ---

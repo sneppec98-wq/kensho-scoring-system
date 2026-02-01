@@ -219,10 +219,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Sync Public Access Toggles
             const chkBracket = document.getElementById('check-public-bracket');
+            const chkSchedule = document.getElementById('check-public-schedule');
             const chkWinners = document.getElementById('check-public-winners');
             const chkMedals = document.getElementById('check-public-medals');
 
             if (chkBracket) chkBracket.checked = data.isBracketPublic || false;
+            if (chkSchedule) chkSchedule.checked = data.isSchedulePublic || false;
             if (chkWinners) chkWinners.checked = data.isWinnersPublic || false;
             if (chkMedals) chkMedals.checked = data.isMedalsPublic || false;
 

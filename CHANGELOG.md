@@ -2,6 +2,13 @@
 
 All notable changes to the Kensho Scoring System will be documented in this file.
 
+## [2.6.0] - 2026-02-02
+
+### Added
+- **Match Schedule Tab**: New "Jadwal Pertandingan" tab in the public portal with real-time locking.
+- **Desktop Update Notifications**: Implemented a sleek new update notification system with changelog support and real-time progress bar.
+- **Improved Public Access**: Centralized "Bagikan Link" button and universal locking toggles for all major tabs.
+
 ## [2.5.3] - 2026-02-01
 
 ### Added

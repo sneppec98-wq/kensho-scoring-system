@@ -184,6 +184,10 @@
                 class="px-6 md:px-10 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
                 Daftar Juara
             </button>
+            <button id="tab-schedule" onclick="switchTab('schedule')"
+                class="px-6 md:px-10 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
+                Jadwal Pertandingan
+            </button>
             <button id="tab-medals" onclick="switchTab('medals')"
                 class="px-6 md:px-10 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
                 Perolehan Medali
@@ -295,6 +299,13 @@
         <div id="view-medals" class="tab-content hidden transition-all">
             <div id="medalTally" class="max-w-4xl mx-auto px-4">
                 <!-- Medal Tally Table will be injected here -->
+            </div>
+        </div>
+
+        <!-- Schedule View (Hidden) -->
+        <div id="view-schedule" class="tab-content hidden transition-all">
+            <div id="scheduleList" class="max-w-4xl mx-auto px-4">
+                <!-- Schedule content will be injected here -->
             </div>
         </div>
 

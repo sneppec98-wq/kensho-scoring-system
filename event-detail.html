@@ -96,6 +96,9 @@
                 <button onclick="toggleModal('modal-settings', true)"
                     class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-blue-500 hover:text-white transition-all">Pengaturan
                     Event</button>
+                <button onclick="window.copyOfficialLink()"
+                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-green-500 hover:text-white transition-all">Bagikan
+                    Link</button>
                 <div class="flex items-center gap-4 neu-inset px-6 py-3 rounded-2xl border border-white/5">
                     <div class="text-right">
                         <p
@@ -419,12 +422,12 @@
                     </div>
 
                     <!-- PUBLIC ACCESS CONTROL (Direct Toggles) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                         <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
                             <div>
                                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Bagan Publik
                                 </h4>
-                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Muncul di Portal Peserta</p>
+                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="check-public-bracket"
@@ -437,9 +440,24 @@
                         </div>
                         <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
                             <div>
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Jadwal
+                                    Publik</h4>
+                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="check-public-schedule"
+                                    onchange="window.updatePublicAccess('isSchedulePublic', this.checked)"
+                                    class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500 peer-checked:after:bg-white">
+                                </div>
+                            </label>
+                        </div>
+                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
+                            <div>
                                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Juara Publik
                                 </h4>
-                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Muncul di Portal Peserta</p>
+                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="check-public-winners"
@@ -454,7 +472,7 @@
                             <div>
                                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Medali
                                     Publik</h4>
-                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Muncul di Portal Peserta</p>
+                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" id="check-public-medals"

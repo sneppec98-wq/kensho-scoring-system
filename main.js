@@ -121,11 +121,46 @@ app.on('window-all-closed', () => {
 
 // AUTO-UPDATE LOGIC - IPC Communication
 autoUpdater.on('update-available', (info) => {
+    console.log('Update available:', info.version);
     BrowserWindow.getAllWindows().forEach(win => {
-        win.webContents.send('update-available', info.version);
+        // Send version and release notes (releaseNotes might be an array or string)
+        win.webContents.send('update-available', {
+            version: info.version,
+            releaseNotes: info.releaseNotes || 'Pembaruan sistem rutin untuk performa lebih baik.'
+        });
+    });
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    console.log(log_message);
+
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-progress', progressObj.percent);
+    });
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+    console.log('Update downloaded');
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-downloaded', info.version);
     });
 });
 
 autoUpdater.on('error', (err) => {
     console.error('Update check error:', err);
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('update-error', err.message);
+    });
+});
+
+// IPC Handlers for Update Flow
+ipcMain.handle('start-download', () => {
+    autoUpdater.downloadUpdate();
+});
+
+ipcMain.handle('restart-app', () => {
+    autoUpdater.quitAndInstall();
 });

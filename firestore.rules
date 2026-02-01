@@ -26,10 +26,14 @@ service cloud.firestore {
     }
 
     match /events/{eventId} {
-      allow read, write: if isAuthorized();
+      // Allow public read for events and its subcollections (Classes & Athletes)
+      // This is required for the Official Participant Portal link.
+      allow read: if true;
+      allow write: if isAuthorized();
       
       match /{allChildren=**} {
-        allow read, write: if isAuthorized();
+        allow read: if true;
+        allow write: if isAuthorized();
       }
     }
 

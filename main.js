@@ -32,16 +32,20 @@ function createWindow() {
 
     win.loadFile('login.html');
 
-    // Handle window.open from renderer (e.g., monitor window)
+    // Handle window.open from renderer (e.g., monitor window & printing)
     win.webContents.setWindowOpenHandler(({ url }) => {
-        if (url.startsWith('file://') || url.includes('scoring-monitor.html') || url.includes('update-notification.html')) {
+        // Allow internal windows, about:blank (for printing), and specific tool pages
+        const isInternal = url === 'about:blank' || url === '' || url.startsWith('file://');
+        const isSpecificPage = url.includes('scoring-monitor.html') || url.includes('update-notification.html');
+
+        if (isInternal || isSpecificPage) {
             return {
                 action: 'allow',
                 overrideBrowserWindowOptions: {
                     autoHideMenuBar: true,
                     frame: url.includes('update-notification.html') ? false : true,
-                    width: url.includes('update-notification.html') ? 500 : 800,
-                    height: url.includes('update-notification.html') ? 450 : 600,
+                    width: url.includes('update-notification.html') ? 500 : 900,
+                    height: url.includes('update-notification.html') ? 450 : 700,
                     webPreferences: {
                         nodeIntegration: false,
                         contextIsolation: true,
@@ -50,6 +54,8 @@ function createWindow() {
                 }
             };
         }
+
+        // External links open in default browser
         shell.openExternal(url);
         return { action: 'deny' };
     });

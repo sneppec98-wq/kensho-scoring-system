@@ -194,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('📅 Event Info updated:', data);
             eventName = data.name || 'Event Tidak Dikenal';
             eventLogo = data.logo || null;
+            window.currentEventData = data; // Store globally for other modules
 
             // Update UI Labels
             const nameDisplay = document.getElementById('event-name-display');
@@ -215,6 +216,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (eventLogo) {
                 updateLogoPreview(eventLogo);
             }
+
+            // Sync Public Access Toggles
+            const chkBracket = document.getElementById('check-public-bracket');
+            const chkWinners = document.getElementById('check-public-winners');
+            const chkMedals = document.getElementById('check-public-medals');
+
+            if (chkBracket) chkBracket.checked = data.isBracketPublic || false;
+            if (chkWinners) chkWinners.checked = data.isWinnersPublic || false;
+            if (chkMedals) chkMedals.checked = data.isMedalsPublic || false;
 
             // Trigger Re-render of Verification/Print to catch logo changes
             renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
@@ -376,4 +386,20 @@ window.handlePrintFestivalBracket = () => {
         });
     }
     prepareBracketPrint(latestAthletes, latestClasses, eventName, eventLogo, bracketsMap);
+};
+
+// ===================================
+// Public Access (Locking) System
+// ===================================
+window.updatePublicAccess = async (field, value) => {
+    if (!eventId) return;
+    try {
+        await updateDoc(doc(db, 'events', eventId), {
+            [field]: value
+        });
+        console.log(`✅ ${field} updated to ${value}`);
+    } catch (err) {
+        console.error(`❌ Error updating ${field}:`, err);
+        alert("Gagal merubah status publikasi: " + err.message);
+    }
 };

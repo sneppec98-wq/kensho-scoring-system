@@ -10,6 +10,9 @@
         ],
         "kensho-scoring": [
           "kensho-scoring"
+        ],
+        "kensho-peserta": [
+          "kensho-peserta"
         ]
       }
     }

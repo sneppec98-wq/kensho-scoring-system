@@ -33,6 +33,15 @@
                     "destination": "/index.html"
                 }
             ]
+        },
+        {
+            "target": "kensho-peserta",
+            "public": "public_portal",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ]
         }
     ]
 }

@@ -46,16 +46,45 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
                     class="w-full bg-slate-900/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-xs font-bold text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all">
             </div>
 
-            <!-- Print Button (Custom Styled for Kensho) -->
-            <button onclick="printVerificationSubTab('${tab}', '${eventName}', '${eventLogo || ''}')" 
-                class="neu-button px-8 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-green-500 hover:text-white hover:bg-green-500">
-                <div class="w-8 h-8 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-all">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
+            <!-- Public Publication Toggle -->
+            ${(tab === 'JUARA' || tab === 'MEDALI') ? `
+            <div class="flex items-center gap-3 bg-slate-900/40 px-6 py-4 rounded-2xl border border-white/5 no-print">
+                <div class="text-right">
+                    <p class="text-[8px] font-black uppercase opacity-40 tracking-widest text-slate-200">PUBLIKASIKAN HASIL</p>
+                    <p class="text-[7px] font-bold opacity-30 uppercase mt-0.5">TERLIHAT DI PORTAL PESERTA</p>
                 </div>
-                <span class="text-[10px] font-black uppercase tracking-[0.2em]">CETAK ${tab.replace('_', ' ')} (F4)</span>
-            </button>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" onchange="window.updatePublicAccess('${tab === 'JUARA' ? 'isWinnersPublic' : 'isMedalsPublic'}', this.checked)" 
+                        ${(window.currentEventData && (tab === 'JUARA' ? window.currentEventData.isWinnersPublic : window.currentEventData.isMedalsPublic)) ? 'checked' : ''}
+                        class="sr-only peer">
+                    <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-500 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 peer-checked:after:bg-white"></div>
+                </label>
+            </div>
+            ` : ''}
+
+            <!-- Print Button (Custom Styled for Kensho) -->
+            <div class="flex gap-2">
+                ${tab === 'PESERTA' ? `
+                <button onclick="window.copyOfficialLink()" 
+                    class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-blue-500 hover:text-white hover:bg-blue-500">
+                    <div class="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-[0.1em]">BAGIKAN LINK</span>
+                </button>
+                ` : ''}
+                <button onclick="printVerificationSubTab('${tab}', '${eventName}', '${eventLogo || ''}')" 
+                    class="neu-button px-8 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-green-500 hover:text-white hover:bg-green-500">
+                    <div class="w-8 h-8 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-white transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">CETAK ${tab.replace('_', ' ')} (F4)</span>
+                </button>
+            </div>
         </div>
     `;
 
@@ -109,4 +138,22 @@ window.printVerificationSubTab = (tab, eventName, eventLogo) => {
     } else if (tab === 'JADWAL') {
         prepareJadwalPrint(eventName, eventLogo);
     }
+};
+
+/**
+ * COPY OFFICIAL LINK
+ */
+window.copyOfficialLink = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventId = urlParams.get('id');
+    if (!eventId) return alert("Event ID tidak ditemukan.");
+
+    const fullUrl = `https://kensho-peserta.web.app/?id=${eventId}`;
+
+    navigator.clipboard.writeText(fullUrl).then(() => {
+        alert("✅ Link Daftar Peserta berasil disalin ke clipboard!\n\nLink ini dapat dibagikan kepada Official.");
+    }).catch(err => {
+        console.error("Copy Error:", err);
+        alert("Gagal menyalin link.");
+    });
 };

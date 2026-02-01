@@ -418,6 +418,55 @@
                         </div>
                     </div>
 
+                    <!-- PUBLIC ACCESS CONTROL (Direct Toggles) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Bagan Publik
+                                </h4>
+                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Muncul di Portal Peserta</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="check-public-bracket"
+                                    onchange="window.updatePublicAccess('isBracketPublic', this.checked)"
+                                    class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500 peer-checked:after:bg-white">
+                                </div>
+                            </label>
+                        </div>
+                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Juara Publik
+                                </h4>
+                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Muncul di Portal Peserta</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="check-public-winners"
+                                    onchange="window.updatePublicAccess('isWinnersPublic', this.checked)"
+                                    class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 peer-checked:after:bg-white">
+                                </div>
+                            </label>
+                        </div>
+                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
+                            <div>
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Medali
+                                    Publik</h4>
+                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Muncul di Portal Peserta</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="check-public-medals"
+                                    onchange="window.updatePublicAccess('isMedalsPublic', this.checked)"
+                                    class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div
                             class="neu-inset p-8 rounded-[2rem] border border-white/5 flex flex-col items-center justify-center text-center opacity-40 py-20">
@@ -859,7 +908,7 @@
                 <!-- Logo Upload Section -->
                 <div class="col-span-2 flex flex-col items-center mb-6">
                     <div id="logoPreviewContainer"
-                        class="w-full h-24 rounded-2xl neu-inset border border-white/5 flex items-center justify-center overflow-hidden mb-3 relative group cursor-pointer"
+                        class="w-full h-40 rounded-2xl neu-inset border border-white/5 flex items-center justify-center overflow-hidden mb-3 relative group cursor-pointer"
                         onclick="document.getElementById('settingEventLogo').click()">
                         <div id="logoPlaceholder"
                             class="text-[8px] font-black opacity-30 uppercase tracking-widest text-center">

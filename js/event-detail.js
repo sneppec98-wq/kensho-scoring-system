@@ -18,6 +18,7 @@ import {
     sleep,
     toggleModal,
     filterTable,
+    switchTab,
     customConfirm,
     customAlert
 } from './modules/ui-helpers.js';
@@ -379,9 +380,7 @@ window.deleteBracketConfig = (code) => deleteBracketConfig(code, eventId);
 window.joinVoice = joinVoice;
 window.leaveVoice = leaveVoice;
 window.toggleMicMute = toggleMicMute;
-window.setSubTab = setSubTab;
-window.setAthleteSubTab = setAthleteSubTab;
-window.setVerifikasiSubTab = setVerifikasiSubTab;
+window.toggleMicMute = toggleMicMute;
 window.printSchedule = (name, logo) => prepareJadwalPrint(name || eventName, logo || eventLogo);
 window.handlePrintFestivalBracket = () => {
     const bracketsMap = {};

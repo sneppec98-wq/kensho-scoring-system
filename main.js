@@ -1,7 +1,6 @@
-const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
+// Kensho Tech Manager - v2.6.1 (Build Trigger: 2026-02-02 10:21)
+import { app, BrowserWindow, ipcMain, shell, os, exec } from 'electron';
 const path = require('path');
-const { exec } = require('child_process');
-const os = require('os');
 const { autoUpdater } = require('electron-updater');
 
 // Disable auto-downloading, we only want to notify the user

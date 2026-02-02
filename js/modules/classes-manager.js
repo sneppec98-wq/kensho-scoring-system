@@ -3,12 +3,32 @@ import { showProgress, updateProgress, hideProgress, toggleModal, customConfirm 
 import { db } from '../firebase-init.js';
 import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-export const renderClassesData = async (classes, allAthletes, currentSubTab = 'OPEN', eventId) => {
+export const renderClassesData = async (classes, allAthletes, brackets, currentSubTab = 'OPEN', eventId) => {
     const tableBody = document.getElementById('classes-table-body');
     const classCountLabel = document.getElementById('countKelas');
-    const bracketListArea = document.querySelector('#tab-bracket .grid');
+    const bracketListArea = document.getElementById('bracket-cards-container');
 
     if (!tableBody) return;
+
+    // Handle MAPPING Sub-tab Visibility Early
+    const cardsContainer = document.getElementById('bracket-cards-container');
+    const mappingContainer = document.getElementById('bracket-mapping-container');
+    const publicAccessContainer = document.getElementById('bracket-public-access-container');
+
+    if (currentSubTab === 'MAPPING') {
+        if (cardsContainer) cardsContainer.classList.add('hidden');
+        if (publicAccessContainer) publicAccessContainer.classList.add('hidden');
+        if (mappingContainer) {
+            mappingContainer.classList.remove('hidden');
+            renderMasterMappingTable(brackets, classes);
+        }
+        if (classCountLabel) classCountLabel.innerText = 'MODE MAPPING';
+        return;
+    } else {
+        if (cardsContainer) cardsContainer.classList.remove('hidden');
+        if (publicAccessContainer) publicAccessContainer.classList.remove('hidden');
+        if (mappingContainer) mappingContainer.classList.add('hidden');
+    }
 
     if (!classes || classes.length === 0) {
         tableBody.innerHTML = `<tr><td colspan="9" class="text-center p-12 opacity-40">BELUM ADA KELAS</td></tr>`;
@@ -81,13 +101,12 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
             <td class="p-4">
                 <button onclick="deleteClass('${cls.code}')" 
                     class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 0 00-1-1h-4a1 0 00-1 1v3M4 7h16" /></svg>
                 </button>
             </td>
         </tr>
     `).join('');
 
-    // Render Brackets Cards or Festival Table
     if (bracketListArea) {
         bracketListArea.innerHTML = '';
         if (filtered.length === 0) {
@@ -146,7 +165,7 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
                             return fuzzyC && fuzzyD && fuzzyC === fuzzyD;
                         })
                     );
-                    const tatamiLabel = scheduleEntry ? `<div class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black tracking-widest uppercase mb-4 w-fit">TATAMI ${scheduleEntry.arena}</div>` : '';
+                    const tatamiLabel = scheduleEntry ? `<div class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black tracking-widest uppercase w-fit">TATAMI ${scheduleEntry.arena}</div>` : '';
 
                     try {
                         const bracketDoc = await getDoc(doc(db, `events/${eventId}/brackets`, data.name));
@@ -157,42 +176,59 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
                             if (isRevised) {
                                 const diff = athleteCount - savedCount;
                                 const diffText = diff > 0 ? `+ ${diff} ATLET BARU` : `${diff} ATLET DIHAPUS`;
-                                statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30">⚠️ REVISI</span>`;
-                                statusReason = `<p class="text-[8px] text-red-400/60 mt-1 uppercase font-black">${diffText}</p>`;
+                                statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30 shadow-lg shadow-red-500/10">⚠️ REVISI</span>`;
+                                statusReason = `<p class="text-[8px] text-red-400 mt-1 uppercase font-black">${diffText}</p>`;
                             } else {
-                                statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-green-500/20 text-green-400 border border-green-500/30">✅ OK</span>`;
-                                statusReason = `<p class="text-[8px] text-green-400/60 mt-1 uppercase">BAGAN SELESAI</p>`;
+                                statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">✅ OK</span>`;
+                                statusReason = `<p class="text-[8px] text-emerald-400 mt-1 uppercase">BAGAN SELESAI</p>`;
                             }
                         } else {
-                            statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30">⏳ PENDING</span>`;
+                            statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/10">⏳ PENDING</span>`;
                             statusReason = `<p class="text-[8px] text-orange-400/60 mt-1 italic">Bagan belum dibuat</p>`;
                         }
                     } catch (err) {
-                        statusBadge = `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30">⏳ ERR</span>`;
+                        statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30">⏳ ERR</span>`;
                     }
 
                     const card = `
-                        <div class="bg-slate-800/20 p-8 rounded-[2rem] border border-white/5 group hover:border-blue-500/30 transition-all relative overflow-hidden">
-                            <div class="absolute -right-4 -top-4 text-[120px] font-black italic opacity-[0.03] pointer-events-none select-none">${(athleteCount).toString().padStart(2, '0')}</div>
-                            <div class="flex justify-between items-start mb-6">
-                                <div class="px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center gap-2 text-blue-500">
-                                    <span class="text-[10px] font-black">${athleteCount} ATLET</span>
+                        <div class="bg-slate-800/40 p-10 rounded-[3rem] border border-white/5 group hover:border-blue-500/30 transition-all relative overflow-hidden flex flex-col h-full min-h-[420px] shadow-2xl">
+                            <div class="absolute -right-8 -top-8 text-[160px] font-black italic opacity-[0.03] pointer-events-none select-none">${(athleteCount).toString().padStart(2, '0')}</div>
+                            
+                            <!-- Header Info -->
+                            <div class="flex justify-between items-start mb-6 relative z-10 w-full">
+                                <div class="flex flex-col gap-3">
+                                    <div class="px-5 py-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 w-fit">
+                                        <span class="text-[11px] font-black text-blue-400 tracking-wider">${athleteCount} ATLET</span>
+                                    </div>
+                                    ${tatamiLabel}
                                 </div>
-                                <span class="text-[9px] font-black uppercase text-blue-500/40 tracking-[0.2em]">${data.gender}</span>
+                                <div class="flex flex-col items-end gap-3 text-right">
+                                    <span class="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">${data.gender}</span>
+                                    <div>${statusBadge}</div>
+                                </div>
                             </div>
-                            ${tatamiLabel}
-                            <div class="flex items-start justify-between mb-2">
-                                <h4 class="text-lg font-black italic uppercase text-slate-100 leading-tight flex-1">
-                                    <span class="block text-[10px] text-blue-400 not-italic tracking-[0.2em] mb-1">${data.code || 'CODE-PENDING'}</span>
+
+                            <!-- Main Content (Centered) -->
+                            <div class="flex-1 flex flex-col justify-center mb-8 relative z-10">
+                                <span class="text-[11px] text-blue-500/60 font-black tracking-[0.3em] mb-3 uppercase">#${data.code || 'PENDING'}</span>
+                                <h4 class="text-lg font-black italic uppercase text-white leading-[1.3] tracking-tight mb-4">
                                     ${data.name}
                                 </h4>
-                                <div class="text-right">${statusBadge}${statusReason}</div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
+                                    <p class="text-[10px] font-black opacity-30 uppercase tracking-widest text-slate-300">${data.ageCategory}</p>
+                                </div>
+                                ${statusReason}
                             </div>
-                            <p class="text-[9px] font-bold opacity-30 uppercase tracking-widest mb-6">${data.ageCategory}</p>
-                            <div class="flex gap-2">
-                                <a href="event-bracket.html?id=${eventId}&classId=${data.code}&class=${encodeURIComponent(data.name)}" class="flex-1 py-4 rounded-xl bg-slate-800 text-white text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 transition-all flex items-center justify-center gap-3">
-                                    BUAT / BUKA BAGAN
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+
+                            <!-- Action Button -->
+                            <div class="relative z-10 mt-auto">
+                                <a href="event-bracket.html?id=${eventId}&classId=${data.code}&class=${encodeURIComponent(data.name)}" 
+                                   class="w-full py-5 rounded-[1.5rem] bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-600 hover:border-blue-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 group/btn">
+                                    <span>BUAT / BUKA BAGAN</span>
+                                    <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
                                 </a>
                             </div>
                         </div>
@@ -206,6 +242,101 @@ export const renderClassesData = async (classes, allAthletes, currentSubTab = 'O
             bracketListArea.innerHTML = globalActions + cards.join('');
         }
     }
+};
+
+async function renderMasterMappingTable(brackets, classes = []) {
+    const tbody = document.getElementById('masterMappingTableBody');
+    if (!tbody) return;
+
+    if (!brackets || brackets.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-20 text-center opacity-30 italic">Belum ada data bagan yang disimpan.</td></tr>';
+        return;
+    }
+
+    let html = '';
+    const allBracketsData = [];
+
+    try {
+        brackets.forEach(bracket => {
+            const data = bracket.data || {};
+            const className = bracket.class || bracket.classCode || 'Unknown';
+            const classCode = bracket.classCode;
+
+            // EXCLUDE BEREGU (Team) from Mapping Master
+            const classInfo = classes.find(c => c.name === className || c.code === classCode);
+            if (classInfo && classInfo.type === 'BEREGU') {
+                console.log(`Skipping BEREGU class in mapping: ${className}`);
+                return;
+            }
+
+            const bracketData = data;
+
+            // Extract only athlete names (sn, qn, pn, fn slots)
+            Object.keys(bracketData).forEach(slotId => {
+                if (slotId.match(/^(sn|qn|fn|p_n_)\d+$/)) {
+                    const name = bracketData[slotId];
+                    // Look for corresponding team slot
+                    const teamSlotId = slotId.replace('n', 'k').replace('p_n_', 'p_k_');
+                    const team = bracketData[teamSlotId] || '-';
+
+                    // Use class code as prefix (e.g. 001_sn1)
+                    const uniqueId = classInfo ? `${classInfo.code}_${slotId}` : slotId;
+
+                    allBracketsData.push({
+                        className,
+                        slotId: uniqueId,
+                        name,
+                        team
+                    });
+                }
+            });
+        });
+
+        if (allBracketsData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-20 text-center opacity-30 italic">Bagan ditemukan tapi tidak berisi data atlet.</td></tr>';
+            return;
+        }
+
+        // Sort by Class Name then Slot ID
+        allBracketsData.sort((a, b) => a.className.localeCompare(b.className) || a.slotId.localeCompare(b.slotId, undefined, { numeric: true }));
+
+        allBracketsData.forEach(row => {
+            html += `
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="px-6 py-4 text-blue-400 font-black text-[10px]">${row.className}</td>
+                    <td class="px-6 py-4 font-mono text-indigo-400">${row.slotId}</td>
+                    <td class="px-6 py-4">${row.name}</td>
+                    <td class="px-6 py-4 text-slate-500">${row.team}</td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+        window.latestMasterMappingData = allBracketsData; // Store for export
+    } catch (err) {
+        console.error("Render Master Mapping Error:", err);
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-20 text-center text-red-400 italic">Gagal memproses data: ' + err.message + '</td></tr>';
+    }
+}
+
+window.exportAllMappingToExcel = () => {
+    if (!window.latestMasterMappingData || window.latestMasterMappingData.length === 0) {
+        alert("Data mapping tidak tersedia atau masih kosong.");
+        return;
+    }
+
+    const data = window.latestMasterMappingData.map(row => ({
+        "Kategori / Kelas": row.className,
+        "ID Sel Excel": row.slotId,
+        "Nama Peserta": row.name,
+        "Kontingen": row.team
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Master Mapping");
+
+    const fileName = `Master_Mapping_${new Date().getTime()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
 };
 
 export const addNewClass = async (eventId) => {

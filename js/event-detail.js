@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🏅 Classes updated:', classes.length);
             latestClasses = classes;
             renderAthleteData(latestAthletes, classes, currentAthleteSubTab);
-            renderClassesData(classes, latestAthletes, currentSubTab, eventId);
+            renderClassesData(classes, latestAthletes, latestBrackets, currentSubTab, eventId);
             renderBracketsConfig(classes, latestBrackets);
             renderVerificationData(latestAthletes, classes, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
         });
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupBracketsListener(eventId, (brackets) => {
             console.log('📊 Brackets updated:', brackets.length);
             latestBrackets = brackets;
-            renderClassesData(latestClasses, latestAthletes, currentSubTab, eventId);
+            renderClassesData(latestClasses, latestAthletes, latestBrackets, currentSubTab, eventId);
             renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
         });
 
@@ -321,7 +321,7 @@ window.setSubTab = (tab) => {
     document.querySelectorAll('.class-sub-tab, .bracket-sub-tab').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.sub === tab);
     });
-    renderClassesData(latestClasses, latestAthletes, currentSubTab, eventId);
+    renderClassesData(latestClasses, latestAthletes, latestBrackets, currentSubTab, eventId);
 };
 
 window.setAthleteSubTab = (tab) => {

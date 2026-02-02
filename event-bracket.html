@@ -1612,6 +1612,7 @@
             };
 
             const activeSlots = Object.entries(mapping).sort((a, b) => getSlotPriority(a[1]) - getSlotPriority(b[1]));
+            window.currentActiveSlots = activeSlots; // For mapping table
 
             // 5. Fill Participant Names & Kontingen to SVG (ONLY IF DRAWN)
             if (window.isBracketDrawn) {

@@ -392,6 +392,8 @@
                                     data-sub="FESTIVAL">BAGAN FESTIVAL</button>
                                 <button onclick="setSubTab('BEREGU')" class="sub-tab-btn bracket-sub-tab"
                                     data-sub="BEREGU">BEREGU (TIM)</button>
+                                <button onclick="setSubTab('MAPPING')" class="sub-tab-btn bracket-sub-tab"
+                                    data-sub="MAPPING">DATA MAPPING 📊</button>
                             </div>
                         </div>
 
@@ -422,7 +424,8 @@
                     </div>
 
                     <!-- PUBLIC ACCESS CONTROL (Direct Toggles) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <div id="bracket-public-access-container"
+                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                         <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
                             <div>
                                 <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Bagan Publik
@@ -485,9 +488,9 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div id="bracket-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div
-                            class="neu-inset p-8 rounded-[2rem] border border-white/5 flex flex-col items-center justify-center text-center opacity-40 py-20">
+                            class="neu-inset p-8 rounded-[2rem] border border-white/5 flex flex-col items-center justify-center text-center opacity-40 py-20 col-span-full">
                             <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                     d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -496,6 +499,47 @@
                             <p class="text-[9px] mt-2 max-w-[200px]">Silakan klik tombol di atas untuk mulai
                                 menyusun
                                 bagan pertandingan.</p>
+                        </div>
+                    </div>
+
+                    <div id="bracket-mapping-container" class="hidden">
+                        <div class="p-8 rounded-[2.5rem] bg-indigo-50/5 border border-white/5">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h4 class="text-xl font-black italic uppercase text-slate-200">Tabel Pemetaan Sel
+                                        Master</h4>
+                                    <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-1">Data
+                                        gabungan seluruh kelas untuk Excel Query</p>
+                                </div>
+                                <button onclick="window.exportAllMappingToExcel()"
+                                    class="px-8 py-4 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-all flex items-center gap-3 shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-10l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    EKSPOR MASTER .XLSX
+                                </button>
+                            </div>
+                            <div class="overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50">
+                                <table class="w-full text-left">
+                                    <thead
+                                        class="bg-slate-800/50 text-[9px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
+                                        <tr>
+                                            <th class="px-6 py-4">Kategori / Kelas</th>
+                                            <th class="px-6 py-4">ID Sel Excel</th>
+                                            <th class="px-6 py-4">Nama Peserta</th>
+                                            <th class="px-6 py-4">Kontingen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="masterMappingTableBody"
+                                        class="text-[11px] font-bold uppercase text-slate-300 divide-y divide-white/5">
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-20 text-center opacity-30 italic">Lakukan
+                                                Shuffle di tiap kelas untuk melihat data mapping...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

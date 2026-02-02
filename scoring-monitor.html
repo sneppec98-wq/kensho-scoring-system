@@ -291,8 +291,8 @@
         <div id="centerUI"
             class="absolute top-8 left-1/2 -translate-x-1/2 flex flex-col items-center z-30 w-full max-w-2xl">
             <!-- Match Info Header -->
-            <div
-                class="glass-panel px-10 py-3 rounded-full mb-4 flex flex-col items-center shadow-xl border border-white/10 w-auto">
+            <div id="matchInfoHeader"
+                class="glass-panel px-10 py-3 rounded-full mb-4 flex flex-col items-center shadow-xl border border-white/10 w-auto hidden">
                 <p id="monitorCategory"
                     class="text-[1.5vh] font-black uppercase tracking-[0.6em] text-slate-400 mb-0.5">KUMITE MALE -60KG
                 </p>
@@ -323,7 +323,7 @@
         <div id="sideAo"
             class="flex flex-col items-center justify-center relative border-r border-white/5 bg-gradient-to-br from-blue-950/10 to-transparent">
             <!-- Athlete Name -->
-            <div class="absolute top-32 left-12 right-12 z-10">
+            <div id="athleteInfoAo" class="absolute top-32 left-12 right-12 z-10">
                 <p class="text-[2vh] font-black uppercase tracking-[0.5em] text-blue-500 mb-2">AO</p>
                 <h2 id="monitorNameAo" class="text-[6vh] font-black uppercase tracking-tight leading-none truncate">
                     ATLET AO</h2>
@@ -369,7 +369,7 @@
         <div id="sideAka"
             class="flex flex-col items-center justify-center relative bg-gradient-to-bl from-red-950/10 to-transparent">
             <!-- Athlete Name -->
-            <div class="absolute top-32 left-12 right-12 text-right z-10">
+            <div id="athleteInfoAka" class="absolute top-32 left-12 right-12 text-right z-10">
                 <p class="text-[2vh] font-black uppercase tracking-[0.5em] text-red-500 mb-2">AKA</p>
                 <h2 id="monitorNameAka" class="text-[6vh] font-black uppercase tracking-tight leading-none truncate">
                     ATLET AKA</h2>
@@ -409,13 +409,6 @@
                     <span class="text-xl font-black italic text-black">VR</span>
                 </div>
             </div>
-        </div>
-
-        <!-- Bottom Branding -->
-        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 opacity-30">
-            <div class="h-[1px] w-16 bg-white/40"></div>
-            <p class="text-[1.5vh] font-black tracking-[1em] uppercase text-white/60">KENSHO TECH SCORING SYSTEM</p>
-            <div class="h-[1px] w-16 bg-white/40"></div>
         </div>
     </div>
 
@@ -647,6 +640,29 @@
                 }
             }
         }
+
+        // Hide athlete info if showing default values (blank mode)
+        function checkAndHideDefaultAthleteInfo() {
+            const nameAoEl = document.getElementById('monitorNameAo');
+            const nameAkaEl = document.getElementById('monitorNameAka');
+            const infoAo = document.getElementById('athleteInfoAo');
+            const infoAka = document.getElementById('athleteInfoAka');
+
+            if (nameAoEl && infoAo) {
+                const nameAo = nameAoEl.textContent.trim();
+                const isDefaultAo = nameAo === 'ATLET AO' || nameAo === '---' || nameAo === '';
+                infoAo.style.display = isDefaultAo ? 'none' : 'block';
+            }
+
+            if (nameAkaEl && infoAka) {
+                const nameAka = nameAkaEl.textContent.trim();
+                const isDefaultAka = nameAka === 'ATLET AKA' || nameAka === '---' || nameAka === '';
+                infoAka.style.display = isDefaultAka ? 'none' : 'block';
+            }
+        }
+
+        // Check athlete info visibility every 500ms
+        setInterval(checkAndHideDefaultAthleteInfo, 500);
 
         window.addEventListener('storage', (e) => {
             if (e.key === 'karate_display_command') {

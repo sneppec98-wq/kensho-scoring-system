@@ -483,7 +483,7 @@
             <a href="dashboard.html">
                 <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform mb-3">
             </a>
-            <div class="badge-version">v2.6.3</div>
+            <div class="badge-version">v2.6.4</div>
         </div>
         <nav class="flex-1 flex flex-col items-center space-y-6">
             <a href="dashboard.html" data-tooltip="Dashboard Hub" class="side-btn">
@@ -1118,6 +1118,19 @@
             }
 
             window.selectedTatamiId = tatamiId;
+
+            // STEP 1: Show mode selection prompt FIRST
+            const scoringMode = await showModeSelectionPrompt(tatamiId);
+            if (!scoringMode) return; // User cancelled
+
+            // STEP 2a: If BLANK mode → go directly to blank scoring
+            if (scoringMode === 'blank') {
+                const mode = 'kata_score'; // Default mode
+                window.location.href = `scoring.html?tatami=${tatamiId}&mode=${mode}&id=${window.selectedEventId}&loadMode=blank`;
+                return;
+            }
+
+            // STEP 2b: If AUTO mode → show class list
             document.getElementById('selectedTatamiLabel').innerText = tatamiId;
             const modal = document.getElementById('consoleSelectorModal');
             const container = document.getElementById('classListContainer');
@@ -1128,6 +1141,11 @@
             container.innerHTML = `<div class="py-20 text-center animate-pulse opacity-30 italic font-black uppercase tracking-[0.3em]">Memuat Jadwal Tatami...</div>`;
 
             try {
+                // 1. Fetch available brackets for this event
+                const readyBrackets = new Set();
+                const bracketSnap = await getDocs(collection(db, `events/${window.selectedEventId}/brackets`));
+                bracketSnap.forEach(doc => readyBrackets.add(doc.id));
+
                 const scheduleDoc = await getDoc(doc(db, `events/${window.selectedEventId}/metadata`, 'schedule'));
                 if (!scheduleDoc.exists()) {
                     container.innerHTML = `<div class="py-20 text-center opacity-30 italic font-black uppercase tracking-[0.3em]">Jadwal belum dikonfigurasi</div>`;
@@ -1156,12 +1174,23 @@
                 container.innerHTML = classes.map((cls, idx) => {
                     const className = cls.category || cls.name || 'Unknown';
                     const categoryUpper = className.toUpperCase();
+                    const isBracketReady = readyBrackets.has(className);
+
                     // Auto-mode detection
                     let mode = 'kumite';
                     if (categoryUpper.includes('KATA')) {
                         // Default to kata_score, but could be kata_flag if needed
                         mode = 'kata_score';
                     }
+
+                    const badgeHtml = isBracketReady
+                        ? `<span class="px-3 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                            BAGAN READY
+                           </span>`
+                        : `<span class="px-3 py-1 bg-slate-500/10 text-slate-500 border border-white/5 rounded-full text-[8px] font-black uppercase tracking-widest">
+                            BELUM ADA BAGAN
+                           </span>`;
 
                     return `
                         <div onclick="selectClass('${mode}', '${className.replace(/'/g, "\\'")}')" 
@@ -1171,8 +1200,11 @@
                                     ${idx + 1}
                                 </div>
                                 <div class="text-left">
-                                    <h4 class="text-lg font-black italic uppercase tracking-tight group-hover:text-white transition-colors">${className}</h4>
-                                    <div class="flex items-center gap-3 mt-1 text-[8px] font-black uppercase tracking-widest opacity-40">
+                                    <div class="flex items-center gap-4 mb-1">
+                                        <h4 class="text-lg font-black italic uppercase tracking-tight group-hover:text-white transition-colors">${className}</h4>
+                                        ${badgeHtml}
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[8px] font-black uppercase tracking-widest opacity-40">
                                         <span>${cls.athleteCount || cls.athletes || 0} Atlet</span>
                                         <span class="w-1 h-1 rounded-full bg-slate-500"></span>
                                         <span>${cls.time || '--:--'}</span>
@@ -1182,7 +1214,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-4">
-                                <span class="px-3 py-1 rounded-lg bg-white/5 text-[8px] font-black opacity-0 group-hover:opacity-100 transition-all tracking-[0.2em]">PILIH KELAS</span>
+                                <span class="px-3 py-1 rounded-lg bg-white/5 text-[8px] font-black opacity-0 group-hover:opacity-100 transition-all tracking-[0.2em]">BUKA KONSOL</span>
                                 <div class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center group-hover:border-red-500/50 group-hover:bg-red-500/10 transition-all">
                                     <svg class="w-3 h-3 text-slate-500 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
@@ -1207,7 +1239,61 @@
 
         window.selectClass = function (mode, category) {
             const encodedCategory = encodeURIComponent(category);
-            window.location.href = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}&id=${window.selectedEventId}&class=${encodedCategory}`;
+            const url = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}&id=${window.selectedEventId}&class=${encodedCategory}&loadMode=auto`;
+            window.location.href = url;
+        }
+
+        window.showModeSelectionPrompt = async function (tatamiId) {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center';
+                overlay.innerHTML = `
+                    <div class="neu-flat p-10 rounded-3xl max-w-md border border-white/10 animate-scale-in">
+                        <div class="text-center mb-8">
+                            <h3 class="text-2xl font-black italic uppercase tracking-tight mb-2">Pilih Mode Scoring</h3>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">TATAMI ${tatamiId}</p>
+                        </div>
+                        
+                        <div class="space-y-4 mb-8">
+                            <button onclick="resolveMode('auto')" class="w-full p-6 rounded-2xl bg-blue-500/10 border-2 border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/20 transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white text-2xl">
+                                        📋
+                                    </div>
+                                    <div class="text-left flex-1">
+                                        <h4 class="text-sm font-black uppercase text-blue-400 mb-1">Sistem Otomatis</h4>
+                                        <p class="text-[10px] font-bold text-slate-400">Tampilkan daftar kelas dengan data peserta</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button onclick="resolveMode('blank')" class="w-full p-6 rounded-2xl bg-yellow-500/10 border-2 border-yellow-500/30 hover:border-yellow-500 hover:bg-yellow-500/20 transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-yellow-500 flex items-center justify-center text-white text-2xl">
+                                        ✏️
+                                    </div>
+                                    <div class="text-left flex-1">
+                                        <h4 class="text-sm font-black uppercase text-yellow-400 mb-1">Scoring Polosan</h4>
+                                        <p class="text-[10px] font-bold text-slate-400">Langsung buka konsol tanpa data peserta</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <button onclick="resolveMode(null)" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all">
+                            Batal
+                        </button>
+                    </div>
+                `;
+
+                document.body.appendChild(overlay);
+
+                window.resolveMode = (mode) => {
+                    document.body.removeChild(overlay);
+                    delete window.resolveMode;
+                    resolve(mode);
+                };
+            });
         }
 
         // --- UI & AUTH HANDLERS ---

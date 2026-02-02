@@ -55,7 +55,7 @@
                 <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
 
                 <!-- LIST PESERTA BUTTON -->
-                <button onclick="toggleParticipantModal()"
+                <button id="btnParticipantList" onclick="toggleParticipantModal()"
                     class="px-4 py-2 rounded-xl bg-slate-800/30 border border-white/5 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-700 hover:text-white transition-all flex items-center gap-2 whitespace-nowrap">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -65,7 +65,7 @@
                 </button>
 
                 <!-- KATA LIST BUTTON -->
-                <a href="kata-list.html" target="_blank"
+                <a id="btnKataList" href="kata-list.html" target="_blank"
                     class="px-4 py-2 rounded-xl bg-slate-800/30 border border-white/5 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-700 hover:text-white transition-all flex items-center gap-2 whitespace-nowrap">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -76,7 +76,15 @@
             </div>
 
             <!-- RIGHT: TATAMI BADGE -->
-            <div class="flex-1 flex items-center justify-end">
+            <div class="flex-1 flex items-center justify-end gap-3">
+                <!-- Sync Indicator -->
+                <div id="syncBadge" onclick="window.syncAll()" title="Klik untuk sinkronisasi manual"
+                    style="cursor: pointer"
+                    class="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 border border-white/5 text-[7px] font-black uppercase tracking-[0.2em] text-slate-500 transition-all hover:bg-white/10 active:scale-95">
+                    <div id="syncDot" class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+                    <span id="syncText">Offline Mode</span>
+                </div>
+
                 <div
                     class="flex items-center gap-4 pl-6 pr-2 py-2 rounded-2xl bg-red-600/5 border border-red-500/10 shadow-[0_0_30px_rgba(220,38,38,0.05)] relative group overflow-hidden">
                     <div
@@ -99,15 +107,15 @@
             </div>
         </header>
 
-        <div id="mainScoringGrid" class="flex-1 flex flex-col gap-4 overflow-hidden">
+        <div id="mainScoringGrid" class="flex-1 flex flex-col gap-2 overflow-hidden">
             <!-- TOP: MATCH STATUS & SCOREBOARD -->
             <div id="scoringMainArea"
-                class="flex-1 flex flex-col space-y-4 overflow-y-auto custom-scrollbar transition-all duration-500 pr-2">
+                class="flex-1 flex flex-col space-y-2 overflow-y-auto custom-scrollbar transition-all duration-500 pr-2">
                 <!-- SCOREBOARD SPLIT-PANEL -->
-                <div
-                    class="flex-1 grid grid-cols-12 gap-0 rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 relative bg-slate-900/40 backdrop-blur-xl mb-2">
-                    <!-- AKA PANEL -->
-                    <div
+                <div class="flex-1 grid grid-cols-12 gap-0 rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 relative bg-slate-900/40 backdrop-blur-xl mb-2"
+                    style="display: flex;">
+                    <!-- AKA PANEL (Default: RIGHT side to match monitor) -->
+                    <div id="panelContainerAka" style="order: 3; flex: 1;"
                         class="col-span-12 md:col-span-5 flex flex-col items-center justify-between py-4 px-6 bg-red-950/10 relative group border-r border-white/5">
                         <!-- HANTEI BUTTON (Minimalist) -->
                         <button id="btnHanteiAka" onclick="setHanteiWinner('aka')"
@@ -129,8 +137,9 @@
                             <h2 id="nameAkaDisplay"
                                 class="text-2xl font-black uppercase italic tracking-tighter text-slate-200 truncate px-4">
                                 ---</h2>
-                            <input type="text" id="inputKataAka" placeholder="Nama Kata" oninput="broadcastData()"
-                                class="w-full bg-transparent text-[10px] text-center font-bold uppercase tracking-widest text-red-400 mt-1 focus:text-red-300 focus:outline-none placeholder:opacity-20 hidden">
+                            <input type="text" id="inputKataAka" placeholder="Input Nama Kata"
+                                oninput="checkKataShortcut(this); broadcastData()"
+                                class="w-auto min-w-[160px] bg-red-500/5 border border-red-500/10 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-red-500 mt-2 focus:bg-red-500/10 focus:border-red-500/40 focus:scale-105 focus:outline-none placeholder:text-red-500/20 transition-all text-center hidden">
                         </div>
 
                         <!-- CENTER: Score (Anchor) -->
@@ -231,8 +240,8 @@
                     </div>
 
                     <!-- CENTER STRIP: TIMER & ROUND -->
-                    <div
-                        class="col-span-12 md:col-span-2 flex flex-col items-center justify-center py-4 px-2 bg-slate-950/80 border-x border-white/5 relative overflow-hidden gap-4">
+                    <div id="panelContainerCenter" style="order: 2; flex: 0 0 auto; min-width: 250px;"
+                        class="col-span-12 md:col-span-2 flex flex-col items-center justify-center py-2 px-2 bg-slate-950/80 border-x border-white/5 relative overflow-hidden gap-3">
                         <div
                             class="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-transparent to-red-500/10 pointer-events-none">
                         </div>
@@ -240,9 +249,6 @@
                         <div class="text-center relative z-10 w-full px-2">
                             <div
                                 class="bg-white/5 px-6 py-2 rounded-2xl border border-white/10 text-center mb-4 backdrop-blur-md">
-                                <p id="roundDisplay"
-                                    class="text-[8px] font-black uppercase tracking-[0.5em] text-slate-400 mb-2">
-                                    ROUND 1</p>
                                 <p id="categoryDisplay"
                                     class="text-xs font-black italic tracking-widest leading-none text-slate-200">
                                     KUMITE</p>
@@ -251,7 +257,15 @@
 
                         <div class="text-center relative z-10 w-full flex flex-col items-center">
                             <!-- MINI UTILITY BAR -->
-                            <div class="flex items-center gap-2 mb-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <button onclick="flipPanels()" id="btnFlipPanels"
+                                    class="w-8 h-8 rounded-lg bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all"
+                                    title="Tukar Posisi AKA/AO">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                    </svg>
+                                </button>
                                 <button onclick="handleMonitor()" id="btnMonitor"
                                     class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
                                     title="Open Monitor">
@@ -280,60 +294,107 @@
                                 </button>
                             </div>
 
-                            <p class="text-[8px] font-black uppercase tracking-[0.8em] text-white/30 mb-1">TIME</p>
-                            <div class="flex flex-col items-center group mb-4">
+                            <p class="text-[8px] font-black uppercase tracking-[0.8em] text-white/30 mb-0.5">TIME</p>
+                            <div class="flex flex-col items-center group mb-1">
                                 <input id="timerDisplay" type="text" value="01:00" onblur="handleTimerBlur(this)"
                                     onkeydown="handleTimerKey(event, this)"
                                     class="text-5xl font-black italic shimmer-text leading-none w-full text-center bg-transparent focus:outline-none cursor-text select-all">
 
                                 <!-- QUICK ADJUST -->
-                                <div class="flex gap-2 mt-4 opacity-40 group-hover:opacity-100 transition-opacity">
+                                <div class="flex gap-2 mt-2 opacity-40 group-hover:opacity-100 transition-opacity">
                                     <button onclick="adjustTimer(-1)"
-                                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-white/10 hover:text-red-400 transition-all border border-white/5">-1S</button>
+                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-white/10 hover:text-red-400 transition-all border border-white/5">-1S</button>
                                     <button onclick="adjustTimer(1)"
-                                        class="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-white/10 hover:text-green-400 transition-all border border-white/5">+1S</button>
+                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-white/10 hover:text-green-400 transition-all border border-white/5">+1S</button>
                                 </div>
                             </div>
 
                             <!-- CENTRAL TIMER CONTROLS -->
-                            <div class="flex flex-col items-center space-y-3 w-full px-4">
+                            <div class="flex flex-col items-center space-y-2 w-full px-4">
                                 <div
-                                    class="flex items-center space-x-2 bg-black/60 px-5 py-2.5 rounded-full border border-white/10 shadow-inner mb-2">
+                                    class="flex items-center space-x-2 bg-black/60 px-4 py-1.5 rounded-full border border-white/10 shadow-inner mb-1">
                                     <span id="timerStatusDot"
-                                        class="w-2.5 h-2.5 rounded-full bg-slate-400 animate-pulse"></span>
+                                        class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
                                     <p id="timerLabel"
-                                        class="text-[9px] font-black uppercase tracking-widest text-slate-200 whitespace-nowrap">
+                                        class="text-[8px] font-black uppercase tracking-widest text-slate-200 whitespace-nowrap">
                                         SIAP BERTANDING</p>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-3 w-full">
+                                <div class="grid grid-cols-2 gap-2 w-full">
                                     <button onclick="toggleTimer()" id="btnTimerControl"
-                                        class="py-4 rounded-2xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(220,38,38,0.3)] hover:scale-105 active:scale-95 transition-all">START
+                                        class="py-2.5 rounded-2xl bg-red-600 text-white text-[9px] font-black uppercase tracking-widest shadow-[0_8px_16px_rgba(220,38,38,0.3)] hover:scale-105 active:scale-95 transition-all">START
                                         MATCH</button>
-
                                     <button onclick="resetMatch()"
-                                        class="py-4 rounded-2xl bg-slate-800 text-white text-[9px] font-black uppercase tracking-widest border border-white/10 hover:bg-slate-700 transition-all shadow-lg">RESET</button>
+                                        class="py-2.5 rounded-2xl bg-slate-800 text-white text-[9px] font-black uppercase tracking-widest border border-white/10 hover:bg-slate-700 transition-all shadow-lg">RESET</button>
+                                </div>
+
+                                <!-- TIMER QUICK TOGGLE (KATA ONLY) -->
+                                <div id="timerToggleContainer"
+                                    class="hidden flex items-center justify-between w-full px-4 py-2 bg-white/5 rounded-2xl border border-white/5 mb-0.5 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <div id="timerToggleStatus"
+                                            class="w-1 h-1 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]">
+                                        </div>
+                                        <p class="text-[7.5px] font-black uppercase tracking-widest text-slate-400">
+                                            Gunakan Timer</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer scale-75">
+                                        <input type="checkbox" id="timerEnableSwitch" class="sr-only peer" checked
+                                            onchange="toggleTimerSetting(this.checked)">
+                                        <div
+                                            class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-red-600">
+                                        </div>
+                                    </label>
                                 </div>
 
                                 <!-- KATA MODE SELECTOR (Integrated) -->
-                                <div id="kataTypeSwitch" class="hidden w-full flex justify-center mt-4">
-                                    <div class="bg-black/60 p-1.5 rounded-xl flex gap-1.5 border border-white/5 w-full">
+                                <div id="kataTypeSwitch" class="hidden w-full flex justify-center mt-1">
+                                    <div class="bg-black/60 p-1 rounded-xl flex gap-1 border border-white/5 w-full">
                                         <button id="kataTypeScoreBtn" onclick="setKataType('score')"
-                                            class="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all mode-active italic">SCORE</button>
+                                            class="flex-1 py-1 rounded-lg text-[7.5px] font-black uppercase tracking-widest transition-all mode-active italic">SCORE</button>
                                         <button id="kataTypeFlagBtn" onclick="setKataType('flag')"
-                                            class="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all text-slate-500 italic">FLAG</button>
+                                            class="flex-1 py-1 rounded-lg text-[7.5px] font-black uppercase tracking-widest transition-all text-slate-500 italic">FLAG</button>
                                     </div>
                                 </div>
 
                                 <button onclick="announceWinner()" id="btnAnnounceWinner"
-                                    class="w-full py-4 rounded-xl bg-yellow-500 text-black text-[9px] font-black uppercase tracking-widest shadow-lg hidden">ANNOUNCE
+                                    class="w-full py-3 rounded-xl bg-yellow-500 text-black text-[9px] font-black uppercase tracking-widest shadow-lg hidden">ANNOUNCE
                                     WINNER</button>
+
+                                <!-- KATA PERFORMER SELECTOR (AKA/AO) -->
+                                <div id="performerSelector"
+                                    class="hidden w-full flex flex-col items-center gap-1 mt-1 pt-1 border-t border-white/5">
+                                    <p class="text-[6.5px] font-black uppercase tracking-[0.3em] text-slate-500">PILIH
+                                        PERFORMER</p>
+                                    <div class="bg-black/60 p-1 rounded-xl flex gap-1 border border-white/5 w-full">
+                                        <button id="performerAkaBtn" onclick="setKataPerformer('aka')"
+                                            class="flex-1 py-1.5 px-2 rounded-lg text-[8.5px] font-black uppercase tracking-widest transition-all text-slate-500 hover:text-slate-300 truncate">AKA</button>
+                                        <button id="performerAoBtn" onclick="setKataPerformer('ao')"
+                                            class="flex-1 py-1.5 px-2 rounded-lg text-[8.5px] font-black uppercase tracking-widest transition-all text-slate-500 hover:text-slate-300 truncate">AO</button>
+                                    </div>
+                                </div>
+
+                                <!-- KATA WINNER SELECTOR -->
+                                <div id="kataWinnerSelector"
+                                    class="hidden w-full flex flex-col items-center gap-1 mt-1 pt-1 border-t border-white/10">
+                                    <p class="text-[6.5px] font-black uppercase tracking-[0.3em] text-yellow-500">
+                                        TENTUKAN
+                                        PEMENANG</p>
+                                    <div class="flex gap-1.5 w-full">
+                                        <button id="winAkaBtn" onclick="declareKataWinner('aka')"
+                                            class="flex-1 py-1.5 px-2 rounded-xl bg-red-600/20 text-red-500 border border-red-500/30 text-[8.5px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all truncate">WIN
+                                            AKA</button>
+                                        <button id="winAoBtn" onclick="declareKataWinner('ao')"
+                                            class="flex-1 py-1.5 px-2 rounded-xl bg-blue-600/20 text-blue-500 border border-blue-500/30 text-[8.5px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all truncate">WIN
+                                            AO</button>
+                                    </div>
+                                </div>
 
                             </div>
                         </div>
                     </div>
-                    <!-- AO PANEL -->
-                    <div
+                    <!-- AO PANEL (Default: LEFT side to match monitor) -->
+                    <div id="panelContainerAo" style="order: 1; flex: 1;"
                         class="col-span-12 md:col-span-5 flex flex-col items-center justify-between py-4 px-6 bg-blue-950/10 relative group border-l border-white/5">
                         <!-- HANTEI BUTTON (Minimalist) -->
                         <button id="btnHanteiAo" onclick="setHanteiWinner('ao')"
@@ -355,8 +416,9 @@
                             <h2 id="nameAoDisplay"
                                 class="text-2xl font-black uppercase italic tracking-tighter text-slate-200 truncate px-4">
                                 ---</h2>
-                            <input type="text" id="inputKataAo" placeholder="Nama Kata" oninput="broadcastData()"
-                                class="w-full bg-transparent text-[10px] text-center font-bold uppercase tracking-widest text-blue-400 mt-1 focus:text-blue-300 focus:outline-none placeholder:opacity-20 hidden">
+                            <input type="text" id="inputKataAo" placeholder="Input Nama Kata"
+                                oninput="checkKataShortcut(this); broadcastData()"
+                                class="w-auto min-w-[160px] bg-blue-500/5 border border-blue-500/10 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-blue-500 mt-2 focus:bg-blue-500/10 focus:border-blue-500/40 focus:scale-105 focus:outline-none placeholder:text-blue-500/20 transition-all text-center hidden">
                         </div>
 
                         <!-- CENTER: Score (Anchor) -->
@@ -498,22 +560,19 @@
                             <tr class="border-b border-white/10">
                                 <th
                                     class="text-left py-3 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                    No</th>
+                                    Partai</th>
                                 <th
                                     class="text-left py-3 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                    Nama Atlet</th>
+                                    Peserta AKA</th>
+                                <th
+                                    class="text-center py-3 px-2 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
+                                    VS</th>
                                 <th
                                     class="text-left py-3 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                    Kontingen</th>
-                                <th
-                                    class="text-left py-3 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                    Kelas</th>
+                                    Peserta AO</th>
                                 <th
                                     class="text-center py-3 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                    Babak</th>
-                                <th
-                                    class="text-center py-3 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                    Status</th>
+                                    Action</th>
                             </tr>
                         </thead>
                         <tbody id="participantTableModal">
@@ -572,12 +631,6 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-[8px] font-black uppercase tracking-[0.4em] text-white/30 mb-2 ml-1">Babak
-                        (Round)</label>
-                    <input type="text" id="inputRound" placeholder="Contoh: Semifinal"
-                        class="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-sm font-bold text-white focus:border-red-500/50 focus:bg-black/60 outline-none transition-all">
-                </div>
             </div>
 
             <div class="flex gap-4 mt-10">
@@ -623,12 +676,15 @@
         import { handleLogout } from './js/auth-helpers.js';
         import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, query, where, getDocs, orderBy, getDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { logActivity } from './js/activity-logger.js';
         import { broadcastScoreData } from './js/scoring-firebase.js';
-        import { playBuzzer, playBeep, formatTime } from './js/scoring-utils.js';
+        import { playBuzzer, playBeep, formatTime, resumeAudio } from './js/scoring-utils.js';
+        import { GOLDEN_PRESETS, getNextSlot, ROUND_MATCH_IDS } from './js/bracket-utils.js';
+        import { syncEngine } from './js/sync-engine.js';
 
         window.handleLogout = handleLogout;
+        window.resumeAudio = resumeAudio;
 
         // Expose Firestore functions for participant list
         window.db = db;
@@ -637,6 +693,12 @@
         window.where = where;
         window.getDocs = getDocs;
         window.orderBy = orderBy;
+        window.getDoc = getDoc;
+        window.doc = doc;
+        window.GOLDEN_PRESETS = GOLDEN_PRESETS;
+        window.getNextSlot = getNextSlot;
+        window.ROUND_MATCH_IDS = ROUND_MATCH_IDS;
+        window.syncAll = () => syncEngine.syncAll();
 
         // Protect Route
         onAuthStateChanged(auth, (user) => {
@@ -662,8 +724,10 @@
         window.nameAo = "";
         window.teamAka = "";
         window.teamAo = "";
-        window.matchRound = "";
+        window.slotAka = null;
+        window.slotAo = null;
         window.matchCategory = "";
+        window.activeKataPerformer = null;
         window.scoringMode = 'kumite'; // 'kumite' or 'kata'
         window.kataType = 'score'; // 'score' or 'flag'
         window.kataScoreAka = 0.0;
@@ -748,6 +812,7 @@
 
         // Load data on init
         window.loadMatchCategories();
+        if (window.updateKataListLink) window.updateKataListLink();
 
         window.broadcastData = function () {
             const scoreData = {
@@ -764,7 +829,7 @@
                 nameAo: window.nameAo,
                 teamAka: window.teamAka,
                 teamAo: window.teamAo,
-                round: window.matchRound,
+                activeKataPerformer: window.activeKataPerformer,
                 category: window.matchCategory,
                 kataAka: document.getElementById('inputKataAka')?.value || '',
                 kataAo: document.getElementById('inputKataAo')?.value || '',
@@ -786,13 +851,18 @@
                 showWinnerBanner: window.showWinnerBanner
             };
 
-            // Use modular Firebase function
-            broadcastScoreData(scoreData)
-                .then(() => {
-                    // Trigger internal UI updates
-                    if (window.updateBroadcastUI) window.updateBroadcastUI();
-                })
-                .catch(err => console.error('[Scoring] Broadcast failed:', err));
+            // Trigger internal UI updates IMMEDIATELY (Optimistic UI)
+            if (window.updateBroadcastUI) window.updateBroadcastUI();
+
+            // Use modular Firebase function with a small throttle
+            if (window._broadcastTimeout) {
+                // If it's the SAME data recently, we might skip, but better just throttle
+            }
+            clearTimeout(window._broadcastTimeout);
+            window._broadcastTimeout = setTimeout(() => {
+                broadcastScoreData(scoreData)
+                    .catch(err => console.error('[Scoring] Broadcast failed:', err));
+            }, 50); // Slightly increased throttle for better batching
         };
 
         window.updateBroadcastUI = function () {
@@ -803,6 +873,12 @@
             const btnHao = document.getElementById('btnHanteiAo');
             if (btnHaka) btnHaka.classList.toggle('hidden', !window.isHantei);
             if (btnHao) btnHao.classList.toggle('hidden', !window.isHantei);
+
+            // Update Performer Buttons with Names
+            const akaBtn = document.getElementById('performerAkaBtn');
+            const aoBtn = document.getElementById('performerAoBtn');
+            if (akaBtn) akaBtn.innerText = window.nameAka ? window.nameAka.toUpperCase() : 'AKA';
+            if (aoBtn) aoBtn.innerText = window.nameAo ? window.nameAo.toUpperCase() : 'AO';
         }
 
         window.updateConsoleWinnerUI = function () {
@@ -826,6 +902,12 @@
                 }
             }
 
+            // Update Winner Selector Buttons with Names
+            const winAkaBtn = document.getElementById('winAkaBtn');
+            const winAoBtn = document.getElementById('winAoBtn');
+            if (winAkaBtn) winAkaBtn.innerText = window.nameAka ? `WIN ${window.nameAka.toUpperCase()}` : 'WIN AKA';
+            if (winAoBtn) winAoBtn.innerText = window.nameAo ? `WIN ${window.nameAo.toUpperCase()}` : 'WIN AO';
+
             const announceBtn = document.getElementById('btnAnnounceWinner');
             if (announceBtn) {
                 announceBtn.classList.toggle('hidden', !window.isWinnerDeclared || window.showWinnerBanner);
@@ -843,14 +925,8 @@
                 document.getElementById('activeTatamiLabel').innerText = `${window.currentTatami}`;
             }
 
-            // Update Kata List links to include eventId
-            if (window.eventId) {
-                document.querySelectorAll('a[href^="kata-list.html"]').forEach(link => {
-                    const href = new URL(link.href, window.location.origin);
-                    href.searchParams.set('id', window.eventId);
-                    link.href = href.pathname + href.search;
-                });
-            }
+            // Update Kata List links
+            if (window.updateKataListLink) window.updateKataListLink();
 
             window.resetMatch();
 
@@ -866,6 +942,9 @@
                 window.setScoringMode('kumite'); // Default
             }
 
+            // Check loadMode parameter (declare once at function scope)
+            const loadMode = urlParams.get('loadMode');
+
             // Sync Class from URL
             if (classParam) {
                 const decodedClass = decodeURIComponent(classParam);
@@ -875,36 +954,80 @@
                 const inputCat = document.getElementById('inputCategory');
                 if (inputCat) inputCat.value = decodedClass;
 
-                // NEW: Auto-load participants if class is provided
+                // NEW: Auto-load participants only if loadMode is 'auto' or not specified
+                if (loadMode !== 'blank') {
+                    setTimeout(() => {
+                        window.autoLoadParticipants(decodedClass);
+                    }, 1000);
+                } else {
+                    console.log('[Scoring] Blank mode selected - skipping auto-load');
+                }
+            }
+
+            // Hide buttons if in blank mode
+            if (loadMode === 'blank') {
+                // Hide top bar buttons
+                const btnParticipant = document.getElementById('btnParticipantList');
+                const btnKataList = document.getElementById('btnKataList');
+                if (btnParticipant) btnParticipant.style.display = 'none';
+                if (btnKataList) btnKataList.style.display = 'none';
+
+                // Hide athlete name displays (since no data loaded)
+                const nameAkaDisplay = document.getElementById('nameAkaDisplay');
+                const nameAoDisplay = document.getElementById('nameAoDisplay');
+                if (nameAkaDisplay) nameAkaDisplay.style.display = 'none';
+                if (nameAoDisplay) nameAoDisplay.style.display = 'none';
+
+                // Hide kata input fields (not needed in blank mode)
+                const inputKataAka = document.getElementById('inputKataAka');
+                const inputKataAo = document.getElementById('inputKataAo');
+                if (inputKataAka) inputKataAka.style.display = 'none';
+                if (inputKataAo) inputKataAo.style.display = 'none';
+
+                console.log('[Blank Mode] UI elements hidden: buttons, names, kata inputs');
+            }
+
+            // Restore panel layout preference
+            const savedLayout = localStorage.getItem('panelLayout');
+            if (savedLayout === 'flipped') {
                 setTimeout(() => {
-                    window.autoLoadParticipants(decodedClass);
-                }, 1000);
+                    flipPanels(); // Apply flipped layout if previously saved
+                    console.log('[Panel Layout] Restored flipped layout from localStorage');
+                }, 100);
             }
         };
 
         window.autoLoadParticipants = async function (className) {
             console.log('[Scoring] Attempting to auto-load participants for:', className);
-            await loadParticipants(); // Re-uses the existing fetch logic
+            await loadParticipants();
 
-            if (participantListData.length >= 2) {
-                const aka = participantListData[0];
-                const ao = participantListData[1];
+            if (participantListData.length > 0) {
+                const firstMatch = participantListData[0];
+                const aka = firstMatch.aka;
+                const ao = firstMatch.ao;
 
-                console.log('[Scoring] Auto-loading:', aka.name, 'vs', ao.name);
+                console.log('[Scoring] Auto-loading Match #1:', (aka?.name || 'BYE'), 'vs', (ao?.name || 'BYE'));
 
-                // Silently load to sides without modal toggle
-                window.nameAka = aka.name;
-                window.teamAka = aka.team;
-                document.getElementById('nameAkaDisplay').innerText = aka.name.toUpperCase();
+                if (aka && aka.name && aka.name !== '-') {
+                    window.nameAka = aka.name;
+                    window.teamAka = aka.team || '';
+                    window.slotAka = aka.slotId;
+                    const display = document.getElementById('nameAkaDisplay');
+                    if (display) display.innerText = aka.name.toUpperCase();
+                }
 
-                window.nameAo = ao.name;
-                window.teamAo = ao.team;
-                document.getElementById('nameAoDisplay').innerText = ao.name.toUpperCase();
+                if (ao && ao.name && ao.name !== '-') {
+                    window.nameAo = ao.name;
+                    window.teamAo = ao.team || '';
+                    window.slotAo = ao.slotId;
+                    const display = document.getElementById('nameAoDisplay');
+                    if (display) display.innerText = ao.name.toUpperCase();
+                }
 
                 window.matchCategory = className;
-                window.broadcastData();
+                if (window.broadcastData) window.broadcastData();
             } else {
-                console.log('[Scoring] Not enough participants for auto-load:', participantListData.length);
+                console.log('[Scoring] No match data available for auto-load');
             }
         };
 
@@ -936,6 +1059,18 @@
             // Control visibility logic
             window.updateControlPanels();
 
+            // Timer toggle visibility
+            const timerToggle = document.getElementById('timerToggleContainer');
+            if (timerToggle) {
+                timerToggle.classList.toggle('hidden', !isKata);
+                if (!isKata) {
+                    // Kumite always has timer enabled
+                    window.toggleTimerSetting(true);
+                    const switchInput = document.getElementById('timerEnableSwitch');
+                    if (switchInput) switchInput.checked = true;
+                }
+            }
+
             // Penalty section hide in Kata
             const penAka = document.getElementById('penAka');
             const penAo = document.getElementById('penAo');
@@ -960,8 +1095,8 @@
                         sAka.innerText = '--';
                         sAo.innerText = '--';
                     }
-                    sAka.classList.add('text-6xl', 'md:text-8xl');
-                    sAo.classList.add('text-6xl', 'md:text-8xl');
+                    sAka.classList.add('text-6xl', 'md:text-[120px]');
+                    sAo.classList.add('text-6xl', 'md:text-[120px]');
                     sAka.classList.remove('text-8xl', 'md:text-[180px]');
                     sAo.classList.remove('text-8xl', 'md:text-[180px]');
                 }
@@ -1013,6 +1148,16 @@
             const isKata = window.scoringMode === 'kata';
             const isFlag = window.kataType === 'flag';
 
+            // Performer & Winner Selector Visibility
+            const perfSelector = document.getElementById('performerSelector');
+            const winSelector = document.getElementById('kataWinnerSelector');
+            if (perfSelector) {
+                perfSelector.classList.toggle('hidden', !isKata || !window.isTimerEnabled);
+            }
+            if (winSelector) {
+                winSelector.classList.toggle('hidden', !isKata || isFlag);
+            }
+
             // Aka Panels
             document.getElementById('kumiteControlsAka').classList.toggle('hidden', isKata);
             document.getElementById('kataControlsAka').classList.toggle('hidden', !isKata || isFlag);
@@ -1025,6 +1170,37 @@
             const flagControlsAo = document.getElementById('kataFlagControlsAo');
             if (flagControlsAo) flagControlsAo.classList.toggle('hidden', !isKata || !isFlag);
         }
+
+        // Kata Shortcut List (WKF Standard Alphabetical)
+        const WKF_KATA_LIST = {
+            "1": "ANAN", "2": "ANAN DAI", "3": "ANANKO", "4": "ANNUN", "5": "AOYAGI",
+            "6": "BASSAI DAI", "7": "BASSAI SHO", "8": "CHATANYARA KUSHANKU", "9": "CHINTO", "10": "CHINTE",
+            "11": "EMPI", "12": "GANKAKU", "13": "GARYU", "14": "GEKISAI DAI ICHI", "15": "GEKISAI DAI NI",
+            "16": "GOJUSHIHO DAI", "17": "GOJUSHIHO SHO", "18": "HAFFA", "19": "HAKKAKU", "20": "HANGETSU",
+            "21": "HEIAN SHODAN", "22": "HEIAN NIDAN", "23": "HEIAN SANDAN", "24": "HEIAN YONDAN", "25": "HEIAN GODAN",
+            "26": "HEIKU", "27": "ISHINE", "28": "ITOSU ROHAI SHODAN", "29": "ITOSU ROHAI NIDAN", "30": "ITOSU ROHAI SANDAN",
+            "31": "JIIN", "32": "JION", "33": "JITTE", "34": "JUROKU", "35": "KANKU DAI",
+            "36": "KANKU SHO", "37": "KANSHU", "38": "KOPPO", "39": "KOSOKUN DAI", "40": "KOSOKUN SHO",
+            "41": "KOSOKUN SHIHO", "42": "KURURUNFA", "43": "KUSHANKU", "44": "MATSUKAZE", "45": "MATSUMURA BASSAI",
+            "46": "MATSUMURA ROHAI", "47": "MEIKYO", "48": "MYOJO", "49": "NAIHANCHI SHODAN", "50": "NAIHANCHI NIDAN",
+            "51": "NAIHANCHI SANDAN", "52": "NIPAIPO", "53": "NISEISHI", "54": "NIJUSHIHO", "55": "PAIKU",
+            "56": "PAPUREN", "57": "PASSAI", "58": "PINAN SHODAN", "59": "PINAN NIDAN", "60": "PINAN SANDAN",
+            "61": "PINAN YONDAN", "62": "PINAN GODAN", "63": "ROHAI", "64": "SAIFA", "65": "SANCHIN",
+            "66": "SANSEIRU", "67": "SEICHIN", "68": "SEIENCHIN", "69": "SEIPAI", "70": "SEISAN",
+            "71": "SEISHAN", "72": "SEIYUNCHIN", "73": "SHIHO KOSOKUN", "74": "SHISOCHIN", "75": "SOCHIN",
+            "76": "SUPARINPEI", "77": "TENSHO", "78": "TOMARI BASSAI", "79": "UNSU", "80": "UNSHU",
+            "81": "WANKAN", "82": "WANSHU"
+        };
+
+        window.checkKataShortcut = function (input) {
+            const val = input.value.trim();
+            if (WKF_KATA_LIST[val]) {
+                input.value = WKF_KATA_LIST[val];
+                if (input.id === 'inputKataAka') window.kataAka = input.value;
+                if (input.id === 'inputKataAo') window.kataAo = input.value;
+                if (window.broadcastData) window.broadcastData();
+            }
+        };
 
         // Kata Flag voting functions
         window.setKataFlagsAka = function (count) {
@@ -1172,7 +1348,7 @@
             }
         };
 
-        window.addScore = async function (side, amount) {
+        window.addScore = function (side, amount) {
             if (window.scoringMode === 'kata') return;
 
             if (side === 'aka') {
@@ -1182,7 +1358,7 @@
 
                 // Track Score Activity
                 const detail = amount > 0 ? `AKA +${amount}` : `AKA -${Math.abs(amount)}`;
-                await logActivity("Update Skor", detail, window.currentTatami);
+                logActivity("Update Skor", detail, window.currentTatami);
             } else {
                 window.aoScore = Math.max(0, window.aoScore + amount);
                 document.getElementById('scoreAo').innerText = window.aoScore.toString().padStart(2, '0');
@@ -1190,7 +1366,7 @@
 
                 // Track Score Activity
                 const detail = amount > 0 ? `AO +${amount}` : `AO -${Math.abs(amount)}`;
-                await logActivity("Update Skor", detail, window.currentTatami);
+                logActivity("Update Skor", detail, window.currentTatami);
             }
 
             // WKF RULE: 8 Point Gap (Kachi)
@@ -1200,7 +1376,7 @@
 
                 // Track Winner Activity
                 const winnerName = window.winnerSide === 'aka' ? window.nameAka : window.nameAo;
-                await logActivity("Pemenang Dinyatakan", `${window.winnerSide.toUpperCase()} (${winnerName}) menang selisih poin.`, window.currentTatami);
+                logActivity("Pemenang Dinyatakan", `${window.winnerSide.toUpperCase()} (${winnerName}) menang selisih poin.`, window.currentTatami);
 
                 window.isTimerRunning = false;
                 if (window.timerId) clearInterval(window.timerId);
@@ -1245,8 +1421,145 @@
             window.broadcastData();
         }
 
+        window.setKataPerformer = function (side) {
+            if (window.activeKataPerformer === side) {
+                window.activeKataPerformer = null;
+            } else {
+                window.activeKataPerformer = side;
+            }
+
+            const akaBtn = document.getElementById('performerAkaBtn');
+            const aoBtn = document.getElementById('performerAoBtn');
+
+            if (window.activeKataPerformer === 'aka') {
+                akaBtn.classList.add('mode-active', 'bg-red-600/20', 'text-red-500', 'border-red-500/30');
+                akaBtn.classList.remove('text-slate-500');
+                aoBtn.classList.remove('mode-active', 'bg-blue-600/20', 'text-blue-500', 'border-blue-500/30');
+                aoBtn.classList.add('text-slate-500');
+            } else if (window.activeKataPerformer === 'ao') {
+                aoBtn.classList.add('mode-active', 'bg-blue-600/20', 'text-blue-500', 'border-blue-500/30');
+                aoBtn.classList.remove('text-slate-500');
+                akaBtn.classList.remove('mode-active', 'bg-red-600/20', 'text-red-500', 'border-red-500/30');
+                akaBtn.classList.add('text-slate-500');
+            } else {
+                akaBtn.classList.remove('mode-active', 'bg-red-600/20', 'text-red-500', 'border-red-500/30');
+                akaBtn.classList.add('text-slate-500');
+                aoBtn.classList.remove('mode-active', 'bg-blue-600/20', 'text-blue-500', 'border-blue-500/30');
+                aoBtn.classList.add('text-slate-500');
+            }
+
+            window.broadcastData();
+        };
+
+        window.declareKataWinner = async function (side) {
+            window.isWinnerDeclared = true;
+            window.winnerSide = side;
+            window.showWinnerBanner = true;
+            window.broadcastData();
+            window.updateConsoleWinnerUI();
+
+            // Auto-save to database
+            console.log(`[Winner] ${side.toUpperCase()} declared as winner, saving to database...`);
+
+            const winnerName = side === 'aka' ? window.nameAka : window.nameAo;
+            const winnerTeam = side === 'aka' ? window.teamAka : window.teamAo;
+            const winnerSlot = side === 'aka' ? window.slotAka : window.slotAo;
+            const winnerKata = side === 'aka' ? window.kataNameAka : window.kataNameAo;
+            const winnerScore = side === 'aka' ? window.scoreAka : window.scoreAo;
+
+            const loserName = side === 'aka' ? window.nameAo : window.nameAka;
+            const loserTeam = side === 'aka' ? window.teamAo : window.teamAka;
+            const loserSlot = side === 'aka' ? window.slotAo : window.slotAka;
+            const loserKata = side === 'aka' ? window.kataNameAo : window.kataNameAka;
+            const loserScore = side === 'aka' ? window.scoreAo : window.scoreAka;
+
+            // Calculate next slot for auto-progression
+            let nextSlot = null;
+            if (winnerSlot && typeof getNextSlot === 'function') {
+                nextSlot = getNextSlot(winnerSlot);
+                console.log(`[Auto-Progression] Winner ${winnerName} → Next Slot: ${nextSlot}`);
+            }
+
+            const matchData = {
+                eventId: eventId,
+                category: window.matchCategory || selectedClass,
+                tatami: tatamiNumber,
+                winner: winnerName,
+                winnerTeam: winnerTeam,
+                nextSlot: nextSlot,
+                aka: {
+                    name: window.nameAka,
+                    team: window.teamAka,
+                    kata: window.kataNameAka,
+                    score: window.scoreAka,
+                    slotId: window.slotAka
+                },
+                ao: {
+                    name: window.nameAo,
+                    team: window.teamAo,
+                    kata: window.kataNameAo,
+                    score: window.scoreAo,
+                    slotId: window.slotAo
+                },
+                timestamp: Date.now()
+            };
+
+            // Save to IndexedDB via syncEngine
+            if (syncEngine) {
+                await syncEngine.save(matchData);
+                console.log('[Winner] Match data saved to local database, will sync to Cloud soon.');
+            } else {
+                console.error('[Winner] SyncEngine not available!');
+            }
+        };
+
+        // FLIP PANELS FUNCTION - Swap AKA and AO positions
+        window.flipPanels = function () {
+            const panelAka = document.getElementById('panelContainerAka');
+            const panelAo = document.getElementById('panelContainerAo');
+
+            if (!panelAka || !panelAo) return;
+
+            // Get current orders
+            const currentAkaOrder = parseInt(getComputedStyle(panelAka).order) || 3;
+            const currentAoOrder = parseInt(getComputedStyle(panelAo).order) || 1;
+
+            // Swap orders
+            panelAka.style.order = currentAoOrder;
+            panelAo.style.order = currentAkaOrder;
+
+            console.log(`[Panel Flip] AKA now at order ${currentAoOrder}, AO now at order ${currentAkaOrder}`);
+
+            // Optional: Store preference in localStorage
+            localStorage.setItem('panelLayout', currentAkaOrder === 3 ? 'flipped' : 'default');
+        };
+
+        window.toggleTimerSetting = function (enabled) {
+            window.isTimerEnabled = enabled;
+            const display = document.getElementById('timerDisplay');
+            const toggleStatus = document.getElementById('timerToggleStatus');
+            const timerControls = document.getElementById('btnTimerControl').parentElement;
+
+            if (display) {
+                display.style.opacity = enabled ? '1' : '0.15';
+                display.style.filter = enabled ? 'none' : 'grayscale(1)';
+            }
+            if (toggleStatus) {
+                toggleStatus.classList.toggle('bg-red-500', enabled);
+                toggleStatus.classList.toggle('bg-slate-600', !enabled);
+                toggleStatus.classList.toggle('shadow-[0_0_8px_rgba(239,68,68,0.5)]', enabled);
+            }
+            if (timerControls) {
+                timerControls.style.opacity = enabled ? '1' : '0.3';
+                timerControls.style.pointerEvents = enabled ? 'auto' : 'none';
+            }
+
+            window.broadcastData();
+        };
+
         window.toggleTimer = function () {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (typeof resumeAudio === 'function') resumeAudio();
+
             if (!window.isTimerEnabled) {
                 alert("Timer saat ini dinonaktifkan dalam pengaturan.");
                 return;
@@ -1265,6 +1578,12 @@
                 label.innerText = 'MATCH DIHENTIKAN';
                 label.classList.replace('text-green-500', 'text-yellow-500');
             } else {
+                // Enforce performer selection in Kata mode when starting
+                if (window.scoringMode === 'kata' && !window.activeKataPerformer) {
+                    alert("HARAP PILIH PENAMPIL (AKA / AO) TERLEBIH DAHULU!");
+                    return;
+                }
+
                 window.timerId = setInterval(window.updateTimer, 1000);
                 window.isTimerRunning = true;
                 btn.innerText = 'PAUSE MATCH';
@@ -1372,7 +1691,7 @@
 
             // Track Hantei Activity
             const winnerName = side === 'aka' ? window.nameAka : window.nameAo;
-            await logActivity("Pemenang Hantei", `${side.toUpperCase()} (${winnerName}) menang keputusan wasit.`, window.currentTatami);
+            logActivity("Pemenang Hantei", `${side.toUpperCase()} (${winnerName}) menang keputusan wasit.`, window.currentTatami);
 
             window.broadcastData();
         }
@@ -1383,7 +1702,7 @@
 
             // Track Penalty Activity
             const status = penalties[level] ? "DIBERIKAN" : "DICABUT";
-            await logActivity("Pelanggaran", `${side.toUpperCase()} ${level.toUpperCase()} ${status}`, window.currentTatami);
+            logActivity("Pelanggaran", `${side.toUpperCase()} ${level.toUpperCase()} ${status}`, window.currentTatami);
 
             // WKF RULE: Senshu is withdrawn if the athlete receives a C2 penalty
             if (level === 'c2' && penalties[level] && window.senshu === side) {
@@ -1417,7 +1736,7 @@
         window.resetMatch = async function () {
             // Track Reset Activity
             if (window.akaScore > 0 || window.aoScore > 0) {
-                await logActivity("Reset Pertandingan", "Membersihkan skor dan timer untuk pertandingan baru.", window.currentTatami);
+                logActivity("Reset Pertandingan", "Membersihkan skor dan timer untuk pertandingan baru.", window.currentTatami);
             }
 
             if (window.timerId) clearInterval(window.timerId);
@@ -1438,6 +1757,7 @@
             window.vrAka = false;
             window.vrAo = false;
             window.isHantei = false;
+            window.setKataPerformer(null);
             window.penaltiesAka = { c1: false, c2: false, c3: false, hc: false, h: false };
             window.penaltiesAo = { c1: false, c2: false, c3: false, hc: false, h: false };
 
@@ -1521,7 +1841,6 @@
             if (modal.classList.contains('hidden')) {
                 // Populate inputs with current values
                 document.getElementById('inputCategory').value = window.matchCategory || '';
-                document.getElementById('inputRound').value = window.matchRound || '';
 
                 modal.classList.replace('hidden', 'flex');
                 setTimeout(() => modal.classList.add('opacity-100'), 10);
@@ -1533,22 +1852,28 @@
 
         window.saveMatchSettings = function () {
             const newCategory = document.getElementById('inputCategory').value.trim();
-            const newRound = document.getElementById('inputRound').value.trim();
-
             window.matchCategory = newCategory;
-            window.matchRound = newRound;
 
             // Update UI Labels
             if (document.getElementById('categoryDisplay')) {
                 document.getElementById('categoryDisplay').innerText = newCategory || '---';
             }
-            if (document.getElementById('roundDisplay')) {
-                document.getElementById('roundDisplay').innerText = newRound || '---';
-            }
 
             window.broadcastData();
+            if (window.updateKataListLink) window.updateKataListLink();
             window.toggleSettingsModal();
         }
+
+        window.updateKataListLink = function () {
+            const link = document.getElementById('kataListLink');
+            if (link && window.eventId) {
+                let href = `kata-list.html?id=${window.eventId}`;
+                if (window.matchCategory) {
+                    href += `&class=${encodeURIComponent(window.matchCategory)}`;
+                }
+                link.href = href;
+            }
+        };
 
         window.toggleMonitorFullscreen = function () {
             localStorage.setItem('karate_display_command', JSON.stringify({
@@ -1619,6 +1944,30 @@
                 }
 
                 window.broadcastData();
+
+                // --- Sync Engine Integration ---
+                const winnerName = window.winnerSide === 'aka' ? window.nameAka : window.nameAo;
+                const winnerTeam = window.winnerSide === 'aka' ? window.teamAka : window.teamAo;
+                const winnerSlot = window.winnerSide === 'aka' ? window.slotAka : window.slotAo;
+                const nextSlot = getNextSlot(winnerSlot);
+
+                syncEngine.saveMatchResult({
+                    eventId: window.eventId,
+                    category: window.matchCategory,
+                    winner: {
+                        name: winnerName,
+                        team: winnerTeam,
+                        side: window.winnerSide
+                    },
+                    aka: { name: window.nameAka, team: window.teamAka, score: scoreA },
+                    ao: { name: window.nameAo, team: window.teamAo, score: scoreB },
+                    nextSlot: nextSlot,
+                    mode: window.scoringMode
+                }).then(() => {
+                    console.log('[Sync] Match result saved to local DB');
+                }).catch(err => {
+                    console.error('[Sync] Error saving to local DB:', err);
+                });
             }
         }
 
@@ -1983,8 +2332,122 @@
             }
 
             try {
-                // Fetch athletes from Firestore filtered by className
-                // Removed orderBy to avoid requiring a composite index
+                // 1. Try to fetch bracket data first (to get the exact bracket order)
+                const bracketSnap = await getDoc(doc(db, `events/${eventId}/brackets`, selectedClass));
+
+                if (bracketSnap.exists()) {
+                    const bracketSnapData = bracketSnap.data();
+                    const participants = bracketSnapData.participants || [];
+                    const progression = bracketSnapData.data || {};
+
+                    console.log(`[Participant List] Overhauling with full bracket progression for ${selectedClass}`);
+
+                    const pattern = GOLDEN_PRESETS[participants.length] || [];
+                    participantListData = [];
+
+                    // Fetch Match Results for Kata/Scores
+                    const matchResults = {};
+                    try {
+                        const resultsQuery = query(
+                            collection(db, `events/${eventId}/match_results`),
+                            where('category', '==', selectedClass)
+                        );
+                        const resultsSnap = await getDocs(resultsQuery);
+                        resultsSnap.forEach(doc => {
+                            const data = doc.data();
+                            const key = `${data.aka?.name}_${data.ao?.name}`.toLowerCase();
+                            matchResults[key] = data;
+                        });
+                    } catch (err) {
+                        console.error('[Participant List] Error fetching match results:', err);
+                    }
+
+                    // Helper to get name from slot or pattern
+                    const getAthleteAtSlot = (slotId, originalIdx) => {
+                        if (progression[slotId]) return { name: progression[slotId], team: '', slotId: slotId };
+                        if (originalIdx !== undefined && participants[originalIdx]) {
+                            return { ...participants[originalIdx], slotId: slotId };
+                        }
+                        return { name: '-', team: '-', slotId: slotId };
+                    };
+
+                    // Helper to get match result data
+                    const getMatchResult = (akaName, aoName) => {
+                        const key1 = `${akaName}_${aoName}`.toLowerCase();
+                        const key2 = `${aoName}_${akaName}`.toLowerCase();
+                        return matchResults[key1] || matchResults[key2] || null;
+                    };
+
+                    // Determine initial round label based on first slot type
+                    let initialRoundLabel = 'PENYISIHAN';
+                    if (pattern.length > 0) {
+                        const firstSlot = pattern[0];
+                        if (firstSlot.startsWith('sn')) initialRoundLabel = 'SEMI FINAL';
+                        else if (firstSlot.startsWith('qn')) initialRoundLabel = 'PEREMPAT FINAL';
+                        else if (firstSlot.startsWith('fn')) initialRoundLabel = 'FINAL';
+                    }
+
+                    // 1. ROUND 1 (Initial Round)
+                    for (let i = 0; i < participants.length; i += 2) {
+                        const aka = getAthleteAtSlot(pattern[i], i);
+                        const ao = getAthleteAtSlot(pattern[i + 1], i + 1);
+                        const result = getMatchResult(aka.name, ao.name);
+
+                        participantListData.push({
+                            aka: aka,
+                            ao: ao,
+                            roundLabel: initialRoundLabel,
+                            matchNum: Math.floor(i / 2) + 1,
+                            result: result
+                        });
+                    }
+
+                    // 2. HIGHER ROUNDS
+                    const rounds = [
+                        { key: 'quarter', label: 'PEREMPAT FINAL' },
+                        { key: 'semi', label: 'SEMI FINAL' },
+                        { key: 'final', label: 'FINAL' }
+                    ].filter(r => r.label !== initialRoundLabel); // Prevent duplicates
+
+                    rounds.forEach(r => {
+                        const matches = ROUND_MATCH_IDS[r.key];
+                        const availableMatches = matches.filter(m => pattern.includes(m.aka) || pattern.includes(m.ao) || (r.key === 'final' && participants.length >= 2) || (r.key === 'semi' && participants.length >= 4) || (r.key === 'quarter' && participants.length >= 8));
+
+                        // Only show matches that actually exist in this bracket size
+                        // Simplification: if pattern includes p_n_something, it builds up.
+                        // Let's use a better filter:
+                        let showRound = false;
+                        if (r.key === 'quarter' && participants.length >= 5) showRound = true;
+                        if (r.key === 'semi' && participants.length >= 3) showRound = true;
+                        if (r.key === 'final' && participants.length >= 2) showRound = true;
+
+                        if (showRound) {
+                            matches.forEach((m, idx) => {
+                                // Check if this specific match is relevant for this bracket size
+                                // For now, let's just show all if the round is active
+                                // (The UI will show BYE vs BYE if nothing is there)
+                                const aka = getAthleteAtSlot(m.aka);
+                                const ao = getAthleteAtSlot(m.ao);
+
+                                if (aka.name !== '-' || ao.name !== '-' || idx < (participants.length / (r.key === 'final' ? 2 : (r.key === 'semi' ? 4 : 8)))) {
+                                    const result = getMatchResult(aka.name, ao.name);
+                                    participantListData.push({
+                                        aka: aka,
+                                        ao: ao,
+                                        roundLabel: r.label,
+                                        matchNum: idx + 1,
+                                        result: result
+                                    });
+                                }
+                            });
+                        }
+                    });
+
+                    return;
+                }
+
+                // 2. Fallback: Fetch athletes from Firestore filtered by className (no bracket found)
+                console.log(`[Participant List] No bracket found for ${selectedClass}. Falling back to athlete list.`);
                 const q = query(
                     collection(db, `events/${eventId}/athletes`),
                     where('className', '==', selectedClass)
@@ -2004,10 +2467,10 @@
                     };
                 });
 
-                // Sort by name in JavaScript instead
+                // Sort by name in JavaScript if no bracket order
                 participantListData.sort((a, b) => a.name.localeCompare(b.name));
 
-                console.log(`[Participant List] Loaded and sorted ${participantListData.length} participants for class: ${selectedClass}`);
+                console.log(`[Participant List] Loaded ${participantListData.length} participants for class: ${selectedClass}`);
             } catch (err) {
                 console.error('[Participant List] Error loading participants:', err);
                 participantListData = [];
@@ -2031,63 +2494,126 @@
             if (participantListData.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="py-12 text-center text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                            Pilih kelas dari Pengaturan Pertandingan
+                        <td colspan="5" class="py-12 text-center text-[10px] font-bold uppercase tracking-widest text-slate-600">
+                            Pilih kelas yang sudah memiliki BAGAN (Bracket)
                         </td>
                     </tr>
                 `;
-                countBadge.innerText = '0 Peserta';
+                countBadge.innerText = '0 Partai';
                 return;
             }
 
-            countBadge.innerText = `${participantListData.length} Peserta`;
+            countBadge.innerText = `${participantListData.length} Partai`;
 
-            tableBody.innerHTML = participantListData.map((p, index) => {
-                const roundClass = p.round === 'final' ? 'round-final' :
-                    p.round === 'semifinal' ? 'round-semifinal' :
-                        p.round === 'penyisihan_2' ? 'round-penyisihan_2' :
-                            'round-penyisihan';
-                const statusColor = p.status === 'active' ? 'text-green-500' :
-                    p.status === 'eliminated' ? 'text-red-500' :
-                        'text-yellow-500';
+            let html = '';
+            let currentRoundId = '';
 
-                return `
-                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td class="py-3 px-4 text-[11px] font-bold text-slate-400">${index + 1}</td>
-                        <td class="py-3 px-4 text-sm font-black uppercase text-white">${p.name}</td>
-                        <td class="py-3 px-4 text-[11px] font-bold text-slate-300 uppercase">${p.team || '-'}</td>
-                        <td class="py-3 px-4">
-                            <span class="text-[10px] font-black uppercase text-blue-500 tracking-wider bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                                ${p.className || '-'}
-                            </span>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="round-badge ${roundClass}">
-                                ${p.roundLabel || 'P1'}
-                            </span>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="loadToSide('aka', '${p.name.replace(/'/g, "\\'")}', '${p.team.replace(/'/g, "\\'")}')" 
-                                    class="px-3 py-1 bg-red-600 hover:bg-red-500 text-[9px] font-black rounded text-white uppercase transition-all">AKA</button>
-                                <button onclick="loadToSide('ao', '${p.name.replace(/'/g, "\\'")}', '${p.team.replace(/'/g, "\\'")}')" 
-                                    class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-[9px] font-black rounded text-white uppercase transition-all">AO</button>
+            participantListData.forEach((m, idx) => {
+                // Show Round Header
+                if (m.roundLabel !== currentRoundId) {
+                    currentRoundId = m.roundLabel;
+                    html += `
+                        <tr class="bg-white/5">
+                            <td colspan="5" class="py-2 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-yellow-500/80 border-y border-white/5">
+                                ${currentRoundId}
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                const aka = m.aka;
+                const ao = m.ao;
+
+                const renderAthlete = (p, side, result) => {
+                    if (!p || p.name === '-' || p.name === '') {
+                        return `
+                            <div class="flex flex-col opacity-30">
+                                <span class="text-[9px] font-black uppercase italic">BYE / KOSONG</span>
                             </div>
+                        `;
+                    }
+
+                    let kataName = '';
+                    let score = '';
+                    if (result) {
+                        const athleteData = side === 'aka' ? result.aka : result.ao;
+                        if (athleteData) {
+                            kataName = athleteData.kata || '';
+                            score = athleteData.score !== undefined ? athleteData.score : '';
+                        }
+                    }
+
+                    return `
+                        <div class="flex flex-col">
+                            <span class="text-[11px] font-black uppercase text-white leading-tight">${p.name}</span>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${p.team || '-'}</span>
+                            ${kataName ? `<span class="text-[7px] font-bold text-blue-400 italic mt-0.5">Kata: ${kataName}</span>` : ''}
+                            ${score !== '' ? `<span class="text-[7px] font-black text-yellow-400 mt-0.5">Score: ${score}</span>` : ''}
+                        </div>
+                    `;
+                };
+
+                const renderButtons = (pAka, pAo) => {
+                    const matchData = encodeURIComponent(JSON.stringify({ aka: pAka, ao: pAo }));
+
+                    const btnSelect = (pAka && pAka.name !== '-') || (pAo && pAo.name !== '-') ? `
+                         <button onclick="selectMatch('${matchData}')" 
+                            class="px-2.5 py-1 bg-yellow-500 hover:bg-yellow-400 text-[8px] font-black rounded text-slate-900 uppercase transition-all shadow-lg shadow-yellow-500/20">SELECT</button>
+                    ` : '';
+
+                    const btnAka = pAka && pAka.name !== '-' ? `
+                        <button onclick="loadToSide('aka', '${pAka.name.replace(/'/g, "\\'")}', '${pAka.team ? pAka.team.replace(/'/g, "\\'") : ''}', '${pAka.slotId || ''}')" 
+                            class="px-2 py-1 bg-red-600/20 hover:bg-red-600 text-[7px] font-bold rounded text-red-500 hover:text-white uppercase transition-all">A</button>
+                    ` : '';
+
+                    const btnAo = pAo && pAo.name !== '-' ? `
+                        <button onclick="loadToSide('ao', '${pAo.name.replace(/'/g, "\\'")}', '${pAo.team ? pAo.team.replace(/'/g, "\\'") : ''}', '${pAo.slotId || ''}')" 
+                            class="px-2 py-1 bg-blue-600/20 hover:bg-blue-600 text-[7px] font-bold rounded text-blue-500 hover:text-white uppercase transition-all">O</button>
+                    ` : '';
+
+                    return `<div class="flex items-center justify-center gap-1">${btnSelect}<div class="w-[1px] h-3 bg-white/10 mx-1"></div>${btnAka}${btnAo}</div>`;
+                };
+
+                html += `
+                    <tr class="border-b border-white/5 hover:bg-white/10 transition-colors">
+                        <td class="py-4 px-4 text-[10px] font-black text-slate-500 italic">#${m.matchNum.toString().padStart(2, '0')}</td>
+                        <td class="py-4 px-4">${renderAthlete(aka, 'aka', m.result)}</td>
+                        <td class="py-4 px-2 text-center">
+                            <span class="text-[10px] font-black text-slate-600 italic">VS</span>
+                        </td>
+                        <td class="py-4 px-4">${renderAthlete(ao, 'ao', m.result)}</td>
+                        <td class="py-4 px-4 text-center">
+                            ${renderButtons(aka, ao)}
                         </td>
                     </tr>
                 `;
-            }).join('');
+            });
+            tableBody.innerHTML = html;
         };
 
-        window.loadToSide = function (side, name, team) {
+        window.selectMatch = function (matchDataJson) {
+            const match = JSON.parse(decodeURIComponent(matchDataJson));
+            if (match.aka && match.aka.name !== '-') {
+                window.loadToSide('aka', match.aka.name, match.aka.team, match.aka.slotId);
+            }
+            if (match.ao && match.ao.name !== '-') {
+                window.loadToSide('ao', match.ao.name, match.ao.team, match.ao.slotId);
+            }
+            // Close modal for convenience
+            document.getElementById('participantModal').classList.add('hidden');
+        };
+
+        window.loadToSide = function (side, name, team, slotId) {
             if (side === 'aka') {
                 window.nameAka = name;
                 window.teamAka = team;
+                window.slotAka = slotId || null;
                 const display = document.getElementById('nameAkaDisplay');
                 if (display) display.innerText = name.toUpperCase();
             } else {
                 window.nameAo = name;
                 window.teamAo = team;
+                window.slotAo = slotId || null;
                 const display = document.getElementById('nameAoDisplay');
                 if (display) display.innerText = name.toUpperCase();
             }

@@ -67,6 +67,7 @@ import { renderVerificationData } from './modules/verification-display.js';
 import { renderSchedule } from './modules/schedule-generator.js';
 import { prepareJadwalPrint } from './modules/print/print-jadwal.js';
 import { prepareBracketPrint } from './modules/print/print-bracket.js';
+import { renderPrintingAthleteList, copyToClipboard } from './modules/print-manager.js';
 
 // Import Firestore Listeners
 import {
@@ -239,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
             latestAthletes = athletes;
             renderAthleteData(athletes, latestClasses, currentAthleteSubTab);
             renderVerificationData(athletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
+            renderPrintingAthleteList(athletes);
         });
 
         setupClassesListener(eventId, (classes) => {
@@ -390,6 +392,12 @@ window.handlePrintFestivalBracket = () => {
         });
     }
     prepareBracketPrint(latestAthletes, latestClasses, eventName, eventLogo, bracketsMap);
+};
+
+window.renderPrintingAthleteList = (searchTerm) => renderPrintingAthleteList(latestAthletes, searchTerm);
+window.copyToClipboard = copyToClipboard;
+window.filterCopyList = (input) => {
+    renderPrintingAthleteList(latestAthletes, input.value);
 };
 
 // ===================================

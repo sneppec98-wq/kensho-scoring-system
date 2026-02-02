@@ -2,6 +2,17 @@
 
 All notable changes to the Kensho Scoring System will be documented in this file.
 
+## [2.6.1] - 2026-02-02
+
+### Added
+- **Smart Athlete Import**: Intelligent duplicate detection and automatic data updates for participants.
+- **Premium Custom Dialogs**: Glassmorphism modals replacing native browser alerts and prompts.
+- **Secure Data Reset**: Required word-match confirmation ("HAPUS") for sensitive deletions.
+
+### Fixed
+- **Login Friction**: Auto-select password on error for instant correction.
+- **UI Bug**: Fixed literal `\n` characters in confirmation dialogs.
+
 ## [2.6.0] - 2026-02-02
 
 ### Added

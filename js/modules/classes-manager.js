@@ -1,5 +1,5 @@
 // Classes Data Manager
-import { showProgress, updateProgress, hideProgress, toggleModal } from './ui-helpers.js';
+import { showProgress, updateProgress, hideProgress, toggleModal, customConfirm } from './ui-helpers.js';
 import { db } from '../firebase-init.js';
 import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -252,7 +252,13 @@ export const addNewClass = async (eventId) => {
 };
 
 export const deleteClass = async (classCode, eventId) => {
-    if (confirm(`Yakin ingin menghapus kelas "${classCode}"?`)) {
+    const ok = await customConfirm({
+        title: "Hapus Kelas",
+        message: `Yakin ingin menghapus kelas "${classCode}"? Semua bagan terkait juga akan dihapus.`,
+        confirmText: "Hapus Kelas"
+    });
+
+    if (ok) {
         try {
             // 1. Get class name first (brackets are keyed by name)
             const classRef = doc(db, `events/${eventId}/classes`, classCode);
@@ -275,13 +281,14 @@ export const deleteClass = async (classCode, eventId) => {
 };
 
 export const deleteAllClasses = async (eventId) => {
-    if (!confirm("⚠️ PERINGATAN: Anda akan menghapus SELURUH KELAS TANDING dan SEMUA BAGAN (BRACKET) di event ini. Tindakan ini tidak dapat dibatalkan.\\n\\nLanjutkan?")) return;
+    const ok = await customConfirm({
+        title: "Hapus Seluruh Kelas",
+        message: "⚠️ PERINGATAN: Anda akan menghapus SELURUH KELAS TANDING dan SEMUA BAGAN (BRACKET) di event ini. Tindakan ini tidak dapat dibatalkan.",
+        confirmText: "Hapus Semua Kelas",
+        promptWord: "HAPUS"
+    });
 
-    const password = prompt("Ketik 'HAPUS' untuk konfirmasi penghapusan total:");
-    if (password !== 'HAPUS') {
-        alert("Konfirmasi gagal. Penghapusan dibatalkan.");
-        return;
-    }
+    if (!ok) return;
 
     showProgress('MEMBERSIHKAN DATA KELAS', 0);
     try {

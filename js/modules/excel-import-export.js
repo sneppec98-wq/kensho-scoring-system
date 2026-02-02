@@ -206,6 +206,19 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
                 return;
             }
 
+            // ---------------------------------------------------------
+            // SMART LOGIC: Fetch Existing Data for Comparison
+            // ---------------------------------------------------------
+            document.getElementById('loader-status').innerText = 'MENGAMBIL DATA EKSISTING...';
+            const existingSnap = await getDocs(collection(db, `events/${eventId}/athletes`));
+            const existingMap = {};
+            existingSnap.docs.forEach(doc => {
+                const d = doc.data();
+                // Create unique key: NAME_TEAM_CODE
+                const key = `${d.name}_${d.team}_${d.classCode}`.toUpperCase().trim();
+                existingMap[key] = { id: doc.id, ...d };
+            });
+
             const classMap = {};
             latestClasses.forEach(cls => {
                 if (cls.code) classMap[cls.code.toString().toUpperCase().trim()] = {
@@ -214,7 +227,9 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
             });
 
             pendingImportData = [];
-            let readyCount = 0;
+            let newCount = 0;
+            let updateCount = 0;
+            let skipCount = 0;
             let errorCount = 0;
             const previewBody = document.getElementById('import-preview-body');
             previewBody.innerHTML = '';
@@ -224,12 +239,12 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
                 const code = (findVal(row, ["KODE", "CODE", "ID"]) || "").toString().toUpperCase().trim();
                 const team = (findVal(row, ["KONTINGEN", "TEAM", "REGU"]) || "INDEPENDEN").toString().toUpperCase().trim();
                 const genderRaw = (findVal(row, ["JENIS", "SEX", "KELAMIN", "GENDER"]) || "L").toString().toUpperCase().trim();
-                const weight = findVal(row, ["BERAT", "WEIGHT"]) || 0;
+                const weight = parseFloat(findVal(row, ["BERAT", "WEIGHT"])) || 0;
                 const birthRaw = findVal(row, ["LAHIR", "BIRTH", "DATE"]);
 
                 const classConfig = classMap[code];
-                const isOk = !!classConfig;
-                if (isOk) readyCount++; else errorCount++;
+                const isClassOk = !!classConfig;
+                if (!isClassOk) errorCount++;
 
                 const gender = (genderRaw.includes("P") || genderRaw.includes("PI")) ? "PUTRI" : "PUTRA";
                 const birth = parseIndoDate(birthRaw);
@@ -238,8 +253,37 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
                 if (classConfig && classConfig.type === 'BEREGU') {
                     const m2 = findVal(row, ["ANGGOTA 2", "MEMBER 2"]);
                     const m3 = findVal(row, ["ANGGOTA 3", "MEMBER 3"]);
-                    if (m2) members.push(m2);
-                    if (m3) members.push(m3);
+                    if (m2) members.push(m2.toString().toUpperCase().trim());
+                    if (m3) members.push(m3.toString().toUpperCase().trim());
+                }
+
+                // SMART CHECK
+                const lookupKey = `${name}_${team}_${code}`.toUpperCase().trim();
+                const existing = existingMap[lookupKey];
+                let action = 'ADD';
+                let actionLabel = '[+] BARU';
+                let actionClass = 'text-green-400 bg-green-400/10';
+
+                if (existing) {
+                    // Compare fields to see if update is needed
+                    const isSame = existing.gender === gender &&
+                        existing.birthDate === birth &&
+                        existing.weight === weight &&
+                        JSON.stringify(existing.members || []) === JSON.stringify(members);
+
+                    if (isSame) {
+                        action = 'SKIP';
+                        actionLabel = '[=] SAMA';
+                        actionClass = 'text-slate-400 bg-slate-400/10 opacity-50';
+                        skipCount++;
+                    } else {
+                        action = 'UPDATE';
+                        actionLabel = '[~] UPDATE';
+                        actionClass = 'text-blue-400 bg-blue-400/10';
+                        updateCount++;
+                    }
+                } else {
+                    newCount++;
                 }
 
                 const athlete = {
@@ -247,25 +291,31 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
                     team: team,
                     code: code,
                     className: classConfig ? classConfig.name : `KELAS TIDAK DITEMUKAN (${code})`,
-                    isOk: isOk,
+                    isOk: isClassOk,
                     gender: gender,
                     birthDate: birth,
                     weight: weight,
-                    members: members
+                    members: members,
+                    action: action,
+                    existingId: existing ? existing.id : null
                 };
 
                 pendingImportData.push(athlete);
 
                 previewBody.innerHTML += `
-                    <tr class="border-b border-white/5 ${!isOk ? 'bg-red-500/5' : ''}">
-                        <td class="p-4 text-white">${athlete.name}</td>
-                        <td class="p-4 opacity-60">${athlete.team}</td>
-                        <td class="p-4 ${!isOk ? 'text-red-500' : 'text-blue-400'} font-black italic">
-                            ${athlete.code}</td>
-                        <td class="py-4 text-blue-400 font-bold text-xs">
+                    <tr class="border-b border-white/5 ${!isClassOk ? 'bg-red-500/5' : (action === 'SKIP' ? 'opacity-40' : '')}">
+                        <td class="p-4">
+                            <span class="px-2 py-1 rounded text-[8px] font-black ${actionClass}">${actionLabel}</span>
+                        </td>
+                        <td class="p-4 text-white">
+                            <div class="font-bold">${athlete.name}</div>
+                            ${members.length > 0 ? `<div class="text-[8px] opacity-40 uppercase mt-1">👥 ${members.join(' & ')}</div>` : ''}
+                        </td>
+                        <td class="p-4 opacity-70 font-bold">${athlete.team}</td>
+                        <td class="p-4 text-blue-400 font-bold text-xs">
                             <div class="flex flex-col">
                                 <span class="text-[8px] opacity-40 font-black">${athlete.code || ''}</span>
-                                ${athlete.className || '-'}
+                                <span class="${!isClassOk ? 'text-red-500' : ''}">${athlete.className || '-'}</span>
                             </div>
                         </td>
                     </tr>
@@ -273,7 +323,9 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
             });
 
             document.getElementById('preview-total-count').innerText = validData.length;
-            document.getElementById('preview-ready-count').innerText = readyCount;
+            document.getElementById('preview-ready-count').innerText = newCount;
+            document.getElementById('preview-update-count').innerText = updateCount;
+            document.getElementById('preview-skip-count').innerText = skipCount;
             document.getElementById('preview-error-count').innerText = errorCount;
 
             hideProgress();
@@ -291,19 +343,29 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
 export const proceedWithConfirmedImport = async (eventId) => {
     if (pendingImportData.length === 0) return;
 
-    const errors = pendingImportData.filter(a => !a.isOk).length;
+    const toProcess = pendingImportData.filter(a => a.action !== 'SKIP');
+    if (toProcess.length === 0) {
+        alert("Tidak ada data baru atau perubahan yang perlu disimpan.");
+        toggleModal('modal-import-athlete-preview', false);
+        return;
+    }
+
+    const errors = toProcess.filter(a => !a.isOk).length;
     if (errors > 0) {
-        if (!confirm(`Ada ${errors} data dengan kode kelas yang TIDAK DITEMUKAN. Atlet tersebut akan tetap diimpor tapi kemungkinan tidak masuk ke daftar bagan.\n\nLanjutkan?`)) return;
+        if (!confirm(`Ada ${errors} data dengan kode kelas yang TIDAK DITEMUKAN. Lanjutkan?`)) return;
     }
 
     const btn = document.getElementById('btnConfirmImport');
     btn.disabled = true;
-    btn.innerText = "MENYIMPAN KE CLOUD...";
+    btn.innerText = "PROSES CLOUD...";
 
-    showProgress('IMPORT DATABASE', pendingImportData.length);
+    showProgress('IMPORT DATABASE', toProcess.length);
     try {
-        for (let i = 0; i < pendingImportData.length; i++) {
-            const a = pendingImportData[i];
+        let saved = 0;
+        let updated = 0;
+
+        for (let i = 0; i < toProcess.length; i++) {
+            const a = toProcess[i];
             const data = {
                 name: a.name,
                 team: a.team,
@@ -313,15 +375,26 @@ export const proceedWithConfirmedImport = async (eventId) => {
                 classCode: a.code,
                 className: a.className,
                 members: a.members,
-                createdAt: new Date().toISOString()
+                updatedAt: new Date().toISOString()
             };
-            await addDoc(collection(db, `events/${eventId}/athletes`), data);
-            updateProgress(i + 1, pendingImportData.length);
-            if (i % 10 === 0) await sleep(5);
+
+            if (a.action === 'UPDATE' && a.existingId) {
+                await updateDoc(doc(db, `events/${eventId}/athletes`, a.existingId), data);
+                updated++;
+            } else {
+                data.createdAt = new Date().toISOString();
+                await addDoc(collection(db, `events/${eventId}/athletes`), data);
+                saved++;
+            }
+
+            updateProgress(i + 1, toProcess.length);
+            if (i % 20 === 0) await sleep(5);
         }
-        alert(`Berhasil mengimpor ${pendingImportData.length} pendaftaran!`);
+
+        alert(`PROSES SELESAI!\n- Peserta Baru: ${saved}\n- Peserta Terupdate: ${updated}\n- Dilewati (Sama): ${pendingImportData.length - toProcess.length}`);
         toggleModal('modal-import-athlete-preview', false);
     } catch (err) {
+        console.error("Import Execution Error:", err);
         alert("Gagal impor: " + err.message);
     } finally {
         btn.disabled = false;

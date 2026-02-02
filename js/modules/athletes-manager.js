@@ -1,5 +1,5 @@
 // Athletes Data Manager
-import { showProgress, updateProgress, hideProgress, toggleModal } from './ui-helpers.js';
+import { showProgress, updateProgress, hideProgress, toggleModal, customConfirm, customAlert } from './ui-helpers.js';
 import { db } from '../firebase-init.js';
 import { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -383,7 +383,7 @@ export const saveEmergencyAthlete = async (eventId, latestClasses = []) => {
         const newAthleteRef = doc(collection(db, `events/${eventId}/athletes`));
         await setDoc(newAthleteRef, athleteData);
 
-        alert(`Atlet "${athleteData.name}" berhasil ditambahkan!`);
+        customAlert(`Atlet "${athleteData.name}" berhasil ditambahkan!`, "Pendaftaran Berhasil", "info");
         toggleModal('modal-atlet', false);
 
         // Reset Form
@@ -433,7 +433,7 @@ export const saveAthleteEdit = async (eventId, latestClasses = []) => {
 
     try {
         await updateDoc(doc(db, `events/${eventId}/athletes`, athleteId), updatedData);
-        alert("Data atlet berhasil diperbarui!");
+        customAlert("Data atlet berhasil diperbarui!", "Update Berhasil", "info");
         toggleModal('modal-edit-athlete', false);
     } catch (err) {
         console.error("Update Athlete Error:", err);
@@ -442,7 +442,13 @@ export const saveAthleteEdit = async (eventId, latestClasses = []) => {
 };
 
 export const deleteAthlete = async (athleteId, eventId) => {
-    if (confirm("❌ Yakin ingin menghapus data pendaftaran ini?\n\nData yang dihapus TIDAK DAPAT dikembalikan.")) {
+    const ok = await customConfirm({
+        title: "Hapus Pendaftaran",
+        message: "Yakin ingin menghapus data pendaftaran ini? Data yang dihapus TIDAK DAPAT dikembalikan.",
+        confirmText: "Hapus Selamanya"
+    });
+
+    if (ok) {
         try {
             // Show loading state
             const deleteButtons = document.querySelectorAll(`button[onclick="deleteAthlete('${athleteId}')"]`);
@@ -455,7 +461,7 @@ export const deleteAthlete = async (athleteId, eventId) => {
             await deleteDoc(doc(db, `events/${eventId}/athletes`, athleteId));
 
             // Success feedback
-            alert("✅ Data atlet berhasil dihapus dari database!\n\nCounter akan otomatis ter-update.");
+            customAlert("Data atlet berhasil dihapus dari database!", "Terhapus", "info");
         } catch (err) {
             console.error("Delete Athlete Error:", err);
             alert("❌ Gagal menghapus data: " + err.message);
@@ -471,13 +477,14 @@ export const deleteAthlete = async (athleteId, eventId) => {
 };
 
 export const deleteAllAthletes = async (eventId) => {
-    if (!confirm("⚠️ PERINGATAN: Anda akan menghapus SELURUH DATA ATLET dan SEMUA BAGAN (BRACKET) di event ini. Tindakan ini tidak dapat dibatalkan.\\n\\nLanjutkan?")) return;
+    const ok = await customConfirm({
+        title: "Hapus Seluruh Data",
+        message: "⚠️ PERINGATAN: Anda akan menghapus SELURUH DATA ATLET dan SEMUA BAGAN (BRACKET) di event ini. Tindakan ini tidak dapat dibatalkan.",
+        confirmText: "Hapus Total",
+        promptWord: "HAPUS"
+    });
 
-    const password = prompt("Ketik 'HAPUS' untuk konfirmasi penghapusan total:");
-    if (password !== 'HAPUS') {
-        alert("Konfirmasi gagal. Penghapusan dibatalkan.");
-        return;
-    }
+    if (!ok) return;
 
     showProgress('MEMBERSIHKAN DATA ATLET', 0);
     try {
@@ -515,7 +522,13 @@ export const deleteAllAthletes = async (eventId) => {
 };
 
 export const deleteContingentAthletes = async (teamName, eventId) => {
-    if (!confirm(`Konfirmasi: Anda akan menghapus SELURUH pendaftaran dari kontingen "${teamName}".\\n\\nLanjutkan?`)) return;
+    const ok = await customConfirm({
+        title: `Hapus Kontingen`,
+        message: `Konfirmasi: Anda akan menghapus SELURUH pendaftaran dari kontingen "${teamName}". Lanjutkan?`,
+        confirmText: "Hapus Kontingen"
+    });
+
+    if (!ok) return;
 
     showProgress(`MENGHAPUS DATA ${teamName}`, 0);
     try {

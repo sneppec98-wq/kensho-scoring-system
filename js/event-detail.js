@@ -18,7 +18,8 @@ import {
     sleep,
     toggleModal,
     filterTable,
-    switchTab
+    customConfirm,
+    customAlert
 } from './modules/ui-helpers.js';
 
 // Import Excel Functions
@@ -352,6 +353,8 @@ window.toggleVoiceLounge = toggleVoiceLounge;
 window.switchTab = switchTab;
 window.toggleModal = toggleModal;
 window.filterTable = filterTable;
+window.customConfirm = customConfirm;
+window.customAlert = customAlert;
 window.showProgress = showProgress;
 window.updateProgress = updateProgress;
 window.hideProgress = hideProgress;

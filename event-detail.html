@@ -1164,18 +1164,27 @@
                     Sebelum Simpan ke Database</p>
             </header>
 
-            <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="grid grid-cols-4 gap-4 mb-8">
                 <div class="neu-inset p-4 rounded-2xl text-center">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1">Total Peserta</p>
-                    <p id="preview-total-count" class="text-2xl font-black text-white">0</p>
+                    <p class="text-[8px] font-black opacity-40 uppercase mb-1">Total</p>
+                    <p id="preview-total-count" class="text-xl font-black text-white">0</p>
                 </div>
                 <div class="neu-inset p-4 rounded-2xl text-center border-green-500/20 border">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-green-500">Ready (Sesuai)</p>
-                    <p id="preview-ready-count" class="text-2xl font-black text-green-400">0</p>
+                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-green-500">Baru</p>
+                    <p id="preview-ready-count" class="text-xl font-black text-green-400">0</p>
                 </div>
-                <div class="neu-inset p-4 rounded-2xl text-center border-red-500/20 border">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-red-500">Error (Invalid Kode)</p>
-                    <p id="preview-error-count" class="text-2xl font-black text-red-500">0</p>
+                <div class="neu-inset p-4 rounded-2xl text-center border-blue-500/20 border">
+                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-blue-500">Update</p>
+                    <p id="preview-update-count" class="text-xl font-black text-blue-400">0</p>
+                </div>
+                <div class="neu-inset p-4 rounded-2xl text-center border-white/10 border">
+                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-slate-500">Skip (Sama)</p>
+                    <p id="preview-skip-count" class="text-xl font-black text-slate-400">0</p>
+                </div>
+                <div class="neu-inset p-4 rounded-2xl text-center border-red-500/20 border col-span-4 mt-2">
+                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-red-500">Error (Invalid Kode Kelas)
+                    </p>
+                    <p id="preview-error-count" class="text-lg font-black text-red-500">0</p>
                 </div>
             </div>
 
@@ -1183,9 +1192,9 @@
                 <table class="w-full text-left text-[10px]">
                     <thead class="bg-slate-900/50 border-b border-white/5">
                         <tr>
+                            <th class="p-4 font-black uppercase tracking-widest opacity-40">Tindakan</th>
                             <th class="p-4 font-black uppercase tracking-widest opacity-40">Nama Atlet</th>
                             <th class="p-4 font-black uppercase tracking-widest opacity-40">Kontingen</th>
-                            <th class="p-4 font-black uppercase tracking-widest opacity-40">Kode</th>
                             <th class="p-4 font-black uppercase tracking-widest opacity-40">Status Kelas</th>
                         </tr>
                     </thead>
@@ -1329,6 +1338,54 @@
             </div>
 
             <p id="loader-percent" class="text-2xl font-black text-blue-500">0%</p>
+        </div>
+    </div>
+
+    <!-- Modal: Premium Action Confirmation (Replaces native confirm/prompt) -->
+    <div id="modal-confirm" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/95 hidden">
+        <div
+            class="neu-flat w-full max-w-md p-10 rounded-[3rem] relative mx-4 border border-white/10 overflow-hidden group">
+            <div
+                class="absolute -right-20 -top-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/15 transition-all">
+            </div>
+
+            <header class="mb-8 text-center relative z-10">
+                <div id="confirm-icon-container"
+                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20">
+                    <svg id="confirm-icon-danger" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <svg id="confirm-icon-info" class="w-8 h-8 hidden" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 id="confirm-title" class="text-2xl font-black italic uppercase italic text-white leading-tight">
+                    Konfirmasi Tindakan</h2>
+                <p id="confirm-message" class="text-xs font-bold opacity-50 mt-4 leading-relaxed text-slate-300">Apakah
+                    Anda yakin ingin melanjutkan tindakan ini?</p>
+            </header>
+
+            <div id="confirm-prompt-container" class="mb-8 hidden relative z-10">
+                <label id="confirm-prompt-label"
+                    class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-red-500">Ketik
+                    konfirmasi di bawah</label>
+                <div class="relative">
+                    <input type="text" id="confirm-input"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-black uppercase tracking-widest text-white border border-white/5 focus:border-red-500/50 transition-all"
+                        placeholder="...">
+                </div>
+            </div>
+
+            <div class="flex space-x-4 relative z-10">
+                <button type="button" id="confirm-cancel-btn"
+                    class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batal</button>
+                <button id="confirm-action-btn"
+                    class="flex-1 py-4 rounded-2xl bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(220,38,38,0.3)] hover:scale-[1.02] transition-all">Ya,
+                    Lanjutkan</button>
+            </div>
         </div>
     </div>
 

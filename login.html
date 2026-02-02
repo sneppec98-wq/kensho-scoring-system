@@ -151,7 +151,7 @@
 
         <div class="text-center mb-10">
             <img src="kensho-logo.png" alt="Kensho Tech Logo" class="w-16 mx-auto mb-4 drop-shadow-xl">
-            <div class="badge-version mb-6">v2.6.0</div>
+            <div class="badge-version mb-6">v2.6.1</div>
             <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
             <p id="dynamicGreeting"
                 class="text-slate-500 text-sm font-medium transition-opacity duration-500 opacity-100">
@@ -234,12 +234,123 @@
 
     </div>
 
+    <!-- Modal: Premium Action Confirmation (Replaces native confirm/prompt) -->
+    <div id="modal-confirm" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/95 hidden">
+        <div
+            class="discord-card w-full max-w-md p-10 rounded-[2rem] relative mx-4 border border-white/10 overflow-hidden group">
+            <div
+                class="absolute -right-20 -top-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/15 transition-all">
+            </div>
+
+            <header class="mb-8 text-center relative z-10">
+                <div id="confirm-icon-container"
+                    class="w-16 h-16 rounded-2xl bg-slate-900/50 flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20">
+                    <svg id="confirm-icon-danger" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <svg id="confirm-icon-info" class="w-8 h-8 hidden" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 id="confirm-title" class="text-2xl font-black italic uppercase text-white leading-tight">Konfirmasi
+                </h2>
+                <p id="confirm-message" class="text-xs font-bold opacity-50 mt-4 leading-relaxed text-slate-300">Pesan
+                    konfirmasi di sini...</p>
+            </header>
+
+            <div id="confirm-prompt-container" class="mb-8 hidden relative z-10">
+                <label id="confirm-prompt-label"
+                    class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-red-500">Ketik
+                    konfirmasi di bawah</label>
+                <div class="relative">
+                    <input type="text" id="confirm-input"
+                        class="w-full input-dark px-6 py-4 rounded-2xl outline-none text-sm font-black uppercase tracking-widest text-white border border-white/5 focus:border-red-500/50 transition-all"
+                        placeholder="...">
+                </div>
+            </div>
+
+            <div class="flex space-x-4 relative z-10">
+                <button type="button" id="confirm-cancel-btn"
+                    class="flex-1 py-4 rounded-xl bg-slate-800/50 text-white text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batal</button>
+                <button id="confirm-action-btn"
+                    class="flex-1 py-4 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(220,38,38,0.3)] hover:scale-[1.02] transition-all">Ya,
+                    Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+
     <script type="module">
         import { auth, db } from './js/firebase-init.js';
         import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { logActivity } from './js/activity-logger.js';
 
+
+        // Helper: Premium Custom Dialog
+        window.customConfirm = ({ title = "Konfirmasi", message = "", confirmText = "Ya", cancelText = "Batal", type = "danger", promptWord = null }) => {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('modal-confirm');
+                const titleEl = document.getElementById('confirm-title');
+                const messageEl = document.getElementById('confirm-message');
+                const confirmBtn = document.getElementById('confirm-action-btn');
+                const cancelBtn = document.getElementById('confirm-cancel-btn');
+                const promptContainer = document.getElementById('confirm-prompt-container');
+                const promptInput = document.getElementById('confirm-input');
+                const promptLabel = document.getElementById('confirm-prompt-label');
+                const iconDanger = document.getElementById('confirm-icon-danger');
+                const iconInfo = document.getElementById('confirm-icon-info');
+
+                titleEl.innerText = title;
+                messageEl.innerText = message;
+                confirmBtn.innerText = confirmText;
+                cancelBtn.innerText = cancelText;
+
+                if (!cancelText) cancelBtn.classList.add('hidden'); else cancelBtn.classList.remove('hidden');
+
+                if (type === 'danger') {
+                    confirmBtn.className = "flex-1 py-4 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(220,38,38,0.3)] hover:scale-[1.02] transition-all";
+                    iconDanger.classList.remove('hidden'); iconInfo.classList.add('hidden');
+                } else {
+                    confirmBtn.className = "flex-1 py-4 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(59,130,246,0.3)] hover:scale-[1.02] transition-all";
+                    iconDanger.classList.add('hidden'); iconInfo.classList.remove('hidden');
+                }
+
+                if (promptWord) {
+                    promptContainer.classList.remove('hidden');
+                    promptLabel.innerText = `Ketik "${promptWord}" untuk konfirmasi`;
+                    promptInput.value = "";
+                    confirmBtn.disabled = true; confirmBtn.style.opacity = "0.3";
+                    promptInput.oninput = () => {
+                        if (promptInput.value.toUpperCase().trim() === promptWord.toUpperCase().trim()) {
+                            confirmBtn.disabled = false; confirmBtn.style.opacity = "1";
+                        } else {
+                            confirmBtn.disabled = true; confirmBtn.style.opacity = "0.3";
+                        }
+                    };
+                } else {
+                    promptContainer.classList.add('hidden');
+                    confirmBtn.disabled = false; confirmBtn.style.opacity = "1";
+                }
+
+                modal.classList.remove('hidden'); modal.classList.add('flex');
+
+                const cleanup = () => {
+                    modal.classList.add('hidden'); modal.classList.remove('flex');
+                    confirmBtn.onclick = null; cancelBtn.onclick = null;
+                };
+
+                confirmBtn.onclick = () => { cleanup(); resolve(true); };
+                cancelBtn.onclick = () => { cleanup(); resolve(false); };
+            });
+        };
+
+        window.customAlert = (message, title = "Informasi", type = "info") => {
+            return window.customConfirm({ title, message, confirmText: "Dimengerti", cancelText: "", type });
+        };
 
         // Cek jika sudah login
         onAuthStateChanged(auth, (user) => {
@@ -400,10 +511,17 @@
                     errorMsg = "Koneksi gagal. Periksa jaringan Anda.";
                 }
 
-                alert(errorMsg);
+                await customAlert(errorMsg, "Login Gagal", "danger");
                 text.innerHTML = originalText;
                 btn.classList.remove('opacity-80', 'cursor-not-allowed');
                 btn.disabled = false;
+
+                // FIX: Focus and select the password input
+                const pwField = document.getElementById('password');
+                if (pwField) {
+                    pwField.focus();
+                    pwField.select();
+                }
             }
         }
 
@@ -440,7 +558,7 @@
         };
 
         // Licencing & Hardware ID Logic
-        const APP_VERSION = "2.6.0";
+        const APP_VERSION = "2.6.1";
 
         // Generate Browser Device ID (fingerprint)
         function generateBrowserDeviceId() {

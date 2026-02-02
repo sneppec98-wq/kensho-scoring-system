@@ -94,7 +94,10 @@ ipcMain.handle('get-machine-id', async () => {
 app.whenReady().then(() => {
     createWindow();
 
-    // Check for updates every 60 minutes
+    // Check for updates immediately on startup
+    autoUpdater.checkForUpdates();
+
+    // Check for updates every 60 minutes thereafter
     setInterval(() => {
         autoUpdater.checkForUpdates();
     }, 60 * 60 * 1000);

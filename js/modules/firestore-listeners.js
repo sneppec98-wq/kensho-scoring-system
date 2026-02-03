@@ -32,3 +32,13 @@ export const setupEventListener = (eventId, callback) => {
         }
     });
 };
+
+export const setupRewardsListener = (eventId, callback) => {
+    return onSnapshot(collection(db, `events/${eventId}/rewards`), snapshot => {
+        const rewards = {};
+        snapshot.docs.forEach(doc => {
+            rewards[doc.id] = doc.data();
+        });
+        callback(rewards);
+    });
+};

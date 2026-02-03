@@ -73,7 +73,8 @@ export const calculateMedalTallyNew = (athletes, classes) => {
         classResults.push({
             code: classCode,
             name: (c.name || "KELAS TIDAK TERNAMA").toUpperCase(),
-            n: n,
+            n: n, // Team/Unit count for logic
+            individualCount: n * multiplier, // Actual human count
             gold: gold,
             silver: silver,
             bronze: bronze,
@@ -93,80 +94,90 @@ export const renderMedalTallyView = (sortedClassResults) => {
         `;
     }
 
-    // Hitung Grand Total
-    const grandTotal = sortedClassResults.reduce((acc, curr) => {
-        acc.gold += curr.gold;
-        acc.silver += curr.silver;
-        acc.bronze += curr.bronze;
-        acc.total += curr.total;
-        return acc;
-    }, { gold: 0, silver: 0, bronze: 0, total: 0 });
+    const openResults = sortedClassResults.filter(c => !c.code.startsWith('F'));
+    const festivalResults = sortedClassResults.filter(c => c.code.startsWith('F'));
 
-    return `
-        <div class="bg-slate-900/40 border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
-            <div class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
-                <div class="flex flex-col">
-                    <h4 class="text-xs font-black uppercase tracking-[0.2em] text-blue-400">Rincian Kebutuhan Medali Per Kelas</h4>
-                    <p class="text-[8px] font-bold text-slate-500 mt-1 uppercase tracking-tight">Sisa Ganjil Festival Dirotasi Emas/Perak Agar Stok Seimbang</p>
+    const renderTable = (results, title, colorClass) => {
+        if (results.length === 0) return '';
+
+        const total = results.reduce((acc, curr) => {
+            acc.gold += curr.gold;
+            acc.silver += curr.silver;
+            acc.bronze += curr.bronze;
+            acc.total += curr.total;
+            return acc;
+        }, { gold: 0, silver: 0, bronze: 0, total: 0 });
+
+        return `
+            <div class="mb-12 bg-slate-900/40 border border-white/5 rounded-3xl overflow-hidden shadow-2xl">
+                <div class="p-6 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                    <div class="flex flex-col">
+                        <h4 class="text-xs font-black uppercase tracking-[0.2em] ${colorClass}">RINCIAN KEBUTUHAN MEDALI: ${title}</h4>
+                        <p class="text-[8px] font-bold text-slate-500 mt-1 uppercase tracking-tight">Perhitungan Otomatis Sistem Kensho</p>
+                    </div>
                 </div>
-                <span class="text-[9px] font-bold text-slate-500 uppercase">Perhitungan Otomatis Sistem Kensho</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-900/60 text-[10px] font-black uppercase text-slate-500 border-b border-white/5">
-                        <tr>
-                            <th class="p-6 w-20">NO</th>
-                            <th>KELAS PERTANDINGAN</th>
-                            <th class="text-center w-20">ATLET</th>
-                            <th class="text-center text-yellow-500 w-20">GOLD</th>
-                            <th class="text-center text-slate-300 w-20">SILVER</th>
-                            <th class="text-center text-orange-600 w-20">BRONZE</th>
-                            <th class="text-center pr-6 text-blue-400 w-20">TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/5">
-                        ${sortedClassResults.map((c, idx) => `
-                            <tr class="hover:bg-blue-500/5 transition-all group">
-                                <td class="p-6">
-                                    <div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-500 flex items-center justify-center text-[10px] font-black">
-                                        ${idx + 1}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="font-black text-white uppercase text-xs tracking-wider">${c.name}</div>
-                                </td>
-                                <td class="text-center">
-                                    <span class="px-2 py-1 rounded bg-blue-500/10 text-white font-black text-[10px]">
-                                        ${c.n}
-                                    </span>
-                                </td>
-                                <td class="text-center font-black text-white text-lg">${c.gold}</td>
-                                <td class="text-center font-bold text-slate-400 text-lg">${c.silver}</td>
-                                <td class="text-center font-bold text-orange-700 text-lg">${c.bronze}</td>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-900/60 text-[10px] font-black uppercase text-slate-500 border-b border-white/5">
+                            <tr>
+                                <th class="p-6 w-20">NO</th>
+                                <th>KELAS PERTANDINGAN</th>
+                                <th class="text-center w-20">ATLET</th>
+                                <th class="text-center text-yellow-500 w-20">GOLD</th>
+                                <th class="text-center text-slate-300 w-20">SILVER</th>
+                                <th class="text-center text-orange-600 w-20">BRONZE</th>
+                                <th class="text-center pr-6 text-blue-400 w-20">TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            ${results.map((c, idx) => `
+                                <tr class="hover:bg-blue-500/5 transition-all group">
+                                    <td class="p-6">
+                                        <div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-500 flex items-center justify-center text-[10px] font-black">
+                                            ${idx + 1}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="font-black text-white uppercase text-xs tracking-wider">${c.name}</div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="px-2 py-1 rounded bg-blue-500/10 text-white font-black text-[10px]">
+                                            ${c.individualCount}
+                                        </span>
+                                    </td>
+                                    <td class="text-center font-black text-white text-lg">${c.gold}</td>
+                                    <td class="text-center font-bold text-slate-400 text-lg">${c.silver}</td>
+                                    <td class="text-center font-bold text-orange-700 text-lg">${c.bronze}</td>
+                                    <td class="text-center pr-6">
+                                        <span class="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 font-black text-sm border border-blue-500/20">
+                                            ${c.total}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot class="bg-blue-500/5 border-t border-blue-500/20">
+                            <tr class="font-black text-white">
+                                <td colspan="3" class="p-6 text-right uppercase tracking-[0.2em] text-[10px] text-blue-400">Total Stok Medali ${title}</td>
+                                <td class="text-center text-2xl py-6">${total.gold}</td>
+                                <td class="text-center text-2xl py-6 opacity-60">${total.silver}</td>
+                                <td class="text-center text-2xl py-6 text-orange-700">${total.bronze}</td>
                                 <td class="text-center pr-6">
-                                    <span class="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 font-black text-sm border border-blue-500/20">
-                                        ${c.total}
+                                    <span class="px-5 py-2 rounded-xl bg-blue-500 text-white font-black text-xl shadow-lg shadow-blue-500/20">
+                                        ${total.total}
                                     </span>
                                 </td>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                    <tfoot class="bg-blue-500/5 border-t border-blue-500/20">
-                        <tr class="font-black text-white">
-                            <td colspan="3" class="p-6 text-right uppercase tracking-[0.2em] text-[10px] text-blue-400">Total Keseluruhan Stok Medali</td>
-                            <td class="text-center text-2xl py-6">${grandTotal.gold}</td>
-                            <td class="text-center text-2xl py-6 opacity-60">${grandTotal.silver}</td>
-                            <td class="text-center text-2xl py-6 text-orange-700">${grandTotal.bronze}</td>
-                            <td class="text-center pr-6">
-                                <span class="px-5 py-2 rounded-xl bg-blue-500 text-white font-black text-xl shadow-lg shadow-blue-500/20">
-                                    ${grandTotal.total}
-                                </span>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
-        </div>
+        `;
+    };
+
+    return `
+        ${renderTable(openResults, 'PRESTASI / OPEN', 'text-blue-400')}
+        ${renderTable(festivalResults, 'FESTIVAL', 'text-emerald-400')}
         
         <div class="mt-6 p-6 bg-blue-500/5 border border-blue-500/10 rounded-2xl no-print">
             <h5 class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-3">Ketentuan Perhitungan Stok:</h5>

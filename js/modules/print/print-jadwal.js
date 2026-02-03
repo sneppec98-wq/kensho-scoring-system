@@ -16,7 +16,21 @@ export const prepareJadwalPrint = (eventName, eventLogo) => {
         `;
 
         dayData.forEach((arena, arenaIdx) => {
-            const totalLoad = arena.classes.reduce((sum, cls) => sum + (cls.athleteCount || 0), 0);
+            const openClasses = arena.classes.filter(c => {
+                const name = (c.name || "").toUpperCase();
+                const code = (c.code || "").toString().toUpperCase();
+                return !(code.startsWith('F') || name.includes('FESTIVAL'));
+            });
+            const festivalClasses = arena.classes.filter(c => {
+                const name = (c.name || "").toUpperCase();
+                const code = (c.code || "").toString().toUpperCase();
+                return (code.startsWith('F') || name.includes('FESTIVAL'));
+            });
+
+            const openTotal = openClasses.reduce((sum, cls) => sum + (cls.rawCount || cls.athleteCount || 0), 0);
+            const festivalTotal = festivalClasses.reduce((sum, cls) => sum + (cls.rawCount || cls.athleteCount || 0), 0);
+
+            const totalAthletes = openTotal + festivalTotal;
 
             html += `
                 <div style="break-inside: avoid; margin-bottom: 10px;">
@@ -32,7 +46,8 @@ export const prepareJadwalPrint = (eventName, eventLogo) => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${arena.classes.map((cls, idx) => `
+                            <!-- PHASE 1: OPEN -->
+                            ${openClasses.map((cls, idx) => `
                                 <tr>
                                     <td style="border: 1px solid black; padding: 2px; text-align: center; font-size: 6.5pt;">${idx + 1}</td>
                                     <td style="border: 1px solid black; padding: 2px 6px; font-weight: bold; text-transform: uppercase; font-size: 6.5pt; line-height: 1; text-align: left;">
@@ -44,12 +59,44 @@ export const prepareJadwalPrint = (eventName, eventLogo) => {
                                     </td>
                                 </tr>
                             `).join('')}
-                            <tr style="background: #f9f9f9;">
-                                <td colspan="2" style="border: 1px solid black; padding: 3px; text-align: right; padding-right: 10px; font-weight: 900; font-size: 6.5pt; text-transform: uppercase;">
+
+                            ${openClasses.length > 0 && festivalClasses.length > 0 ? `
+                                <tr style="background: #fdfdfd; border-top: 1.5px solid #000;">
+                                    <td colspan="2" style="border: 1px solid black; padding: 3px; text-align: right; font-weight: 900; font-size: 6.5pt; text-transform: uppercase; padding-right: 10px;">TOTAL KELAS OPEN</td>
+                                    <td style="border: 1px solid black; padding: 3px; text-align: center; font-weight: 900; font-size: 7.5pt; border-left: 1px solid black;">${openTotal}</td>
+                                </tr>
+                                <tr style="background: #000; color: #fff;">
+                                    <td colspan="3" style="text-align: center; padding: 2px; font-size: 6.5pt; font-weight: 900; letter-spacing: 2px;">ISTIRAHAT / PERSIAPAN KELAS FESTIVAL</td>
+                                </tr>
+                            ` : ''}
+
+                            <!-- PHASE 2: FESTIVAL -->
+                            ${festivalClasses.map((cls, idx) => `
+                                <tr>
+                                    <td style="border: 1px solid black; padding: 2px; text-align: center; font-size: 6.5pt;">${openClasses.length + idx + 1}</td>
+                                    <td style="border: 1px solid black; padding: 2px 6px; font-weight: bold; text-transform: uppercase; font-size: 6.5pt; line-height: 1; text-align: left;">
+                                        ${cls.name}
+                                    </td>
+                                    <td style="border: 1px solid black; padding: 2px; text-align: center;">
+                                        <span style="font-weight: 900; font-size: 7pt;">${cls.athleteCount}</span>
+                                        <span style="font-size: 5.5pt; opacity: 0.7;">${cls.isTeamCategory ? 'TIM' : 'ATL'}</span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+
+                            ${festivalClasses.length > 0 ? `
+                                <tr style="background: #fdfdfd; border-top: 1px solid #000;">
+                                    <td colspan="2" style="border: 1px solid black; padding: 3px; text-align: right; font-weight: 900; font-size: 6.5pt; text-transform: uppercase; padding-right: 10px;">TOTAL KELAS FESTIVAL</td>
+                                    <td style="border: 1px solid black; padding: 3px; text-align: center; font-weight: 900; font-size: 7.5pt; border-left: 1px solid black;">${festivalTotal}</td>
+                                </tr>
+                            ` : ''}
+
+                            <tr style="background: #eee; border-top: 1.5px solid #000;">
+                                <td colspan="2" style="border: 1px solid black; padding: 4px; text-align: right; padding-right: 10px; font-weight: 900; font-size: 7pt; text-transform: uppercase;">
                                     TOTAL TATAMI ${arenaIdx + 1}
                                 </td>
-                                <td style="border: 1px solid black; padding: 3px; text-align: center; font-weight: 900; font-size: 7pt; color: #2563eb;">
-                                    ${totalLoad}
+                                <td style="border: 1px solid black; padding: 4px; text-align: center; font-weight: 900; font-size: 8pt; color: #000;">
+                                    ${totalAthletes}
                                 </td>
                             </tr>
                         </tbody>

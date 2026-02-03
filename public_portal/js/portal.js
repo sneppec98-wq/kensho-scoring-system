@@ -1,5 +1,6 @@
-import { db } from './firebase-init.js';
-import { collection, getDocs, doc, getDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { db, auth } from './firebase-init.js';
+import { collection, getDocs, doc, getDoc, query, orderBy, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { bulkPrintBrackets } from './modules/print/bulk-print-brackets.js';
 
 // Global data store
@@ -15,6 +16,8 @@ const eventId = urlParams.get('id') || 'WgVTkA88gmI6ogrW39hf';
 // Global Event State
 let currentEventData = null;
 let activeTab = 'roster';
+let rewardStatus = {}; // { "athleteName_className": { medal: true, certificate: true, receiver: "" } }
+let isAdmin = false;
 
 // Bracket State
 let svgDoc = null;
@@ -48,6 +51,13 @@ async function init() {
     }
 
     try {
+        // --- Auth State Listener ---
+        onAuthStateChanged(auth, (user) => {
+            isAdmin = !!user;
+            console.log("👤 Auth State Changed: isAdmin =", isAdmin);
+            if (activeTab === 'winners') renderWinnersList(cachedWinners || []);
+        });
+
         // Fetch Event Data
         const eventDoc = await getDoc(doc(db, "events", eventId));
         const logoImg = document.getElementById('mainLogo');
@@ -97,6 +107,14 @@ async function init() {
                     switchTab(activeTab);
                 }
             }
+        });
+
+        // --- Reward Status Listener ---
+        onSnapshot(collection(db, `events/${eventId}/rewards`), (snap) => {
+            snap.docs.forEach(d => {
+                rewardStatus[d.id] = d.data();
+            });
+            if (activeTab === 'winners') renderWinnersList(cachedWinners || []);
         });
 
         // Fetch Classes (for lookup)
@@ -615,42 +633,143 @@ async function loadWinnersData(mode = 'both') {
     }
 }
 
-function renderWinnersList(data) {
+function renderWinnersList(data, searchTerm = "") {
     const container = document.getElementById('winnersList');
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
         container.innerHTML = `<div class="py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Belum ada data juara yang masuk.</div>`;
         return;
     }
 
+    const term = searchTerm.toLowerCase().trim();
+    let displayData = data;
+
+    if (term) {
+        displayData = data.map(item => {
+            const matchesClass = item.className.toLowerCase().includes(term) || item.classCode.toLowerCase().includes(term);
+            const filteredWinners = item.winners.filter(w =>
+                w.name.toLowerCase().includes(term) ||
+                w.team.toLowerCase().includes(term) ||
+                matchesClass
+            );
+
+            if (matchesClass) return item; // Keep all winners if class matches
+            if (filteredWinners.length > 0) return { ...item, winners: filteredWinners };
+            return null;
+        }).filter(item => item !== null);
+    }
+
     let html = '';
-    data.forEach(item => {
+    displayData.forEach(item => {
         html += `
-            <div class="stagger-card">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="flex flex-col">
-                        <span class="text-[9px] font-black text-blue-600 uppercase tracking-widest">${item.classCode}</span>
-                        <h4 class="text-lg font-black uppercase text-slate-800 tracking-tighter leading-none">${item.className}</h4>
+            <div class="stagger-card mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black italic shadow-lg shadow-blue-100">${item.classCode}</div>
+                    <div>
+                        <h4 class="text-xl font-black uppercase text-slate-900 tracking-tighter leading-none">${item.className}</h4>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">HASIL AKHIR & KONFIRMASI PIAGAM</p>
                     </div>
                 </div>
-                <div class="premium-card p-6 md:p-8 bg-white grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    ${item.winners.sort((a, b) => a.rank - b.rank).map(w => `
-                        <div class="flex items-center gap-4 p-4 rounded-2xl ${w.rank === 1 ? 'bg-yellow-50/50 border border-yellow-100' : (w.rank === 2 ? 'bg-slate-50/50 border border-slate-100' : 'bg-orange-50/30 border border-orange-100/50')} transition-all hover:scale-[1.02]">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm
-                                ${w.rank === 1 ? 'bg-yellow-400 text-yellow-900' : (w.rank === 2 ? 'bg-slate-300 text-slate-700' : 'bg-orange-400 text-orange-900')}">
-                                <span class="text-xs font-black">${w.rank === 1 ? '🥇' : (w.rank === 2 ? '🥈' : '🥉')}</span>
+                
+                <div class="space-y-4">
+                    ${item.winners.sort((a, b) => a.rank - b.rank).map(w => {
+            const rewardId = `${w.name.trim()}_${item.className.trim()}`.replace(/\//g, '_');
+            const status = rewardStatus[rewardId] || { medal: false, certificate: false, receiver: "" };
+            const medalClass = w.rank === 1 ? 'medal-gold' : (w.rank === 2 ? 'medal-silver' : 'medal-bronze');
+            const medalLabel = w.rank === 1 ? 'GOLD' : (w.rank === 2 ? 'SILVER' : 'BRONZE');
+
+            return `
+                        <div class="premium-card p-6 flex flex-col md:flex-row gap-6 items-start md:items-center transition-all hover:border-blue-200">
+                            <!-- Medal & Name Section -->
+                            <div class="flex items-center gap-6 flex-1 min-w-0">
+                                <div class="w-12 h-12 rounded-2xl flex flex-col items-center justify-center shadow-md ${medalClass} shrink-0">
+                                    <span class="text-[8px] font-black tracking-tighter leading-none">${medalLabel}</span>
+                                    <span class="text-lg font-black">${w.rank === 1 ? '🥇' : (w.rank === 2 ? '🥈' : '🥉')}</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-base font-black text-slate-900 uppercase truncate">${w.name}</div>
+                                        ${isAdmin ? `
+                                        <button onclick="copyToClipboard('${w.name}')" class="p-1.5 rounded-lg bg-slate-100 text-slate-400 hover:bg-blue-600 hover:text-white transition-all" title="Copy Nama">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                            </svg>
+                                        </button>
+                                        ` : ''}
+                                    </div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">${w.team}</div>
+                                </div>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-[11px] font-black text-slate-900 uppercase truncate leading-tight">${w.name}</div>
-                                <div class="text-[9px] font-bold text-slate-400 uppercase truncate mt-0.5">${w.team}</div>
+
+                            <!-- Confirmation Section -->
+                            ${isAdmin ? `
+                            <div class="flex flex-wrap items-center gap-4 md:px-6 md:border-l border-slate-100">
+                                <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <input type="checkbox" id="cert_${rewardId}" ${status.certificate ? 'checked' : ''} 
+                                        onchange="confirmReward('${rewardId}', 'certificate', this.checked)"
+                                        class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    <label for="cert_${rewardId}" class="text-[9px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Piagam</label>
+                                </div>
+                                <div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <input type="checkbox" id="medal_${rewardId}" ${status.medal ? 'checked' : ''} 
+                                        onchange="confirmReward('${rewardId}', 'medal', this.checked)"
+                                        class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    <label for="medal_${rewardId}" class="text-[9px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Medali</label>
+                                </div>
+                                <div class="relative">
+                                    <input type="text" id="rcv_${rewardId}" value="${status.receiver || ''}" placeholder="PENGAMBIL..."
+                                        onblur="confirmReward('${rewardId}', 'receiver', this.value)"
+                                        class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-700 placeholder:text-slate-300 focus:outline-none focus:border-blue-500 w-32 md:w-40 transition-all">
+                                </div>
                             </div>
+                            ` : (status.medal || status.certificate ? `
+                            <div class="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-[9px] font-black uppercase tracking-widest">Sudah Diambil${status.receiver ? ` (${status.receiver})` : ''}</span>
+                            </div>
+                            ` : '')}
                         </div>
-                    `).join('')}
+                `;
+        }).join('')}
                 </div>
             </div>
         `;
     });
     container.innerHTML = html;
 }
+
+window.copyPortalLink = () => {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        alert("Link portal berhasil disalin!");
+    });
+};
+
+window.handleWinnerSearch = (val) => {
+    renderWinnersList(cachedWinners || [], val);
+};
+
+window.copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => {
+        // Optional: Show toast
+        console.log("Copied:", text);
+    });
+};
+
+window.confirmReward = async (rewardId, type, value) => {
+    try {
+        const rewardRef = doc(db, `events/${eventId}/rewards`, rewardId);
+        const current = rewardStatus[rewardId] || { medal: false, certificate: false, receiver: "" };
+
+        current[type] = value;
+        await setDoc(rewardRef, current, { merge: true });
+        console.log(`Updated ${rewardId} ${type}:`, value);
+    } catch (err) {
+        console.error("Confirm Reward Error:", err);
+        alert("Gagal menyimpan konfirmasi: " + err.message);
+    }
+};
 
 function renderMedalTallyTable(data) {
     const container = document.getElementById('medalTally');

@@ -312,21 +312,60 @@
 
             <div id="tab-cetak" class="tab-content hidden">
                 <div class="neu-flat p-8 rounded-[2.5rem]">
-                    <div class="mb-10 flex justify-between items-center">
+                    <div class="mb-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
                         <div>
-                            <h3 class="text-2xl font-black italic uppercase text-slate-200">Hub Pencetakan & Salin Nama
+                            <h3 class="text-2xl font-black italic uppercase text-slate-200">Hub Monitoring & Pencetakan
                             </h3>
-                            <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em] mt-2">Daftar
-                                Atlet untuk Sertifikat / Piagam</p>
+                            <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em] mt-2">Pantau
+                                Status Pengambilan Medali & Piagam</p>
                         </div>
-                        <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-72">
-                            <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="text" onkeyup="filterCopyList(this)" placeholder="CARI NAMA ATLET..."
-                                class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
+
+                        <div class="flex flex-wrap items-center gap-6 w-full xl:w-auto">
+                            <!-- Stats Cards -->
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="neu-inset px-6 py-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
+                                    <div class="text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-1">
+                                        Sudah Diambil</div>
+                                    <div class="flex items-end gap-2">
+                                        <span id="stat-rewards-claimed"
+                                            class="text-2xl font-black text-white leading-none">0</span>
+                                        <span class="text-[10px] font-bold text-emerald-500/50 uppercase">Item</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="neu-inset px-6 py-4 rounded-2xl border border-orange-500/20 bg-orange-500/5">
+                                    <div class="text-[8px] font-black text-orange-500 uppercase tracking-widest mb-1">
+                                        Belum Diambil</div>
+                                    <div class="flex items-end gap-2">
+                                        <span id="stat-rewards-pending"
+                                            class="text-2xl font-black text-white leading-none">0</span>
+                                        <span class="text-[10px] font-bold text-orange-500/50 uppercase">Item</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4 ml-auto">
+                                <a href="public_portal/index.html" target="_blank"
+                                    class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-emerald-400 border-emerald-500/20 hover:bg-emerald-500 hover:text-white">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Buka Portal
+                                        Pengambilan</span>
+                                </a>
+                                <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-72">
+                                    <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <input type="text" onkeyup="filterWinnerStatus(this.value)"
+                                        placeholder="CARI PEMENANG / KELAS..."
+                                        class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
+                                </div>
+                            </div>
                         </div>
                     </div>
 

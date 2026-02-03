@@ -766,7 +766,14 @@
                             Bagan Pertandingan Otomatis</p>
                     </div>
 
-                    <div class="flex space-x-4 mb-1">
+                    <div class="flex items-center gap-6 mb-1">
+                        <div class="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-100 border border-slate-200">
+                            <input type="checkbox" id="useShortName" onchange="generateBracket()"
+                                class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                            <label for="useShortName"
+                                class="text-[9px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Nama
+                                Singkat</label>
+                        </div>
                         <button id="btnPreviewFestival" onclick="handlePreviewFestival()"
                             class="neu-button px-8 py-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-600 hover:text-white transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -871,6 +878,7 @@
         import { prepareBracketPrint } from './js/modules/print/print-bracket.js';
 
         window.handleLogout = handleLogout;
+        let bracketListener = null;
 
         // Voice Lounge UI Logic
         window.toggleVoiceLounge = () => {
@@ -1076,6 +1084,16 @@
                     await generateBracket();
                 }
             }
+
+            // Real-time Listener for updates from Scoring Console
+            if (bracketListener) bracketListener(); // Unsubscribe prev
+            console.log(`📡 Attaching Real-Time Listener for "${className}"...`);
+            bracketListener = onSnapshot(doc(db, `events/${eventId}/brackets`, className.trim()), (snap) => {
+                if (snap.exists() && !snap.metadata.hasPendingWrites) {
+                    console.log("🔄 Bracket update detected from Cloud!");
+                    fetchSavedBracket(className.trim());
+                }
+            });
         }
 
         function syncHeadersToSVG() {
@@ -1496,7 +1514,7 @@
                             ${akaResult}
                         </td>
                         <td class="p-4 text-red-600 border-r-2 border-slate-900">
-                            ${aka.name}
+                            ${document.getElementById('useShortName')?.checked ? shortenName(aka.name) : aka.name}
                             ${alertBanner}
                         </td>
                         <td class="p-4 text-slate-500 border-r-2 border-slate-900">${aka.team || '-'}</td>
@@ -1507,7 +1525,7 @@
                         <td class="p-4 text-center border-r-2 border-slate-900">
                              <button onclick="window.setFestivalWinner(${matchIdx}, 'ao')" class="w-8 h-8 rounded ${winnerSide === 'ao' ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-slate-100 text-slate-400 hover:bg-blue-500 hover:text-white'} transition-all text-[10px] font-black">W</button>
                         </td>
-                        <td class="p-4 text-blue-600 border-r-2 border-slate-900 text-right">${ao ? ao.name : 'BYE'}</td>
+                        <td class="p-4 text-blue-600 border-r-2 border-slate-900 text-right">${ao ? (document.getElementById('useShortName')?.checked ? shortenName(ao.name) : ao.name) : 'BYE'}</td>
                         <td class="p-4 text-slate-500 border-r-2 border-slate-900 text-right">${ao ? ao.team : '-'}</td>
                         <td class="p-4 text-center">
                             ${aoResult}
@@ -1629,7 +1647,9 @@
                     const nameEl = svgDoc.getElementById(nameId);
                     if (nameEl) {
                         const tspan = nameEl.querySelector('tspan') || nameEl;
-                        tspan.textContent = athlete.name;
+                        const useShort = document.getElementById('useShortName')?.checked;
+                        const displayName = useShort ? shortenName(athlete.name) : athlete.name;
+                        tspan.textContent = displayName;
                         nameEl.style.opacity = "1";
                         console.log(`  ✏️ [${slotId}] Filled name: "${athlete.name}" → #${nameId}`);
                     } else {
@@ -2200,6 +2220,44 @@
                 magicTab.style.display = 'block';
                 magicBtn.classList.add('bg-white', 'text-blue-600', 'shadow-md');
                 magicBtn.classList.remove('text-slate-400');
+            }
+        }
+
+        function shortenName(fullName) {
+            if (!fullName) return "";
+
+            // Bersihkan nama dari spasi berlebih dan ubah ke UPPERCASE
+            const name = fullName.trim().toUpperCase().replace(/\s+/g, ' ');
+            const words = name.split(' ');
+
+            if (words.length <= 1) return name;
+
+            // Daftar prefiks yang umum disingkat
+            const prefixes = ["MUHAMMAD", "MUHAMAD", "MUH", "MOCH", "MOH", "M"];
+            let firstWord = words[0].replace(/\.$/, ''); // Hilangkan titik jika ada
+            let isPrefix = prefixes.includes(firstWord);
+
+            if (isPrefix) {
+                // Aturan Prefiks: M + Kata Kedua Utuh + Sisanya Inisial
+                // Contoh: M ADITYA PRASWORO -> M ADITYA P
+                let result = "M";
+                if (words.length >= 2) {
+                    result += " " + words[1];
+                }
+                for (let i = 2; i < words.length; i++) {
+                    const initial = words[i][0];
+                    if (initial) result += " " + initial;
+                }
+                return result;
+            } else {
+                // Aturan Non-Prefiks: Kata Pertama Utuh + Sisanya Inisial
+                // Contoh: ANANDA PUJANGGA RESTU PERTIWI -> ANANDA P R P
+                let result = words[0];
+                for (let i = 1; i < words.length; i++) {
+                    const initial = words[i][0];
+                    if (initial) result += " " + initial;
+                }
+                return result;
             }
         }
 

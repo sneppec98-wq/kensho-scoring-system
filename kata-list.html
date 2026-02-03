@@ -184,6 +184,11 @@
             cursor: not-allowed;
         }
 
+        html {
+            scrollbar-width: thin;
+            scrollbar-color: #1e293b #020617;
+        }
+
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -283,68 +288,6 @@
             </div>
         </div>
 
-        <!-- LIST PESERTA SECTION -->
-        <div class="glass-card rounded-[2.5rem] overflow-hidden p-8">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h2 class="text-2xl font-black italic tracking-tight uppercase text-white mb-1">List Peserta</h2>
-                    <p class="text-[9px] font-bold uppercase tracking-widest text-slate-500">Semua Peserta Per Kelas</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <select id="classFilter"
-                        class="search-input py-3 px-6 rounded-xl text-[10px] font-bold uppercase tracking-wider">
-                        <option value="">Semua Kelas</option>
-                    </select>
-                    <span id="participantCount"
-                        class="text-xs font-bold text-slate-400 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-                        0 Peserta
-                    </span>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-white/10">
-                            <th
-                                class="text-left py-4 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                No</th>
-                            <th
-                                class="text-left py-4 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                Nama Atlet</th>
-                            <th
-                                class="text-left py-4 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                Kontingen</th>
-                            <th
-                                class="text-left py-4 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                Kelas</th>
-                            <th
-                                class="text-center py-4 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                Babak</th>
-                            <th
-                                class="text-center py-4 px-4 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">
-                                Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="participantTableBody">
-                        <tr>
-                            <td colspan="6"
-                                class="py-12 text-center text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                                <div class="loading-shimmer h-12 w-full rounded-xl"></div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- DIVIDER -->
-        <div class="flex items-center gap-4 my-4">
-            <div class="flex-1 h-px bg-white/10"></div>
-            <span class="text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">Kata Input</span>
-            <div class="flex-1 h-px bg-white/10"></div>
-        </div>
-
         <!-- TAB SYSTEM -->
         <div class="flex gap-4">
             <button id="tab-active" class="tab-btn active" onclick="switchTab('active')">
@@ -357,7 +300,7 @@
 
         <!-- CONTENT AREA -->
         <div class="glass-card rounded-[2.5rem] overflow-hidden">
-            <div id="classContainer" class="max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <div id="classContainer" class="space-y-4">
                 <!-- Loading state -->
                 <div id="loadingState" class="p-10 space-y-4">
                     <div class="h-20 w-full loading-shimmer rounded-2xl"></div>
@@ -379,6 +322,7 @@
         // --- DATA & STATE ---
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('id');
+        const filterClass = urlParams.get('class');
         let classes = [];
         let athletes = [];
         let currentTab = 'active';
@@ -418,7 +362,6 @@
             onSnapshot(qClasses, (snapshot) => {
                 classes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 updateView();
-                populateClassFilter();
             });
 
             // Listen to athletes
@@ -426,8 +369,6 @@
             onSnapshot(qAthletes, (snapshot) => {
                 athletes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 updateView();
-                updateParticipantList();
-                populateClassFilter();
             });
         };
 
@@ -443,10 +384,17 @@
             }
 
             // Filter classes
-            const filteredClasses = classes.filter(c =>
-                c.name.toLowerCase().includes(searchValue) ||
-                c.ageCategory.toLowerCase().includes(searchValue)
-            );
+            const filteredClasses = classes.filter(c => {
+                const matchesSearch = c.name.toLowerCase().includes(searchValue) ||
+                    c.ageCategory.toLowerCase().includes(searchValue);
+                const matchesFilter = !filterClass || c.name === filterClass;
+                return matchesSearch && matchesFilter;
+            });
+
+            // Auto-expand if filtered to a specific class
+            if (filterClass && filteredClasses.length > 0) {
+                filteredClasses.forEach(c => expandedClasses.add(c.id));
+            }
 
             if (filteredClasses.length === 0) {
                 container.innerHTML = `<div class="py-24 text-center text-[11px] font-black uppercase tracking-[0.3em] text-slate-600 italic">Tidak ada kelas tanding ditemukan</div>`;
@@ -519,7 +467,7 @@
                                data-athlete-id="${athlete.id}" 
                                data-round="${round}"
                                class="kata-input" 
-                               onchange="markKataChanged(this)" />
+                               oninput="checkKataShortcut(this); markKataChanged(this)" />
                         <button onclick="saveKata('${athlete.id}', '${round}')" 
                                 id="save-btn-${athlete.id}"
                                 class="save-btn" 
@@ -548,76 +496,34 @@
             return labels[round] || 'Penyisihan 1';
         };
 
-        // --- PARTICIPANT LIST FUNCTIONS ---
-        const updateParticipantList = () => {
-            const tableBody = document.getElementById('participantTableBody');
-            const classFilterValue = document.getElementById('classFilter').value;
 
-            // Filter athletes by class
-            let filteredAthletes = athletes;
-            if (classFilterValue) {
-                filteredAthletes = athletes.filter(a => a.className === classFilterValue);
-            }
-
-            // Update count
-            document.getElementById('participantCount').innerText = `${filteredAthletes.length} Peserta`;
-
-            if (filteredAthletes.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="py-12 text-center text-[10px] font-bold uppercase tracking-widest text-slate-600">
-                            Tidak ada peserta ditemukan
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tableBody.innerHTML = filteredAthletes.map((athlete, index) => {
-                const round = athlete.currentRound || 'penyisihan';
-                const status = athlete.tournamentStatus || 'active';
-                const statusLabel = status === 'champion' ? 'Champion' : status === 'eliminated' ? 'Eliminated' : 'Active';
-                const statusColor = status === 'champion' ? 'text-yellow-500' : status === 'eliminated' ? 'text-red-500' : 'text-green-500';
-
-                return `
-                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
-                        <td class="py-4 px-4 text-[11px] font-bold text-slate-400">${index + 1}</td>
-                        <td class="py-4 px-4">
-                            <p class="text-sm font-black uppercase text-white">${athlete.name}</p>
-                            <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">ID: ${athlete.id.substring(0, 8)}</p>
-                        </td>
-                        <td class="py-4 px-4 text-[11px] font-bold text-slate-300 uppercase">${athlete.team || '-'}</td>
-                        <td class="py-4 px-4">
-                            <span class="text-[10px] font-black uppercase text-blue-500 tracking-wider bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                                ${athlete.className || '-'}
-                            </span>
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            <span class="round-badge round-${round}">
-                                ${getRoundLabel(round)}
-                            </span>
-                        </td>
-                        <td class="py-4 px-4 text-center">
-                            <span class="text-[9px] font-black uppercase tracking-widest ${statusColor}">
-                                ${statusLabel}
-                            </span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+        // Kata Shortcut List (WKF Standard Alphabetical)
+        const WKF_KATA_LIST = {
+            "1": "ANAN", "2": "ANAN DAI", "3": "ANANKO", "4": "ANNUN", "5": "AOYAGI",
+            "6": "BASSAI DAI", "7": "BASSAI SHO", "8": "CHATANYARA KUSHANKU", "9": "CHINTO", "10": "CHINTE",
+            "11": "EMPI", "12": "GANKAKU", "13": "GARYU", "14": "GEKISAI DAI ICHI", "15": "GEKISAI DAI NI",
+            "16": "GOJUSHIHO DAI", "17": "GOJUSHIHO SHO", "18": "HAFFA", "19": "HAKKAKU", "20": "HANGETSU",
+            "21": "HEIAN SHODAN", "22": "HEIAN NIDAN", "23": "HEIAN SANDAN", "24": "HEIAN YONDAN", "25": "HEIAN GODAN",
+            "26": "HEIKU", "27": "ISHINE", "28": "ITOSU ROHAI SHODAN", "29": "ITOSU ROHAI NIDAN", "30": "ITOSU ROHAI SANDAN",
+            "31": "JIIN", "32": "JION", "33": "JITTE", "34": "JUROKU", "35": "KANKU DAI",
+            "36": "KANKU SHO", "37": "KANSHU", "38": "KOPPO", "39": "KOSOKUN DAI", "40": "KOSOKUN SHO",
+            "41": "KOSOKUN SHIHO", "42": "KURURUNFA", "43": "KUSHANKU", "44": "MATSUKAZE", "45": "MATSUMURA BASSAI",
+            "46": "MATSUMURA ROHAI", "47": "MEIKYO", "48": "MYOJO", "49": "NAIHANCHI SHODAN", "50": "NAIHANCHI NIDAN",
+            "51": "NAIHANCHI SANDAN", "52": "NIPAIPO", "53": "NISEISHI", "54": "NIJUSHIHO", "55": "PAIKU",
+            "56": "PAPUREN", "57": "PASSAI", "58": "PINAN SHODAN", "59": "PINAN NIDAN", "60": "PINAN SANDAN",
+            "61": "PINAN YONDAN", "62": "PINAN GODAN", "63": "ROHAI", "64": "SAIFA", "65": "SANCHIN",
+            "66": "SANSEIRU", "67": "SEICHIN", "68": "SEIENCHIN", "69": "SEIPAI", "70": "SEISAN",
+            "71": "SEISHAN", "72": "SEIYUNCHIN", "73": "SHIHO KOSOKUN", "74": "SHISOCHIN", "75": "SOCHIN",
+            "76": "SUPARINPEI", "77": "TENSHO", "78": "TOMARI BASSAI", "79": "UNSU", "80": "UNSHU",
+            "81": "WANKAN", "82": "WANSHU"
         };
 
-        const populateClassFilter = () => {
-            const classFilter = document.getElementById('classFilter');
-            const currentValue = classFilter.value;
-
-            // Get unique class names
-            const uniqueClasses = [...new Set(classes.map(c => c.name))].sort();
-
-            classFilter.innerHTML = '<option value="">Semua Kelas</option>' +
-                uniqueClasses.map(className =>
-                    `<option value="${className}" ${currentValue === className ? 'selected' : ''}>${className}</option>`
-                ).join('');
+        window.checkKataShortcut = (input) => {
+            const val = input.value.trim();
+            if (WKF_KATA_LIST[val]) {
+                input.value = WKF_KATA_LIST[val];
+                if (window.markKataChanged) window.markKataChanged(input);
+            }
         };
 
         // --- INTERACTION ---
@@ -682,9 +588,6 @@
             updateView();
         });
 
-        document.getElementById('classFilter').addEventListener('change', () => {
-            updateParticipantList();
-        });
 
         // --- BOOTSTRAP ---
         fetchEventDetails();

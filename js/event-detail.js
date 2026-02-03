@@ -67,14 +67,15 @@ import { renderVerificationData } from './modules/verification-display.js';
 import { renderSchedule } from './modules/schedule-generator.js';
 import { prepareJadwalPrint } from './modules/print/print-jadwal.js';
 import { prepareBracketPrint } from './modules/print/print-bracket.js';
-import { renderPrintingAthleteList, copyToClipboard } from './modules/print-manager.js';
+import { renderWinnerStatusList, copyToClipboard } from './modules/print-manager.js';
 
 // Import Firestore Listeners
 import {
     setupAthletesListener,
     setupClassesListener,
     setupBracketsListener,
-    setupEventListener
+    setupEventListener,
+    setupRewardsListener
 } from './modules/firestore-listeners.js';
 
 // ===================================
@@ -87,6 +88,7 @@ let eventLogo = null;
 let latestAthletes = [];
 let latestClasses = [];
 let latestBrackets = [];
+let latestRewards = {};
 let currentSubTab = 'OPEN'; // For Classes & Brackets
 let currentAthleteSubTab = 'OPEN'; // For Athletes Table
 let currentVerifikasiSubTab = 'PESERTA'; // For Verification Tab
@@ -240,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             latestAthletes = athletes;
             renderAthleteData(athletes, latestClasses, currentAthleteSubTab);
             renderVerificationData(athletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
-            renderPrintingAthleteList(athletes);
+            renderWinnerStatusList(latestClasses, latestBrackets, latestRewards);
         });
 
         setupClassesListener(eventId, (classes) => {
@@ -250,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderClassesData(classes, latestAthletes, latestBrackets, currentSubTab, eventId);
             renderBracketsConfig(classes, latestBrackets);
             renderVerificationData(latestAthletes, classes, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
+            renderWinnerStatusList(classes, latestBrackets, latestRewards);
         });
 
         setupBracketsListener(eventId, (brackets) => {
@@ -257,6 +260,13 @@ document.addEventListener('DOMContentLoaded', () => {
             latestBrackets = brackets;
             renderClassesData(latestClasses, latestAthletes, latestBrackets, currentSubTab, eventId);
             renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
+            renderWinnerStatusList(latestClasses, brackets, latestRewards);
+        });
+
+        setupRewardsListener(eventId, (rewards) => {
+            console.log('🎁 Rewards status updated');
+            latestRewards = rewards;
+            renderWinnerStatusList(latestClasses, latestBrackets, rewards);
         });
 
         console.log('✅ All Firestore listeners setup complete');
@@ -394,10 +404,10 @@ window.handlePrintFestivalBracket = () => {
     prepareBracketPrint(latestAthletes, latestClasses, eventName, eventLogo, bracketsMap);
 };
 
-window.renderPrintingAthleteList = (searchTerm) => renderPrintingAthleteList(latestAthletes, searchTerm);
+window.renderWinnerStatusList = (searchTerm) => renderWinnerStatusList(latestClasses, latestBrackets, latestRewards, searchTerm);
 window.copyToClipboard = copyToClipboard;
-window.filterCopyList = (input) => {
-    renderPrintingAthleteList(latestAthletes, input.value);
+window.filterWinnerStatus = (term) => {
+    renderWinnerStatusList(latestClasses, latestBrackets, latestRewards, term);
 };
 
 // ===================================

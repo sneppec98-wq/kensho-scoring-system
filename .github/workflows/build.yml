@@ -5,8 +5,8 @@ on:
     branches:
       - main
     tags:
-      - 'v*' # Trigger build when pushing a tag like v1.0.0
-  workflow_dispatch: # Allow manual trigger
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   release:
@@ -25,9 +25,9 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build & Publish to GitHub Releases
-        run: npx electron-builder --publish always
+        run: npx electron-builder --win --publish always
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

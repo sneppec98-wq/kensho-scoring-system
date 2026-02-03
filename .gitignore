@@ -10,3 +10,4 @@ obj/
 *.exe
 *.msi
 *.zip
+.firebase/

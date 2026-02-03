@@ -1,0 +1,327 @@
+:root {
+    --primary: #2563eb;
+    /* Biru Profesional */
+    --secondary: #64748b;
+    /* Abu-abu Slate */
+    --bg-light: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --success: #16a34a;
+    --border: #e2e8f0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Remove Background Blobs */
+.background-blobs {
+    display: none;
+}
+
+/* Main Container */
+.main-container {
+    width: 100%;
+    max-width: 850px;
+}
+
+/* Redesigned Invoice Card */
+.invoice-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 3.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Header - Redesigned to Center */
+.invoice-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.invoice-logo {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+}
+
+.logo-text {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.logo-text span {
+    color: var(--primary);
+}
+
+.tagline {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.status-badge {
+    padding: 0.4rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.status-badge.paid {
+    background: #f0fdf4;
+    color: var(--success);
+    border: 1px solid #bbf7d0;
+}
+
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 2rem 0;
+}
+
+/* Details Section */
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+}
+
+.detail-group label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.detail-group h3 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+}
+
+.detail-group p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Table */
+.table-container {
+    margin-bottom: 2.5rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 0.75rem 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+}
+
+td {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+td strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-main);
+}
+
+td p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* Summary */
+.summary-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.75rem;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    width: 250px;
+    font-size: 0.95rem;
+}
+
+.summary-row span:first-child {
+    color: var(--text-muted);
+}
+
+.summary-row.total {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--text-main);
+}
+
+.summary-row.total span:first-child {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.summary-row.total span:last-child {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--text-main);
+}
+
+/* Footer & Buttons */
+.invoice-footer {
+    margin-top: 4rem;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn {
+    padding: 0.6rem 1.25rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+}
+
+.btn.primary {
+    background: var(--text-main);
+    color: #fff;
+    border-color: var(--text-main);
+}
+
+.btn.primary:hover {
+    background: #334155;
+    transform: translateY(-1px);
+}
+
+.btn.secondary {
+    background: #fff;
+    color: var(--text-main);
+}
+
+.btn.secondary:hover {
+    background: #f1f5f9;
+}
+
+/* Print Styles */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 15mm;
+    }
+
+    body {
+        background: #fff;
+        padding: 0;
+        margin: 0;
+    }
+
+    .main-container {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .invoice-card {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        width: 100%;
+    }
+
+    .no-print,
+    .action-buttons,
+    .team-selector-container {
+        display: none !important;
+    }
+
+    /* Ensure Logo size is consistent in print */
+    .invoice-logo {
+        max-width: 450px;
+        margin-bottom: 1.5rem;
+    }
+
+    .logo-text {
+        font-size: 1.8rem;
+    }
+
+    /* Table optimization for print */
+    td,
+    th {
+        padding: 10px 0;
+    }
+
+    .summary-container {
+        page-break-inside: avoid;
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .invoice-card {
+        padding: 1.5rem;
+    }
+
+    .invoice-details {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .summary-row {
+        width: 100%;
+    }
+}

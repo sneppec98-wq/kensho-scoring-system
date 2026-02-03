@@ -22,8 +22,25 @@ export const GOLDEN_PRESETS = {
 };
 
 /**
- * Calculate the next slot ID for a winner
- * @param {string} currentSlotId - Current slot ID (e.g., 'p_n_1', 'qn1', 'sn1')
+ * Get the logical slot ID (e.g., 'fn1', 'qn2') from a complex SVG element ID.
+ * Supports legacy IDs like 'text5989' or 'p_nama_1'.
+ * @param {string} svgId - The ID of the SVG element.
+ * @returns {string|null} - Logical slot ID.
+ */
+export function getLogicalIdFromSVGId(svgId) {
+    if (!svgId) return null;
+    if (svgId === 'text5989') return 'fn1';
+    if (svgId === 'p_nama_1') return 'p_n_1';
+    if (svgId.startsWith('p_n_')) return svgId;
+    if (svgId.match(/^[qs]n\d+$/)) return svgId;
+    if (svgId.startsWith('fn')) return svgId;
+    if (svgId === 'winner_nama') return 'winner_nama';
+    return null;
+}
+
+/**
+ * Get the next slot ID for a winner
+ * @param {string} currentSlotId - Current logical slot ID (e.g., 'p_n_1', 'qn1', 'sn1')
  * @returns {string|null} - Target slot ID or null if final
  */
 export function getNextSlot(currentSlotId) {
@@ -41,6 +58,34 @@ export function getNextSlot(currentSlotId) {
     } else if (currentSlotId.startsWith('fn')) {
         return `winner_nama`;
     }
+    return null;
+}
+
+/**
+ * Get the corresponding team (kontingen) slot ID for a name slot
+ * @param {string} nameSlotId - Name slot ID
+ * @returns {string|null} - Team slot ID
+ */
+export function getTeamSlot(nameSlotId) {
+    if (!nameSlotId) return null;
+
+    let numMatches = nameSlotId.match(/\d+/);
+    let num = numMatches ? parseInt(numMatches[0]) : 0;
+
+    if (nameSlotId.startsWith('p_n_') || nameSlotId === 'p_nama_1') return `p_k_${num || 1}`;
+    if (nameSlotId.startsWith('qn')) return `qk${num}`;
+    if (nameSlotId.startsWith('sn')) return `sk${num}`;
+
+    // Special Exceptions for Final
+    if (nameSlotId === 'text5989' || nameSlotId === 'fn1') return `text5993`;
+    if (nameSlotId === 'fn2') return `fk2`;
+
+    // Champion/Winner Slot
+    if (nameSlotId === 'winner_nama') return `winner_kontingen`;
+
+    // Podium 1
+    if (nameSlotId === 'nama_juara_1') return `kontingen_juara_1`;
+
     return null;
 }
 

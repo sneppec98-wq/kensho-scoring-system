@@ -119,6 +119,22 @@
         </header>
 
         <div class="card-grid-container">
+            <!-- 1. Data Kontingen -->
+            <div onclick="switchTab('tab-kontingen', this)"
+                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
+                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">MONITORING</p>
+                <h3 class="text-xl font-black italic uppercase text-indigo-400">Data Kontingen</h3>
+                <div class="mt-4 flex justify-between items-center">
+                    <span id="labelDataMasuk" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0
+                        Masuk</span>
+                    <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944a11.955 11.955 0 01-8.618 3.04m8.618-3.04V12m0 0l-5.618-4.016m5.618 4.016a11.955 11.955 0 018.618 3.04" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 2. Data Atlet -->
             <div onclick="switchTab('tab-atlet', this)"
                 class="neu-flat p-8 rounded-[2.5rem] card-menu card-active flex-1 cursor-pointer">
                 <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">BASIS DATA</p>
@@ -148,67 +164,72 @@
                 </div>
             </div>
 
+            <!-- 3. Kelas Tanding -->
             <div onclick="switchTab('tab-kelas', this)"
                 class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
                 <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">KATEGORI</p>
-                <h3 class="text-xl font-black italic uppercase">Kelas Tanding</h3>
-                <div class="mt-4 flex justify-between items-center">
+                <h3 class="text-xl font-black italic uppercase text-blue-400">Kelas Tanding</h3>
+                <div class="mt-4 flex justify-between items-center text-blue-400">
                     <span id="countKelas" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0
                         Kelas</span>
-                    <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                 </div>
             </div>
 
+            <!-- 4. Pembayaran -->
+            <div onclick="switchTab('tab-pembayaran', this)"
+                class="neu-flat p-8 rounded-[2.5rem] card-menu cursor-pointer group">
+                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">KEUANGAN & INVOICE</p>
+                <h3 class="text-xl font-black italic uppercase text-blue-400">Pembayaran</h3>
+                <div class="mt-4 flex justify-between items-center text-blue-400">
+                    <span id="labelTotalBiaya" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Rp
+                        0</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 5. Bagan -->
             <div onclick="switchTab('tab-bracket', this)"
                 class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
                 <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">BAGAN LIVE</p>
                 <h3 class="text-xl font-black italic uppercase text-yellow-500">Bagan Pertandingan</h3>
-                <div class="mt-4 flex justify-between items-center">
+                <div class="mt-4 flex justify-between items-center text-yellow-500">
                     <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Peta Turnamen</span>
-                    <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                     </svg>
                 </div>
             </div>
 
+            <!-- 6. Hasil -->
             <div onclick="switchTab('tab-verifikasi', this)"
                 class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
                 <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">HASIL PERTANDINGAN</p>
                 <h3 class="text-xl font-black italic uppercase text-green-500">Verifikasi & Hasil</h3>
-                <div class="mt-4 flex justify-between items-center">
+                <div class="mt-4 flex justify-between items-center text-green-500">
                     <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Print PDF</span>
-                    <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
             </div>
-            <div onclick="switchTab('tab-kontingen', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">MONITORING</p>
-                <h3 class="text-xl font-black italic uppercase text-indigo-400">Data Kontingen</h3>
-                <div class="mt-4 flex justify-between items-center">
-                    <span id="labelDataMasuk" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0
-                        Masuk</span>
-                    <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944a11.955 11.955 0 01-8.618 3.04m8.618-3.04V12m0 0l-5.618-4.016m5.618 4.016a11.955 11.955 0 018.618 3.04" />
-                    </svg>
-                </div>
-            </div>
 
+            <!-- 7. Cetak -->
             <div id="card-cetak" onclick="switchTab('tab-cetak', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
+                class="neu-flat p-8 rounded-[2.5rem] card-menu cursor-pointer">
                 <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">OUTPUT & DOKUMEN</p>
                 <h3 class="text-xl font-black italic uppercase text-emerald-400">Pencetakan</h3>
-                <div class="mt-4 flex justify-between items-center">
-                    <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest text-emerald-400">Salin
-                        Nama</span>
-                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mt-4 flex justify-between items-center text-emerald-400">
+                    <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Salin Nama</span>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
@@ -346,6 +367,16 @@
                             </div>
 
                             <div class="flex items-center gap-4 ml-auto">
+                                <button onclick="resetPrintingData()"
+                                    class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white"
+                                    title="PEMBERSIHAN DATA UJI">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">Reset Data
+                                        Hasil</span>
+                                </button>
                                 <a href="public_portal/index.html" target="_blank"
                                     class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-emerald-400 border-emerald-500/20 hover:bg-emerald-500 hover:text-white">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -656,7 +687,10 @@
                                 <th class="pb-4 pl-6 w-16">No</th>
                                 <th class="pb-4">Nama Kontingen (Daftar)</th>
                                 <th class="pb-4 text-center">Status Data</th>
-                                <th class="pb-4 text-center">Jumlah Atlet</th>
+                                <th class="pb-4 text-center">Open</th>
+                                <th class="pb-4 text-center">Festival</th>
+                                <th class="pb-4 text-center">Beregu</th>
+                                <th class="pb-4 text-center">Total Atlet</th>
                             </tr>
                         </thead>
                         <tbody id="contingentTableBody" class="uppercase font-bold tracking-tight">
@@ -693,6 +727,49 @@
 
                 <div id="verifikasiContent" class="text-slate-300">
                     <p class="text-center opacity-40 py-20 italic">Memuat data...</p>
+                </div>
+            </div>
+
+            <div id="tab-pembayaran" class="tab-content hidden">
+                <div class="neu-flat p-8 rounded-[2.5rem]">
+                    <div class="mb-8 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-2xl font-black italic uppercase text-blue-400">Ringkasan Pembayaran
+                                Kontingen</h3>
+                            <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1">Monitoring administrasi
+                                keuangan per klub</p>
+                        </div>
+                        <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-72">
+                            <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" onkeyup="filterTable(this, 'tablePembayaran')"
+                                placeholder="CARI KONTINGEN..."
+                                class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
+                        </div>
+                    </div>
+
+                    <table class="w-full text-left" id="tablePembayaran">
+                        <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">
+                            <tr>
+                                <th class="pb-4 pl-6">Kontingen</th>
+                                <th class="pb-4 text-center">Open</th>
+                                <th class="pb-4 text-center">Festival</th>
+                                <th class="pb-4 text-center">Beregu</th>
+                                <th class="pb-4 text-right">Total Biaya</th>
+                                <th class="pb-4 text-center">Invoice</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentTableBody" class="uppercase font-bold tracking-tight">
+                            <tr>
+                                <td colspan="6"
+                                    class="p-20 text-center opacity-30 italic font-black uppercase tracking-widest text-xs">
+                                    Memproses data keuangan...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1466,40 +1543,44 @@
     </div>
 
     <!-- Modal: Premium Action Confirmation (Replaces native confirm/prompt) -->
-    <div id="modal-confirm" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/95 hidden">
-        <div
-            class="neu-flat w-full max-w-md p-10 rounded-[3rem] relative mx-4 border border-white/10 overflow-hidden group">
-            <div
-                class="absolute -right-20 -top-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/15 transition-all">
+    <div id="modal-confirm"
+        class="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="neu-flat w-full max-w-md p-10 rounded-[3.5rem] relative mx-4 border border-white/10 overflow-hidden group shadow-2xl scale-95 opacity-0 transition-all duration-300"
+            id="modal-confirm-content">
+            <div class="absolute -right-20 -top-20 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/15 transition-all"
+                id="confirm-bg-gradient">
             </div>
 
             <header class="mb-8 text-center relative z-10">
                 <div id="confirm-icon-container"
-                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20">
-                    <svg id="confirm-icon-danger" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    class="w-20 h-20 rounded-[2rem] neu-inset flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20 shadow-lg transition-transform duration-500 group-hover:rotate-12">
+                    <svg id="confirm-icon-danger" class="w-10 h-10" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
-                    <svg id="confirm-icon-info" class="w-8 h-8 hidden" fill="none" stroke="currentColor"
+                    <svg id="confirm-icon-info" class="w-10 h-10 hidden" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <h2 id="confirm-title" class="text-2xl font-black italic uppercase italic text-white leading-tight">
-                    Konfirmasi Tindakan</h2>
-                <p id="confirm-message" class="text-xs font-bold opacity-50 mt-4 leading-relaxed text-slate-300">Apakah
+                <h2 id="confirm-title"
+                    class="text-3xl font-black italic uppercase text-white leading-tight tracking-tight">
+                    Konfirmasi</h2>
+                <p id="confirm-message"
+                    class="text-[11px] font-bold opacity-60 mt-4 leading-relaxed text-slate-300 px-4">Apakah
                     Anda yakin ingin melanjutkan tindakan ini?</p>
             </header>
 
-            <div id="confirm-prompt-container" class="mb-8 hidden relative z-10">
+            <div id="confirm-prompt-container" class="mb-8 hidden relative z-10 px-2">
                 <label id="confirm-prompt-label"
-                    class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-red-500">Ketik
+                    class="text-[9px] font-black uppercase opacity-40 ml-4 mb-3 block tracking-widest text-red-500">Ketik
                     konfirmasi di bawah</label>
                 <div class="relative">
                     <input type="text" id="confirm-input"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-black uppercase tracking-widest text-white border border-white/5 focus:border-red-500/50 transition-all"
-                        placeholder="...">
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-5 rounded-2xl outline-none text-sm font-black uppercase tracking-[0.2em] text-white border border-white/5 focus:border-red-500/50 transition-all placeholder-slate-700"
+                        placeholder="KETIK DI SINI...">
                 </div>
             </div>
 

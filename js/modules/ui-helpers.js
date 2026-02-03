@@ -23,9 +23,36 @@ export const sleep = (ms = 0) => new Promise(resolve => setTimeout(resolve, ms))
 export const toggleModal = (modalId, show) => {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-    modal.classList.toggle('hidden', !show);
-    modal.classList.toggle('flex', show);
-    document.body.classList.toggle('overflow-hidden', show);
+
+    const content = modal.querySelector('.neu-flat');
+
+    if (show) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
+
+        // Trigger animation after a small delay for the browser to register display: flex
+        setTimeout(() => {
+            modal.style.opacity = '1';
+            if (content) {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }
+        }, 10);
+    } else {
+        modal.style.opacity = '0';
+        if (content) {
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+        }
+
+        // Wait for animation to finish before hiding
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }, 300);
+    }
 };
 
 export const filterTable = (input, tableId) => {
@@ -52,7 +79,7 @@ export const switchTab = (tabId, element) => {
  * Returns a Promise that resolves to true (confirmed) or false (cancelled)
  */
 export const customConfirm = ({
-    title = "Konfirmasi Tindakan",
+    title = "Konfirmasi",
     message = "Apakah Anda yakin ingin melanjutkan?",
     confirmText = "Ya, Lanjutkan",
     cancelText = "Batal",
@@ -72,6 +99,7 @@ export const customConfirm = ({
         const iconDanger = document.getElementById('confirm-icon-danger');
         const iconInfo = document.getElementById('confirm-icon-info');
         const iconContainer = document.getElementById('confirm-icon-container');
+        const bgGradient = document.getElementById('confirm-bg-gradient');
 
         if (!modal) {
             console.warn("Modal confirm not found, falling back to native confirm");
@@ -93,15 +121,19 @@ export const customConfirm = ({
 
         // Setup Type Styling
         if (type === 'danger') {
-            confirmBtn.className = "flex-1 py-4 rounded-2xl bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(220,38,38,0.3)] hover:scale-[1.02] transition-all";
-            iconContainer.className = "w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20";
+            confirmBtn.className = "flex-1 py-4 rounded-2xl bg-gradient-to-br from-red-600 to-orange-600 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(220,38,38,0.3)] hover:brightness-110 active:scale-95 transition-all";
+            iconContainer.className = "w-20 h-20 rounded-[2rem] neu-inset flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20 shadow-lg transition-transform duration-500 group-hover:rotate-12";
+            if (bgGradient) bgGradient.className = "absolute -right-20 -top-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/15 transition-all";
             iconDanger.classList.remove('hidden');
             iconInfo.classList.add('hidden');
+            if (promptLabel) promptLabel.className = "text-[9px] font-black uppercase opacity-40 ml-4 mb-3 block tracking-widest text-red-500";
         } else {
-            confirmBtn.className = "flex-1 py-4 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(59,130,246,0.3)] hover:scale-[1.02] transition-all";
-            iconContainer.className = "w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-blue-500 mx-auto mb-6 border border-blue-500/20";
+            confirmBtn.className = "flex-1 py-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(59,130,246,0.3)] hover:brightness-110 active:scale-95 transition-all";
+            iconContainer.className = "w-20 h-20 rounded-[2rem] neu-inset flex items-center justify-center text-blue-500 mx-auto mb-6 border border-blue-500/20 shadow-lg transition-transform duration-500 group-hover:rotate-12";
+            if (bgGradient) bgGradient.className = "absolute -right-20 -top-20 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/15 transition-all";
             iconDanger.classList.add('hidden');
             iconInfo.classList.remove('hidden');
+            if (promptLabel) promptLabel.className = "text-[9px] font-black uppercase opacity-40 ml-4 mb-3 block tracking-widest text-blue-500";
         }
 
         // Setup Prompt
@@ -159,7 +191,7 @@ export const customConfirm = ({
         window.addEventListener('keydown', onKeyDown);
 
         if (promptWord) {
-            setTimeout(() => promptInput.focus(), 100);
+            setTimeout(() => promptInput.focus(), 300);
         }
     });
 };
@@ -175,8 +207,5 @@ export const customAlert = (message, title = "Informasi", type = "info") => {
         cancelText: "",
         type,
         promptWord: null
-    }).then(() => {
-        // Hide cancel button for alerts if we wanted to be strict, 
-        // but customConfirm already handles basic hiding if we update the CSS/Style.
     });
 };

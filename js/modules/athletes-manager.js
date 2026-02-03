@@ -165,6 +165,29 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
 
     actualTeams.forEach((name, idx) => {
         const matchedAthletes = athletes.filter(a => (a.team || "").trim().toUpperCase() === name);
+
+        // Per-contingent breakdown
+        let teamOpen = 0;
+        let teamFest = 0;
+        let teamTeam = 0;
+
+        matchedAthletes.forEach(a => {
+            const classInfo = latestClasses.find(c =>
+                (c.code && a.classCode && c.code.toString().trim().toUpperCase() === a.classCode.toString().trim().toUpperCase()) ||
+                (c.name && a.className && c.name.toString().trim().toUpperCase() === a.className.toString().trim().toUpperCase())
+            );
+            if (!classInfo) {
+                teamOpen++;
+                return;
+            }
+            if (classInfo.type === 'BEREGU') {
+                teamTeam++;
+            } else {
+                const isF = (classInfo.code || "").toString().toUpperCase().startsWith('F');
+                if (isF) teamFest++; else teamOpen++;
+            }
+        });
+
         submittedCount++;
 
         html += `
@@ -180,6 +203,9 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
                         <span class="px-4 py-1.5 rounded-full text-[10px] font-black bg-green-500/20 text-green-400 border border-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.1)]">AKTIF ✅</span>
                     </div>
                 </td>
+                <td class="p-4 text-center font-bold text-blue-400">${teamOpen}</td>
+                <td class="p-4 text-center font-bold text-purple-400">${teamFest}</td>
+                <td class="p-4 text-center font-bold text-orange-400">${teamTeam}</td>
                 <td class="p-4 text-center">
                     <div class="flex items-center justify-center space-x-3">
                         <span class="text-blue-400 font-black text-2xl italic tracking-tighter">
@@ -199,7 +225,7 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
     });
 
     if (actualTeams.length === 0) {
-        html = `<tr><td colspan="4" class="p-20 text-center opacity-30 italic font-black uppercase tracking-widest text-xs">Belum ada data kontingen yang terdeteksi</td></tr>`;
+        html = `<tr><td colspan="7" class="p-20 text-center opacity-30 italic font-black uppercase tracking-widest text-xs">Belum ada data kontingen yang terdeteksi</td></tr>`;
     }
 
     tbody.innerHTML = html;
@@ -255,6 +281,76 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
 
     // Auto-update Contingent Datalist
     updateContingentDatalist(athletes);
+    // Auto-update Payment Tracking
+    renderPaymentTracking(athletes, latestClasses);
+};
+
+export const renderPaymentTracking = (athletes, latestClasses = []) => {
+    const tbody = document.getElementById('paymentTableBody');
+    if (!tbody) return;
+
+    const actualTeams = [...new Set(athletes.map(a => (a.team || "").trim().toUpperCase()))]
+        .filter(t => t !== "")
+        .sort((a, b) => a.localeCompare(b));
+
+    const prices = { fest: 250000, open: 250000, beregu: 300000, kontingen: 100000, cashback: 25000 };
+    let globalTotal = 0;
+    let html = '';
+
+    actualTeams.forEach((name, idx) => {
+        const teamAthletes = athletes.filter(a => (a.team || "").trim().toUpperCase() === name);
+
+        let fest = 0, open = 0, beregu = 0;
+        teamAthletes.forEach(a => {
+            const clsCode = (a.classCode || "").toString().toUpperCase();
+            const classInfo = latestClasses.find(c =>
+                (c.code && c.code.toString().toUpperCase() === clsCode) ||
+                (c.id && c.id.toUpperCase() === clsCode)
+            );
+
+            if (classInfo) {
+                if (classInfo.type === 'BEREGU') beregu++;
+                else if (clsCode.startsWith('F')) fest++;
+                else open++;
+            } else {
+                // Fallback string matching
+                const clsName = (a.className || "").toUpperCase();
+                if (clsName.includes("BEREGU")) beregu++;
+                else if (clsCode.startsWith("F") || clsName.includes("FESTIVAL")) fest++;
+                else open++;
+            }
+        });
+
+        const totalEntries = fest + open + beregu;
+        const subTotal = (fest * prices.fest) + (open * prices.open) + (beregu * prices.beregu) + prices.kontingen;
+        const cashback = totalEntries * prices.cashback;
+        const finalAmount = subTotal - cashback;
+        globalTotal += finalAmount;
+
+        html += `
+            <tr class="row-hover border-b border-white/5 bg-white/5">
+                <td class="p-4 font-black italic text-slate-200 uppercase">${name}</td>
+                <td class="p-4 text-center text-blue-400 font-bold">${open}</td>
+                <td class="p-4 text-center text-purple-400 font-bold">${fest}</td>
+                <td class="p-4 text-center text-orange-400 font-bold">${beregu}</td>
+                <td class="p-4 text-right font-black text-slate-100">Rp ${finalAmount.toLocaleString('id-ID')}</td>
+                <td class="p-4 text-center">
+                    <a href="https://kensho-invoice.web.app?team=${encodeURIComponent(name)}" target="_blank"
+                        class="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all text-[10px] font-black uppercase">
+                        INVOICE
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+
+    if (actualTeams.length === 0) {
+        html = `<tr><td colspan="6" class="p-20 text-center opacity-30 italic font-black uppercase tracking-widest text-xs">Belum ada data pendaftaran</td></tr>`;
+    }
+
+    tbody.innerHTML = html;
+    const labelTotal = document.getElementById('labelTotalBiaya');
+    if (labelTotal) labelTotal.innerText = `Rp ${globalTotal.toLocaleString('id-ID')}`;
 };
 
 const updateContingentDatalist = (athletes) => {

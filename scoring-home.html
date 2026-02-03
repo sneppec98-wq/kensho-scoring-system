@@ -483,7 +483,7 @@
             <a href="dashboard.html">
                 <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform mb-3">
             </a>
-            <div class="badge-version">v2.6.4</div>
+            <div class="badge-version">v3.0.1</div>
         </div>
         <nav class="flex-1 flex flex-col items-center space-y-6">
             <a href="dashboard.html" data-tooltip="Dashboard Hub" class="side-btn">
@@ -577,238 +577,278 @@
             </div>
         </header>
 
-        <!-- MAIN SCROLLABLE AREA -->
-        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <!-- TAB CONTENT: OVERVIEW -->
-            <div id="content-overview" class="tab-content transition-all duration-500">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
-                    <!-- Tatami Card 1 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 1</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
-                        </div>
-                        <div class="h-24 flex items-center justify-center opacity-10">
-                            <p class="text-[9px] font-black uppercase tracking-[0.4em] italic text-center">Menunggu
-                                Match
-                            </p>
-                        </div>
-                        <button onclick="openConsoleSelector(1)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 2 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 2</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">
-                                    ISTIRAHAT
-                                </p>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                        </div>
-                        <div class="h-24 flex items-center justify-center opacity-10">
-                            <p class="text-[9px] font-black uppercase tracking-[0.4em] italic">Menunggu Match</p>
-                        </div>
-                        <button onclick="openConsoleSelector(2)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 3 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 3</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
-                        </div>
+        <!-- ROLE SELECTION (Appears after event selection) -->
+        <div id="roleSelectorSection" class="mb-8 hidden stagger-card">
+            <div class="flex flex-col items-center justify-center p-8 neu-flat rounded-[2.5rem] border border-white/5">
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mb-6">Pilih Peran Petugas</p>
+                <div class="flex gap-6">
+                    <button onclick="setGlobalRole('admin_rekap')" id="roleRekapBtn"
+                        class="px-10 py-5 rounded-2xl border-2 border-white/5 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all flex flex-col items-center gap-3 group">
                         <div
-                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(3)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 4 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 4</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-500 text-2xl group-hover:scale-110 transition-transform">
+                            📝
                         </div>
+                        <span
+                            class="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-purple-400">Admin
+                            Rekap</span>
+                    </button>
+                    <button onclick="setGlobalRole('scoring_juri')" id="roleScoringBtn"
+                        class="px-10 py-5 rounded-2xl border-2 border-white/5 hover:border-red-500/50 hover:bg-red-500/10 transition-all flex flex-col items-center gap-3 group">
                         <div
-                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(4)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 5 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 5</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center text-red-500 text-2xl group-hover:scale-110 transition-transform">
+                            🎯
                         </div>
-                        <div
-                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(5)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 6 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 6</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
-                        </div>
-                        <div
-                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(6)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 7 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 7</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
-                        </div>
-                        <div
-                            class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(7)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 8 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 8</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
-                        </div>
-                        <div
-                            class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(8)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 9 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 9</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div>
-                            <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
-                        </div>
-                        <div
-                            class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(9)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
-                            Konsol</button>
-                    </div>
-
-                    <!-- Tatami Card 10 -->
-                    <div
-                        class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 10</h3>
-                                <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE</p>
-                            </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
-                        </div>
-                        <div
-                            class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
-                            Siap</div>
-                        <button onclick="openConsoleSelector(10)"
-                            class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
-                            Konsol</button>
-                    </div>
+                        <span
+                            class="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-red-400">Scoring
+                            Juri</span>
+                    </button>
                 </div>
             </div>
-
-            <!-- TAB CONTENT: LOGS -->
-            <div id="content-logs" class="tab-content hidden transition-all duration-500">
-                <section class="bg-[#2b2d31] p-6 rounded-lg border border-white/5">
-                    <header class="mb-6">
-                        <h3 class="text-lg font-bold text-white">Log Pertandingan Global</h3>
-                        <p class="text-xs text-slate-400">Status real-time dari seluruh Tatami aktif</p>
-                    </header>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left" id="logTable">
-                            <thead>
-                                <tr
-                                    class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 border-b border-slate-200">
-                                    <th class="pb-6 pl-6">ID</th>
-                                    <th class="pb-6">Tatami</th>
-                                    <th class="pb-6">Kategori</th>
-                                    <th class="pb-6">AKA (Merah)</th>
-                                    <th class="pb-6">AO (Biru)</th>
-                                    <th class="pb-6">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logTableBody" class="text-[11px] font-bold uppercase tracking-widest">
-                                <!-- Rows will be generated via JS for simulation -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- PAGINATION CONTROLS -->
-                    <footer class="mt-10 flex justify-between items-center border-t border-white/5 pt-8">
-                        <p class="text-[10px] font-black uppercase opacity-30 tracking-widest">Menampilkan <span
-                                id="logRange">1 - 15</span> dari <span id="logTotal">30</span> Data</p>
-                        <div class="flex space-x-3">
-                            <button onclick="prevPage()" id="btnPrev"
-                                class="px-6 py-3 rounded-xl neu-button text-slate-500 text-[9px] font-black uppercase tracking-widest transition-all">Sebelumnya</button>
-                            <div class="flex items-center px-4 space-x-2 text-[10px] font-black opacity-40 italic">
-                                Halaman <span id="currentPageNum" class="text-red-400 opacity-100">1</span>
-                            </div>
-                            <button onclick="nextPage()" id="btnNext"
-                                class="px-6 py-3 rounded-xl neu-button text-slate-500 text-[9px] font-black uppercase tracking-widest transition-all">Selanjutnya</button>
-                        </div>
-                    </footer>
-                </section>
-            </div>
         </div>
+
+        <!-- TATAMI GRID SECTION (Hidden until role is picked) -->
+        <div id="tatamiSection" class="hidden">
+            <!-- MAIN SCROLLABLE AREA -->
+            <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <!-- TAB CONTENT: OVERVIEW -->
+                <div id="content-overview" class="tab-content transition-all duration-500">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
+                        <!-- Tatami Card 1 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 1</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div class="h-24 flex items-center justify-center opacity-10">
+                                <p class="text-[9px] font-black uppercase tracking-[0.4em] italic text-center">Menunggu
+                                    Match
+                                </p>
+                            </div>
+                            <button onclick="openConsoleSelector(1)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 2 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 2</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">
+                                        ISTIRAHAT
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                            </div>
+                            <div class="h-24 flex items-center justify-center opacity-10">
+                                <p class="text-[9px] font-black uppercase tracking-[0.4em] italic">Menunggu Match</p>
+                            </div>
+                            <button onclick="openConsoleSelector(2)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] hover:text-white transition-all">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 3 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 3</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(3)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 4 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 4</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(4)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 5 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 5</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(5)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 6 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 6</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(6)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 7 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 7</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(7)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 8 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 8</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(8)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 9 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 9</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div>
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 italic text-[9px] font-black uppercase tracking-widest text-center">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(9)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em] transition-all">Buka
+                                Konsol</button>
+                        </div>
+
+                        <!-- Tatami Card 10 -->
+                        <div
+                            class="neu-flat p-8 rounded-[2.5rem] border border-white/5 relative group transition-all hover:scale-[1.02]">
+                            <div class="flex justify-between items-start mb-8">
+                                <div>
+                                    <h3 class="text-3xl font-black italic uppercase tracking-tighter">Tatami 10</h3>
+                                    <p class="text-[8px] font-black text-yellow-500 uppercase tracking-widest mt-1">IDLE
+                                    </p>
+                                </div><span class="w-2 h-2 rounded-full bg-yellow-500 opacity-30"></span>
+                            </div>
+                            <div
+                                class="h-24 flex items-center justify-center opacity-10 text-[9px] font-black uppercase tracking-widest">
+                                Siap</div>
+                            <button onclick="openConsoleSelector(10)"
+                                class="block w-full py-4 rounded-2xl neu-button text-slate-500 text-[9px] font-black uppercase text-center tracking-[0.3em]">Buka
+                                Konsol</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB CONTENT: LOGS -->
+                <div id="content-logs" class="tab-content hidden transition-all duration-500">
+                    <section class="bg-[#2b2d31] p-6 rounded-lg border border-white/5">
+                        <header class="mb-6">
+                            <h3 class="text-lg font-bold text-white">Log Pertandingan Global</h3>
+                            <p class="text-xs text-slate-400">Status real-time dari seluruh Tatami aktif</p>
+                        </header>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left" id="logTable">
+                                <thead>
+                                    <tr
+                                        class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 border-b border-slate-200">
+                                        <th class="pb-6 pl-6">ID</th>
+                                        <th class="pb-6">Tatami</th>
+                                        <th class="pb-6">Kategori</th>
+                                        <th class="pb-6">AKA (Merah)</th>
+                                        <th class="pb-6">AO (Biru)</th>
+                                        <th class="pb-6">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logTableBody" class="text-[11px] font-bold uppercase tracking-widest">
+                                    <!-- Rows will be generated via JS for simulation -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- PAGINATION CONTROLS -->
+                        <footer class="mt-10 flex justify-between items-center border-t border-white/5 pt-8">
+                            <p class="text-[10px] font-black uppercase opacity-30 tracking-widest">Menampilkan <span
+                                    id="logRange">1 - 15</span> dari <span id="logTotal">30</span> Data</p>
+                            <div class="flex space-x-3">
+                                <button onclick="prevPage()" id="btnPrev"
+                                    class="px-6 py-3 rounded-xl neu-button text-slate-500 text-[9px] font-black uppercase tracking-widest transition-all">Sebelumnya</button>
+                                <div class="flex items-center px-4 space-x-2 text-[10px] font-black opacity-40 italic">
+                                    Halaman <span id="currentPageNum" class="text-red-400 opacity-100">1</span>
+                                </div>
+                                <button onclick="nextPage()" id="btnNext"
+                                    class="px-6 py-3 rounded-xl neu-button text-slate-500 text-[9px] font-black uppercase tracking-widest transition-all">Selanjutnya</button>
+                            </div>
+                        </footer>
+                    </section>
+                </div>
+            </div>
     </main>
 
     <!-- UI: Modal Pengaturan Profil -->
@@ -998,7 +1038,7 @@
         import { rtdb, auth, db } from './js/firebase-init.js';
         import { handleLogout } from './js/auth-helpers.js';
         import { onAuthStateChanged, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { ref, onValue, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { ref, onValue, set, push, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { collection, query, where, onSnapshot, getDocs, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { logActivity } from './js/activity-logger.js';
         import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
@@ -1088,60 +1128,128 @@
             });
         };
 
+        window.globalRole = null;
+
+        window.setGlobalRole = (role) => {
+            window.globalRole = role;
+
+            // UI Updates for buttons
+            const rekapBtn = document.getElementById('roleRekapBtn');
+            const scoringBtn = document.getElementById('roleScoringBtn');
+
+            if (role === 'admin_rekap') {
+                rekapBtn.classList.replace('border-white/5', 'border-purple-500');
+                rekapBtn.classList.add('bg-purple-500/10');
+                scoringBtn.classList.replace('border-red-500', 'border-white/5');
+                scoringBtn.classList.remove('bg-red-500/10');
+            } else {
+                scoringBtn.classList.replace('border-white/5', 'border-red-500');
+                scoringBtn.classList.add('bg-red-500/10');
+                rekapBtn.classList.replace('border-purple-500', 'border-white/5');
+                rekapBtn.classList.remove('bg-purple-500/10');
+            }
+
+            // Tampilkan tatami grid (selalu aktif setelah event dipilih)
+            document.getElementById('tatamiSection').classList.remove('hidden');
+            renderTatamiGrid(window.selectedEventId);
+        };
+
         window.handleEventChange = (val) => {
             window.selectedEventId = val;
             const newUrl = new URL(window.location.href);
             newUrl.searchParams.set('id', val);
             window.history.replaceState({}, '', newUrl);
-            renderTatamiGrid(val);
+
+            if (val) {
+                document.getElementById('roleSelectorSection').classList.remove('hidden');
+                document.getElementById('tatamiSection').classList.add('hidden');
+                window.globalRole = null;
+                // Reset role buttons
+                document.getElementById('roleRekapBtn').className = "px-10 py-5 rounded-2xl border-2 border-white/5 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all flex flex-col items-center gap-3 group";
+                document.getElementById('roleScoringBtn').className = "px-10 py-5 rounded-2xl border-2 border-white/5 hover:border-red-500/50 hover:bg-red-500/10 transition-all flex flex-col items-center gap-3 group";
+            } else {
+                document.getElementById('roleSelectorSection').classList.add('hidden');
+                document.getElementById('tatamiSection').classList.add('hidden');
+            }
         };
 
         // --- CONSOLE SELECTOR LOGIC ---
         window.openConsoleSelector = async function (tatamiId) {
             if (!window.selectedEventId) {
                 const warningEl = document.getElementById('premiumWarning');
-                warningEl.classList.remove('hidden');
-                const selector = document.getElementById('eventSelector');
-                if (selector) {
-                    selector.classList.add('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
-                    selector.focus();
-                }
-                setTimeout(() => {
-                    warningEl.classList.add('opacity-0');
+                if (warningEl) {
+                    warningEl.classList.remove('hidden');
+                    const selector = document.getElementById('eventSelector');
+                    if (selector) {
+                        selector.classList.add('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
+                        selector.focus();
+                    }
                     setTimeout(() => {
-                        warningEl.classList.add('hidden');
-                        warningEl.classList.remove('opacity-0');
-                        if (selector) selector.classList.remove('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
-                    }, 500);
-                }, 4000);
+                        warningEl.classList.add('opacity-0');
+                        setTimeout(() => {
+                            warningEl.classList.add('hidden');
+                            warningEl.classList.remove('opacity-0');
+                            if (selector) selector.classList.remove('border-red-500', 'ring-4', 'ring-red-500/30', 'warning-glow');
+                        }, 500);
+                    }, 4000);
+                }
                 return;
             }
 
             window.selectedTatamiId = tatamiId;
 
-            // STEP 1: Show mode selection prompt FIRST
-            const scoringMode = await showModeSelectionPrompt(tatamiId);
-            if (!scoringMode) return; // User cancelled
+            // Jika peran belum dipilih secara global, tampilkan prompt pilihan peran
+            if (!window.globalRole) {
+                const role = await window.showRoleSelectionPrompt(tatamiId);
+                if (!role) return;
+                window.globalRole = role;
+            }
 
-            // STEP 2a: If BLANK mode → go directly to blank scoring
-            if (scoringMode === 'blank') {
-                const mode = 'kata_score'; // Default mode
-                window.location.href = `scoring.html?tatami=${tatamiId}&mode=${mode}&id=${window.selectedEventId}&loadMode=blank`;
+            if (window.globalRole === 'admin_rekap') {
+                window.location.href = `admin-rekap.html?tatami=${tatamiId}&id=${window.selectedEventId}`;
                 return;
             }
 
-            // STEP 2b: If AUTO mode → show class list
-            document.getElementById('selectedTatamiLabel').innerText = tatamiId;
-            const modal = document.getElementById('consoleSelectorModal');
-            const container = document.getElementById('classListContainer');
+            // SMART REDIRECT FOR SCORING
+            if (window.globalRole === 'scoring_juri') {
+                console.log(`[Smart Redirect] Checking presence for Tatami ${tatamiId}...`);
+                try {
+                    const presenceRef = ref(rtdb, `presence/${window.selectedEventId}/${tatamiId}/admin`);
+                    const snap = await get(presenceRef);
 
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('modal-show'), 50);
+                    if (snap.exists() && snap.val() === true) {
+                        // Admin Rekap Detected -> AUTO MODE
+                        console.log(`[Smart Redirect] Admin Rekap detected! Redirecting to AUTO mode...`);
+                        window.location.href = `scoring.html?tatami=${tatamiId}&id=${window.selectedEventId}&loadMode=auto`;
+                    } else {
+                        // No Admin Rekap -> BLANK MODE
+                        console.log(`[Smart Redirect] No Admin Rekap detected. Redirecting to BLANK mode...`);
+                        // Use default mode (kata_score) for blank
+                        window.location.href = `scoring.html?tatami=${tatamiId}&id=${window.selectedEventId}&mode=kata_score&loadMode=blank`;
+                    }
+                } catch (err) {
+                    console.error("[Smart Redirect] Error checking presence:", err);
+                    // Fallback to manual selection if error
+                    document.getElementById('selectedTatamiLabel').innerText = tatamiId;
+                    const modal = document.getElementById('consoleSelectorModal');
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        setTimeout(() => modal.classList.add('modal-show'), 50);
+                        loadClassList(tatamiId);
+                    }
+                }
+                return;
+            }
+        };
+
+        // Helper to load class list for manual selection
+        const loadClassList = async (tatamiId) => {
+            const container = document.getElementById('classListContainer');
+            if (!container) return;
 
             container.innerHTML = `<div class="py-20 text-center animate-pulse opacity-30 italic font-black uppercase tracking-[0.3em]">Memuat Jadwal Tatami...</div>`;
 
             try {
-                // 1. Fetch available brackets for this event
                 const readyBrackets = new Set();
                 const bracketSnap = await getDocs(collection(db, `events/${window.selectedEventId}/brackets`));
                 bracketSnap.forEach(doc => readyBrackets.add(doc.id));
@@ -1157,17 +1265,13 @@
                 scheduleData.forEach(block => {
                     if (block.arena == tatamiId) {
                         (block.classes || []).forEach(cls => {
-                            classes.push({
-                                ...cls,
-                                time: block.time,
-                                type: block.type
-                            });
+                            classes.push({ ...cls, time: block.time, type: block.type });
                         });
                     }
                 });
 
                 if (classes.length === 0) {
-                    container.innerHTML = `<div class="py-20 text-center opacity-30 italic font-black uppercase tracking-[0.3em]">Tidak ada kelas dijadwalkan di Tatami ini</div>`;
+                    container.innerHTML = `<div class="py-20 text-center opacity-30 italic font-black uppercase tracking-[0.3em]">Tidak ada kelas dijadwalkan</div>`;
                     return;
                 }
 
@@ -1175,13 +1279,7 @@
                     const className = cls.category || cls.name || 'Unknown';
                     const categoryUpper = className.toUpperCase();
                     const isBracketReady = readyBrackets.has(className);
-
-                    // Auto-mode detection
-                    let mode = 'kumite';
-                    if (categoryUpper.includes('KATA')) {
-                        // Default to kata_score, but could be kata_flag if needed
-                        mode = 'kata_score';
-                    }
+                    let mode = categoryUpper.includes('KATA') ? 'kata_score' : 'kumite';
 
                     const badgeHtml = isBracketReady
                         ? `<span class="px-3 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5">
@@ -1224,26 +1322,28 @@
                         </div>
                     `;
                 }).join('');
-
             } catch (err) {
                 console.error("Error fetching class list:", err);
                 container.innerHTML = `<div class="py-10 text-center text-red-500 uppercase text-[10px] font-black">Error: ${err.message}</div>`;
             }
-        }
+        };
 
         window.closeConsoleSelector = function () {
             const modal = document.getElementById('consoleSelectorModal');
-            modal.classList.remove('modal-show');
-            setTimeout(() => modal.classList.add('hidden'), 400);
-        }
+            if (modal) {
+                modal.classList.remove('modal-show');
+                setTimeout(() => modal.classList.add('hidden'), 400);
+            }
+        };
 
         window.selectClass = function (mode, category) {
             const encodedCategory = encodeURIComponent(category);
             const url = `scoring.html?tatami=${window.selectedTatamiId}&mode=${mode}&id=${window.selectedEventId}&class=${encodedCategory}&loadMode=auto`;
             window.location.href = url;
-        }
+        };
 
         window.showModeSelectionPrompt = async function (tatamiId) {
+            // Keeping for backwards compatibility or edge cases
             return new Promise((resolve) => {
                 const overlay = document.createElement('div');
                 overlay.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center';
@@ -1253,25 +1353,19 @@
                             <h3 class="text-2xl font-black italic uppercase tracking-tight mb-2">Pilih Mode Scoring</h3>
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">TATAMI ${tatamiId}</p>
                         </div>
-                        
                         <div class="space-y-4 mb-8">
                             <button onclick="resolveMode('auto')" class="w-full p-6 rounded-2xl bg-blue-500/10 border-2 border-blue-500/30 hover:border-blue-500 hover:bg-blue-500/20 transition-all group">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white text-2xl">
-                                        📋
-                                    </div>
+                                    <div class="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center text-white text-2xl">📋</div>
                                     <div class="text-left flex-1">
                                         <h4 class="text-sm font-black uppercase text-blue-400 mb-1">Sistem Otomatis</h4>
                                         <p class="text-[10px] font-bold text-slate-400">Tampilkan daftar kelas dengan data peserta</p>
                                     </div>
                                 </div>
                             </button>
-                            
                             <button onclick="resolveMode('blank')" class="w-full p-6 rounded-2xl bg-yellow-500/10 border-2 border-yellow-500/30 hover:border-yellow-500 hover:bg-yellow-500/20 transition-all group">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-yellow-500 flex items-center justify-center text-white text-2xl">
-                                        ✏️
-                                    </div>
+                                    <div class="w-12 h-12 rounded-xl bg-yellow-500 flex items-center justify-center text-white text-2xl">✏️</div>
                                     <div class="text-left flex-1">
                                         <h4 class="text-sm font-black uppercase text-yellow-400 mb-1">Scoring Polosan</h4>
                                         <p class="text-[10px] font-bold text-slate-400">Langsung buka konsol tanpa data peserta</p>
@@ -1279,22 +1373,64 @@
                                 </div>
                             </button>
                         </div>
-                        
                         <button onclick="resolveMode(null)" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all">
                             Batal
                         </button>
                     </div>
                 `;
-
                 document.body.appendChild(overlay);
-
                 window.resolveMode = (mode) => {
                     document.body.removeChild(overlay);
                     delete window.resolveMode;
                     resolve(mode);
                 };
             });
-        }
+        };
+
+        window.showRoleSelectionPrompt = async function (tatamiId) {
+            // Kept for redundancy, though unified UI is preferred
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center';
+                overlay.innerHTML = `
+                    <div class="neu-flat p-10 rounded-3xl max-w-md border border-white/10 animate-scale-in">
+                        <div class="text-center mb-8">
+                            <h3 class="text-2xl font-black italic uppercase tracking-tight mb-2">Pilih Peran Petugas</h3>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">TATAMI ${tatamiId}</p>
+                        </div>
+                        <div class="space-y-4 mb-8">
+                            <button onclick="resolveRole('admin_rekap')" class="w-full p-6 rounded-2xl bg-purple-500/10 border-2 border-purple-500/30 hover:border-purple-500 hover:bg-purple-500/20 transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center text-white text-2xl">📝</div>
+                                    <div class="text-left flex-1">
+                                        <h4 class="text-sm font-black uppercase text-purple-400 mb-1">Admin Rekap</h4>
+                                        <p class="text-[10px] font-bold text-slate-400">Atur antrean dan pemenang</p>
+                                    </div>
+                                </div>
+                            </button>
+                            <button onclick="resolveRole('scoring_juri')" class="w-full p-6 rounded-2xl bg-red-500/10 border-2 border-red-500/30 hover:border-red-500 hover:bg-red-500/20 transition-all group">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl bg-red-500 flex items-center justify-center text-white text-2xl">🎯</div>
+                                    <div class="text-left flex-1">
+                                        <h4 class="text-sm font-black uppercase text-red-400 mb-1">Scoring Juri</h4>
+                                        <p class="text-[10px] font-bold text-slate-400">Input nilai dan kontrol timer</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        <button onclick="resolveRole(null)" class="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all">
+                            Batal
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+                window.resolveRole = (role) => {
+                    document.body.removeChild(overlay);
+                    delete window.resolveRole;
+                    resolve(role);
+                };
+            });
+        };
 
         // --- UI & AUTH HANDLERS ---
         window.switchTab = (tab) => {
@@ -1445,6 +1581,11 @@
 
         // --- INITIALIZATION ---
         loadActiveEvents();
+        if (window.selectedEventId) {
+            document.getElementById('roleSelectorSection').classList.remove('hidden');
+            // Tetap sembunyikan tatamiSection sampai peran dipilih
+            document.getElementById('tatamiSection').classList.add('hidden');
+        }
         renderTatamiGrid(window.selectedEventId);
 
         if ('serviceWorker' in navigator) {

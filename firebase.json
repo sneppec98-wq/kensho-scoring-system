@@ -42,6 +42,15 @@
                 "**/.*",
                 "**/node_modules/**"
             ]
+        },
+        {
+            "target": "kensho-invoice",
+            "public": "kensho-pembayaran",
+            "ignore": [
+                "firebase.json",
+                "**/.*",
+                "**/node_modules/**"
+            ]
         }
     ]
 }

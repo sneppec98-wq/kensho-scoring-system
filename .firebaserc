@@ -13,8 +13,12 @@
         ],
         "kensho-peserta": [
           "kensho-peserta"
+        ],
+        "kensho-invoice": [
+          "kensho-invoice"
         ]
       }
     }
-  }
+  },
+  "etags": {}
 }

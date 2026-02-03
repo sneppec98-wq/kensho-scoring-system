@@ -95,14 +95,126 @@ export const renderSchedule = (classes, athletes, containerId = 'scheduleContent
             // Flatten 2D array [Day[Arena]] into 1D array for Firestore compatibility
             const flattenedSchedule = currentSchedule.flat();
 
+            // Save schedule metadata
             await setDoc(doc(db, `events/${eventId}/metadata`, 'schedule'), {
                 schedule: flattenedSchedule,
                 config: { days, arenas },
                 updatedAt: new Date().toISOString()
             });
-            alert("Jadwal berhasil disimpan ke database!");
+
+            console.log(`[Schedule] ✅ Schedule metadata saved`);
+
+            // 🆕 CREATE/UPDATE TATAMI DOCUMENTS WITH SCHEDULED CLASSES
+            console.log(`[Schedule] Creating/Updating ${arenas} tatami documents with scheduled classes...`);
+
+            const tatamiUpdatePromises = [];
+
+            for (let i = 1; i <= arenas; i++) {
+                const tatamiRef = doc(db, `events/${eventId}/tatamis`, i.toString());
+
+                // Get all classes assigned to this tatami across all days
+                // After manual edits, arena property will reflect the final tatami assignment
+                const classesInThisTatami = flattenedSchedule
+                    .filter(bucket => parseInt(bucket.arena) === i)
+                    .flatMap(bucket => bucket.classes || []);
+
+                // Calculate totals
+                const totalAthletes = classesInThisTatami.reduce(
+                    (sum, cls) => sum + (cls.rawCount || cls.athleteCount || 0), 0
+                );
+
+                const totalClasses = classesInThisTatami.length;
+
+                // Prepare scheduledClasses array with detailed info
+                const scheduledClasses = classesInThisTatami.map((cls, idx) => ({
+                    classCode: cls.code || '',
+                    className: cls.name || '',
+                    athleteCount: cls.athleteCount || 0,
+                    rawCount: cls.rawCount || cls.athleteCount || 0,
+                    ageCategory: cls.ageCategory || '',
+                    type: cls.type || '',
+                    isTeamCategory: cls.isTeamCategory || false,
+                    order: idx + 1,
+                    day: cls.day || 1
+                }));
+
+                // Calculate estimated times (basic estimation: 10 min per athlete)
+                let currentTime = 9 * 60; // Start at 9:00 AM in minutes
+                scheduledClasses.forEach(cls => {
+                    const estimatedDuration = Math.max(30, cls.rawCount * 10); // Min 30 min, 10 min per athlete
+                    const startHour = Math.floor(currentTime / 60);
+                    const startMin = currentTime % 60;
+                    currentTime += estimatedDuration;
+                    const endHour = Math.floor(currentTime / 60);
+                    const endMin = currentTime % 60;
+
+                    cls.estimatedTime = `${String(startHour).padStart(2, '0')}:${String(startMin).padStart(2, '0')}-${String(endHour).padStart(2, '0')}:${String(endMin).padStart(2, '0')}`;
+                    cls.estimatedDuration = estimatedDuration;
+                });
+
+                // Check if tatami document exists
+                const tatamiSnap = await getDoc(tatamiRef);
+                const existingData = tatamiSnap.exists() ? tatamiSnap.data() : {};
+
+                // Create/Update tatami document
+                const tatamiData = {
+                    tatamiId: i.toString(),
+                    tatamiName: `Tatami ${i}`,
+                    status: existingData.status || 'ready',
+
+                    // 🆕 SCHEDULED CLASSES (Final schedule after manual edits)
+                    scheduledClasses: scheduledClasses,
+
+                    // Summary stats
+                    totalClasses: totalClasses,
+                    totalAthletes: totalAthletes,
+
+                    // Current match (preserve if exists, otherwise null)
+                    currentMatch: existingData.currentMatch || null,
+
+                    // Timestamps
+                    createdAt: existingData.createdAt || new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    lastScheduleUpdate: new Date().toISOString()
+                };
+
+                console.log(`[Schedule] 📋 Tatami ${i}: ${totalClasses} kelas, ${totalAthletes} peserta`);
+                console.log(`[Schedule] 🔍 Tatami ${i} data:`, JSON.stringify(tatamiData, null, 2));
+
+                // Add promise with individual error handling
+                const tatamiPromise = setDoc(tatamiRef, tatamiData)
+                    .then(() => {
+                        console.log(`[Schedule] ✅ Tatami ${i} saved successfully to Firestore`);
+                    })
+                    .catch((error) => {
+                        console.error(`[Schedule] ❌ Failed to save Tatami ${i}:`, error);
+                        console.error(`[Schedule] ❌ Error code: ${error.code}`);
+                        console.error(`[Schedule] ❌ Error message: ${error.message}`);
+                        throw error; // Re-throw to be caught by outer try-catch
+                    });
+
+                tatamiUpdatePromises.push(tatamiPromise);
+            }
+
+            // Wait for all tatami updates
+            console.log(`[Schedule] ⏳ Waiting for ${tatamiUpdatePromises.length} tatami updates...`);
+            await Promise.all(tatamiUpdatePromises);
+            console.log(`[Schedule] 🏟️ All ${arenas} tatami documents updated successfully!`);
+
+            // Success message
+            const totalClassesAll = flattenedSchedule.reduce((sum, b) => sum + (b.classes?.length || 0), 0);
+            const totalAthletesAll = flattenedSchedule.reduce((sum, b) => sum + (b.load || 0), 0);
+
+            alert(`Jadwal berhasil disimpan!
+            
+✅ Schedule metadata saved
+🏟️ ${arenas} tatami documents updated
+📋 Total ${totalClassesAll} kelas
+👥 Total ${totalAthletesAll} peserta`);
+
         } catch (err) {
-            console.error(err);
+            console.error('[Schedule] Error saving:', err);
+            console.error('[Schedule] Error stack:', err.stack);
             alert("Gagal menyimpan ke database: " + err.message);
         } finally {
             btn.disabled = false;

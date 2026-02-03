@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kensho Scoring - Invoice</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="invoice-card">
+            <!-- Header Section (Centered Like Portal) -->
+            <div class="invoice-header">
+                <img src="jember.png" alt="Logo" class="invoice-logo">
+                <h1 class="logo-text">KEJURKAB FORKI <span>JEMBER</span></h1>
+                <p class="tagline">GOR SMP 7 Jember | 07 - 08 Februari 2026</p>
+            </div>
+
+            <!-- Team Selector (No-Print) -->
+            <div class="team-selector-container no-print"
+                style="margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <label
+                    style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted);">Pilih
+                    Kontingen</label>
+                <select id="select-team"
+                    style="padding: 12px; border-radius: 10px; border: 2px solid var(--border); width: 320px; font-weight: 600; cursor: pointer; background: white; font-family: 'Outfit', sans-serif;">
+                    <option value="">-- Memuat Daftar Kontingen... --</option>
+                </select>
+            </div>
+
+            <!-- Details Section -->
+            <div class="invoice-details">
+                <div class="detail-group">
+                    <label>Tagihan Untuk:</label>
+                    <h3 id="bill-to">OFFICIAL KONTINGEN [NAMA KONTINGEN]</h3>
+                    <p>ID: #KS-2024-001</p>
+                    <p>Kepada: Tim Official</p>
+                </div>
+                <div class="detail-group text-right">
+                    <label>Nomor Invoice:</label>
+                    <h3 id="invoice-number">#INV-882910</h3>
+                    <p>Tanggal: 03 Februari 2026</p>
+                    <p>Metode: Transfer / Tunai</p>
+                </div>
+            </div>
+
+            <!-- Items Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Jenis Pendaftaran</th>
+                            <th class="text-center">Peserta</th>
+                            <th class="text-right">Nominal</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Perorangan Festival</strong>
+                                <p>Kategori Tanding / Kata Festival</p>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-right">Rp 250.000</td>
+                            <td class="text-right">Rp 250.000</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Perorangan Open</strong>
+                                <p>Kategori Prestasi (Open)</p>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-right">Rp 250.000</td>
+                            <td class="text-right">Rp 250.000</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Beregu Open</strong>
+                                <p>Kategori Kata Beregu / Team Open</p>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-right">Rp 300.000</td>
+                            <td class="text-right">Rp 300.000</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Kontingen</strong>
+                                <p>Biaya Administrasi Kontingen</p>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-right">Rp 100.000</td>
+                            <td class="text-right">Rp 100.000</td>
+                        </tr>
+                        <!-- Space Row -->
+                        <tr class="spacer-row" style="height: 20px; border: none;">
+                            <td colspan="4" style="border: none;"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>CashBack</strong>
+                                <p>Potongan biaya pendaftaran per atlet</p>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-right">- Rp 25.000</td>
+                            <td class="text-right">- Rp 25.000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="summary-container">
+                <div class="summary-row total">
+                    <span>Total Keseluruhan</span>
+                    <span id="grand-total">Rp 875.000</span>
+                </div>
+            </div>
+
+            <!-- Footer Message -->
+            <div class="invoice-footer">
+                <div class="notes">
+                    <p><strong>Catatan:</strong></p>
+                    <p>Terima kasih atas kerja sama Anda.</p>
+                </div>
+                <div class="action-buttons no-print">
+                    <button id="btn-print" class="btn primary">Cetak Invoice</button>
+                    <button id="btn-download" class="btn secondary">Simpan PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>

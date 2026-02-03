@@ -4,7 +4,8 @@
  */
 
 import { db } from './firebase-init.js';
-import { doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getTeamSlot } from './bracket-utils.js';
 
 const DB_NAME = 'KenshoScoringDB';
 const DB_VERSION = 1;
@@ -152,24 +153,39 @@ class SyncEngine {
     async pushToCloud(data) {
         console.log(`[SyncEngine] Pushing data for ${data.category} to Cloud...`);
         try {
-            const { eventId, category, winner, nextSlot } = data;
+            const { eventId, category, winner, nextSlot, matchId, aka, ao } = data;
 
             if (!eventId || !category) {
                 console.error('[SyncEngine] Missing eventId or category in data:', data);
                 return false;
             }
 
-            // 1. Save Match Record
+            // 1. Save Match Record (General Log)
             const timestamp = Date.now();
-            const matchRef = doc(db, `events/${eventId}/match_results`, `${category}_${timestamp}`);
-            await setDoc(matchRef, {
+            const resultRef = doc(db, `events/${eventId}/match_results`, `${category}_${timestamp}`);
+            await setDoc(resultRef, {
                 ...data,
                 serverSync: true,
                 syncedAt: new Date().toISOString()
             });
-            console.log(`[SyncEngine] Match result saved: ${category}_${timestamp}`);
+            console.log(`[SyncEngine] Match result saved to global log: ${category}_${timestamp}`);
 
-            // 2. Auto-Progression (Update Bracket)
+            // 2. 🆕 Update Specific Match Document (for Admin Rekap sync)
+            if (matchId) {
+                const specificMatchRef = doc(db, `events/${eventId}/brackets/${category}/matches`, matchId);
+                await updateDoc(specificMatchRef, {
+                    status: 'completed',
+                    winnerSide: winner.side,
+                    winnerName: winner.name,
+                    akaScore: aka?.score || 0,
+                    aoScore: ao?.score || 0,
+                    completedAt: serverTimestamp(),
+                    lastUpdated: serverTimestamp()
+                });
+                console.log(`[SyncEngine] Specific match ${matchId} updated to COMPLETED`);
+            }
+
+            // 3. Auto-Progression (Update Bracket Tree)
             if (nextSlot) {
                 const bracketRef = doc(db, `events/${eventId}/brackets`, category);
                 const bracketSnap = await getDoc(bracketRef);
@@ -178,10 +194,15 @@ class SyncEngine {
                     const bracketSnapData = bracketSnap.data();
                     const updatedSvgData = { ...(bracketSnapData.data || {}) };
 
+                    // 🆕 Propagate both Name AND Team (Kontingen)
+                    const teamSlot = getTeamSlot(nextSlot);
+
                     if (nextSlot === 'winner_nama') {
                         updatedSvgData['winner_nama'] = winner.name;
+                        updatedSvgData['winner_kontingen'] = winner.team;
                     } else {
                         updatedSvgData[nextSlot] = winner.name;
+                        if (teamSlot) updatedSvgData[teamSlot] = winner.team;
                     }
 
                     await updateDoc(bracketRef, {
@@ -189,7 +210,7 @@ class SyncEngine {
                         lastModified: new Date().toISOString(),
                         updatedAt: new Date().toISOString()
                     });
-                    console.log(`[SyncEngine] Auto-progressed ${winner.name} to slot ${nextSlot} in ${category}`);
+                    console.log(`[SyncEngine] Auto-progressed ${winner.name} [${winner.team}] to slot ${nextSlot} in ${category}`);
                 } else {
                     console.warn(`[SyncEngine] Bracket document not found for category: ${category}`);
                 }

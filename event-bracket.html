@@ -1261,8 +1261,18 @@
                 return [`sn${x}`, `sk${x}`, `snk${x}`, `ss${x}`, `ssp${x}`];
             }
             // F Round
-            if (slotId === 'fn1') return [`text5989`, `text5993`, `text5997`, `fs1`, `text5985`];
-            if (slotId === 'fn2') return [`fn2`, `fk2`, `fnk2`, `fs2`, `fsp2`];
+            if (slotId === 'fn1' || slotId === 'text5989') {
+                return [`text5989`, `text5993`, `text5997`, `fs1`, `text5985`];
+            }
+            if (slotId.startsWith('fn')) {
+                const x = slotId.replace('fn', '');
+                return [`fn${x}`, `fk${x}`, `fnk${x}`, `fs${x}`, `fsp${x}`];
+            }
+
+            // Juara 1 (Final Result)
+            if (slotId === 'winner_nama') {
+                return [`winner_nama`, `winner_kontingen`, `nama_juara_1`, `kontingen_juara_1`];
+            }
 
             return [];
         }
@@ -1321,48 +1331,97 @@
         function setupSVGInteractivity() {
             if (!svgDoc) return;
 
-            svgDoc.querySelectorAll('text').forEach(textEl => {
-                const id = textEl.id;
-                if (id && (id.includes('Nama') || id.includes('W_Nama'))) {
-                    textEl.style.cursor = 'pointer';
-                    textEl.addEventListener('click', () => handleWinnerClick(id));
+            // List of all logical slots to bind
+            const logicalPrefixes = ['p_n_', 'qn', 'sn', 'fn'];
+            const maxCounts = { 'p_n_': 16, 'qn': 8, 'sn': 4, 'fn': 2 };
 
-                    textEl.addEventListener('mouseenter', () => {
-                        if (textEl.textContent.trim() !== "-") textEl.style.filter = 'brightness(1.5)';
-                    });
-                    textEl.addEventListener('mouseleave', () => {
-                        textEl.style.filter = 'none';
-                    });
+            logicalPrefixes.forEach(prefix => {
+                for (let i = 1; i <= maxCounts[prefix]; i++) {
+                    const logicalId = (prefix === 'p_n_' && i === 1) ? 'p_nama_1' : `${prefix}${i}`;
+                    const components = getComponentsForSlot(logicalId);
+                    const nameId = components[0];
+
+                    if (nameId) {
+                        const textEl = svgDoc.getElementById(nameId);
+                        if (textEl) {
+                            textEl.style.cursor = 'pointer';
+                            textEl.addEventListener('click', () => handleWinnerClick(logicalId));
+
+                            textEl.addEventListener('mouseenter', () => {
+                                const content = textEl.textContent.trim();
+                                if (content !== "" && content !== "-") {
+                                    textEl.style.filter = 'brightness(1.5)';
+                                    textEl.style.transition = 'all 0.2s ease';
+                                }
+                            });
+                            textEl.addEventListener('mouseleave', () => {
+                                textEl.style.filter = 'none';
+                            });
+                        }
+                    }
                 }
             });
+
+            // Special case for the idiosyncratic Finalist 1 ID
+            const finalist1 = svgDoc.getElementById('text5989');
+            if (finalist1) {
+                finalist1.style.cursor = 'pointer';
+                finalist1.addEventListener('click', () => handleWinnerClick('text5989'));
+            }
         }
 
         function handleWinnerClick(id) {
-            const el = document.getElementById(id);
+            // Normalize ID
+            const logicalId = getLogicalIdFromSVGId(id);
+            if (!logicalId) return;
+
+            const components = getComponentsForSlot(logicalId);
+            const nameId = components[0];
+            const teamId = components[1];
+
+            const el = svgDoc ? svgDoc.getElementById(nameId) : document.getElementById(nameId);
             if (!el) return;
             const name = el.textContent.trim();
             if (name === "" || name === "-") return;
 
-            let targetId = "";
-            let numMatches = id.match(/\d+/);
-            let num = numMatches ? parseInt(numMatches[0]) : 0;
-
-            if (id.startsWith('qn')) {
-                targetId = `sn${Math.ceil(num / 2)}`;
-            } else if (id.startsWith('sn')) {
-                targetId = `fn${Math.ceil(num / 2)}`;
-            } else if (id.startsWith('fn')) {
-                targetId = `winner_nama`;
+            // Find current Team name
+            let teamName = "-";
+            if (teamId) {
+                const teamEl = svgDoc ? svgDoc.getElementById(teamId) : document.getElementById(teamId);
+                if (teamEl) teamName = teamEl.textContent.trim();
             }
 
+            const targetId = getNextSlot(logicalId);
             if (targetId) {
-                const targetEl = document.getElementById(targetId);
-                if (targetEl) {
+                const targetComponents = getComponentsForSlot(targetId);
+
+                // Propagate to all relevant target name slots (could be multiple e.g. winner + podium)
+                targetComponents.forEach((comp, index) => {
+                    const targetEl = svgDoc ? svgDoc.getElementById(comp) : document.getElementById(comp);
+                    if (!targetEl) return;
+
                     const tspan = targetEl.querySelector('tspan') || targetEl;
-                    tspan.textContent = name;
-                    targetEl.setAttribute('fill', '#f87171');
+
+                    // index 0 and 2 are usually names, 1 and 3 are kontingen in winner_nama mapping
+                    if (targetId === 'winner_nama') {
+                        if (index === 0 || index === 2) {
+                            tspan.textContent = name;
+                            targetEl.setAttribute('fill', '#f87171');
+                        } else if (index === 1 || index === 3) {
+                            tspan.textContent = teamName;
+                            targetEl.setAttribute('fill', '#f87171');
+                        }
+                    } else {
+                        // Standard round progression
+                        if (index === 0) {
+                            tspan.textContent = name;
+                            targetEl.setAttribute('fill', '#f87171');
+                        } else if (index === 1) {
+                            tspan.textContent = teamName;
+                        }
+                    }
                     targetEl.style.opacity = "1";
-                }
+                });
             }
         }
 
@@ -1835,18 +1894,23 @@
                 if (saved && svgDoc) {
                     console.log(`📥 Restoring ${Object.keys(saved).length} SVG elements from cloud:`);
                     Object.entries(saved).forEach(([id, text]) => {
-                        const el = svgDoc.getElementById(id);
+                        // Support both Logical and SVG IDs in storage
+                        const logicalId = getLogicalIdFromSVGId(id) || id;
+                        const components = getComponentsForSlot(logicalId);
+                        const targetId = (components && components.length > 0) ? components[0] : id;
+
+                        const el = svgDoc.getElementById(targetId);
                         if (el) {
                             const tspan = el.querySelector('tspan') || el;
                             tspan.textContent = text;
                             el.style.opacity = "1";
-                            console.log(`  📝 #${id} ← "${text}"`);
+                            console.log(`  📝 #${targetId} (via ${id}) ← "${text}"`);
                             // Highlight winners
-                            if (!id.startsWith('p_') && !id.startsWith('qn') && !id.startsWith('Nama_') && !id.startsWith('Kelas_') && !id.startsWith('tanggal') && !id.startsWith('durasi') && !id.startsWith('tatami') && !id.startsWith('pool')) {
+                            if (!targetId.startsWith('p_') && !targetId.startsWith('qn') && !targetId.startsWith('Nama_') && !targetId.startsWith('Kelas_') && !targetId.startsWith('tanggal') && !targetId.startsWith('durasi') && !targetId.startsWith('tatami') && !targetId.startsWith('pool')) {
                                 el.setAttribute('fill', '#f87171');
                             }
                         } else {
-                            console.warn(`  ⚠️ Element #${id} not found in SVG`);
+                            console.warn(`  ⚠️ Element #${targetId} (from ${id}) not found in SVG`);
                         }
                     });
                     console.log(`✅ Restored ${Object.keys(saved).length} SVG text elements`);

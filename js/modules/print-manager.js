@@ -1,4 +1,6 @@
-import { customAlert } from './ui-helpers.js';
+import { customAlert, customConfirm, showProgress, hideProgress, updateProgress } from './ui-helpers.js';
+import { db } from '../firebase-init.js';
+import { collection, getDocs, deleteDoc, doc, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 export const renderWinnerStatusList = (classes, brackets, rewardStatus, searchTerm = "") => {
     const container = document.getElementById('printing-athlete-list');
@@ -181,4 +183,63 @@ export const copyToClipboard = (text, element) => {
         console.error('Gagal menyalin:', err);
         customAlert("Gagal menyalin teks ke clipboard.", "Error", "danger");
     });
+};
+
+export const resetPrintingData = async (eventId) => {
+    const isConfirmed = await customConfirm(
+        "Hapus Seluruh Data Hasil?",
+        "Tindakan ini akan menghapus semua log pengambilan medali/piagam DAN hasil juara di bagan. Data atlet dan kelas tetap aman.",
+        "danger",
+        "HAPUS"
+    );
+
+    if (!isConfirmed) return;
+
+    showProgress("MEMBERSIHKAN DATA", "MENGHAPUS LOG REWARDS...", 0);
+
+    try {
+        // 1. Reset Rewards (Log Penyerahan)
+        const rewardsSnap = await getDocs(collection(db, `events/${eventId}/rewards`));
+        const totalRewards = rewardsSnap.size;
+
+        if (totalRewards > 0) {
+            let count = 0;
+            const batch = writeBatch(db);
+            rewardsSnap.docs.forEach(d => {
+                batch.delete(d.ref);
+                count++;
+                updateProgress(Math.round((count / totalRewards) * 50), `MENGHAPUS REWARDS: ${count}/${totalRewards}`);
+            });
+            await batch.commit();
+        }
+
+        updateProgress(50, "MEMBERSIHKAN HASIL BAGAN...");
+
+        // 2. Reset Brackets (Hasil Juara)
+        const bracketsSnap = await getDocs(collection(db, `events/${eventId}/brackets`));
+        const totalBrackets = bracketsSnap.size;
+
+        if (totalBrackets > 0) {
+            let count = 0;
+            const batch = writeBatch(db);
+            bracketsSnap.docs.forEach(d => {
+                // Remove results fields but keep the bracket structure/participants
+                batch.update(d.ref, {
+                    data: {},
+                    festivalResults: {},
+                    updatedAt: new Date().toISOString()
+                });
+                count++;
+                updateProgress(50 + Math.round((count / totalBrackets) * 50), `RESET BAGAN: ${count}/${totalBrackets}`);
+            });
+            await batch.commit();
+        }
+
+        hideProgress();
+        customAlert("Seluruh data hasil pertandingan dan log pencetakan telah dibersihkan!", "Reset Berhasil", "success");
+    } catch (err) {
+        console.error("Reset Printing Data Error:", err);
+        hideProgress();
+        customAlert("Gagal mereset data: " + err.message, "Error", "danger");
+    }
 };

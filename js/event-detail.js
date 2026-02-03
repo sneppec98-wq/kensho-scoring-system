@@ -67,7 +67,7 @@ import { renderVerificationData } from './modules/verification-display.js';
 import { renderSchedule } from './modules/schedule-generator.js';
 import { prepareJadwalPrint } from './modules/print/print-jadwal.js';
 import { prepareBracketPrint } from './modules/print/print-bracket.js';
-import { renderWinnerStatusList, copyToClipboard } from './modules/print-manager.js';
+import { renderWinnerStatusList, copyToClipboard, resetPrintingData } from './modules/print-manager.js';
 
 // Import Firestore Listeners
 import {
@@ -115,6 +115,7 @@ function switchSubTab(tab) {
     });
 }
 window.switchSubTab = switchSubTab;
+window.resetPrintingData = () => resetPrintingData(eventId);
 
 // ===================================
 // Event ID & Route Protection

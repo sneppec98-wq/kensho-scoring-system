@@ -23,6 +23,16 @@ const db = getFirestore(app);
 const rtdb = getDatabase(app);
 const analytics = getAnalytics(app);
 
+// Enable Firestore Offline Persistence
+import { enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+enableIndexedDbPersistence(db).catch((err) => {
+  if (err.code == 'failed-precondition') {
+    console.warn("[FIRESTORE] Persistence failed: Multiple tabs open");
+  } else if (err.code == 'unimplemented') {
+    console.warn("[FIRESTORE] Persistence failed: Browser not supported");
+  }
+});
+
 console.log("[FIREBASE] Initialized Project:", firebaseConfig.projectId);
 
 // Set Auth Persistence to SESSION (Auto-logout on close)

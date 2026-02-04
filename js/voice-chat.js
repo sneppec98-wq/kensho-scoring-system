@@ -1,5 +1,5 @@
-import { db } from './firebase-init.js';
-import { collection, doc, setDoc, onSnapshot, deleteDoc, addDoc, query, where, serverTimestamp, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { rtdb } from './firebase-init.js';
+import { ref, set, push, onValue, onChildAdded, onChildRemoved, remove, onDisconnect, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 let localStream = null;
 let peerConnections = {};
@@ -18,13 +18,15 @@ const servers = {
     iceCandidatePoolSize: 10,
 };
 
-export async function initVoiceLounge() {
+export function initVoiceLounge() {
     // Listener for lounge users to update UI
-    onSnapshot(collection(db, "voice_lounge_users"), (snapshot) => {
+    const usersRef = ref(rtdb, 'voice_lounge/users');
+    onValue(usersRef, (snapshot) => {
         const listContainer = document.getElementById('voice-users-list');
         if (!listContainer) return;
 
-        if (snapshot.empty) {
+        const data = snapshot.val();
+        if (!data) {
             listContainer.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
                     <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
@@ -33,23 +35,23 @@ export async function initVoiceLounge() {
         }
 
         listContainer.innerHTML = '';
-        snapshot.forEach((doc) => {
-            const data = doc.data();
+        Object.keys(data).forEach((uid) => {
+            const user = data[uid];
             const userDiv = document.createElement('div');
-            userDiv.className = `voice-user ${data.isSpeaking ? 'speaking' : ''} mb-2`;
+            userDiv.className = `voice-user ${user.isSpeaking ? 'speaking' : ''} mb-2`;
             userDiv.innerHTML = `
                 <div class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-[10px] font-black text-red-400">
-                    ${data.name.charAt(0).toUpperCase()}
+                    ${user.name.charAt(0).toUpperCase()}
                 </div>
                 <div class="flex-1">
-                    <p class="text-[10px] font-black uppercase tracking-wider">${data.name}</p>
-                    <p class="text-[8px] font-bold opacity-30 uppercase">${data.role || 'Panitia'}</p>
+                    <p class="text-[10px] font-black uppercase tracking-wider">${user.name}</p>
+                    <p class="text-[8px] font-bold opacity-30 uppercase">${user.role || 'Panitia'}</p>
                 </div>
-                ${data.isMuted ? `
+                ${user.isMuted ? `
                 <svg class="w-4 h-4 text-red-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" />
                 </svg>` : `
-                <div class="w-2 h-2 rounded-full bg-green-500 ${data.isSpeaking ? 'pulse-mic' : 'opacity-30'} transition-all duration-300"></div>
+                <div class="w-2 h-2 rounded-full bg-green-500 ${user.isSpeaking ? 'pulse-mic' : 'opacity-30'} transition-all duration-300"></div>
                 `}
             `;
             listContainer.appendChild(userDiv);
@@ -68,26 +70,38 @@ export async function joinVoice(user) {
         throw new Error("Izin mikrofon ditolak atau tidak ditemukan");
     }
 
-    // Register user in lounge
-    await setDoc(doc(db, "voice_lounge_users", user.uid), {
+    // Register user in lounge via RTDB
+    const userRef = ref(rtdb, `voice_lounge/users/${user.uid}`);
+    await set(userRef, {
         name: user.displayName || user.email.split('@')[0],
         email: user.email,
-        role: "Panitia", // Fixed for now, can be dynamic
+        role: "Panitia",
         isMuted: false,
         isSpeaking: false,
         joinedAt: serverTimestamp()
     });
 
+    // Auto-cleanup on disconnect
+    onDisconnect(userRef).remove();
+    // Also cleanup calls/signals from me
+    onDisconnect(ref(rtdb, `voice_lounge/calls/${user.uid}`)).remove();
+    onDisconnect(ref(rtdb, `voice_lounge/signals/${user.uid}`)).remove();
+
     // Handle incoming calls (Signaling)
     setupSignaling();
 
     // Call existing users
-    const usersSnap = await getDocs(collection(db, "voice_lounge_users"));
-    usersSnap.forEach(async (uDoc) => {
-        if (uDoc.id !== user.uid) {
-            await createCall(uDoc.id);
+    const usersRef = ref(rtdb, 'voice_lounge/users');
+    onValue(usersRef, (snapshot) => {
+        const users = snapshot.val();
+        if (users) {
+            Object.keys(users).forEach(remoteUid => {
+                if (remoteUid !== user.uid && !peerConnections[remoteUid]) {
+                    createCall(remoteUid);
+                }
+            });
         }
-    });
+    }, { onlyOnce: true });
 
     return true;
 }
@@ -112,41 +126,39 @@ function setupSpeakingDetection() {
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
         const average = sum / bufferLength;
-        const isSpeaking = average > 20; // Threshold
+        const isSpeaking = average > 20;
 
+        // Optimized: Throttle and only update if changed
         if (isSpeaking !== wasSpeaking && Date.now() - lastUpdate > 1000) {
             wasSpeaking = isSpeaking;
             lastUpdate = Date.now();
-            await updateDoc(doc(db, "voice_lounge_users", currentUser.uid), { isSpeaking: isSpeaking });
+            update(ref(rtdb, `voice_lounge/users/${currentUser.uid}`), { isSpeaking: isSpeaking });
         }
     }, 200);
 }
 
 async function setupSignaling() {
-    // Listen for offers addressed to me
-    onSnapshot(query(collection(db, "voice_calls"), where("to", "==", currentUser.uid)), async (snapshot) => {
-        snapshot.docChanges().forEach(async (change) => {
-            if (change.type === 'added') {
-                const data = change.doc.data();
-                if (data.type === 'offer') {
-                    await handleOffer(data, change.doc.id);
-                } else if (data.type === 'answer') {
-                    const pc = peerConnections[data.from];
-                    if (pc) await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
-                }
-            }
-        });
+    // Listen for calls to me
+    const myCallsRef = ref(rtdb, `voice_lounge/calls_to/${currentUser.uid}`);
+    onChildAdded(myCallsRef, async (snapshot) => {
+        const data = snapshot.val();
+        if (data.type === 'offer') {
+            await handleOffer(data, snapshot.key);
+        } else if (data.type === 'answer') {
+            const pc = peerConnections[data.from];
+            if (pc) await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
+        }
+        // Cleanup call after handled
+        remove(snapshot.ref);
     });
 
-    // Listen for ICE candidates
-    onSnapshot(query(collection(db, "voice_signals"), where("to", "==", currentUser.uid)), (snapshot) => {
-        snapshot.docChanges().forEach(async (change) => {
-            if (change.type === 'added') {
-                const data = change.doc.data();
-                const pc = peerConnections[data.from];
-                if (pc) await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-            }
-        });
+    // Listen for ICE candidates to me
+    const mySignalsRef = ref(rtdb, `voice_lounge/signals_to/${currentUser.uid}`);
+    onChildAdded(mySignalsRef, async (snapshot) => {
+        const data = snapshot.val();
+        const pc = peerConnections[data.from];
+        if (pc) await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        remove(snapshot.ref);
     });
 }
 
@@ -158,10 +170,9 @@ async function handleOffer(data, callId) {
 
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            addDoc(collection(db, "voice_signals"), {
+            push(ref(rtdb, `voice_lounge/signals_to/${data.from}`), {
                 type: 'candidate',
                 from: currentUser.uid,
-                to: data.from,
                 candidate: event.candidate.toJSON()
             });
         }
@@ -177,10 +188,9 @@ async function handleOffer(data, callId) {
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
 
-    await addDoc(collection(db, "voice_calls"), {
+    push(ref(rtdb, `voice_lounge/calls_to/${data.from}`), {
         type: 'answer',
         from: currentUser.uid,
-        to: data.from,
         sdp: answer.sdp,
         timestamp: serverTimestamp()
     });
@@ -194,10 +204,9 @@ async function createCall(remoteUserId) {
 
     pc.onicecandidate = (event) => {
         if (event.candidate) {
-            addDoc(collection(db, "voice_signals"), {
+            push(ref(rtdb, `voice_lounge/signals_to/${remoteUserId}`), {
                 type: 'candidate',
                 from: currentUser.uid,
-                to: remoteUserId,
                 candidate: event.candidate.toJSON()
             });
         }
@@ -212,16 +221,14 @@ async function createCall(remoteUserId) {
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
 
-    await addDoc(collection(db, "voice_calls"), {
+    push(ref(rtdb, `voice_lounge/calls_to/${remoteUserId}`), {
         type: 'offer',
         from: currentUser.uid,
-        to: remoteUserId,
         sdp: offer.sdp,
         timestamp: serverTimestamp()
     });
 }
 
-// Basic cleanup on leave
 export async function leaveVoice() {
     if (speakingInterval) clearInterval(speakingInterval);
     if (audioContext) audioContext.close();
@@ -230,13 +237,10 @@ export async function leaveVoice() {
     }
 
     if (currentUser) {
-        await deleteDoc(doc(db, "voice_lounge_users", currentUser.uid));
-        // Cleanup my signals/calls
-        const q1 = query(collection(db, "voice_calls"), where("from", "==", currentUser.uid));
-        const q2 = query(collection(db, "voice_signals"), where("from", "==", currentUser.uid));
-        const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
-        snap1.forEach(d => deleteDoc(d.ref));
-        snap2.forEach(d => deleteDoc(d.ref));
+        await remove(ref(rtdb, `voice_lounge/users/${currentUser.uid}`));
+        // Cleanup signals/calls
+        await remove(ref(rtdb, `voice_lounge/calls_to/${currentUser.uid}`));
+        await remove(ref(rtdb, `voice_lounge/signals_to/${currentUser.uid}`));
     }
 
     Object.values(peerConnections).forEach(pc => pc.close());
@@ -249,9 +253,8 @@ export function toggleMicMute() {
     if (!localStream) return false;
     isMuted = !isMuted;
     localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    updateDoc(doc(db, "voice_lounge_users", currentUser.uid), { isMuted: isMuted, isSpeaking: false });
+    update(ref(rtdb, `voice_lounge/users/${currentUser.uid}`), { isMuted: isMuted, isSpeaking: false });
     return isMuted;
 }
 
-// Auto-init on load if relevant
 initVoiceLounge();

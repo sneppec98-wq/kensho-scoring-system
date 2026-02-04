@@ -396,9 +396,45 @@ window.openBracketConfig = (code) => openBracketConfig(code, eventId, latestClas
 window.saveBracketConfig = () => saveBracketConfig(eventId);
 window.deleteBracketConfig = (code) => deleteBracketConfig(code, eventId);
 window.deleteAllBrackets = () => deleteAllBrackets(eventId);
-window.joinVoice = joinVoice;
-window.leaveVoice = leaveVoice;
-window.toggleMicMute = toggleMicMute;
+window.handleJoinVoice = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const btnJoin = document.getElementById('btn-join-voice');
+    btnJoin.innerHTML = '<span class="skeleton w-20 h-3"></span>';
+    btnJoin.disabled = true;
+    try {
+        await joinVoice(user);
+        btnJoin.classList.add('hidden');
+        document.getElementById('btn-mute-voice').classList.remove('hidden');
+        document.getElementById('btn-leave-voice').classList.remove('hidden');
+    } catch (err) {
+        alert("Gagal join Voice Lounge: " + err.message);
+        btnJoin.innerHTML = 'Join Lounge';
+        btnJoin.disabled = false;
+    }
+};
+
+window.handleLeaveVoice = async () => {
+    await leaveVoice();
+    document.getElementById('btn-join-voice').classList.remove('hidden');
+    document.getElementById('btn-join-voice').disabled = false;
+    document.getElementById('btn-join-voice').innerHTML = 'Join Lounge';
+    document.getElementById('btn-mute-voice').classList.add('hidden');
+    document.getElementById('btn-leave-voice').classList.add('hidden');
+};
+
+window.toggleMute = () => {
+    const isMuted = toggleMicMute();
+    const icon = document.getElementById('mute-icon');
+    const btn = document.getElementById('btn-mute-voice');
+    if (isMuted) {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
+        btn.classList.add('text-red-400');
+    } else {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
+        btn.classList.remove('text-red-400');
+    }
+};
 window.toggleMicMute = toggleMicMute;
 window.printSchedule = (name, logo) => prepareJadwalPrint(name || eventName, logo || eventLogo);
 window.handlePrintFestivalBracket = () => {

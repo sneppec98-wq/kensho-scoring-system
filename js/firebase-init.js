@@ -19,19 +19,16 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
-const rtdb = getDatabase(app);
 const analytics = getAnalytics(app);
 
-// Enable Firestore Offline Persistence
-import { enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code == 'failed-precondition') {
-    console.warn("[FIRESTORE] Persistence failed: Multiple tabs open");
-  } else if (err.code == 'unimplemented') {
-    console.warn("[FIRESTORE] Persistence failed: Browser not supported");
-  }
+// Initialize Firestore with Persistent Cache (New Way)
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const db = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 });
+
+const rtdb = getDatabase(app);
 
 console.log("[FIREBASE] Initialized Project:", firebaseConfig.projectId);
 

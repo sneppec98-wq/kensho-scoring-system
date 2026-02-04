@@ -1,7 +1,7 @@
 // Firebase Modular SDK Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
@@ -19,11 +19,22 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-});
+const db = getFirestore(app);
 const rtdb = getDatabase(app);
 const analytics = getAnalytics(app);
 
+console.log("[FIREBASE] Initialized Project:", firebaseConfig.projectId);
+
 // Export for use in other modules
 export { app, auth, db, rtdb, analytics };
+
+// GLOBAL SERVICE WORKER CLEANUP (To fix 404 issues in development)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    for (const registration of registrations) {
+      registration.unregister().then(success => {
+        if (success) console.log('Successfully unregistered Service Worker');
+      });
+    }
+  }).catch(err => console.log('SW cleanup failed:', err));
+}

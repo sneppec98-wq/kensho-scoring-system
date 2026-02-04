@@ -3,6 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="theme-color" content="#f87171">
+    <script>
+        // AGGRESSIVE SERVICE WORKER & CACHE CLEANUP
+        (function () {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister().then(() => {
+                            console.log('[CLEANUP] Service Worker Unregistered');
+                        });
+                    }
+                });
+            }
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    for (let name of names) {
+                        caches.delete(name).then(() => {
+                            console.log('[CLEANUP] Cache Deleted:', name);
+                        });
+                    }
+                });
+            }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pertandingan | Spartan Sport</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -714,7 +738,9 @@
         // Load Events Real-time
         const q = query(collection(db, "events"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
+            console.log("[DEBUG] Events snapshot size:", snapshot.size);
             if (snapshot.empty) {
+                console.warn("[DEBUG] No events found in collection 'events'");
                 eventListContainer.innerHTML = `
                     <div class="col-span-full py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">
                         Belum ada event aktif. Silakan buat event baru.
@@ -727,6 +753,7 @@
             snapshot.forEach((docSnap, index) => {
                 const event = docSnap.data();
                 const id = docSnap.id;
+                // ... rest of rendering
 
                 const card = document.createElement('div');
                 card.className = 'stagger-card';

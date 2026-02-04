@@ -3,7 +3,7 @@ import {
     collection, doc, onSnapshot, getDoc, getDocs, updateDoc, query, where, orderBy, setDoc, serverTimestamp, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { ref, set, onValue, onDisconnect, get as rtdbGet } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { GOLDEN_PRESETS, ROUND_MATCH_IDS, getNextSlot } from './bracket-utils.js';
+import { GOLDEN_PRESETS, ROUND_MATCH_IDS, getNextSlot, getTeamSlot } from './bracket-utils.js';
 
 // --- STATE MANAGEMENT ---
 const urlParams = new URLSearchParams(window.location.search);
@@ -23,6 +23,22 @@ let lastSyncTime = null;
 let unsubLiveScore = null;
 let liveAkaScore = 0;
 let liveAoScore = 0;
+let allAthletesCache = []; // Global cache for team lookups
+
+// Helper to reliably find team name from cache (Case Insensitive & Robust)
+function resolveTeamFromName(athleteName, currentTeamValue) {
+    if (currentTeamValue && currentTeamValue !== '-' && currentTeamValue !== '---') {
+        return currentTeamValue;
+    }
+    if (!athleteName || athleteName === '-' || athleteName === '---') return '-';
+
+    const cleanName = athleteName.trim().toLowerCase();
+    const p = allAthletesCache.find(ath => (ath.name || '').trim().toLowerCase() === cleanName);
+    if (p) {
+        return p.team || p.kontingen || p.teamName || '-';
+    }
+    return '-';
+}
 
 // --- KATA MASTER LIST (1-102) ---
 const KATA_MASTER = {
@@ -222,11 +238,20 @@ async function loadClassData(classId) {
 
     // 1. Robust Athlete Listener (Handles Name or Code matches)
     unsubAthletes = onSnapshot(collection(db, `events/${eventId}/athletes`), (snap) => {
-        const matching = snap.docs.filter(d => {
-            const a = d.data();
-            return (a.className === classId) || (a.classCode === classId);
-        });
+        allAthletesCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const matching = allAthletesCache.filter(a => (a.className === classId) || (a.classCode === classId));
         document.getElementById('activeClassCount').innerText = `${matching.length} Atlet`;
+
+        // Trigger re-resolution if cache arrives AFTER matches
+        if (allMatchesInClass.length > 0) {
+            allMatchesInClass = allMatchesInClass.map(m => ({
+                ...m,
+                akaTeam: resolveTeamFromName(m.akaName, m.akaTeam),
+                aoTeam: resolveTeamFromName(m.aoName, m.aoTeam)
+            }));
+            updateQueueDisplay();
+            renderBracketView();
+        }
     });
 
     // 2. Listen to Bracket Document (Scenario A & B)
@@ -257,7 +282,15 @@ async function loadClassData(classId) {
 
     unsubMatches = onSnapshot(qMatches, (snapshot) => {
         if (!snapshot.empty) {
-            const firestoreMatches = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const firestoreMatches = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    akaTeam: resolveTeamFromName(data.akaName, data.akaTeam || data.akaKontingen || data.teamAka || data.akaTeamName),
+                    aoTeam: resolveTeamFromName(data.aoName, data.aoTeam || data.aoKontingen || data.teamAo || data.aoTeamName)
+                };
+            });
 
             // 🆕 Intelligent Merging: Don't just overwrite, merge with reconstructed matches
             // This ensures Final match (Scenario B) isn't swallowed by Scenario C
@@ -289,11 +322,18 @@ function reconstructMatchesFromBracket(bracketData) {
     const reconstructed = [];
 
     const getAthleteAtSlot = (slotId, originalIdx) => {
-        if (progression[slotId]) return { name: progression[slotId], team: '' };
-        if (originalIdx !== undefined && participants[originalIdx]) {
-            return { ...participants[originalIdx] };
+        let name = '-';
+        let team = '-';
+
+        if (progression[slotId]) {
+            name = progression[slotId];
+            team = resolveTeamFromName(name, '-');
+        } else if (originalIdx !== undefined && participants[originalIdx]) {
+            const p = participants[originalIdx];
+            name = p.name;
+            team = resolveTeamFromName(name, p.team || p.kontingen || p.teamName);
         }
-        return { name: '-', team: '-' };
+        return { name, team };
     };
 
     // Detect which round we should START from based on the first slot ID
@@ -592,6 +632,9 @@ function renderBracketView() {
             const displayAka = (m.id === currentMatchId && m.status !== 'completed') ? liveAkaScore : (m.akaScore || 0);
             const displayAo = (m.id === currentMatchId && m.status !== 'completed') ? liveAoScore : (m.aoScore || 0);
 
+            const tAka = resolveTeamFromName(m.akaName, m.akaTeam || m.akaKontingen);
+            const tAo = resolveTeamFromName(m.aoName, m.aoTeam || m.aoKontingen);
+
             return `
                         <div class="p-6 rounded-[2rem] bg-white/5 border border-white/5 flex flex-col gap-4 ${m.status === 'completed' ? 'opacity-50' : ''}">
                             <div class="flex justify-between items-center">
@@ -601,17 +644,23 @@ function renderBracketView() {
                             <div class="flex justify-between items-center group">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-[11px] font-black uppercase truncate ${m.winnerSide === 'aka' ? 'text-red-500' : ''}">${m.akaName || '-'}</p>
-                                    <p class="text-[7px] font-black opacity-20 uppercase truncate">AKA</p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-[7px] font-black opacity-20 uppercase truncate">AKA</p>
+                                        <p class="text-[7px] font-bold text-slate-500 uppercase truncate">${tAka}</p>
+                                    </div>
                                 </div>
-                                <span class="text-xl font-black italic ml-4 ${m.winnerSide === 'aka' ? 'text-red-500' : 'opacity-40'}">${displayAka}</span>
+                                <span class="text-xl font-black italic ml-4 ${m.winnerSide === 'aka' ? 'text-red-500' : ''}">${displayAka}</span>
                             </div>
                             <div class="h-px bg-white/5"></div>
                             <div class="flex justify-between items-center group">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-[11px] font-black uppercase truncate ${m.winnerSide === 'ao' ? 'text-blue-500' : ''}">${m.aoName || '-'}</p>
-                                    <p class="text-[7px] font-black opacity-20 uppercase truncate">AO</p>
+                                    <div class="flex items-center gap-2">
+                                        <p class="text-[7px] font-black opacity-20 uppercase truncate">AO</p>
+                                        <p class="text-[7px] font-bold text-slate-500 uppercase truncate">${tAo}</p>
+                                    </div>
                                 </div>
-                                <span class="text-xl font-black italic ml-4 ${m.winnerSide === 'ao' ? 'text-blue-500' : 'opacity-40'}">${displayAo}</span>
+                                <span class="text-xl font-black italic ml-4 ${m.winnerSide === 'ao' ? 'text-blue-500' : ''}">${displayAo}</span>
                             </div>
                         </div>
                         `;
@@ -634,9 +683,9 @@ window.selectMatchFromQueue = function (matchId) {
     document.getElementById('currentRoundLabel').innerText = (match.round || 'Penyisihan').toUpperCase();
 
     document.getElementById('akaName').innerText = match.akaName || 'PEMENANG...';
-    document.getElementById('akaTeam').innerText = match.akaTeam || '-';
+    document.getElementById('akaTeam').innerText = resolveTeamFromName(match.akaName, match.akaTeam || match.akaKontingen || match.teamAka);
     document.getElementById('aoName').innerText = match.aoName || 'PEMENANG...';
-    document.getElementById('aoTeam').innerText = match.aoTeam || '-';
+    document.getElementById('aoTeam').innerText = resolveTeamFromName(match.aoName, match.aoTeam || match.aoKontingen || match.teamAo);
 
     // Clear Kata inputs
     document.getElementById('akaKataNum').value = match.akaKataNumber || '';
@@ -695,6 +744,8 @@ document.getElementById('btnSendMatch').addEventListener('click', async () => {
         // Prepare full match payload (ensures name persist even if it was reconstructed)
         const payload = {
             ...matchData,
+            akaTeam: resolveTeamFromName(matchData.akaName, matchData.akaTeam || matchData.akaKontingen || matchData.teamAka),
+            aoTeam: resolveTeamFromName(matchData.aoName, matchData.aoTeam || matchData.aoKontingen || matchData.teamAo),
             status: 'sent_to_scoring',
             akaKataNumber: akaKataNum,
             akaKataName: KATA_MASTER[akaKataNum] || '',

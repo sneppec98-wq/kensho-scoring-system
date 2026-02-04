@@ -1,15 +1,25 @@
 import { db } from './firebase-init.js';
-import { collection, getDocs, doc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Global data store
 let allAthletes = [];
 let allClasses = [];
 let eventName = "";
 let eventLogo = "";
+let unsubscribeAthletes = null;
+let lastSyncTime = null;
 
 // URL Params
 const urlParams = new URLSearchParams(window.location.search);
 const eventId = urlParams.get('id');
+
+// Auto-refresh when page becomes visible (user switches back to tab)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && eventId) {
+        console.log('[Auto-Refresh] Page visible, refreshing UI...');
+        if (allAthletes.length > 0) render(allAthletes);
+    }
+});
 
 async function init() {
     if (!eventId) {
@@ -23,28 +33,52 @@ async function init() {
     }
 
     try {
-        // Fetch Event Data
+        // Fetch Event Data (One-time)
         const eventDoc = await getDoc(doc(db, "events", eventId));
         if (eventDoc.exists()) {
             const data = eventDoc.data();
             eventName = data.name || "DAFTAR PESERTA";
             eventLogo = data.logo || "kensho-logo.png";
-            document.getElementById('eventName').innerText = eventName;
+            document.getElementById('eventName').innerText = eventName.toUpperCase();
             document.title = `${eventName} | Official Portal`;
             if (data.logo) {
                 document.querySelector('#eventLogo img').src = data.logo;
             }
         }
 
-        // Fetch Classes (for lookup)
+        // Fetch Classes (for lookup - One-time is fine for static classes)
         const classSnap = await getDocs(collection(db, `events/${eventId}/classes`));
         allClasses = classSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // Fetch Athletes
-        const athleteSnap = await getDocs(query(collection(db, `events/${eventId}/athletes`), orderBy("name", "asc")));
-        allAthletes = athleteSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        // Real-time Athletes Listener (No more stale data!)
+        if (unsubscribeAthletes) unsubscribeAthletes();
 
-        render(allAthletes);
+        unsubscribeAthletes = onSnapshot(
+            query(collection(db, `events/${eventId}/athletes`), orderBy("name", "asc")),
+            (snapshot) => {
+                allAthletes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                render(allAthletes);
+
+                // Update Last Sync Time
+                lastSyncTime = new Date();
+                const lastSyncEl = document.getElementById('lastSyncTime');
+                if (lastSyncEl) {
+                    lastSyncEl.innerText = `Terakhir Diperbarui: ${lastSyncTime.toLocaleTimeString('id-ID')}`;
+                }
+
+                console.log('[Realtime] Data updated:', allAthletes.length, 'athletes');
+
+                // Add a "Data Updated" toast or indicator if needed
+                const totalCountEl = document.getElementById('totalCount');
+                if (totalCountEl) {
+                    totalCountEl.classList.add('text-green-400');
+                    setTimeout(() => totalCountEl.classList.remove('text-green-400'), 2000);
+                }
+            },
+            (err) => {
+                console.error("Realtime Listener Error:", err);
+            }
+        );
 
     } catch (err) {
         console.error("Init Error:", err);
@@ -66,8 +100,8 @@ function render(athletes) {
     const filtered = athletes.filter(a => {
         if (!searchTerm) return true;
         return (a.name || "").toLowerCase().includes(searchTerm) ||
-               (a.team || "").toLowerCase().includes(searchTerm) ||
-               (a.className || "").toLowerCase().includes(searchTerm);
+            (a.team || "").toLowerCase().includes(searchTerm) ||
+            (a.className || "").toLowerCase().includes(searchTerm);
     });
 
     totalCountEl.innerText = filtered.length;
@@ -113,18 +147,18 @@ function render(athletes) {
                             </thead>
                             <tbody class="divide-y divide-white/5">
                                 ${grouped[team].map((a, idx) => {
-                                    const classInfo = allClasses.find(c => 
-                                        (c.code && a.classCode && c.code.toString().trim().toUpperCase() === a.classCode.toString().trim().toUpperCase()) ||
-                                        (c.name && a.className && c.name.toString().trim().toUpperCase() === a.className.toString().trim().toUpperCase())
-                                    );
-                                    
-                                    return `
+            const classInfo = allClasses.find(c =>
+                (c.code && a.classCode && c.code.toString().trim().toUpperCase() === a.classCode.toString().trim().toUpperCase()) ||
+                (c.name && a.className && c.name.toString().trim().toUpperCase() === a.className.toString().trim().toUpperCase())
+            );
+
+            return `
                                         <tr class="hover:bg-white/[0.02] transition-colors">
                                             <td class="py-6 pl-8 font-black opacity-20 text-xs">#${(idx + 1).toString().padStart(2, '0')}</td>
                                             <td class="py-6">
                                                 <div class="font-black text-slate-100 uppercase text-sm italic tracking-tight">${a.name}</div>
-                                                ${a.members ? `<div class="text-[9px] opacity-40 font-bold mt-1 uppercase leading-tight">👥 members: ${a.members.join(', ')}</div>` : 
-                                                  (a.name2 ? `<div class="text-[9px] opacity-40 font-bold mt-1 uppercase leading-tight">👥 team: ${[a.name, a.name2, a.name3].filter(n => n).join(' & ')}</div>` : '')}
+                                                ${a.members ? `<div class="text-[9px] opacity-40 font-bold mt-1 uppercase leading-tight">👥 members: ${a.members.join(', ')}</div>` :
+                    (a.name2 ? `<div class="text-[9px] opacity-40 font-bold mt-1 uppercase leading-tight">👥 team: ${[a.name, a.name2, a.name3].filter(n => n).join(' & ')}</div>` : '')}
                                             </td>
                                             <td class="py-6 text-center">
                                                 <span class="px-3 py-1 rounded-lg text-[9px] font-black ${a.gender === 'PUTRA' ? 'bg-blue-500/10 text-blue-400' : 'bg-pink-500/10 text-pink-400'}">
@@ -142,7 +176,7 @@ function render(athletes) {
                                             </td>
                                         </tr>
                                     `;
-                                }).join('')}
+        }).join('')}
                             </tbody>
                         </table>
                     </div>

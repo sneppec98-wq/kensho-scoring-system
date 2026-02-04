@@ -132,6 +132,29 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f87171">
+    <script>
+        // AGGRESSIVE SERVICE WORKER & CACHE CLEANUP
+        (function () {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister().then(() => {
+                            console.log('[CLEANUP] Service Worker Unregistered');
+                        });
+                    }
+                });
+            }
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    for (let name of names) {
+                        caches.delete(name).then(() => {
+                            console.log('[CLEANUP] Cache Deleted:', name);
+                        });
+                    }
+                });
+            }
+        })();
+    </script>
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-4">
@@ -586,13 +609,13 @@
         checkLicense();
 
         // Register Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered!', reg))
-                    .catch(err => console.log('SW Registration Failed!', err));
-            });
-        }
+        // if ('serviceWorker' in navigator) {
+        //     window.addEventListener('load', () => {
+        //         navigator.serviceWorker.register('./sw.js')
+        //             .then(reg => console.log('SW Registered!', reg))
+        //             .catch(err => console.log('SW Registration Failed!', err));
+        //     });
+        // }
 
 
 

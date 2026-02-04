@@ -1,7 +1,7 @@
 // Brackets Configuration & Management
-import { showProgress, hideProgress, toggleModal } from './ui-helpers.js';
+import { showProgress, hideProgress, toggleModal, updateProgress, customConfirm } from './ui-helpers.js';
 import { db } from '../firebase-init.js';
-import { doc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 export const renderBracketsConfig = (classes, brackets) => {
     const container = document.getElementById('bracket-config-list');
@@ -103,5 +103,40 @@ export const deleteBracketConfig = async (classCode, eventId) => {
             console.error("Delete Bracket Config Error:", err);
             alert("Gagal menghapus: " + err.message);
         }
+    }
+};
+
+export const deleteAllBrackets = async (eventId) => {
+    const ok = await customConfirm({
+        title: "Hapus Seluruh Bagan",
+        message: "⚠️ PERINGATAN: Anda akan menghapus SELURUH bagan pertandingan yang sudah digenerate di event ini. Data atlet TIDAK akan terhapus. Lanjutkan?",
+        confirmText: "Hapus Semua Bagan",
+        promptWord: "HAPUS"
+    });
+
+    if (!ok) return;
+
+    showProgress('MEMBERSIHKAN DATA BAGAN', 0);
+    try {
+        const bracketSnap = await getDocs(collection(db, `events/${eventId}/brackets`));
+        if (!bracketSnap.empty) {
+            const batchSize = 500;
+            for (let i = 0; i < bracketSnap.docs.length; i += batchSize) {
+                const batch = writeBatch(db);
+                bracketSnap.docs.slice(i, i + batchSize).forEach(docSnap => {
+                    batch.delete(doc(db, `events/${eventId}/brackets`, docSnap.id));
+                });
+                await batch.commit();
+                updateProgress(Math.round(((i + batchSize) / bracketSnap.size) * 100));
+            }
+            alert(`Berhasil menghapus ${bracketSnap.size} bagan pertandingan!`);
+        } else {
+            alert("Tidak ada bagan yang ditemukan untuk dihapus.");
+        }
+    } catch (err) {
+        console.error("Delete All Brackets Error:", err);
+        alert("Gagal membersihkan bagan: " + err.message);
+    } finally {
+        hideProgress();
     }
 };

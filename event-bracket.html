@@ -876,6 +876,7 @@
         import { collection, onSnapshot, query, where, getDocs, doc, getDoc, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
         import { prepareBracketPrint } from './js/modules/print/print-bracket.js';
+        import { getLogicalIdFromSVGId, getNextSlot, getTeamSlot } from './js/bracket-utils.js';
 
         window.handleLogout = handleLogout;
         let bracketListener = null;
@@ -1180,11 +1181,12 @@
                 const isParticipantId = (id) => {
                     if (!id) return false;
                     // Babak R1 (P), R2 (Q), R3 (S), R4 (F)
-                    return id.startsWith('p_n_') || id.startsWith('p_k_') || id.startsWith('n_k_') ||
-                        id.startsWith('qn') || id.startsWith('qk') || id.startsWith('qnk') ||
-                        id.startsWith('sn') || id.startsWith('sk') || id.startsWith('snk') ||
-                        id.startsWith('fn') || id.startsWith('fk') || id.startsWith('fnk') ||
-                        id === 'p_nama_1' || id === 'text5989' || id === 'text5993' || id === 'text5997';
+                    return id.startsWith('p_n_') || id.startsWith('p_k_') || id.startsWith('n_k_') || id.startsWith('s_') || id.startsWith('sp_') ||
+                        id.startsWith('q_n_') || id.startsWith('q_k_') || id.startsWith('q_n_k_') || id.startsWith('q_s_') || id.startsWith('q_s_p_') ||
+                        id.startsWith('s_n_') || id.startsWith('s_k_') || id.startsWith('s_n_k_') || id.startsWith('s_s_') || id.startsWith('s_s_p_') ||
+                        id.startsWith('f_n_') || id.startsWith('f_k_') || id.startsWith('f_n_k_') || id.startsWith('f_s_') || id.startsWith('f_s_p_') ||
+                        id.startsWith('qn') || id.startsWith('sn') || id.startsWith('fn') || // Fallback old IDs
+                        id.startsWith('winner_') || id.startsWith('nama_juara_') || id.startsWith('kontingen_juara_');
                 };
 
                 if (placeholders.includes(text) || headerIds.includes(id) || isParticipantId(id)) {
@@ -1245,31 +1247,28 @@
         }
 
         function getComponentsForSlot(slotId) {
-            // P Round
+            // P Round (Penyisihan 16 Besar)
             if (slotId.startsWith('p_n_')) {
                 const x = slotId.replace('p_n_', '');
-                return [(x === "1" ? `p_nama_1` : `p_n_${x}`), `p_k_${x}`, `n_k_${x}`, `S_${x}`, `sp_${x}`];
+                return [`p_n_${x}`, `p_k_${x}`, `n_k_${x}`, `s_${x}`, `sp_${x}`];
             }
-            // Q Round
+            // Q Round (8 Besar)
             if (slotId.startsWith('qn')) {
                 const x = slotId.replace('qn', '');
-                return [`qn${x}`, `qk${x}`, `qnk${x}`, `qs${x}`, `qsp${x}`];
+                return [`q_n_${x}`, `q_k_${x}`, `q_n_k_${x}`, `q_s_${x}`, `q_s_p_${x}`];
             }
-            // S Round
+            // S Round (Semi Final)
             if (slotId.startsWith('sn')) {
                 const x = slotId.replace('sn', '');
-                return [`sn${x}`, `sk${x}`, `snk${x}`, `ss${x}`, `ssp${x}`];
+                return [`s_n_${x}`, `s_k_${x}`, `s_n_k_${x}`, `s_s_${x}`, `s_s_p_${x}`];
             }
-            // F Round
-            if (slotId === 'fn1' || slotId === 'text5989') {
-                return [`text5989`, `text5993`, `text5997`, `fs1`, `text5985`];
-            }
+            // F Round (Final)
             if (slotId.startsWith('fn')) {
                 const x = slotId.replace('fn', '');
-                return [`fn${x}`, `fk${x}`, `fnk${x}`, `fs${x}`, `fsp${x}`];
+                return [`f_n_${x}`, `f_k_${x}`, `f_n_k_${x}`, `f_s_${x}`, `f_s_p_${x}`];
             }
 
-            // Juara 1 (Final Result)
+            // Juara 1 (Final Result Center / Highlit)
             if (slotId === 'winner_nama') {
                 return [`winner_nama`, `winner_kontingen`, `nama_juara_1`, `kontingen_juara_1`];
             }
@@ -1337,7 +1336,7 @@
 
             logicalPrefixes.forEach(prefix => {
                 for (let i = 1; i <= maxCounts[prefix]; i++) {
-                    const logicalId = (prefix === 'p_n_' && i === 1) ? 'p_nama_1' : `${prefix}${i}`;
+                    const logicalId = `${prefix}${i}`;
                     const components = getComponentsForSlot(logicalId);
                     const nameId = components[0];
 
@@ -1361,13 +1360,6 @@
                     }
                 }
             });
-
-            // Special case for the idiosyncratic Finalist 1 ID
-            const finalist1 = svgDoc.getElementById('text5989');
-            if (finalist1) {
-                finalist1.style.cursor = 'pointer';
-                finalist1.addEventListener('click', () => handleWinnerClick('text5989'));
-            }
         }
 
         function handleWinnerClick(id) {
@@ -2417,10 +2409,12 @@
             const nodes = document.querySelectorAll('text');
             nodes.forEach(node => {
                 const id = node.id || "";
-                if (id.match(/^(qn|sn|fn|p_n_)\d+$/)) {
+                // Match qn1, q_n_1, p_n_1, etc.
+                if (id.match(/^(([qsf]_?)?n_?|p_n_)\d+$/)) {
                     node.style.fontSize = nameSize + "px";
                 }
-                else if (id.match(/^(qk|sk|fk|p_k_)\d+$/)) {
+                // Match qk1, q_k_1, p_k_1, etc.
+                else if (id.match(/^(([qsf]_?)?k_?|p_k_)\d+$/)) {
                     node.style.fontSize = teamSize + "px";
                 }
             });

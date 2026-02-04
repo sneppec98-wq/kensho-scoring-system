@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/scoring.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="h-screen overflow-hidden text-slate-100 bg-[#020617]">
@@ -52,27 +53,8 @@
                         class="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all text-slate-500">KATA</button>
                 </div>
 
-                <div class="w-[1px] h-6 bg-white/10 mx-1"></div>
 
-                <!-- LIST PESERTA BUTTON -->
-                <button id="btnParticipantList" onclick="toggleParticipantModal()"
-                    class="px-4 py-2 rounded-xl bg-slate-800/30 border border-white/5 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-700 hover:text-white transition-all flex items-center gap-2 whitespace-nowrap">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    Peserta
-                </button>
 
-                <!-- KATA LIST BUTTON -->
-                <a id="btnKataList" href="kata-list.html" target="_blank"
-                    class="px-4 py-2 rounded-xl bg-slate-800/30 border border-white/5 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-700 hover:text-white transition-all flex items-center gap-2 whitespace-nowrap">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                    </svg>
-                    Kata List
-                </a>
             </div>
 
             <!-- RIGHT: TATAMI BADGE -->
@@ -115,100 +97,107 @@
                 <div class="flex-1 grid grid-cols-12 gap-0 rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 relative bg-slate-900/40 backdrop-blur-xl mb-2"
                     style="display: flex;">
                     <!-- AKA PANEL (Default: RIGHT side to match monitor) -->
-                    <div id="panelContainerAka" style="order: 3; flex: 1;"
-                        class="col-span-12 md:col-span-5 flex flex-col items-center justify-between py-4 px-6 bg-red-950/10 relative group border-r border-white/5">
+                    <div id="panelContainerAka" style="order: 3; flex: 1.5;"
+                        class="col-span-12 md:col-span-5 flex flex-col items-center justify-between py-6 px-8 bg-red-950/20 relative group border-l border-white/5 premium-gradient-red overflow-hidden">
+                        <!-- DECORATIVE GLOW -->
+                        <div
+                            class="absolute -top-24 -right-24 w-48 h-48 bg-red-600/10 blur-[80px] rounded-full pointer-events-none">
+                        </div>
+
                         <!-- HANTEI BUTTON (Minimalist) -->
                         <button id="btnHanteiAka" onclick="setHanteiWinner('aka')"
-                            class="absolute top-0 right-0 px-4 py-2 bg-red-600 shadow-[0_4px_10px_rgba(220,38,38,0.3)] text-white rounded-bl-3xl border-l border-b border-white/20 hidden transition-all hover:scale-110 active:scale-95 z-50">
-                            <span class="text-[10px] font-black italic tracking-widest uppercase">Kachi</span>
+                            class="absolute top-0 right-0 px-6 py-2.5 bg-red-600 shadow-[0_8px_20px_rgba(220,38,38,0.4)] text-white rounded-bl-[2rem] border-l border-b border-white/20 hidden transition-all hover:scale-105 active:scale-95 z-50">
+                            <span class="text-[10px] font-black italic tracking-[0.2em] uppercase">Kachi</span>
                         </button>
 
                         <div
-                            class="absolute top-0 left-0 w-full h-1 bg-red-600 shadow-[0_5px_15px_rgba(220,38,38,0.4)]">
+                            class="absolute top-0 right-0 w-full h-1.5 bg-gradient-to-l from-red-600 to-transparent shadow-[0_5px_20px_rgba(220,38,38,0.4)]">
                         </div>
 
                         <!-- TOP: Name & Label -->
-                        <div id="panelAka" class="text-center w-full relative z-10 pt-2">
-                            <div id="badgeWinnerAka"
-                                class="absolute -top-6 left-1/2 -translate-x-1/2 px-4 py-1 bg-red-500 text-white text-[8px] font-black uppercase tracking-[0.3em] rounded-full hidden">
-                                WINNER</div>
-                            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-red-500/60 mb-1 italic">
+                        <div id="panelAka" class="text-center w-full relative z-10">
+                            <p class="text-[11px] font-black uppercase tracking-[0.5em] text-red-500/50 mb-1.5 italic">
                                 AKA</p>
                             <h2 id="nameAkaDisplay"
-                                class="text-2xl font-black uppercase italic tracking-tighter text-slate-200 truncate px-4">
+                                class="text-3xl font-black uppercase italic tracking-tight text-white truncate px-4 drop-shadow-lg">
                                 ---</h2>
+                            <p id="teamAkaDisplay"
+                                class="text-[11px] font-black uppercase text-white/80 tracking-[0.2em] mt-1 truncate px-10">
+                                ---</p>
                             <input type="text" id="inputKataAka" placeholder="Input Nama Kata"
                                 oninput="checkKataShortcut(this); broadcastData()"
-                                class="w-auto min-w-[160px] bg-red-500/5 border border-red-500/10 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-red-500 mt-2 focus:bg-red-500/10 focus:border-red-500/40 focus:scale-105 focus:outline-none placeholder:text-red-500/20 transition-all text-center hidden">
+                                class="w-auto min-w-[200px] bg-red-500/10 border border-red-500/20 rounded-2xl px-6 py-3 text-xs font-black uppercase tracking-widest text-red-400 mt-3 focus:bg-red-500/20 focus:border-red-500/50 focus:scale-105 focus:outline-none placeholder:text-red-500/30 transition-all text-center hidden shadow-inner">
                         </div>
 
                         <!-- CENTER: Score (Anchor) -->
                         <div id="scoreAka"
-                            class="text-[180px] font-black italic tracking-tighter text-red-500 leading-none drop-shadow-[0_20px_40px_rgba(248,113,113,0.3)] select-none my-auto">
+                            class="text-[180px] score-digit text-red-500 leading-none drop-shadow-[0_20px_60px_rgba(248,113,113,0.4)] select-none my-auto transition-all duration-300">
                             00</div>
 
                         <!-- BOTTOM: Controls -->
-                        <div id="kumiteControlsAka" class="w-full relative z-10 space-y-3 px-4">
+                        <div id="kumiteControlsAka" class="w-full relative z-10 space-y-4 px-4">
                             <!-- Score Buttons -->
-                            <div class="grid grid-cols-4 gap-2">
-                                <button onclick="addScore('aka', 1)" class="neu-button py-3 rounded-xl group">
+                            <div class="grid grid-cols-4 gap-3">
+                                <button onclick="addScore('aka', 1)"
+                                    class="neu-button py-4 rounded-2xl group border-white/10">
                                     <span
-                                        class="text-xl font-black group-hover:scale-110 transition-transform text-red-400">+1</span>
+                                        class="text-2xl font-black group-hover:scale-110 transition-transform text-red-400">+1</span>
                                 </button>
                                 <button onclick="addScore('aka', 2)"
-                                    class="neu-button py-3 rounded-xl group border-red-500/30">
+                                    class="neu-button py-4 rounded-2xl group border-red-500/30">
                                     <span
-                                        class="text-xl font-black text-red-500 group-hover:scale-110 transition-transform">+2</span>
+                                        class="text-2xl font-black text-red-500 group-hover:scale-110 transition-transform">+2</span>
                                 </button>
                                 <button onclick="addScore('aka', 3)"
-                                    class="neu-button py-3 rounded-xl group border-red-500/50">
+                                    class="neu-button py-4 rounded-2xl group border-red-500/50">
                                     <span
-                                        class="text-xl font-black text-red-600 group-hover:scale-110 transition-transform">+3</span>
+                                        class="text-2xl font-black text-red-600 group-hover:scale-110 transition-transform">+3</span>
                                 </button>
                                 <button onclick="addScore('aka', -1)"
-                                    class="neu-button py-3 rounded-xl group bg-white/5 opacity-40">
+                                    class="neu-button py-4 rounded-2xl group bg-white/5 opacity-40 border-white/5">
                                     <span
-                                        class="text-xl font-black text-slate-500 group-hover:scale-110 transition-transform">-1</span>
+                                        class="text-2xl font-black text-slate-500 group-hover:scale-110 transition-transform">-1</span>
                                 </button>
                             </div>
 
                             <!-- Penalty & Status Buttons -->
-                            <div id="penAka" class="grid grid-cols-7 gap-1.5">
+                            <div id="penAka" class="grid grid-cols-7 gap-2">
                                 <button id="senshuAka" onclick="setSenshu('aka')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-70 hover:opacity-100 transition-opacity">S</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-70 hover:opacity-100 transition-opacity">S</button>
                                 <button id="aka_c1" onclick="togglePenalty('aka', 'c1')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C1</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C1</button>
                                 <button id="aka_c2" onclick="togglePenalty('aka', 'c2')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C2</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C2</button>
                                 <button id="aka_c3" onclick="togglePenalty('aka', 'c3')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C3</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C3</button>
                                 <button id="aka_hc" onclick="togglePenalty('aka', 'hc')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">HC</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">HC</button>
                                 <button id="aka_h" onclick="togglePenalty('aka', 'h')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">H</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">H</button>
                                 <button id="vrAka" onclick="toggleVR('aka')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100">VR</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100">VR</button>
                             </div>
                         </div>
 
                         <!-- KATA CONTROLS AKA (Integrated) -->
-                        <div id="kataControlsAka" class="hidden w-full relative z-10 space-y-3 px-4">
-                            <div class="grid grid-cols-5 gap-2">
+                        <div id="kataControlsAka" class="hidden w-full relative z-10 space-y-4 px-2">
+                            <div class="grid grid-cols-5 gap-3">
                                 <button onclick="openJudgeKeypad('aka', 0)" id="judgeBtnAka0"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-red-400 hover:bg-red-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('aka', 1)" id="judgeBtnAka1"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-red-400 hover:bg-red-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('aka', 2)" id="judgeBtnAka2"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-red-400 hover:bg-red-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('aka', 3)" id="judgeBtnAka3"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-red-400 hover:bg-red-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('aka', 4)" id="judgeBtnAka4"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-red-400 hover:bg-red-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
                             </div>
                             <div
-                                class="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 flex justify-between items-center">
-                                <span class="text-[9px] font-black uppercase text-red-500/50">RESULT</span>
-                                <span id="kataTotalAka" class="text-lg font-black text-red-500 italic">0.0</span>
+                                class="p-3.5 rounded-2xl bg-red-600/10 border border-red-500/20 flex justify-between items-center shadow-inner">
+                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/50">TOTAL
+                                    SCORE</span>
+                                <span id="kataTotalAka" class="text-2xl font-black text-red-500 score-digit">0.0</span>
                             </div>
                         </div>
 
@@ -240,257 +229,353 @@
                     </div>
 
                     <!-- CENTER STRIP: TIMER & ROUND -->
-                    <div id="panelContainerCenter" style="order: 2; flex: 0 0 auto; min-width: 250px;"
-                        class="col-span-12 md:col-span-2 flex flex-col items-center justify-center py-2 px-2 bg-slate-950/80 border-x border-white/5 relative overflow-hidden gap-3">
+                    <div id="panelContainerCenter" style="order: 2; flex: 1; min-width: 210px;"
+                        class="col-span-12 md:col-span-2 flex flex-col items-center justify-start py-4 px-3 bg-slate-950/40 border-x border-white/5 relative overflow-hidden gap-2.5 backdrop-blur-xl">
+
+                        <!-- DECORATIVE CENTER BACKGROUND -->
                         <div
-                            class="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-transparent to-red-500/10 pointer-events-none">
+                            class="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(30,41,59,0.3)_0%,_transparent_70%)] pointer-events-none">
+                        </div>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-red-500/5 pointer-events-none opacity-30">
                         </div>
 
-                        <div class="text-center relative z-10 w-full px-2">
+                        <!-- 1. CATEGORY HEADER -->
+                        <div class="relative z-10 w-full">
                             <div
-                                class="bg-white/5 px-6 py-2 rounded-2xl border border-white/10 text-center mb-4 backdrop-blur-md">
+                                class="bg-white/[0.03] border border-white/10 px-3 py-1.5 rounded-xl flex flex-col items-center shadow-xl backdrop-blur-md">
                                 <p id="categoryDisplay"
-                                    class="text-xs font-black italic tracking-widest leading-none text-slate-200">
+                                    class="text-[10px] font-black italic tracking-[0.3em] text-slate-100 uppercase overflow-hidden whitespace-nowrap text-ellipsis max-w-full">
                                     KUMITE</p>
+                                <div class="w-10 h-0.5 bg-red-500 mt-1 rounded-full opacity-40"></div>
                             </div>
                         </div>
 
-                        <div class="text-center relative z-10 w-full flex flex-col items-center">
-                            <!-- MINI UTILITY BAR -->
-                            <div class="flex items-center gap-2 mb-2">
-                                <button onclick="flipPanels()" id="btnFlipPanels"
-                                    class="w-8 h-8 rounded-lg bg-purple-600/20 text-purple-400 border border-purple-500/30 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all"
-                                    title="Tukar Posisi AKA/AO">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                    </svg>
-                                </button>
-                                <button onclick="handleMonitor()" id="btnMonitor"
-                                    class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"
-                                    title="Open Monitor">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                </button>
-                                <button onclick="toggleSettingsModal()" id="btnOpenSettings"
-                                    class="w-8 h-8 rounded-lg bg-orange-600/20 text-orange-400 border border-orange-500/30 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all"
-                                    title="Pengaturan Pertandingan">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </button>
-                                <button onclick="toggleMonitorFullscreen()" id="btnFullscreen"
-                                    class="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 border border-white/5 flex items-center justify-center hover:text-white transition-all hidden"
-                                    title="Fullscreen Monitor">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                                    </svg>
-                                </button>
+                        <!-- 2. UTILITY STRIP -->
+                        <div
+                            class="relative z-10 flex items-center gap-2 bg-white/[0.03] p-1 rounded-[1.25rem] border border-white/5 shadow-inner">
+                            <button onclick="flipPanels()" id="btnFlipPanels"
+                                class="w-10 h-10 rounded-lg bg-white/5 text-purple-400 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all shadow-lg border border-white/5"
+                                title="Tukar Posisi AKA/AO">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                            </button>
+                            <button onclick="handleMonitor()" id="btnMonitor"
+                                class="w-10 h-10 rounded-lg bg-white/5 text-blue-400 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-lg border border-white/5"
+                                title="Open Monitor">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                            <button onclick="toggleSettingsModal()" id="btnOpenSettings"
+                                class="w-10 h-10 rounded-lg bg-white/5 text-orange-400 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all shadow-lg border border-white/5"
+                                title="Pengaturan Pertandingan">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 3. TIMER DISPLAY CARD -->
+                        <div
+                            class="relative z-10 w-full bg-white/[0.02] border border-white/5 rounded-[2rem] py-3 px-1.5 flex flex-col items-center shadow-2xl overflow-hidden group">
+                            <div
+                                class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-20">
                             </div>
 
-                            <p class="text-[8px] font-black uppercase tracking-[0.8em] text-white/30 mb-0.5">TIME</p>
-                            <div class="flex flex-col items-center group mb-1">
+                            <p class="text-[7px] font-black uppercase tracking-[0.6em] text-white/20 mb-1.5 ml-0.5">
+                                TIMER</p>
+
+                            <div class="flex flex-col items-center w-full">
                                 <input id="timerDisplay" type="text" value="01:00" onblur="handleTimerBlur(this)"
                                     onkeydown="handleTimerKey(event, this)"
-                                    class="text-5xl font-black italic shimmer-text leading-none w-full text-center bg-transparent focus:outline-none cursor-text select-all">
+                                    class="text-5xl font-black italic shimmer-text leading-none w-full text-center bg-transparent focus:outline-none cursor-text select-all drop-shadow-[0_0_10px_rgba(255,255,255,0.08)]">
 
                                 <!-- QUICK ADJUST -->
-                                <div class="flex gap-2 mt-2 opacity-40 group-hover:opacity-100 transition-opacity">
-                                    <button onclick="adjustTimer(-1)"
-                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-white/10 hover:text-red-400 transition-all border border-white/5">-1S</button>
-                                    <button onclick="adjustTimer(1)"
-                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-white/10 hover:text-green-400 transition-all border border-white/5">+1S</button>
+                                <div
+                                    class="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
+                                    <button onmousedown="startTimerAdjust(-60)" onmouseup="stopTimerAdjust()"
+                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(-60)"
+                                        ontouchend="stopTimerAdjust()"
+                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 shadow-lg">-1M</button>
+                                    <button onmousedown="startTimerAdjust(-1)" onmouseup="stopTimerAdjust()"
+                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(-1)"
+                                        ontouchend="stopTimerAdjust()"
+                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 shadow-lg">-1S</button>
+                                    <button onmousedown="startTimerAdjust(1)" onmouseup="stopTimerAdjust()"
+                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(1)"
+                                        ontouchend="stopTimerAdjust()"
+                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-green-500/20 hover:text-green-400 transition-all border border-white/5 shadow-lg">+1S</button>
+                                    <button onmousedown="startTimerAdjust(60)" onmouseup="stopTimerAdjust()"
+                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(60)"
+                                        ontouchend="stopTimerAdjust()"
+                                        class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-green-500/20 hover:text-green-400 transition-all border border-white/5 shadow-lg">+1M</button>
                                 </div>
                             </div>
 
-                            <!-- CENTRAL TIMER CONTROLS -->
-                            <div class="flex flex-col items-center space-y-2 w-full px-4">
-                                <div
-                                    class="flex items-center space-x-2 bg-black/60 px-4 py-1.5 rounded-full border border-white/10 shadow-inner mb-1">
-                                    <span id="timerStatusDot"
-                                        class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span>
-                                    <p id="timerLabel"
-                                        class="text-[8px] font-black uppercase tracking-widest text-slate-200 whitespace-nowrap">
-                                        SIAP BERTANDING</p>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2 w-full">
-                                    <button onclick="toggleTimer()" id="btnTimerControl"
-                                        class="py-2.5 rounded-2xl bg-red-600 text-white text-[9px] font-black uppercase tracking-widest shadow-[0_8px_16px_rgba(220,38,38,0.3)] hover:scale-105 active:scale-95 transition-all">START
-                                        MATCH</button>
-                                    <button onclick="resetMatch()"
-                                        class="py-2.5 rounded-2xl bg-slate-800 text-white text-[9px] font-black uppercase tracking-widest border border-white/10 hover:bg-slate-700 transition-all shadow-lg">RESET</button>
-                                </div>
-
-                                <!-- TIMER QUICK TOGGLE (KATA ONLY) -->
-                                <div id="timerToggleContainer"
-                                    class="hidden flex items-center justify-between w-full px-4 py-2 bg-white/5 rounded-2xl border border-white/5 mb-0.5 transition-all">
-                                    <div class="flex items-center gap-2">
-                                        <div id="timerToggleStatus"
-                                            class="w-1 h-1 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]">
-                                        </div>
-                                        <p class="text-[7.5px] font-black uppercase tracking-widest text-slate-400">
-                                            Gunakan Timer</p>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer scale-75">
-                                        <input type="checkbox" id="timerEnableSwitch" class="sr-only peer" checked
-                                            onchange="toggleTimerSetting(this.checked)">
-                                        <div
-                                            class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-red-600">
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- KATA MODE SELECTOR (Integrated) -->
-                                <div id="kataTypeSwitch" class="hidden w-full flex justify-center mt-1">
-                                    <div class="bg-black/60 p-1 rounded-xl flex gap-1 border border-white/5 w-full">
-                                        <button id="kataTypeScoreBtn" onclick="setKataType('score')"
-                                            class="flex-1 py-1 rounded-lg text-[7.5px] font-black uppercase tracking-widest transition-all mode-active italic">SCORE</button>
-                                        <button id="kataTypeFlagBtn" onclick="setKataType('flag')"
-                                            class="flex-1 py-1 rounded-lg text-[7.5px] font-black uppercase tracking-widest transition-all text-slate-500 italic">FLAG</button>
-                                    </div>
-                                </div>
-
-                                <button onclick="announceWinner()" id="btnAnnounceWinner"
-                                    class="w-full py-3 rounded-xl bg-yellow-500 text-black text-[9px] font-black uppercase tracking-widest shadow-lg hidden">ANNOUNCE
-                                    WINNER</button>
-
-                                <!-- KATA PERFORMER SELECTOR (AKA/AO) -->
-                                <div id="performerSelector"
-                                    class="hidden w-full flex flex-col items-center gap-1 mt-1 pt-1 border-t border-white/5">
-                                    <p class="text-[6.5px] font-black uppercase tracking-[0.3em] text-slate-500">PILIH
-                                        PERFORMER</p>
-                                    <div class="bg-black/60 p-1 rounded-xl flex gap-1 border border-white/5 w-full">
-                                        <button id="performerAkaBtn" onclick="setKataPerformer('aka')"
-                                            class="flex-1 py-1.5 px-2 rounded-lg text-[8.5px] font-black uppercase tracking-widest transition-all text-slate-500 hover:text-slate-300 truncate">AKA</button>
-                                        <button id="performerAoBtn" onclick="setKataPerformer('ao')"
-                                            class="flex-1 py-1.5 px-2 rounded-lg text-[8.5px] font-black uppercase tracking-widest transition-all text-slate-500 hover:text-slate-300 truncate">AO</button>
-                                    </div>
-                                </div>
-
-                                <!-- KATA WINNER SELECTOR -->
-                                <div id="kataWinnerSelector"
-                                    class="hidden w-full flex flex-col items-center gap-1 mt-1 pt-1 border-t border-white/10">
-                                    <p class="text-[6.5px] font-black uppercase tracking-[0.3em] text-yellow-500">
-                                        TENTUKAN
-                                        PEMENANG</p>
-                                    <div class="flex gap-1.5 w-full">
-                                        <button id="winAkaBtn" onclick="declareKataWinner('aka')"
-                                            class="flex-1 py-1.5 px-2 rounded-xl bg-red-600/20 text-red-500 border border-red-500/30 text-[8.5px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all truncate">WIN
-                                            AKA</button>
-                                        <button id="winAoBtn" onclick="declareKataWinner('ao')"
-                                            class="flex-1 py-1.5 px-2 rounded-xl bg-blue-600/20 text-blue-500 border border-blue-500/30 text-[8.5px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all truncate">WIN
-                                            AO</button>
-                                    </div>
-                                </div>
-
+                            <div
+                                class="mt-3 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5 shadow-inner">
+                                <span id="timerStatusDot"
+                                    class="w-2 h-2 rounded-full bg-slate-500 animate-pulse"></span>
+                                <p id="timerLabel"
+                                    class="text-[8px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">
+                                    STANDBY</p>
                             </div>
                         </div>
+
+                        <!-- 4. ACTION CONTROLS (TIMER & MATCH) -->
+                        <div
+                            class="relative z-10 flex items-center justify-center gap-2.5 bg-white/[0.03] p-1.5 rounded-[1.5rem] border border-white/5 shadow-inner">
+                            <!-- FINISH MATCH / NEXT -->
+                            <button onclick="finishMatch()" id="btnFinishMatch"
+                                class="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all border-t border-white/20"
+                                title="Selesaikan Match & Simpan Data">
+                                <i id="finishIcon" class="fa-solid fa-check text-xl"></i>
+                            </button>
+
+                            <!-- PLAY/PAUSE TIMER -->
+                            <button onclick="toggleTimer()" id="btnTimerControl"
+                                class="w-11 h-11 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-lg hover:scale-110 active:scale-95 transition-all border-t border-white/20"
+                                title="Play/Pause Timer">
+                                <svg id="timerIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            </button>
+
+                            <!-- RESET TIMER ONLY -->
+                            <button onclick="resetTimer()" id="btnResetTimerControl"
+                                class="w-11 h-11 rounded-xl bg-white/5 text-yellow-500/50 flex items-center justify-center border border-white/10 hover:bg-white/[0.08] hover:text-yellow-400 transition-all shadow-lg"
+                                title="Reset Timer Only">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </button>
+
+                            <!-- RESET FULL MATCH -->
+                            <button onclick="resetMatch()" id="btnResetControl"
+                                class="w-11 h-11 rounded-xl bg-white/5 text-slate-400 flex items-center justify-center border border-white/10 hover:bg-white/[0.08] hover:text-white transition-all shadow-lg"
+                                title="Reset Full Match (Scores, Penalties & Timer)">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- 5. MODE SPECIFIC CONTROLS (DYNAMIC) -->
+                        <div class="relative z-10 w-full flex flex-col gap-2">
+
+                            <!-- TIMER QUICK TOGGLE (KATA ONLY) -->
+                            <div id="timerToggleContainer"
+                                class="hidden flex items-center justify-between w-full px-4 py-2.5 bg-white/[0.03] rounded-[1.5rem] border border-white/5 shadow-inner">
+                                <div class="flex items-center gap-2">
+                                    <div id="timerToggleStatus"
+                                        class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]">
+                                    </div>
+                                    <p class="text-[8px] font-black uppercase tracking-widest text-slate-400">AUTO TIMER
+                                    </p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="timerEnableSwitch" class="sr-only peer" checked
+                                        onchange="toggleTimerSetting(this.checked)">
+                                    <div
+                                        class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-600">
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- CONSOLIDATED KATA CONTROLS ROW -->
+                            <div id="consolidatedKataControls"
+                                class="hidden w-full flex flex-row items-stretch gap-3 p-3 bg-white/[0.03] rounded-[2rem] border border-white/5 shadow-inner">
+
+                                <!-- KATA MODE SELECTOR -->
+                                <div class="flex-none flex flex-col items-center gap-1.5 min-w-[80px]">
+                                    <p class="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">MODE</p>
+                                    <div id="kataTypeSwitch"
+                                        class="flex w-full h-10 bg-white/[0.02] p-1 rounded-xl border border-white/5 shadow-inner">
+                                        <button id="kataTypeScoreBtn" onclick="setKataType('score')"
+                                            class="flex-1 rounded-lg text-[8px] font-black uppercase transition-all mode-active italic"
+                                            title="Score Points">1.0</button>
+                                        <button id="kataTypeFlagBtn" onclick="setKataType('flag')"
+                                            class="flex-1 rounded-lg text-[10px] font-black transition-all text-slate-500 italic"
+                                            title="Flag Voting">🚩</button>
+                                    </div>
+                                </div>
+
+                                <div class="w-[1px] h-14 bg-white/10 shrink-0 self-center"></div>
+
+                                <!-- KATA PERFORMER SELECTOR -->
+                                <div class="flex-none flex flex-col items-center gap-1.5 min-w-[100px]">
+                                    <p class="text-[7px] font-black uppercase tracking-[0.2em] text-slate-500">PLAYER
+                                    </p>
+                                    <div id="performerSelector" class="flex gap-1.5 w-full h-10">
+                                        <button id="performerAkaBtn" onclick="setKataPerformer('aka')"
+                                            class="flex-1 rounded-lg bg-white/5 text-red-500 flex items-center justify-center hover:text-white transition-all border border-white/5 shadow-md">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                            </svg>
+                                        </button>
+                                        <button id="performerAoBtn" onclick="setKataPerformer('ao')"
+                                            class="flex-1 rounded-lg bg-white/5 text-blue-500 flex items-center justify-center hover:text-white transition-all border border-white/5 shadow-md">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- HANTEI FLAG CONTROLS (Hidden by default, shows on draw) -->
+                            <div id="hanteiControls"
+                                class="hidden w-full flex flex-col gap-3 p-4 bg-yellow-500/10 rounded-[2rem] border border-yellow-500/30 shadow-inner">
+                                <p class="text-[8px] font-black uppercase tracking-[0.3em] text-yellow-500 text-center">
+                                    ⚖️ HANTEI - KEPUTUSAN WASIT ⚖️
+                                </p>
+                                <div class="flex items-center justify-center gap-6">
+                                    <!-- AKA FLAGS INPUT -->
+                                    <div class="flex flex-col items-center gap-1">
+                                        <p class="text-[7px] font-black uppercase text-red-500">AKA</p>
+                                        <input type="number" id="hanteiInputAka" min="0" max="5" value="0"
+                                            onchange="checkHanteiResult()"
+                                            class="w-14 h-12 text-center text-2xl font-black bg-red-500/20 text-red-500 border-2 border-red-500/50 rounded-xl focus:outline-none focus:border-red-500 transition-all" />
+                                    </div>
+                                    <span class="text-2xl font-black text-yellow-500/50">-</span>
+                                    <!-- AO FLAGS INPUT -->
+                                    <div class="flex flex-col items-center gap-1">
+                                        <p class="text-[7px] font-black uppercase text-blue-500">AO</p>
+                                        <input type="number" id="hanteiInputAo" min="0" max="5" value="0"
+                                            onchange="checkHanteiResult()"
+                                            class="w-14 h-12 text-center text-2xl font-black bg-blue-500/20 text-blue-500 border-2 border-blue-500/50 rounded-xl focus:outline-none focus:border-blue-500 transition-all" />
+                                    </div>
+                                </div>
+                                <button onclick="confirmHantei()" id="btnConfirmHantei"
+                                    class="w-full py-2 rounded-xl bg-yellow-500 text-black text-[9px] font-black uppercase tracking-widest hover:bg-yellow-400 active:scale-95 transition-all shadow-lg">
+                                    Konfirmasi Pemenang
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <!-- FOOTER INFO -->
+                        <div class="mt-auto pt-2 text-center opacity-5">
+                            <p class="text-[6px] font-black uppercase tracking-[0.8em]">PLATINUM</p>
+                        </div>
                     </div>
+
                     <!-- AO PANEL (Default: LEFT side to match monitor) -->
-                    <div id="panelContainerAo" style="order: 1; flex: 1;"
-                        class="col-span-12 md:col-span-5 flex flex-col items-center justify-between py-4 px-6 bg-blue-950/10 relative group border-l border-white/5">
+                    <div id="panelContainerAo" style="order: 1; flex: 1.5;"
+                        class="col-span-12 md:col-span-5 flex flex-col items-center justify-between py-6 px-8 bg-blue-950/20 relative group border-r border-white/5 premium-gradient-blue overflow-hidden">
+                        <!-- DECORATIVE GLOW -->
+                        <div
+                            class="absolute -top-24 -left-24 w-48 h-48 bg-blue-600/10 blur-[80px] rounded-full pointer-events-none">
+                        </div>
+
                         <!-- HANTEI BUTTON (Minimalist) -->
                         <button id="btnHanteiAo" onclick="setHanteiWinner('ao')"
-                            class="absolute top-0 left-0 px-4 py-2 bg-blue-600 shadow-[0_4px_10px_rgba(37,99,235,0.3)] text-white rounded-br-3xl border-r border-b border-white/20 hidden transition-all hover:scale-110 active:scale-95 z-50">
-                            <span class="text-[10px] font-black italic tracking-widest uppercase">Kachi</span>
+                            class="absolute top-0 left-0 px-6 py-2.5 bg-blue-600 shadow-[0_8px_20px_rgba(37,99,235,0.4)] text-white rounded-br-[2rem] border-r border-b border-white/20 hidden transition-all hover:scale-105 active:scale-95 z-50">
+                            <span class="text-[10px] font-black italic tracking-[0.2em] uppercase">Kachi</span>
                         </button>
 
                         <div
-                            class="absolute top-0 right-0 w-full h-1 bg-blue-600 shadow-[0_5px_15px_rgba(37,99,235,0.4)]">
+                            class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-transparent shadow-[0_5px_20px_rgba(37,99,235,0.4)]">
                         </div>
 
                         <!-- TOP: Name & Label -->
-                        <div id="panelAo" class="text-center w-full relative z-10 pt-2">
-                            <div id="badgeWinnerAo"
-                                class="absolute -top-6 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-500 text-white text-[8px] font-black uppercase tracking-[0.3em] rounded-full hidden">
-                                WINNER</div>
-                            <p class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500/60 mb-1 italic">
+                        <div id="panelAo" class="text-center w-full relative z-10">
+                            <p class="text-[11px] font-black uppercase tracking-[0.5em] text-blue-500/50 mb-1.5 italic">
                                 AO</p>
                             <h2 id="nameAoDisplay"
-                                class="text-2xl font-black uppercase italic tracking-tighter text-slate-200 truncate px-4">
+                                class="text-3xl font-black uppercase italic tracking-tight text-white truncate px-4 drop-shadow-lg">
                                 ---</h2>
+                            <p id="teamAoDisplay"
+                                class="text-[11px] font-black uppercase text-white/80 tracking-[0.2em] mt-1 truncate px-10">
+                                ---</p>
                             <input type="text" id="inputKataAo" placeholder="Input Nama Kata"
                                 oninput="checkKataShortcut(this); broadcastData()"
-                                class="w-auto min-w-[160px] bg-blue-500/5 border border-blue-500/10 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-blue-500 mt-2 focus:bg-blue-500/10 focus:border-blue-500/40 focus:scale-105 focus:outline-none placeholder:text-blue-500/20 transition-all text-center hidden">
+                                class="w-auto min-w-[200px] bg-blue-500/10 border border-blue-500/20 rounded-2xl px-6 py-3 text-xs font-black uppercase tracking-widest text-blue-400 mt-3 focus:bg-blue-500/20 focus:border-blue-500/50 focus:scale-105 focus:outline-none placeholder:text-blue-500/30 transition-all text-center hidden shadow-inner">
                         </div>
 
                         <!-- CENTER: Score (Anchor) -->
                         <div id="scoreAo"
-                            class="text-[180px] font-black italic tracking-tighter text-blue-500 leading-none drop-shadow-[0_20px_40px_rgba(59,130,246,0.3)] select-none my-auto">
+                            class="text-[180px] score-digit text-blue-500 leading-none drop-shadow-[0_20px_60px_rgba(59,130,246,0.4)] select-none my-auto transition-all duration-300">
                             00</div>
 
                         <!-- BOTTOM: Controls -->
-                        <div id="kumiteControlsAo" class="w-full relative z-10 space-y-3 px-4">
+                        <div id="kumiteControlsAo" class="w-full relative z-10 space-y-4 px-4">
                             <!-- Score Buttons -->
-                            <div class="grid grid-cols-4 gap-2">
-                                <button onclick="addScore('ao', 1)" class="neu-button py-3 rounded-xl group">
+                            <div class="grid grid-cols-4 gap-3">
+                                <button onclick="addScore('ao', 1)"
+                                    class="neu-button py-4 rounded-2xl group border-white/10">
                                     <span
-                                        class="text-xl font-black group-hover:scale-110 transition-transform text-blue-400">+1</span>
+                                        class="text-2xl font-black group-hover:scale-110 transition-transform text-blue-400">+1</span>
                                 </button>
                                 <button onclick="addScore('ao', 2)"
-                                    class="neu-button py-3 rounded-xl group border-blue-500/30">
+                                    class="neu-button py-4 rounded-2xl group border-blue-500/30">
                                     <span
-                                        class="text-xl font-black text-blue-500 group-hover:scale-110 transition-transform">+2</span>
+                                        class="text-2xl font-black text-blue-500 group-hover:scale-110 transition-transform">+2</span>
                                 </button>
                                 <button onclick="addScore('ao', 3)"
-                                    class="neu-button py-3 rounded-xl group border-blue-500/50">
+                                    class="neu-button py-4 rounded-2xl group border-blue-500/50">
                                     <span
-                                        class="text-xl font-black text-blue-600 group-hover:scale-110 transition-transform">+3</span>
+                                        class="text-2xl font-black text-blue-600 group-hover:scale-110 transition-transform">+3</span>
                                 </button>
                                 <button onclick="addScore('ao', -1)"
-                                    class="neu-button py-3 rounded-xl group bg-white/5 opacity-40">
+                                    class="neu-button py-4 rounded-2xl group bg-white/5 opacity-40 border-white/5">
                                     <span
-                                        class="text-xl font-black text-slate-500 group-hover:scale-110 transition-transform">-1</span>
+                                        class="text-2xl font-black text-slate-500 group-hover:scale-110 transition-transform">-1</span>
                                 </button>
                             </div>
 
                             <!-- Penalty & Status Buttons -->
-                            <div id="penAo" class="grid grid-cols-7 gap-1.5">
+                            <div id="penAo" class="grid grid-cols-7 gap-2">
                                 <button id="senshuAo" onclick="setSenshu('ao')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-70 hover:opacity-100 transition-opacity">S</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-70 hover:opacity-100 transition-opacity">S</button>
                                 <button id="ao_c1" onclick="togglePenalty('ao', 'c1')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C1</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C1</button>
                                 <button id="ao_c2" onclick="togglePenalty('ao', 'c2')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C2</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C2</button>
                                 <button id="ao_c3" onclick="togglePenalty('ao', 'c3')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C3</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C3</button>
                                 <button id="ao_hc" onclick="togglePenalty('ao', 'hc')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">HC</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">HC</button>
                                 <button id="ao_h" onclick="togglePenalty('ao', 'h')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">H</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">H</button>
                                 <button id="vrAo" onclick="toggleVR('ao')"
-                                    class="py-3 rounded-lg neu-button text-[10px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100">VR</button>
+                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100">VR</button>
                             </div>
                         </div>
 
                         <!-- KATA CONTROLS AO (Integrated) -->
-                        <div id="kataControlsAo" class="hidden w-full relative z-10 space-y-3 px-4">
-                            <div class="grid grid-cols-5 gap-2">
+                        <div id="kataControlsAo" class="hidden w-full relative z-10 space-y-4 px-2">
+                            <div class="grid grid-cols-5 gap-3">
                                 <button onclick="openJudgeKeypad('ao', 0)" id="judgeBtnAo0"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-blue-400 hover:bg-blue-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('ao', 1)" id="judgeBtnAo1"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-blue-400 hover:bg-blue-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('ao', 2)" id="judgeBtnAo2"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-blue-400 hover:bg-blue-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('ao', 3)" id="judgeBtnAo3"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-blue-400 hover:bg-blue-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
                                 <button onclick="openJudgeKeypad('ao', 4)" id="judgeBtnAo4"
-                                    class="bg-slate-800/80 border border-white/10 rounded-xl py-3 text-center text-sm font-black text-blue-400 hover:bg-blue-500/20 transition-all">0.0</button>
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
                             </div>
                             <div
-                                class="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 flex justify-between items-center">
-                                <span class="text-[9px] font-black uppercase text-blue-500/50">RESULT</span>
-                                <span id="kataTotalAo" class="text-lg font-black text-blue-500 italic">0.0</span>
+                                class="p-3.5 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex justify-between items-center shadow-inner">
+                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500/50">TOTAL
+                                    SCORE</span>
+                                <span id="kataTotalAo" class="text-2xl font-black text-blue-500 score-digit">0.0</span>
                             </div>
                         </div>
-
                         <!-- KATA FLAG CONTROLS AO -->
                         <div id="kataFlagControlsAo" class="hidden w-full relative z-10 space-y-3 px-4">
                             <p class="text-[8px] font-black uppercase tracking-widest text-blue-500/50 text-center">
@@ -688,28 +773,122 @@
 
     <!-- JUDGE KEYPAD MODAL -->
     <div id="judgeKeypadModal"
-        class="fixed inset-0 z-[110] hidden items-center justify-center p-4 bg-slate-950/90 backdrop-blur-xl transition-all duration-300">
+        class="fixed inset-0 z-[110] hidden items-center justify-center p-4 bg-slate-950/95 backdrop-blur-2xl transition-all duration-300">
         <div
-            class="bg-slate-900/95 border border-white/10 rounded-[3rem] w-full max-w-4xl p-10 neu-flat overflow-hidden max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-start mb-8">
+            class="bg-slate-900/40 border border-white/10 rounded-[3.5rem] w-full max-w-5xl p-1 md:p-12 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden max-h-[92vh] flex flex-col relative">
+
+            <!-- DECORATIVE BG GLOW -->
+            <div id="keypadGlow"
+                class="absolute -top-40 -left-40 w-80 h-80 bg-red-500/10 blur-[100px] rounded-full pointer-events-none transition-all duration-500">
+            </div>
+
+            <div class="flex justify-between items-start mb-10 px-6 pt-6 md:pt-0">
                 <div>
-                    <h3 class="text-2xl font-black uppercase tracking-widest text-white italic shimmer-text">Input Nilai
-                        Kata</h3>
-                    <p id="keypadSubtitle"
-                        class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mt-2 italic">
-                        AKA - JUDGE 1</p>
+                    <h3 class="text-3xl font-black uppercase tracking-tight text-white italic shimmer-text">INPUT NILAI
+                        KATA</h3>
+                    <div id="keypadSubtitleContainer" class="flex items-center gap-3 mt-2">
+                        <span id="keypadBadge"
+                            class="px-3 py-1 bg-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-full border border-red-500/30">AKA</span>
+                        <p id="keypadSubtitle"
+                            class="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 italic">JUDGE 1</p>
+                    </div>
                 </div>
                 <button onclick="closeJudgeKeypad()"
-                    class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-red-500/20 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 hover:scale-110 active:scale-95 transition-all shadow-xl">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            <div id="keypadGrid" class="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-8">
-                <!-- Keypad buttons will be generated here -->
+            <div id="keypadGrid"
+                class="flex-1 overflow-y-auto px-6 pb-6 custom-scrollbar flex flex-col items-center justify-center space-y-8">
+                <!-- Display Area -->
+                <div class="flex items-center gap-6">
+                    <div id="digitPrimer"
+                        class="w-24 h-32 rounded-3xl bg-white/5 border-2 border-white/10 flex items-center justify-center text-7xl font-black text-white shadow-inner">
+                        _</div>
+                    <div class="text-6xl font-black text-white/20">.</div>
+                    <div id="digitDecimal"
+                        class="w-24 h-32 rounded-3xl bg-white/5 border-2 border-white/10 flex items-center justify-center text-7xl font-black text-white shadow-inner">
+                        _</div>
+                </div>
+
+                <!-- Numpad Area -->
+                <div class="grid grid-cols-3 gap-4 md:gap-6 max-w-sm w-full">
+                    <button onclick="handleNumpad(1)" class="numpad-btn">1</button>
+                    <button onclick="handleNumpad(2)" class="numpad-btn">2</button>
+                    <button onclick="handleNumpad(3)" class="numpad-btn">3</button>
+                    <button onclick="handleNumpad(4)" class="numpad-btn">4</button>
+                    <button onclick="handleNumpad(5)" class="numpad-btn">5</button>
+                    <button onclick="handleNumpad(6)" class="numpad-btn">6</button>
+                    <button onclick="handleNumpad(7)" class="numpad-btn">7</button>
+                    <button onclick="handleNumpad(8)" class="numpad-btn">8</button>
+                    <button onclick="handleNumpad(9)" class="numpad-btn">9</button>
+                    <div class="invisible"></div>
+                    <button onclick="handleNumpad(0)" class="numpad-btn">0</button>
+                    <button onclick="clearNumpad()" class="numpad-btn text-red-500 text-sm">CLR</button>
+                </div>
+            </div>
+
+            <style>
+                .numpad-btn {
+                    width: 100%;
+                    aspect-ratio: 1 / 1;
+                    border-radius: 1.5rem;
+                    background-color: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.875rem;
+                    font-weight: 900;
+                    color: white;
+                    transition: all 0.2s;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                }
+
+                @media (min-width: 768px) {
+                    .numpad-btn {
+                        width: 6rem;
+                        height: 6rem;
+                    }
+                }
+
+                .numpad-btn:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                    transform: scale(1.05);
+                }
+
+                .numpad-btn:active {
+                    transform: scale(0.95);
+                }
+
+                .digit-active {
+                    border-color: rgba(239, 68, 68, 0.5) !important;
+                    background-color: rgba(239, 68, 68, 0.05) !important;
+                    box-shadow: 0 0 30px rgba(239, 68, 68, 0.2) !important;
+                }
+            </style>
+
+            <script>
+                window.closeJudgeKeypad = function () {
+                    const modal = document.getElementById('judgeKeypadModal');
+                    if (modal) {
+                        modal.classList.add('opacity-0');
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                            modal.classList.remove('opacity-0');
+                        }, 300);
+                    }
+                }
+            </script>
+
+            <!-- Footer indicator -->
+            <div class="p-6 border-t border-white/5 text-center">
+                <p class="text-[9px] font-black uppercase tracking-[0.5em] text-slate-600">KENSHO SCORING SYSTEM •
+                    PREMIUM EDITION</p>
             </div>
         </div>
     </div>
@@ -947,8 +1126,13 @@
 
             const dAka = document.getElementById('nameAkaDisplay');
             const dAo = document.getElementById('nameAoDisplay');
+            const tAka = document.getElementById('teamAkaDisplay');
+            const tAo = document.getElementById('teamAoDisplay');
+
             if (dAka) dAka.innerText = window.nameAka.toUpperCase();
             if (dAo) dAo.innerText = window.nameAo.toUpperCase();
+            if (tAka) tAka.innerText = (window.teamAka === '-' || !window.teamAka) ? '---' : window.teamAka.toUpperCase();
+            if (tAo) tAo.innerText = (window.teamAo === '-' || !window.teamAo) ? '---' : window.teamAo.toUpperCase();
 
             if (match.classId || match.currentClassId) {
                 const classId = match.classId || match.currentClassId;
@@ -1009,6 +1193,8 @@
                 vrAka: window.vrAka,
                 vrAo: window.vrAo,
                 isHantei: window.isHantei,
+                isHanteiResult: window.isHanteiResult || false,
+                hanteiScore: window.hanteiScore || null,
                 scoringMode: window.scoringMode,
                 kataType: window.kataType,
                 kataScoreAka: window.kataScoreAka,
@@ -1037,45 +1223,59 @@
         window.updateBroadcastUI = function () {
             window.updateConsoleWinnerUI();
 
+            // Sync Name & Team Displays (Console)
+            const dAka = document.getElementById('nameAkaDisplay');
+            const dAo = document.getElementById('nameAoDisplay');
+            const tAka = document.getElementById('teamAkaDisplay');
+            const tAo = document.getElementById('teamAoDisplay');
+            if (dAka) dAka.innerText = (window.nameAka || '---').toUpperCase();
+            if (dAo) dAo.innerText = (window.nameAo || '---').toUpperCase();
+            if (tAka) tAka.innerText = (window.teamAka === '-' || !window.teamAka) ? '---' : window.teamAka.toUpperCase();
+            if (tAo) tAo.innerText = (window.teamAo === '-' || !window.teamAo) ? '---' : window.teamAo.toUpperCase();
+
             // Hantei Buttons visibility
             const btnHaka = document.getElementById('btnHanteiAka');
             const btnHao = document.getElementById('btnHanteiAo');
             if (btnHaka) btnHaka.classList.toggle('hidden', !window.isHantei);
             if (btnHao) btnHao.classList.toggle('hidden', !window.isHantei);
 
-            // Update Performer Buttons with Names
+            // Hantei Controls visibility (center panel flag voting)
+            const hanteiControls = document.getElementById('hanteiControls');
+            if (hanteiControls) {
+                hanteiControls.classList.toggle('hidden', !window.isHantei);
+                hanteiControls.classList.toggle('flex', window.isHantei);
+            }
+
+            // Update Performer Buttons (No text to keep it compact)
             const akaBtn = document.getElementById('performerAkaBtn');
             const aoBtn = document.getElementById('performerAoBtn');
-            if (akaBtn) akaBtn.innerText = window.nameAka ? window.nameAka.toUpperCase() : 'AKA';
-            if (aoBtn) aoBtn.innerText = window.nameAo ? window.nameAo.toUpperCase() : 'AO';
+            // Logic handled by setKataPerformer and updateBroadcastUI classes
         }
 
         window.updateConsoleWinnerUI = function () {
-            const panelAka = document.getElementById('panelAka');
-            const panelAo = document.getElementById('panelAo');
-            const badgeAka = document.getElementById('badgeWinnerAka');
-            const badgeAo = document.getElementById('badgeWinnerAo');
+            // Updated: Console no longer shows Winner badge/glow to reduce clutter
+            // The WINNER announcement is now handled directly on the Monitor
 
-            if (panelAka) panelAka.classList.remove('winner-glow-aka');
-            if (panelAo) panelAo.classList.remove('winner-glow-ao');
-            if (badgeAka) badgeAka.classList.add('hidden');
-            if (badgeAo) badgeAo.classList.add('hidden');
+            const btnFinish = document.getElementById('btnFinishMatch');
+            const iconFinish = document.getElementById('finishIcon');
 
-            if (window.isWinnerDeclared) {
-                if (window.winnerSide === 'aka') {
-                    if (panelAka) panelAka.classList.add('winner-glow-aka');
-                    if (badgeAka) badgeAka.classList.remove('hidden');
-                } else if (window.winnerSide === 'ao') {
-                    if (panelAo) panelAo.classList.add('winner-glow-ao');
-                    if (badgeAo) badgeAo.classList.remove('hidden');
+            if (btnFinish && iconFinish) {
+                if (window.isWinnerDeclared) {
+                    btnFinish.title = "Pertandingan Berikutnya (Reset)";
+                    btnFinish.classList.remove('bg-emerald-600');
+                    btnFinish.classList.add('bg-blue-600');
+                    iconFinish.className = "fa-solid fa-forward text-xl";
+                } else {
+                    btnFinish.title = "Selesaikan Match & Simpan Data";
+                    btnFinish.classList.remove('bg-blue-600');
+                    btnFinish.classList.add('bg-emerald-600');
+                    iconFinish.className = "fa-solid fa-check text-xl";
                 }
             }
 
-            // Update Winner Selector Buttons with Names
+            // Update Winner Selector Buttons (No text to keep it compact)
             const winAkaBtn = document.getElementById('winAkaBtn');
             const winAoBtn = document.getElementById('winAoBtn');
-            if (winAkaBtn) winAkaBtn.innerText = window.nameAka ? `WIN ${window.nameAka.toUpperCase()}` : 'WIN AKA';
-            if (winAoBtn) winAoBtn.innerText = window.nameAo ? `WIN ${window.nameAo.toUpperCase()}` : 'WIN AO';
 
             const announceBtn = document.getElementById('btnAnnounceWinner');
             if (announceBtn) {
@@ -1208,45 +1408,51 @@
             const kumiteBtn = document.getElementById('modeKumiteBtn');
             const kataBtn = document.getElementById('modeKataBtn');
             const catDisplay = document.getElementById('categoryDisplay');
-            const typeSwitch = document.getElementById('kataTypeSwitch');
+            const consolidatedKataControls = document.getElementById('consolidatedKataControls');
 
             if (kumiteBtn) {
-                kumiteBtn.classList.toggle('mode-active', !isKata);
-                kumiteBtn.classList.toggle('text-slate-500', isKata);
+                if (!isKata) {
+                    kumiteBtn.className = "flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all mode-active";
+                } else {
+                    kumiteBtn.className = "flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all text-slate-500 hover:text-slate-300";
+                }
             }
             if (kataBtn) {
-                kataBtn.classList.toggle('mode-active', isKata);
-                kataBtn.classList.toggle('text-slate-500', !isKata);
+                if (isKata) {
+                    kataBtn.className = "flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all mode-active";
+                } else {
+                    kataBtn.className = "flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all text-slate-500 hover:text-slate-300";
+                }
             }
 
             // Label Category
             if (catDisplay) catDisplay.innerText = isKata ? 'KATA' : 'KUMITE';
 
-            // Sub-mode switch visibility
-            if (typeSwitch) typeSwitch.classList.toggle('hidden', !isKata);
-
-            // Control visibility logic
+            // ... (rest of the function stays same or similar)
+            if (consolidatedKataControls) {
+                consolidatedKataControls.classList.toggle('hidden', !isKata);
+                consolidatedKataControls.classList.toggle('flex', isKata); // Ensure flex is applied when visible
+            }
             window.updateControlPanels();
 
-            // Timer toggle visibility
             const timerToggle = document.getElementById('timerToggleContainer');
             if (timerToggle) {
                 timerToggle.classList.toggle('hidden', !isKata);
-                if (!isKata) {
-                    // Kumite always has timer enabled
+                const switchInput = document.getElementById('timerEnableSwitch');
+                if (isKata) {
+                    window.toggleTimerSetting(false);
+                    if (switchInput) switchInput.checked = false;
+                } else {
                     window.toggleTimerSetting(true);
-                    const switchInput = document.getElementById('timerEnableSwitch');
                     if (switchInput) switchInput.checked = true;
                 }
             }
 
-            // Penalty section hide in Kata
             const penAka = document.getElementById('penAka');
             const penAo = document.getElementById('penAo');
             if (penAka) penAka.classList.toggle('hidden', isKata);
             if (penAo) penAo.classList.toggle('hidden', isKata);
 
-            // Update scores display based on mode
             const sAka = document.getElementById('scoreAka');
             const sAo = document.getElementById('scoreAo');
 
@@ -1284,7 +1490,6 @@
                     sAo.classList.add('text-8xl', 'md:text-[180px]');
                 }
             }
-
             window.broadcastData();
         }
 
@@ -1292,10 +1497,23 @@
             window.kataType = type;
             const isFlag = type === 'flag';
 
-            document.getElementById('kataTypeScoreBtn').classList.toggle('mode-active', !isFlag);
-            document.getElementById('kataTypeScoreBtn').classList.toggle('text-slate-500', isFlag);
-            document.getElementById('kataTypeFlagBtn').classList.toggle('mode-active', isFlag);
-            document.getElementById('kataTypeFlagBtn').classList.toggle('text-slate-500', !isFlag);
+            const scoreBtn = document.getElementById('kataTypeScoreBtn');
+            const flagBtn = document.getElementById('kataTypeFlagBtn');
+
+            if (scoreBtn) {
+                if (!isFlag) {
+                    scoreBtn.className = "flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all mode-active italic";
+                } else {
+                    scoreBtn.className = "flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all text-slate-500 italic hover:text-slate-300";
+                }
+            }
+            if (flagBtn) {
+                if (isFlag) {
+                    flagBtn.className = "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all mode-active italic";
+                } else {
+                    flagBtn.className = "flex-1 py-1.5 rounded-lg text-[10px] font-black transition-all text-slate-500 italic hover:text-slate-300";
+                }
+            }
 
             window.updateControlPanels();
 
@@ -1317,15 +1535,9 @@
             const isKata = window.scoringMode === 'kata';
             const isFlag = window.kataType === 'flag';
 
-            // Performer & Winner Selector Visibility
-            const perfSelector = document.getElementById('performerSelector');
-            const winSelector = document.getElementById('kataWinnerSelector');
-            if (perfSelector) {
-                perfSelector.classList.toggle('hidden', !isKata || !window.isTimerEnabled);
-            }
-            if (winSelector) {
-                winSelector.classList.toggle('hidden', !isKata || isFlag);
-            }
+            // Performer & Winner Selector Visibility (now handled by parent consolidatedKataControls)
+            // The individual elements within consolidatedKataControls are always present,
+            // their parent's visibility is controlled by setScoringMode.
 
             // Aka Panels
             document.getElementById('kumiteControlsAka').classList.toggle('hidden', isKata);
@@ -1395,6 +1607,7 @@
 
             // Determine winner
             window.isWinnerDeclared = true;
+            window.showWinnerBanner = true;
             if (count > 2.5) window.winnerSide = 'aka';
             else if (count < 2.5) window.winnerSide = 'ao';
             else window.winnerSide = 'draw';
@@ -1429,6 +1642,7 @@
 
             // Determine winner
             window.isWinnerDeclared = true;
+            window.showWinnerBanner = true;
             if (count > 2.5) window.winnerSide = 'ao';
             else if (count < 2.5) window.winnerSide = 'aka';
             else window.winnerSide = 'draw';
@@ -1541,6 +1755,7 @@
             // WKF RULE: 8 Point Gap (Kachi)
             if (Math.abs(window.akaScore - window.aoScore) >= 8) {
                 window.isWinnerDeclared = true;
+                window.showWinnerBanner = true;
                 window.winnerSide = window.akaScore > window.aoScore ? 'aka' : 'ao';
 
                 // Track Winner Activity
@@ -1591,7 +1806,9 @@
         }
 
         window.setKataPerformer = function (side) {
-            if (window.activeKataPerformer === side) {
+            if (side === null) {
+                window.activeKataPerformer = null;
+            } else if (window.activeKataPerformer === side) {
                 window.activeKataPerformer = null;
             } else {
                 window.activeKataPerformer = side;
@@ -1600,21 +1817,17 @@
             const akaBtn = document.getElementById('performerAkaBtn');
             const aoBtn = document.getElementById('performerAoBtn');
 
+            if (!akaBtn || !aoBtn) return;
+
             if (window.activeKataPerformer === 'aka') {
-                akaBtn.classList.add('mode-active', 'bg-red-600/20', 'text-red-500', 'border-red-500/30');
-                akaBtn.classList.remove('text-slate-500');
-                aoBtn.classList.remove('mode-active', 'bg-blue-600/20', 'text-blue-500', 'border-blue-500/30');
-                aoBtn.classList.add('text-slate-500');
+                akaBtn.className = "w-16 h-10 rounded-lg bg-red-600 text-white flex items-center justify-center transition-all border border-red-500/30 shadow-md shadow-red-500/20";
+                aoBtn.className = "w-16 h-10 rounded-lg bg-white/5 text-blue-500 flex items-center justify-center hover:text-white transition-all border border-white/5 shadow-md";
             } else if (window.activeKataPerformer === 'ao') {
-                aoBtn.classList.add('mode-active', 'bg-blue-600/20', 'text-blue-500', 'border-blue-500/30');
-                aoBtn.classList.remove('text-slate-500');
-                akaBtn.classList.remove('mode-active', 'bg-red-600/20', 'text-red-500', 'border-red-500/30');
-                akaBtn.classList.add('text-slate-500');
+                aoBtn.className = "w-16 h-10 rounded-lg bg-blue-600 text-white flex items-center justify-center transition-all border border-blue-500/30 shadow-md shadow-blue-500/20";
+                akaBtn.className = "w-16 h-10 rounded-lg bg-white/5 text-red-500 flex items-center justify-center hover:text-white transition-all border border-white/5 shadow-md";
             } else {
-                akaBtn.classList.remove('mode-active', 'bg-red-600/20', 'text-red-500', 'border-red-500/30');
-                akaBtn.classList.add('text-slate-500');
-                aoBtn.classList.remove('mode-active', 'bg-blue-600/20', 'text-blue-500', 'border-blue-500/30');
-                aoBtn.classList.add('text-slate-500');
+                akaBtn.className = "w-16 h-10 rounded-lg bg-white/5 text-red-500 flex items-center justify-center hover:text-white transition-all border border-white/5 shadow-md";
+                aoBtn.className = "w-16 h-10 rounded-lg bg-white/5 text-blue-500 flex items-center justify-center hover:text-white transition-all border border-white/5 shadow-md";
             }
 
             window.broadcastData();
@@ -1707,7 +1920,11 @@
             window.isTimerEnabled = enabled;
             const display = document.getElementById('timerDisplay');
             const toggleStatus = document.getElementById('timerToggleStatus');
-            const timerControls = document.getElementById('btnTimerControl').parentElement;
+
+            // Targeted buttons
+            const playBtn = document.getElementById('btnTimerControl');
+            const resetTimerBtn = document.getElementById('btnResetTimerControl');
+            const resetMatchBtn = document.getElementById('btnResetControl');
 
             if (display) {
                 display.style.opacity = enabled ? '1' : '0.15';
@@ -1718,9 +1935,21 @@
                 toggleStatus.classList.toggle('bg-slate-600', !enabled);
                 toggleStatus.classList.toggle('shadow-[0_0_8px_rgba(239,68,68,0.5)]', enabled);
             }
-            if (timerControls) {
-                timerControls.style.opacity = enabled ? '1' : '0.3';
-                timerControls.style.pointerEvents = enabled ? 'auto' : 'none';
+
+            // Only affect Timer specific buttons
+            if (playBtn) {
+                playBtn.style.opacity = enabled ? '1' : '0.3';
+                playBtn.style.pointerEvents = enabled ? 'auto' : 'none';
+            }
+            if (resetTimerBtn) {
+                resetTimerBtn.style.opacity = enabled ? '1' : '0.3';
+                resetTimerBtn.style.pointerEvents = enabled ? 'auto' : 'none';
+            }
+
+            // Reset Match is ALWAYS active (based on user request)
+            if (resetMatchBtn) {
+                resetMatchBtn.style.opacity = '1';
+                resetMatchBtn.style.pointerEvents = 'auto';
             }
 
             window.broadcastData();
@@ -1741,11 +1970,16 @@
             if (window.isTimerRunning) {
                 if (window.timerId) clearInterval(window.timerId);
                 window.isTimerRunning = false;
-                btn.innerText = 'RESUME MATCH';
-                btn.classList.replace('bg-red-500', 'bg-slate-700');
+
+                // Update Icon to Play
+                const icon = document.getElementById('timerIcon');
+                if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+
+                btn.classList.remove('bg-red-600');
+                btn.classList.add('bg-slate-700');
                 dot.classList.replace('bg-green-500', 'bg-yellow-500');
-                label.innerText = 'MATCH DIHENTIKAN';
-                label.classList.replace('text-green-500', 'text-yellow-500');
+                label.innerText = 'PAUSED';
+                label.className = "text-[8px] font-black uppercase tracking-widest text-yellow-500 whitespace-nowrap";
             } else {
                 // Enforce performer selection in Kata mode when starting
                 if (window.scoringMode === 'kata' && !window.activeKataPerformer) {
@@ -1755,13 +1989,17 @@
 
                 window.timerId = setInterval(window.updateTimer, 1000);
                 window.isTimerRunning = true;
-                btn.innerText = 'PAUSE MATCH';
+
+                // Update Icon to Pause
+                const icon = document.getElementById('timerIcon');
+                if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+
+                btn.classList.remove('bg-red-600');
                 btn.classList.add('bg-slate-700');
-                dot.classList.replace('bg-slate-600', 'bg-green-500');
-                dot.classList.replace('bg-yellow-500', 'bg-green-500');
-                label.innerText = 'PERTANDINGAN BERJALAN';
-                label.classList.replace('text-slate-500', 'text-green-500');
-                label.classList.replace('text-yellow-500', 'text-green-500');
+                dot.classList.remove('bg-slate-500', 'bg-yellow-500');
+                dot.classList.add('bg-green-500');
+                label.innerText = 'RUNNING';
+                label.className = "text-[8px] font-black uppercase tracking-widest text-green-500 whitespace-nowrap";
                 dot.classList.add('pulse-red');
             }
             window.broadcastData();
@@ -1775,14 +2013,31 @@
 
                 // Declare winner automatically based on score
                 window.isWinnerDeclared = true;
-                if (window.akaScore > window.aoScore) window.winnerSide = 'aka';
-                else if (window.aoScore > window.akaScore) window.winnerSide = 'ao';
-                else if (window.senshu) window.winnerSide = window.senshu;
-                else {
+                if (window.akaScore > window.aoScore) {
+                    window.winnerSide = 'aka';
+                    window.showWinnerBanner = true;
+                } else if (window.aoScore > window.akaScore) {
+                    window.winnerSide = 'ao';
+                    window.showWinnerBanner = true;
+                } else if (window.senshu) {
+                    window.winnerSide = window.senshu;
+                    window.showWinnerBanner = true;
+                } else {
+                    // DRAW - Show Hantei panel for flag input
                     window.winnerSide = 'draw';
                     window.isHantei = true;
+                    window.isWinnerDeclared = false; // Keep false until Hantei is confirmed
+                    window.showWinnerBanner = false;
+
+                    // Auto-show Hantei Controls panel
+                    const hanteiControls = document.getElementById('hanteiControls');
+                    if (hanteiControls) {
+                        hanteiControls.classList.remove('hidden');
+                        hanteiControls.classList.add('flex');
+                    }
                 }
 
+                window.updateBroadcastUI();
                 await window.broadcastData();
                 return;
             }
@@ -1804,6 +2059,25 @@
             const secsDisplay = window.timeLeft % 60;
             document.getElementById('timerDisplay').value = `${minsDisplay.toString().padStart(2, '0')}:${secsDisplay.toString().padStart(2, '0')}`;
             window.broadcastData();
+        }
+
+        // Hold-to-repeat timer adjustment
+        window._timerAdjustInterval = null;
+        window.startTimerAdjust = function (secs) {
+            // Immediate first adjustment
+            window.adjustTimer(secs);
+
+            // Start repeating after a short delay
+            window._timerAdjustInterval = setInterval(() => {
+                window.adjustTimer(secs);
+            }, 100); // Repeat every 100ms while held
+        }
+
+        window.stopTimerAdjust = function () {
+            if (window._timerAdjustInterval) {
+                clearInterval(window._timerAdjustInterval);
+                window._timerAdjustInterval = null;
+            }
         }
 
         window.showCustomConfirm = function (title, message) {
@@ -1853,54 +2127,201 @@
             broadcastData();
         }
 
+        // Hantei Flag Voting Variables
+        window.hanteiAkaFlags = 0;
+        window.hanteiAoFlags = 0;
+
+        // Check Hantei result from inputs (called on change)
+        window.checkHanteiResult = function () {
+            const akaInput = document.getElementById('hanteiInputAka');
+            const aoInput = document.getElementById('hanteiInputAo');
+            if (!akaInput || !aoInput) return;
+
+            const akaFlags = parseInt(akaInput.value) || 0;
+            const aoFlags = parseInt(aoInput.value) || 0;
+
+            window.hanteiAkaFlags = akaFlags;
+            window.hanteiAoFlags = aoFlags;
+        };
+
+        window.confirmHantei = async function () {
+            const akaInput = document.getElementById('hanteiInputAka');
+            const aoInput = document.getElementById('hanteiInputAo');
+
+            const akaFlags = parseInt(akaInput?.value) || 0;
+            const aoFlags = parseInt(aoInput?.value) || 0;
+
+            if (akaFlags === aoFlags) {
+                alert('Jumlah bendera harus berbeda! Tidak boleh seri.');
+                return;
+            }
+
+            const winnerSide = akaFlags > aoFlags ? 'aka' : 'ao';
+            const winnerName = winnerSide === 'aka' ? window.nameAka : window.nameAo;
+
+            window.isWinnerDeclared = true;
+            window.winnerSide = winnerSide;
+            window.isHantei = false;
+
+            // Store Hantei score for broadcast to monitor
+            window.hanteiScore = `${akaFlags} - ${aoFlags}`;
+            window.isHanteiResult = true;
+
+            // Track Hantei Activity
+            logActivity("Pemenang Hantei", `${winnerSide.toUpperCase()} (${winnerName}) menang bendera ${akaFlags}-${aoFlags}.`, window.currentTatami);
+
+            // Hide Hantei Controls
+            const hanteiControls = document.getElementById('hanteiControls');
+            if (hanteiControls) hanteiControls.classList.add('hidden');
+
+            window.broadcastData();
+            window.updateConsoleWinnerUI();
+
+            // Reset inputs for next match
+            if (akaInput) akaInput.value = '0';
+            if (aoInput) aoInput.value = '0';
+        };
+
         window.setHanteiWinner = async function (side) {
             window.isWinnerDeclared = true;
             window.winnerSide = side;
             window.isHantei = false; // Reset Hantei state so winner banner can show
 
+            // Get Hantei scores from inputs if available
+            const akaInput = document.getElementById('hanteiInputAka');
+            const aoInput = document.getElementById('hanteiInputAo');
+            const akaFlags = parseInt(akaInput?.value) || 0;
+            const aoFlags = parseInt(aoInput?.value) || 0;
+
+            // Mark as Hantei result with the flag score
+            window.isHanteiResult = true;
+            window.hanteiScore = `${akaFlags} - ${aoFlags}`;
+
             // Track Hantei Activity
             const winnerName = side === 'aka' ? window.nameAka : window.nameAo;
-            logActivity("Pemenang Hantei", `${side.toUpperCase()} (${winnerName}) menang keputusan wasit.`, window.currentTatami);
+            logActivity("Pemenang Hantei", `${side.toUpperCase()} (${winnerName}) menang keputusan wasit bendera ${akaFlags}-${aoFlags}.`, window.currentTatami);
+
+            // Hide Hantei Controls
+            const hanteiControls = document.getElementById('hanteiControls');
+            if (hanteiControls) hanteiControls.classList.add('hidden');
 
             window.broadcastData();
+            window.updateConsoleWinnerUI();
+
+            // Reset inputs for next match
+            if (akaInput) akaInput.value = '0';
+            if (aoInput) aoInput.value = '0';
         }
 
         window.togglePenalty = async function (side, level) {
             const penalties = side === 'aka' ? window.penaltiesAka : window.penaltiesAo;
-            penalties[level] = !penalties[level];
+            const isAdding = !penalties[level];
+            const levels = ['c1', 'c2', 'c3', 'hc', 'h'];
+            const levelIdx = levels.indexOf(level);
+
+            // Cascade set: if adding H, set HC, C3, C2, C1 too.
+            if (isAdding && levelIdx !== -1) {
+                for (let i = 0; i <= levelIdx; i++) {
+                    penalties[levels[i]] = true;
+                }
+            } else {
+                penalties[level] = !penalties[level];
+            }
 
             // Track Penalty Activity
             const status = penalties[level] ? "DIBERIKAN" : "DICABUT";
             logActivity("Pelanggaran", `${side.toUpperCase()} ${level.toUpperCase()} ${status}`, window.currentTatami);
 
-            // WKF RULE: Senshu is withdrawn if the athlete receives a C2 penalty
-            if (level === 'c2' && penalties[level] && window.senshu === side) {
-                window.senshu = null;
-                const panel = side === 'aka' ? 'senshuAka' : 'senshuAo';
-                document.getElementById(panel).className = "py-2 rounded-lg neu-button text-[9px] font-black opacity-40";
-            }
+            // Update UI for ALL penalty buttons of this side
+            levels.forEach(lvl => {
+                const btn = document.getElementById(`${side}_${lvl}`);
+                if (!btn) return;
 
-            // Update Label/Button di UI Terpadu
-            const btn = document.getElementById(`${side}_${level}`);
+                if (penalties[lvl]) {
+                    btn.classList.remove('opacity-60', 'bg-black/40', 'border-white/5');
+                    btn.classList.add('opacity-100', 'text-white', 'shadow-lg');
 
-            if (penalties[level]) {
-                btn.classList.remove('opacity-30', 'bg-black/40', 'border-white/5');
-                btn.classList.add('opacity-100', 'text-white', 'shadow-lg');
-
-                // Color mapping
-                if (level.startsWith('c')) {
-                    btn.classList.add('bg-yellow-500', 'border-yellow-400');
-                } else if (level === 'hc') {
-                    btn.classList.add('bg-orange-600', 'border-orange-500');
-                } else if (level === 'h') {
-                    btn.classList.add('bg-red-600', 'border-red-500');
+                    // Color mapping
+                    if (lvl.startsWith('c')) {
+                        btn.classList.add('bg-yellow-500', 'border-yellow-400');
+                    } else if (lvl === 'hc') {
+                        btn.classList.add('bg-orange-600', 'border-orange-500');
+                    } else if (lvl === 'h') {
+                        btn.classList.add('bg-red-600', 'border-red-500');
+                    }
+                } else {
+                    btn.classList.add('opacity-60', 'bg-black/40', 'border-white/5');
+                    btn.classList.remove('opacity-100', 'text-white', 'shadow-lg', 'bg-yellow-500', 'border-yellow-400', 'bg-orange-600', 'border-orange-500', 'bg-red-600', 'border-red-500');
                 }
-            } else {
-                btn.classList.add('opacity-60', 'bg-black/40', 'border-white/5');
-                btn.classList.remove('opacity-100', 'text-white', 'shadow-lg', 'bg-yellow-500', 'border-yellow-400', 'bg-orange-600', 'border-orange-500', 'bg-red-600', 'border-red-500');
+            });
+
+            // HANSOKU (H) AUTO-LOSS LOGIC
+            if (level === 'h' && penalties[level]) {
+                const confirmed = await window.showCustomConfirm(
+                    'HANSOKU (DISKUALIFIKASI)?',
+                    `${side.toUpperCase()} mendapat Hansoku. Nyatakan ${side === 'aka' ? 'AO' : 'AKA'} sebagai pemenang?`
+                );
+
+                if (confirmed) {
+                    window.isWinnerDeclared = true;
+                    window.winnerSide = (side === 'aka' ? 'ao' : 'aka');
+                    window.showWinnerBanner = true;
+
+                    // Stop Timer
+                    window.isTimerRunning = false;
+                    if (window.timerId) clearInterval(window.timerId);
+                    window.playBuzzer();
+
+                    console.log(`[Hansoku] ${side.toUpperCase()} disqualified. Winner: ${window.winnerSide.toUpperCase()}`);
+                } else {
+                    // Revert penalty if not confirmed
+                    penalties[level] = false;
+                    const hBtn = document.getElementById(`${side}_h`);
+                    if (hBtn) {
+                        hBtn.classList.add('opacity-60', 'bg-black/40', 'border-white/5');
+                        hBtn.classList.remove('opacity-100', 'text-white', 'shadow-lg', 'bg-red-600', 'border-red-500');
+                    }
+                }
             }
+
             window.broadcastData();
         }
+
+        window.resetTimer = function () {
+            if (window.timerId) clearInterval(window.timerId);
+            window.isTimerRunning = false;
+
+            // Set default time (01:00)
+            window.timeLeft = 60;
+            const display = document.getElementById('timerDisplay');
+            if (display) display.value = '01:00';
+
+            // Reset UI states for timer
+            const btn = document.getElementById('btnTimerControl');
+            const dot = document.getElementById('timerStatusDot');
+            const label = document.getElementById('timerLabel');
+            const icon = document.getElementById('timerIcon');
+
+            if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>'; // Play icon
+
+            if (btn) {
+                btn.classList.remove('bg-slate-700');
+                btn.classList.add('bg-red-600');
+            }
+
+            if (dot) {
+                dot.classList.remove('bg-green-500', 'bg-yellow-500', 'pulse-red');
+                dot.classList.add('bg-slate-500');
+            }
+
+            if (label) {
+                label.innerText = 'STANDBY';
+                label.className = "text-[8px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap";
+            }
+
+            window.broadcastData();
+            console.log('[Timer] Timer reset to default.');
+        };
 
         window.resetMatch = async function () {
             // Track Reset Activity
@@ -1908,11 +2329,11 @@
                 logActivity("Reset Pertandingan", "Membersihkan skor dan timer untuk pertandingan baru.", window.currentTatami);
             }
 
-            if (window.timerId) clearInterval(window.timerId);
-            window.isTimerRunning = false;
+            // Perform Timer Reset
+            window.resetTimer();
+
             window.akaScore = 0;
             window.aoScore = 0;
-            window.timeLeft = 60; // 01:00 corresponds to 60 seconds
             window.kataScoreAka = 0.0;
             window.kataScoreAo = 0.0;
             window.judgeScoresAka = [0.0, 0.0, 0.0, 0.0, 0.0];
@@ -1930,9 +2351,14 @@
             window.penaltiesAka = { c1: false, c2: false, c3: false, hc: false, h: false };
             window.penaltiesAo = { c1: false, c2: false, c3: false, hc: false, h: false };
 
-            document.getElementById('timerDisplay').value = '01:00';
             document.getElementById('inputKataAka').value = '';
             document.getElementById('inputKataAo').value = '';
+
+            // Reset scoring display explicitly
+            const scoreAka = document.getElementById('scoreAka');
+            const scoreAo = document.getElementById('scoreAo');
+            if (scoreAka) scoreAka.innerText = window.scoringMode === 'kumite' ? '00' : '0.0';
+            if (scoreAo) scoreAo.innerText = window.scoringMode === 'kumite' ? '00' : '0.0';
 
             // Mode-specific Score Reset
             if (window.scoringMode === 'kumite') {
@@ -1950,8 +2376,14 @@
             for (let i = 0; i < 5; i++) {
                 const bAka = document.getElementById('judgeBtnAka' + i);
                 const bAo = document.getElementById('judgeBtnAo' + i);
-                if (bAka) bAka.innerText = '0.0';
-                if (bAo) bAo.innerText = '0.0';
+                if (bAka) {
+                    bAka.innerText = '0.0';
+                    bAka.classList.remove('kata-discarded');
+                }
+                if (bAo) {
+                    bAo.innerText = '0.0';
+                    bAo.classList.remove('kata-discarded');
+                }
             }
             if (document.getElementById('kataTotalAka')) document.getElementById('kataTotalAka').innerText = '0.0';
             if (document.getElementById('kataTotalAo')) document.getElementById('kataTotalAo').innerText = '0.0';
@@ -1976,7 +2408,10 @@
                 });
             });
 
-            document.getElementById('btnTimerControl').innerText = 'START MATCH';
+            // Reset Timer Icon to Play
+            const icon = document.getElementById('timerIcon');
+            if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+
             document.getElementById('btnTimerControl').classList.remove('bg-slate-700');
             document.getElementById('btnTimerControl').classList.add('bg-red-500');
 
@@ -2096,7 +2531,7 @@
 
             const confirmed = await window.showCustomConfirm(
                 'SELESAIKAN MATCH?',
-                'Apakah Anda yakin ingin menyelesaikan pertandingan ini dan menentukan pemenang?'
+                'Apakah Anda yakin ingin menyelesaikan pertandingan ini dan menyimpan hasilnya ke Admin Rekap?'
             );
 
             if (confirmed) {
@@ -2118,7 +2553,7 @@
                 const winnerName = window.winnerSide === 'aka' ? window.nameAka : window.nameAo;
                 const winnerTeam = window.winnerSide === 'aka' ? window.teamAka : window.teamAo;
                 const winnerSlot = window.winnerSide === 'aka' ? window.slotAka : window.slotAo;
-                const nextSlot = getNextSlot(winnerSlot);
+                const nextSlot = typeof getNextSlot === 'function' ? getNextSlot(winnerSlot) : null;
 
                 syncEngine.saveMatchResult({
                     eventId: window.eventId,
@@ -2131,15 +2566,13 @@
                     },
                     aka: { name: window.nameAka, team: window.teamAka, score: scoreA },
                     ao: { name: window.nameAo, team: window.teamAo, score: scoreB },
-                    nextSlot: nextSlot,
-                    mode: window.scoringMode
-                }).then(() => {
-                    console.log('[Sync] Match result saved to local DB');
-                }).catch(err => {
-                    console.error('[Sync] Error saving to local DB:', err);
+                    nextSlot: nextSlot
                 });
+
+                // Force UI update for the Finish button
+                window.updateConsoleWinnerUI();
             }
-        }
+        };
 
         window.handleTimerBlur = function (el) {
             const text = el.value.trim();
@@ -2173,56 +2606,38 @@
         initDashboard();
         // -----------------------------
 
-        // --- JUDGE KEYPAD LOGIC (Integrated) ---
+        // --- JUDGE KEYPAD LOGIC (Integrated Numpad) ---
         let currentJudgeSide = 'aka';
         let currentJudgeIndex = 0;
+        let primerDigit = null;
+        let decimalDigit = null;
 
         window.openJudgeKeypad = function (side, index) {
             currentJudgeSide = side;
             currentJudgeIndex = index;
+            primerDigit = null;
+            decimalDigit = null;
 
             const modal = document.getElementById('judgeKeypadModal');
             const subtitle = document.getElementById('keypadSubtitle');
+            const badge = document.getElementById('keypadBadge');
+            const glow = document.getElementById('keypadGlow');
+
+            if (badge) {
+                badge.innerText = side.toUpperCase();
+                badge.className = `px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full border transition-all duration-500 ${side === 'aka' ? 'bg-red-500/20 text-red-500 border-red-500/30' : 'bg-blue-500/20 text-blue-500 border-blue-500/30'}`;
+            }
+
             if (subtitle) {
-                subtitle.innerText = `${side.toUpperCase()} - JUDGE ${index + 1}`;
-                subtitle.className = `text-[10px] font-bold uppercase tracking-[.4em] mt-2 italic ${side === 'aka' ? 'text-red-400' : 'text-blue-400'}`;
+                subtitle.innerText = `JUDGE ${index + 1}`;
+                subtitle.className = `text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 italic`;
             }
 
-            const grid = document.getElementById('keypadGrid');
-            if (grid) {
-                grid.innerHTML = '';
-                // Render 5.0 to 10.0
-                for (let base = 5; base <= 10; base++) {
-                    const row = document.createElement('div');
-                    row.className = "flex flex-col space-y-2";
-
-                    const label = document.createElement('p');
-                    label.className = "text-[9px] font-black opacity-30 tracking-widest uppercase ml-2";
-                    label.innerText = `BASE ${base}`;
-                    row.appendChild(label);
-
-                    const buttons = document.createElement('div');
-                    buttons.className = "grid grid-cols-5 md:grid-cols-10 gap-2";
-
-                    const maxDecimal = (base === 10) ? 0 : 9;
-                    for (let dec = 0; dec <= maxDecimal; dec++) {
-                        const val = base + (dec / 10);
-                        const btn = document.createElement('button');
-                        btn.className = `py-3 rounded-xl border border-white/5 text-xs font-black transition-all hover:scale-105 shadow-lg active:scale-95 ${side === 'aka' ? 'bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white' : 'bg-blue-500/10 text-blue-400 hover:bg-blue-500 hover:text-white'}`;
-                        btn.innerText = val.toFixed(1);
-                        btn.onclick = () => window.selectJudgeScore(val);
-                        buttons.appendChild(btn);
-                    }
-                    row.appendChild(buttons);
-                    grid.appendChild(row);
-
-                    if (base < 10) {
-                        const divider = document.createElement('div');
-                        divider.className = "h-[1px] bg-white/5";
-                        grid.appendChild(divider);
-                    }
-                }
+            if (glow) {
+                glow.className = `absolute -top-40 -left-40 w-96 h-96 blur-[120px] rounded-full pointer-events-none transition-all duration-700 ${side === 'aka' ? 'bg-red-600/20' : 'bg-blue-600/20'}`;
             }
+
+            updateNumpadDisplay();
 
             if (modal) {
                 modal.classList.remove('hidden');
@@ -2230,18 +2645,50 @@
             }
         }
 
-        window.closeJudgeKeypad = function () {
-            const modal = document.getElementById('judgeKeypadModal');
-            if (modal) {
-                modal.classList.add('opacity-0');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('opacity-0');
-                }, 300);
+        window.updateNumpadDisplay = function () {
+            const p = document.getElementById('digitPrimer');
+            const d = document.getElementById('digitDecimal');
+            if (p) {
+                p.innerText = primerDigit !== null ? primerDigit : '_';
+                p.classList.toggle('digit-active', primerDigit === null);
+            }
+            if (d) {
+                d.innerText = decimalDigit !== null ? decimalDigit : '_';
+                d.classList.toggle('digit-active', primerDigit !== null && decimalDigit === null);
             }
         }
 
-        window.selectJudgeScore = function (val) {
+        window.handleNumpad = function (num) {
+            if (primerDigit === null) {
+                // First digit: Score 5-9 or 1 (for 10)
+                if (num === 1) {
+                    primerDigit = 10; // Treat 1 as 10 for simplicity in this 5.0-10.0 scale
+                    updateNumpadDisplay();
+                } else if (num >= 5) {
+                    primerDigit = num;
+                    updateNumpadDisplay();
+                }
+            } else if (decimalDigit === null) {
+                // Second digit: 0-9
+                decimalDigit = num;
+                updateNumpadDisplay();
+
+                // Auto-save and advance
+                setTimeout(() => {
+                    const finalScore = primerDigit + (decimalDigit / 10);
+                    window.saveJudgeScore(finalScore);
+                }, 150);
+            }
+        }
+
+        window.clearNumpad = function () {
+            primerDigit = null;
+            decimalDigit = null;
+            updateNumpadDisplay();
+        }
+
+        window.saveJudgeScore = function (val) {
+            // Update the score arrays
             if (currentJudgeSide === 'aka') {
                 window.judgeScoresAka[currentJudgeIndex] = val;
                 window.kataScoreAka = window.calculateKataTotal('aka', window.judgeScoresAka);
@@ -2255,8 +2702,36 @@
                 if (document.getElementById('kataTotalAo')) document.getElementById('kataTotalAo').innerText = window.kataScoreAo.toFixed(1);
                 if (document.getElementById('scoreAo')) document.getElementById('scoreAo').innerText = window.kataScoreAo.toFixed(1);
             }
+
             window.broadcastData();
-            window.closeJudgeKeypad();
+
+            // Auto-advance logic
+            const nextIndex = currentJudgeIndex + 1;
+            if (nextIndex < 5) {
+                // Move to next judge same side
+                window.openJudgeKeypad(currentJudgeSide, nextIndex);
+            } else if (currentJudgeSide === 'aka') {
+                // Finish Aka, move to Ao J1
+                window.openJudgeKeypad('ao', 0);
+            } else {
+                // Finish all 10 judges
+                window.closeJudgeKeypad();
+
+                // CHECK FOR AUTO WINNER: Only if all 10 entries are non-zero
+                const allAkaFilled = window.judgeScoresAka.every(s => s > 0);
+                const allAoFilled = window.judgeScoresAo.every(s => s > 0);
+
+                if (allAkaFilled && allAoFilled) {
+                    window.isWinnerDeclared = true;
+                    window.showWinnerBanner = true;
+                    if (window.kataScoreAka > window.kataScoreAo) window.winnerSide = 'aka';
+                    else if (window.kataScoreAo > window.kataScoreAka) window.winnerSide = 'ao';
+                    else window.winnerSide = 'draw';
+
+                    console.log(`[Auto-Winner] Kata Score automated after full 10 judges: ${window.winnerSide}`);
+                    window.broadcastData();
+                }
+            }
         }
 
         window.setKataFlags = function (akaCount) {
@@ -2710,7 +3185,7 @@
                     return `
                 <div class="flex flex-col">
                     <span class="text-[11px] font-black uppercase text-white leading-tight">${p.name}</span>
-                    <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${p.team || '-'}</span>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${p.team || p.kontingen || p.teamName || '-'}</span>
                     ${kataName ? `<span class="text-[7px] font-bold text-blue-400 italic mt-0.5">Kata: ${kataName}</span>` : ''}
                     ${score !== '' ? `<span class="text-[7px] font-black text-yellow-400 mt-0.5">Score: ${score}</span>` : ''}
                 </div>
@@ -2726,12 +3201,12 @@
                 ` : '';
 
                     const btnAka = pAka && pAka.name !== '-' ? `
-                <button onclick="loadToSide('aka', '${pAka.name.replace(/\'/g, "\\\'")}', '${pAka.team ? pAka.team.replace(/\'/g, "\\\'") : ''}', '${pAka.slotId || ''}')" 
+                <button onclick="loadToSide('aka', '${pAka.name.replace(/\'/g, "\\\'")}', '${(pAka.team || pAka.kontingen || pAka.teamName || '').replace(/\'/g, "\\\'")}', '${pAka.slotId || ''}')" 
                                     class="px-2 py-1 bg-red-600/20 hover:bg-red-600 text-[7px] font-bold rounded text-red-500 hover:text-white uppercase transition-all">A</button>
         ` : '';
 
                     const btnAo = pAo && pAo.name !== '-' ? `
-            < button onclick = "loadToSide('ao', '${pAo.name.replace(/\'/g, "\\\'")}', '${pAo.team ? pAo.team.replace(/\'/g, "\\\'") : ''}', '${pAo.slotId || ''}') " 
+            <button onclick="loadToSide('ao', '${pAo.name.replace(/\'/g, "\\\'")}', '${(pAo.team || pAo.kontingen || pAo.teamName || '').replace(/\'/g, "\\\'")}', '${pAo.slotId || ''}')" 
         class="px-2 py-1 bg-blue-600/20 hover:bg-blue-600 text-[7px] font-bold rounded text-blue-500 hover:text-white uppercase transition-all" > B</button >
             ` : '';
 
@@ -2767,14 +3242,19 @@
                 console.log('[Participant List] Selecting Match:', match);
 
                 window.nameAka = match.aka?.name || '-';
-                window.teamAka = match.aka?.team || '-';
+                window.teamAka = match.aka?.team || match.aka?.kontingen || match.aka?.teamName || '-';
                 window.nameAo = match.ao?.name || '-';
-                window.teamAo = match.ao?.team || '-';
+                window.teamAo = match.ao?.team || match.ao?.kontingen || match.ao?.teamName || '-';
 
                 const dAka = document.getElementById('nameAkaDisplay');
                 const dAo = document.getElementById('nameAoDisplay');
+                const tAka = document.getElementById('teamAkaDisplay');
+                const tAo = document.getElementById('teamAoDisplay');
+
                 if (dAka) dAka.innerText = window.nameAka.toUpperCase();
                 if (dAo) dAo.innerText = window.nameAo.toUpperCase();
+                if (tAka) tAka.innerText = (window.teamAka === '-' || !window.teamAka) ? '---' : window.teamAka.toUpperCase();
+                if (tAo) tAo.innerText = (window.teamAo === '-' || !window.teamAo) ? '---' : window.teamAo.toUpperCase();
 
                 window.resetMatch();
                 window.broadcastData();
@@ -2793,12 +3273,16 @@
                 window.nameAka = name;
                 window.teamAka = team;
                 const d = document.getElementById('nameAkaDisplay');
+                const t = document.getElementById('teamAkaDisplay');
                 if (d) d.innerText = name.toUpperCase();
+                if (t) t.innerText = (team === '-' || !team) ? '---' : team.toUpperCase();
             } else {
                 window.nameAo = name;
                 window.teamAo = team;
                 const d = document.getElementById('nameAoDisplay');
+                const t = document.getElementById('teamAoDisplay');
                 if (d) d.innerText = name.toUpperCase();
+                if (t) t.innerText = (team === '-' || !team) ? '---' : team.toUpperCase();
             }
 
             window.broadcastData();

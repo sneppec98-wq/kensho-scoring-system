@@ -1,60 +1,23 @@
-const CACHE_NAME = 'kensho-v2-5-0';
-const ASSETS = [
-  './',
-  './login.html',
-  './scoring-home.html',
-  './scoring.html',
-  './scoring-monitor.html',
-  './manifest.json',
-  './kensho-logo.png'
-];
-
-self.addEventListener('install', (event) => {
+// SW KILL SWITCH - Self Unregistering
+self.addEventListener('install', () => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
+  console.log('SW Kill Switch: Installing...');
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    Promise.all([
-      self.clients.claim(),
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((name) => {
-            if (name !== CACHE_NAME) {
-              return caches.delete(name);
-            }
-          })
-        );
+    self.registration.unregister()
+      .then(() => {
+        console.log('SW Kill Switch: Successfully unregistered self.');
+        return self.clients.matchAll();
       })
-    ])
+      .then(clients => {
+        clients.forEach(client => client.navigate(client.url));
+      })
   );
 });
 
+// Fallback: Just let everything through to the network
 self.addEventListener('fetch', (event) => {
-  // Strategy: Network First for HTML files, Cache First for others
-  if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => caches.match(event.request))
-    );
-  } else {
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request).catch(() => {
-          // Silent fail for non-critical assets
-          return new Response('', { status: 404, statusText: 'Not Found' });
-        });
-      })
-    );
-  }
+  return;
 });

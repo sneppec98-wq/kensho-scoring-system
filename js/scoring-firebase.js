@@ -38,6 +38,8 @@ export function broadcastScoreData(scoreData) {
         vrAka: scoreData.vrAka || false,
         vrAo: scoreData.vrAo || false,
         isHantei: scoreData.isHantei || false,
+        isHanteiResult: scoreData.isHanteiResult || false,
+        hanteiScore: scoreData.hanteiScore || null,
         scoringMode: scoreData.scoringMode || 'kumite',
         kataType: scoreData.kataType || 'individual',
         kataScoreAka: scoreData.kataScoreAka || 0,

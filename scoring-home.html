@@ -466,7 +466,30 @@
     </style>
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1f2c">
+    <meta name="theme-color" content="#f87171">
+    <script>
+        // AGGRESSIVE SERVICE WORKER & CACHE CLEANUP
+        (function () {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister().then(() => {
+                            console.log('[CLEANUP] Service Worker Unregistered');
+                        });
+                    }
+                });
+            }
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    for (let name of names) {
+                        caches.delete(name).then(() => {
+                            console.log('[CLEANUP] Cache Deleted:', name);
+                        });
+                    }
+                });
+            }
+        })();
+    </script>
 </head>
 
 <body class="min-h-screen flex text-slate-100 bg-[#020617]">
@@ -1588,11 +1611,11 @@
         }
         renderTatamiGrid(window.selectedEventId);
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(console.error);
-            });
-        }
+        // if ('serviceWorker' in navigator) {
+        //     window.addEventListener('load', () => {
+        //         navigator.serviceWorker.register('./sw.js').catch(console.error);
+        //     });
+        // }
     </script>
 </body>
 

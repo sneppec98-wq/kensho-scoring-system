@@ -57,7 +57,8 @@ import {
     renderBracketsConfig,
     openBracketConfig,
     saveBracketConfig,
-    deleteBracketConfig
+    deleteBracketConfig,
+    deleteAllBrackets
 } from './modules/brackets-manager.js';
 
 // Import Verification Display
@@ -390,6 +391,7 @@ window.deleteAllClasses = () => deleteAllClasses(eventId);
 window.openBracketConfig = (code) => openBracketConfig(code, eventId, latestClasses);
 window.saveBracketConfig = () => saveBracketConfig(eventId);
 window.deleteBracketConfig = (code) => deleteBracketConfig(code, eventId);
+window.deleteAllBrackets = () => deleteAllBrackets(eventId);
 window.joinVoice = joinVoice;
 window.leaveVoice = leaveVoice;
 window.toggleMicMute = toggleMicMute;

@@ -29,11 +29,19 @@ export const GOLDEN_PRESETS = {
  */
 export function getLogicalIdFromSVGId(svgId) {
     if (!svgId) return null;
+    // Special legacy cases
     if (svgId === 'text5989') return 'fn1';
     if (svgId === 'p_nama_1') return 'p_n_1';
+
+    // Standard patterns
     if (svgId.startsWith('p_n_')) return svgId;
     if (svgId.match(/^[qs]n\d+$/)) return svgId;
     if (svgId.startsWith('fn')) return svgId;
+
+    // New underscore patterns (e.g., q_n_1 -> qn1)
+    const match = svgId.match(/^([qsf])_n_(\d+)$/);
+    if (match) return `${match[1]}n${match[2]}`;
+
     if (svgId === 'winner_nama') return 'winner_nama';
     return null;
 }
@@ -73,12 +81,9 @@ export function getTeamSlot(nameSlotId) {
     let num = numMatches ? parseInt(numMatches[0]) : 0;
 
     if (nameSlotId.startsWith('p_n_') || nameSlotId === 'p_nama_1') return `p_k_${num || 1}`;
-    if (nameSlotId.startsWith('qn')) return `qk${num}`;
-    if (nameSlotId.startsWith('sn')) return `sk${num}`;
-
-    // Special Exceptions for Final
-    if (nameSlotId === 'text5989' || nameSlotId === 'fn1') return `text5993`;
-    if (nameSlotId === 'fn2') return `fk2`;
+    if (nameSlotId.startsWith('qn')) return `q_k_${num}`;
+    if (nameSlotId.startsWith('sn')) return `s_k_${num}`;
+    if (nameSlotId.startsWith('fn')) return `f_k_${num}`;
 
     // Champion/Winner Slot
     if (nameSlotId === 'winner_nama') return `winner_kontingen`;

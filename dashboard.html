@@ -3,6 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="theme-color" content="#f87171">
+    <script>
+        // AGGRESSIVE SERVICE WORKER & CACHE CLEANUP
+        (function () {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister().then(() => {
+                            console.log('[CLEANUP] Service Worker Unregistered');
+                        });
+                    }
+                });
+            }
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    for (let name of names) {
+                        caches.delete(name).then(() => {
+                            console.log('[CLEANUP] Cache Deleted:', name);
+                        });
+                    }
+                });
+            }
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spartan Sport | Pusat Kendali</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -1087,14 +1111,14 @@
         }
     </script>
     <script type="module" src="./js/security-guard.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered!', reg))
-                    .catch(err => console.log('SW Registration Failed!', err));
-            });
-        }
+    <script type="module">
+        // if ('serviceWorker' in navigator) {
+        //     window.addEventListener('load', () => {
+        //         navigator.serviceWorker.register('./sw.js')
+        //             .then(reg => console.log('SW Registered!', reg))
+        //             .catch(err => console.log('SW Registration Failed!', err));
+        //     });
+        // }
         import { initUpdater } from './js/modules/updater-client.js';
 
         // Run Updater (Electron Only)

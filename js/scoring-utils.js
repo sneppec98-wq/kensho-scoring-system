@@ -3,6 +3,7 @@
 
 // Initialize Web Audio Context
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+import { customAlert } from './modules/ui-helpers.js';
 
 /**
  * Play buzzer sound (long, low tone for end of match/time)
@@ -61,7 +62,7 @@ export function showNotification(message, type = 'info') {
     // Optional: You can add actual toast UI here later
     // For quick implementation, using alert for critical messages
     if (type === 'error') {
-        alert(message);
+        customAlert(message, "Error", "danger");
     }
 }
 

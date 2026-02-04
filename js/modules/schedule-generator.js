@@ -1,6 +1,7 @@
 // Schedule Generator & Print logic
 import { db } from '../firebase-init.js';
 import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { customAlert } from './ui-helpers.js';
 
 let currentSchedule = null;
 
@@ -74,12 +75,12 @@ export const renderSchedule = (classes, athletes, containerId = 'scheduleContent
     window.saveSchedule = async () => {
         const eventId = window.location.search.split('id=')[1]?.split('&')[0];
         if (!eventId) {
-            alert("Gagal menyimpan: ID Event tidak ditemukan.");
+            await customAlert("Gagal menyimpan: ID Event tidak ditemukan.", "Error", "danger");
             return;
         }
 
         if (!currentSchedule) {
-            alert("Belum ada jadwal untuk disimpan!");
+            await customAlert("Belum ada jadwal untuk disimpan!", "Peringatan", "info");
             return;
         }
 
@@ -205,17 +206,12 @@ export const renderSchedule = (classes, athletes, containerId = 'scheduleContent
             const totalClassesAll = flattenedSchedule.reduce((sum, b) => sum + (b.classes?.length || 0), 0);
             const totalAthletesAll = flattenedSchedule.reduce((sum, b) => sum + (b.load || 0), 0);
 
-            alert(`Jadwal berhasil disimpan!
-            
-✅ Schedule metadata saved
-🏟️ ${arenas} tatami documents updated
-📋 Total ${totalClassesAll} kelas
-👥 Total ${totalAthletesAll} peserta`);
+            await customAlert(`Jadwal berhasil disimpan!\n\n✅ Schedule metadata saved\n🏟️ ${arenas} tatami documents updated\n📋 Total ${totalClassesAll} kelas\n👥 Total ${totalAthletesAll} peserta`, "Berhasil", "info");
 
         } catch (err) {
             console.error('[Schedule] Error saving:', err);
             console.error('[Schedule] Error stack:', err.stack);
-            alert("Gagal menyimpan ke database: " + err.message);
+            await customAlert("Gagal menyimpan ke database: " + err.message, "Gagal", "danger");
         } finally {
             btn.disabled = false;
             btn.innerText = originalText;

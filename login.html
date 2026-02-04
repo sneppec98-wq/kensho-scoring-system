@@ -132,9 +132,11 @@
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#f87171">
+    <link rel="stylesheet" href="css/window-controls.css">
 </head>
 
 <body class="min-h-screen flex items-center justify-center p-4">
+    <script src="js/window-controls.js"></script>
     <!-- Aurora Background -->
     <div class="aurora-container">
         <div class="blob blob-1"></div>
@@ -151,7 +153,7 @@
 
         <div class="text-center mb-10">
             <img src="kensho-logo.png" alt="Kensho Tech Logo" class="w-16 mx-auto mb-4 drop-shadow-xl">
-            <div class="badge-version mb-6">v3.0.1</div>
+            <div class="badge-version mb-6">v3.0.5</div>
             <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
             <p id="dynamicGreeting"
                 class="text-slate-500 text-sm font-medium transition-opacity duration-500 opacity-100">
@@ -558,7 +560,7 @@
         };
 
         // Licencing & Hardware ID Logic
-        const APP_VERSION = "2.6.1";
+        const APP_VERSION = "3.0.5";
 
         // Generate Browser Device ID (fingerprint)
         function generateBrowserDeviceId() {

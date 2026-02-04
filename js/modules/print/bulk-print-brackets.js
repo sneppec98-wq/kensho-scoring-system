@@ -1,5 +1,6 @@
 import { db } from '../firebase-init.js';
 import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { customAlert } from '../ui-helpers.js';
 
 /**
  * Bulk Print Brackets - Combined PDF in F4 Landscape
@@ -10,7 +11,7 @@ import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/fir
 export const bulkPrintBrackets = async (eventId, eventName, eventLogo) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-        alert("Pop-up terblokir! Silakan izinkan pop-up.");
+        await customAlert("Pop-up terblokir! Silakan izinkan pop-up.", "Pop-up Blocked", "danger");
         return;
     }
 
@@ -20,7 +21,7 @@ export const bulkPrintBrackets = async (eventId, eventName, eventLogo) => {
         const brackets = bracketSnap.docs.map(d => ({ name: d.id, ...d.data() }));
 
         if (brackets.length === 0) {
-            alert("Belum ada bagan yang digenerate untuk event ini.");
+            await customAlert("Belum ada bagan yang digenerate untuk event ini.", "Data Kosong", "info");
             printWindow.close();
             return;
         }
@@ -241,7 +242,7 @@ export const bulkPrintBrackets = async (eventId, eventName, eventLogo) => {
 
     } catch (err) {
         console.error("Bulk Print Error:", err);
-        alert("Gagal menyiapkan dokumen cetak.");
+        await customAlert("Gagal menyiapkan dokumen cetak.", "Gagal Cetak", "danger");
         printWindow.close();
     }
 };

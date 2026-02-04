@@ -15,7 +15,7 @@ export const generatePrintHeaderHTML = (eventName, eventLogo, title) => {
 export const executeIsolatedPrint = (htmlContent, title, eventName, eventLogo, colCount = 10, isPreview = false) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-        alert("Pop-up terblokir! Silakan izinkan pop-up untuk mencetak.");
+        customAlert("Pop-up terblokir! Silakan izinkan pop-up untuk mencetak.", "Pop-up Blocked", "danger");
         return;
     }
 

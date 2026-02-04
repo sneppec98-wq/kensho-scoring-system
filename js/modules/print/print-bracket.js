@@ -7,7 +7,7 @@ export const prepareBracketPrint = (athletes, classes, eventName, eventLogo, bra
         .sort((a, b) => (a.code || "").localeCompare(b.code || "", undefined, { numeric: true, sensitivity: 'base' }));
 
     if (festivalClasses.length === 0) {
-        alert("Belum ada daftar kelas Festival untuk dicetak.");
+        customAlert("Belum ada daftar kelas Festival untuk dicetak.", "Data Kosong", "info");
         return;
     }
 

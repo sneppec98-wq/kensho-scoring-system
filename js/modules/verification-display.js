@@ -11,6 +11,7 @@ import { renderPesertaView } from './verification/view-peserta.js';
 import { renderWinnersView } from './verification/view-juara.js';
 import { renderMedalView, calculateMedalTally } from './verification/view-medali.js';
 import { renderMedalTallyView, calculateMedalTallyNew } from './verification/view-medal-tally.js';
+import { customAlert } from './ui-helpers.js';
 
 // Global State for Search
 window.verifikasiSearchTerm = '';
@@ -144,14 +145,17 @@ window.printVerificationSubTab = (tab, eventName, eventLogo) => {
 window.copyOfficialLink = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const eventId = urlParams.get('id');
-    if (!eventId) return alert("Event ID tidak ditemukan.");
+    if (!eventId) {
+        customAlert("Event ID tidak ditemukan.", "Error", "danger");
+        return;
+    }
 
     const fullUrl = `https://kensho-peserta.web.app/?id=${eventId}`;
 
     navigator.clipboard.writeText(fullUrl).then(() => {
-        alert("✅ Link Daftar Peserta berasil disalin ke clipboard!\n\nLink ini dapat dibagikan kepada Official.");
+        customAlert("✅ Link Daftar Peserta berasil disalin ke clipboard!\n\nLink ini dapat dibagikan kepada Official.", "Link Disalin", "info");
     }).catch(err => {
         console.error("Copy Error:", err);
-        alert("Gagal menyalin link.");
+        customAlert("Gagal menyalin link.", "Gagal", "danger");
     });
 };

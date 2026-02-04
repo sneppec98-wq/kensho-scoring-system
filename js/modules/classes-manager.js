@@ -1,5 +1,5 @@
 // Classes Data Manager
-import { showProgress, updateProgress, hideProgress, toggleModal, customConfirm } from './ui-helpers.js';
+import { showProgress, updateProgress, hideProgress, toggleModal, customConfirm, customAlert } from './ui-helpers.js';
 import { db } from '../firebase-init.js';
 import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -318,9 +318,9 @@ async function renderMasterMappingTable(brackets, classes = []) {
     }
 }
 
-window.exportAllMappingToExcel = () => {
+window.exportAllMappingToExcel = async () => {
     if (!window.latestMasterMappingData || window.latestMasterMappingData.length === 0) {
-        alert("Data mapping tidak tersedia atau masih kosong.");
+        await customAlert("Data mapping tidak tersedia atau masih kosong.", "Data Kosong", "info");
         return;
     }
 
@@ -351,7 +351,7 @@ export const addNewClass = async (eventId) => {
     const weightMax = document.getElementById('new-class-weightMax').value || 999;
 
     if (!code || !name) {
-        alert("Kode dan Nama Kelas wajib diisi!");
+        await customAlert("Kode dan Nama Kelas wajib diisi!", "Validasi Gagal", "danger");
         return;
     }
 
@@ -365,7 +365,7 @@ export const addNewClass = async (eventId) => {
 
     try {
         await setDoc(doc(db, `events/${eventId}/classes`, code), classData);
-        alert(`Kelas "${name}" berhasil ditambahkan!`);
+        await customAlert(`Kelas "${name}" berhasil ditambahkan!`, "Berhasil", "info");
         toggleModal('modal-add-class', false);
 
         // Reset form
@@ -378,7 +378,7 @@ export const addNewClass = async (eventId) => {
         document.getElementById('new-class-weightMax').value = '';
     } catch (err) {
         console.error("Add Class Error:", err);
-        alert("Gagal menambahkan kelas: " + err.message);
+        await customAlert("Gagal menambahkan kelas: " + err.message, "Gagal", "danger");
     }
 };
 
@@ -403,10 +403,10 @@ export const deleteClass = async (classCode, eventId) => {
 
             // 3. Delete Class
             await deleteDoc(classRef);
-            alert("Kelas dan bagan terkait berhasil dihapus!");
+            await customAlert("Kelas dan bagan terkait berhasil dihapus!", "Terhapus", "info");
         } catch (err) {
             console.error("Delete Class Error:", err);
-            alert("Gagal menghapus kelas: " + err.message);
+            await customAlert("Gagal menghapus kelas: " + err.message, "Hapus Gagal", "danger");
         }
     }
 };
@@ -447,10 +447,10 @@ export const deleteAllClasses = async (eventId) => {
             }
         }
 
-        alert(`Berhasil membersihkan ${classSnap.size} kelas dan seluruh bagan!`);
+        await customAlert(`Berhasil membersihkan ${classSnap.size} kelas dan seluruh bagan!`, "Pembersihan Selesai", "info");
     } catch (err) {
         console.error("Delete All Classes/Brackets Error:", err);
-        alert("Gagal membersihkan database: " + err.message);
+        await customAlert("Gagal membersihkan database: " + err.message, "Gagal", "danger");
     } finally {
         hideProgress();
     }

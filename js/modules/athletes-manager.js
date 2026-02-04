@@ -207,10 +207,17 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
                 <td class="p-4 text-center font-bold text-purple-400">${teamFest}</td>
                 <td class="p-4 text-center font-bold text-orange-400">${teamTeam}</td>
                 <td class="p-4 text-center">
-                    <div class="flex items-center justify-center space-x-3">
-                        <span class="text-blue-400 font-black text-2xl italic tracking-tighter">
-                            ${matchedAthletes.length} <span class="text-[10px] uppercase not-italic opacity-40 ml-1">Atlet</span>
-                        </span>
+                    <span class="text-blue-400 font-black text-2xl italic tracking-tighter">
+                        ${matchedAthletes.length} <span class="text-[10px] uppercase not-italic opacity-40 ml-1">Atlet</span>
+                    </span>
+                </td>
+                <td class="p-4">
+                    <div class="flex items-center justify-center space-x-2">
+                        <button onclick="window.editContingentName('${name.replace(/'/g, "\\'")}')" 
+                            class="w-8 h-8 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 flex items-center justify-center transition-all"
+                            title="Edit Nama Kontingen">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        </button>
                         <button onclick="window.deleteContingentAthletes('${name.replace(/'/g, "\\'")}')" 
                             class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-all group/del"
                             title="Hapus Data Kontingen Ini">
@@ -364,7 +371,7 @@ const updateContingentDatalist = (athletes) => {
 export const editAthlete = async (athleteId, eventId, latestClasses = []) => {
     const athleteDoc = await getDoc(doc(db, `events/${eventId}/athletes`, athleteId));
     if (!athleteDoc.exists()) {
-        alert("Atlet tidak ditemukan.");
+        await customAlert("Atlet tidak ditemukan.", "Peringatan", "danger");
         return;
     }
 
@@ -446,13 +453,13 @@ export const saveEmergencyAthlete = async (eventId, latestClasses = []) => {
 
     const classCode = codeEl.value.toUpperCase().trim();
     if (!classCode) {
-        alert("Kode Kelas wajib diisi!");
+        await customAlert("Kode Kelas wajib diisi!", "Validasi", "danger");
         return;
     }
 
     const targetClass = latestClasses.find(c => (c.code || "").toString().trim().toUpperCase() === classCode);
     if (!targetClass) {
-        alert("Kode kelas tidak valid!");
+        await customAlert("Kode kelas tidak valid!", "Validasi", "danger");
         return;
     }
 
@@ -489,7 +496,7 @@ export const saveEmergencyAthlete = async (eventId, latestClasses = []) => {
 
     } catch (err) {
         console.error("Save Emergency Athlete Error:", err);
-        alert("Gagal menyimpan: " + err.message);
+        await customAlert("Gagal menyimpan: " + err.message, "Gagal", "danger");
     } finally {
         hideProgress();
     }
@@ -506,7 +513,7 @@ export const saveAthleteEdit = async (eventId, latestClasses = []) => {
     // Find the class name for the entered code
     const targetClass = latestClasses.find(c => (c.code || "").toString().trim().toUpperCase() === classCode);
     if (!targetClass) {
-        alert("Kode kelas tidak valid! Data tidak disimpan.");
+        await customAlert("Kode kelas tidak valid! Data tidak disimpan.", "Gagal Validasi", "danger");
         return;
     }
     const className = targetClass?.name || '';
@@ -533,9 +540,9 @@ export const saveAthleteEdit = async (eventId, latestClasses = []) => {
         toggleModal('modal-edit-athlete', false);
     } catch (err) {
         console.error("Update Athlete Error:", err);
-        alert("Gagal memperbarui data: " + err.message);
+        await customAlert("Gagal memperbarui data: " + err.message, "Gagal", "danger");
     }
-};
+}
 
 export const deleteAthlete = async (athleteId, eventId) => {
     const ok = await customConfirm({
@@ -560,7 +567,7 @@ export const deleteAthlete = async (athleteId, eventId) => {
             customAlert("Data atlet berhasil dihapus dari database!", "Terhapus", "info");
         } catch (err) {
             console.error("Delete Athlete Error:", err);
-            alert("❌ Gagal menghapus data: " + err.message);
+            await customAlert("❌ Gagal menghapus data: " + err.message, "Gagal", "danger");
 
             // Restore button state on error
             const deleteButtons = document.querySelectorAll(`button[onclick="deleteAthlete('${athleteId}')"]`);
@@ -608,10 +615,11 @@ export const deleteAllAthletes = async (eventId) => {
             }
         }
 
-        alert(`Berhasil membersihkan ${athleteSnap.size} data pendaftaran dan seluruh bagan!`);
+        const total = athleteSnap.size;
+        await customAlert(`Berhasil membersihkan ${total} data pendaftaran dan seluruh bagan!`, "Pembersihan Selesai", "info");
     } catch (err) {
         console.error("Delete All Athletes/Brackets Error:", err);
-        alert("Gagal membersihkan database: " + err.message);
+        await customAlert("Gagal membersihkan database: " + err.message, "Kesalahan", "danger");
     } finally {
         hideProgress();
     }
@@ -640,7 +648,7 @@ export const deleteContingentAthletes = async (teamName, eventId) => {
         });
 
         if (toDelete.length === 0) {
-            alert("Tidak ada data yang ditemukan untuk kontingen ini.");
+            await customAlert("Tidak ada data yang ditemukan untuk kontingen ini.", "Data Kosong", "info");
             return;
         }
 
@@ -654,12 +662,93 @@ export const deleteContingentAthletes = async (teamName, eventId) => {
             updateProgress(Math.round(((i + batchSize) / toDelete.length) * 100));
         }
 
-        alert(`Berhasil menghapus ${toDelete.length} data atlet dari kontingen ${teamName}.`);
+        await customAlert(`Berhasil menghapus ${toDelete.length} data atlet dari kontingen ${teamName}.`, "Data Terhapus", "info");
     } catch (err) {
         console.error("Delete Contingent Athletes Error:", err);
-        alert("Gagal menghapus data: " + err.message);
+        await customAlert("Gagal menghapus data: " + err.message, "Gagal", "danger");
     } finally {
         hideProgress();
     }
 };
 
+
+export const editContingentName = (oldName) => {
+    const oldValueEl = document.getElementById('edit-contingent-old-value');
+    const oldNameLabel = document.getElementById('edit-contingent-old-name-label');
+    const newNameInput = document.getElementById('edit-contingent-new-name');
+
+    if (oldValueEl) oldValueEl.value = oldName;
+    if (oldNameLabel) oldNameLabel.innerText = `MENGUBAH: ${oldName.toUpperCase()}`;
+    if (newNameInput) {
+        newNameInput.value = oldName;
+        setTimeout(() => newNameInput.focus(), 300);
+    }
+
+    toggleModal('modal-edit-contingent', true);
+};
+
+export const saveContingentNameEdit = async (eventId) => {
+    const oldName = document.getElementById('edit-contingent-old-value')?.value || '';
+    const newName = document.getElementById('edit-contingent-new-name')?.value.trim().toUpperCase() || '';
+
+    if (!newName || newName === oldName.toUpperCase()) {
+        toggleModal('modal-edit-contingent', false);
+        return;
+    }
+
+    const confirmed = await customConfirm({
+        title: "Ubah Nama Kontingen",
+        message: `Ubah "${oldName}" menjadi "${newName}" untuk SEMUA atlet terkait? Tindakan ini akan mengupdate database secara massal.`,
+        confirmText: "Ya, Update Semua",
+        type: 'info'
+    });
+
+    if (!confirmed) return;
+
+    toggleModal('modal-edit-contingent', false);
+    showProgress(`MENGUPDATE KONTINGEN`, 0);
+
+    try {
+        const athletesRef = collection(db, `events/${eventId}/athletes`);
+        // Use query with where to be more efficient if possible, but matching might be case sensitive in Firestore
+        // For safety with how tracking was done (toUpperCase), we might need to get all or be precise
+        const athleteSnap = await getDocs(query(athletesRef, where("team", "==", oldName.toUpperCase())));
+
+        if (athleteSnap.empty) {
+            // Fallback: check if it's case insensitive or mixed
+            const allSnap = await getDocs(athletesRef);
+            const matches = allSnap.docs.filter(d => (d.data().team || "").toUpperCase() === oldName.toUpperCase());
+
+            if (matches.length === 0) {
+                await customAlert("Tidak ada atlet yang ditemukan untuk kontingen ini.", "Data Tidak Ditemukan", "info");
+                return;
+            }
+
+            await processUpdates(matches, newName, eventId);
+        } else {
+            await processUpdates(athleteSnap.docs, newName, eventId);
+        }
+
+        customAlert(`Berhasil memperbarui data atlet!`, "Berhasil", "info");
+    } catch (err) {
+        console.error("Edit Contingent Name Error:", err);
+        await customAlert("Gagal mengubah nama kontingen: " + err.message, "Gagal Update", "danger");
+    } finally {
+        hideProgress();
+    }
+};
+
+const processUpdates = async (docs, newName, eventId) => {
+    const total = docs.length;
+    const batchSize = 500;
+    for (let i = 0; i < total; i += batchSize) {
+        const batch = writeBatch(db);
+        docs.slice(i, i + batchSize).forEach(docSnap => {
+            batch.update(doc(db, `events/${eventId}/athletes`, docSnap.id), {
+                team: newName
+            });
+        });
+        await batch.commit();
+        updateProgress(Math.min(i + batchSize, total), total);
+    }
+};

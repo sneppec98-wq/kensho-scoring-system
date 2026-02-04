@@ -1,10 +1,11 @@
 import { generatePrintHeaderHTML, executeIsolatedPrint } from './print-core.js';
 import { getLatestSchedule } from '../schedule-generator.js';
+import { customAlert } from '../ui-helpers.js';
 
 export const prepareJadwalPrint = (eventName, eventLogo) => {
     const schedule = getLatestSchedule();
     if (!schedule || schedule.length === 0) {
-        alert("Silakan generate jadwal terlebih dahulu!");
+        customAlert("Silakan generate jadwal terlebih dahulu!", "Jadwal Kosong", "info");
         return;
     }
 

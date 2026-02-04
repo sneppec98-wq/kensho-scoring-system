@@ -4,6 +4,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { ref, set, onValue, onDisconnect, get as rtdbGet } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { GOLDEN_PRESETS, ROUND_MATCH_IDS, getNextSlot, getTeamSlot } from './bracket-utils.js';
+import { customAlert } from './modules/ui-helpers.js';
 
 // --- STATE MANAGEMENT ---
 const urlParams = new URLSearchParams(window.location.search);
@@ -54,9 +55,9 @@ const KATA_MASTER = {
 };
 
 // --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!eventId) {
-        alert("Event ID tidak ditemukan!");
+        await customAlert("Event ID tidak ditemukan!", "Error", "danger");
         window.location.href = 'scoring-home.html';
         return;
     }
@@ -730,7 +731,7 @@ document.getElementById('btnSendMatch').addEventListener('click', async () => {
     const isKata = document.getElementById('activeClassMode').innerText === 'KATA';
 
     if (isKata && (!akaKataNum || !aoKataNum)) {
-        alert("Silakan input nomor kata jekti!");
+        await customAlert("Silakan input nomor Kata dterlebih dahulu!", "Validasi", "info");
         return;
     }
 
@@ -778,7 +779,7 @@ document.getElementById('btnSendMatch').addEventListener('click', async () => {
 
     } catch (err) {
         console.error("Error sending match:", err);
-        alert("Gagal mengirim match: " + err.message);
+        await customAlert("Gagal mengirim match: " + err.message, "Gagal Kirim", "danger");
     }
 });
 
@@ -970,7 +971,13 @@ window.manualDeclareWinner = async (side) => {
     const match = allMatchesInClass.find(m => m.id === currentMatchId);
     if (!match) return;
 
-    if (!confirm(`Yakin ingin menyatakan pemenang MANUAL untuk ${side.toUpperCase()}?`)) return;
+    const ok = await customConfirm({
+        title: "Konfirmasi Pemenang",
+        message: `Yakin ingin menyatakan pemenang MANUAL untuk ${side.toUpperCase()}?`,
+        confirmText: "Ya, Declare Menang",
+        type: 'info'
+    });
+    if (!ok) return;
 
     try {
         const matchRef = doc(db, `events/${eventId}/brackets/${currentClassId}/matches`, currentMatchId);
@@ -1022,7 +1029,7 @@ window.manualDeclareWinner = async (side) => {
         }, 1200); // 1.2 second delay
     } catch (err) {
         console.error("Manual override error:", err);
-        alert("Gagal declare pemenang: " + err.message);
+        await customAlert("Gagal declare pemenang: " + err.message, "Error", "danger");
     }
 };
 

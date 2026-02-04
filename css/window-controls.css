@@ -1,0 +1,67 @@
+/* Custom Window Controls CSS */
+.custom-title-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    background: transparent;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 8px;
+    z-index: 9999;
+    pointer-events: none;
+    /* Let clicks pass through to empty area for dragging */
+}
+
+.drag-region {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-app-region: drag;
+    z-index: -1;
+}
+
+.window-controls {
+    display: flex;
+    gap: 4px;
+    pointer-events: auto;
+    /* Re-enable clicks for buttons */
+    -webkit-app-region: no-drag;
+}
+
+.control-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.control-btn.btn-close:hover {
+    background: #ef4444;
+    color: white;
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+}
+
+.control-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Splash specific: hide controls if needed */
+.splash-no-controls .window-controls {
+    display: none;
+}

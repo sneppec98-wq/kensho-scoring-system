@@ -1,5 +1,5 @@
 // Brackets Configuration & Management
-import { showProgress, hideProgress, toggleModal, updateProgress, customConfirm } from './ui-helpers.js';
+import { showProgress, hideProgress, toggleModal, updateProgress, customConfirm, customAlert } from './ui-helpers.js';
 import { db } from '../firebase-init.js';
 import { doc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -86,22 +86,28 @@ export const saveBracketConfig = async (eventId) => {
 
     try {
         await setDoc(doc(db, `events/${eventId}/brackets`, classCode), bracketData);
-        alert("Konfigurasi bagan berhasil disimpan!");
+        await customAlert("Konfigurasi bagan berhasil disimpan!", "Simpan Berhasil", "info");
         toggleModal('modal-bracket-config', false);
     } catch (err) {
         console.error("Save Bracket Config Error:", err);
-        alert("Gagal menyimpan konfigurasi: " + err.message);
+        await customAlert("Gagal menyimpan konfigurasi: " + err.message, "Gagal", "danger");
     }
 };
 
 export const deleteBracketConfig = async (classCode, eventId) => {
-    if (confirm(`Yakin ingin menghapus konfigurasi bagan untuk kelas "${classCode}"?`)) {
+    const okDelete = await customConfirm({
+        title: "Hapus Konfigurasi",
+        message: `Yakin ingin menghapus konfigurasi bagan untuk kelas "${classCode}"?`,
+        confirmText: "Hapus Konfigurasi"
+    });
+
+    if (okDelete) {
         try {
             await deleteDoc(doc(db, `events/${eventId}/brackets`, classCode));
-            alert("Konfigurasi bagan berhasil dihapus!");
+            await customAlert("Konfigurasi bagan berhasil dihapus!", "Terhapus", "info");
         } catch (err) {
             console.error("Delete Bracket Config Error:", err);
-            alert("Gagal menghapus: " + err.message);
+            await customAlert("Gagal menghapus: " + err.message, "Gagal", "danger");
         }
     }
 };
@@ -129,13 +135,13 @@ export const deleteAllBrackets = async (eventId) => {
                 await batch.commit();
                 updateProgress(Math.round(((i + batchSize) / bracketSnap.size) * 100));
             }
-            alert(`Berhasil menghapus ${bracketSnap.size} bagan pertandingan!`);
+            await customAlert(`Berhasil menghapus ${bracketSnap.size} bagan pertandingan!`, "Selesai", "info");
         } else {
-            alert("Tidak ada bagan yang ditemukan untuk dihapus.");
+            await customAlert("Tidak ada bagan yang ditemukan untuk dihapus.", "Informasi", "info");
         }
     } catch (err) {
         console.error("Delete All Brackets Error:", err);
-        alert("Gagal membersihkan bagan: " + err.message);
+        await customAlert("Gagal membersihkan bagan: " + err.message, "Gagal", "danger");
     } finally {
         hideProgress();
     }

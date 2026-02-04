@@ -8,8 +8,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onUpdateAvailable: (callback) => ipcRenderer.on('update-available', (event, info) => callback(info)),
     onUpdateProgress: (callback) => ipcRenderer.on('update-progress', (event, percent) => callback(percent)),
     onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', (event, version) => callback(version)),
+    onUpdateNotAvailable: (callback) => ipcRenderer.on('update-not-available', (event) => callback()),
     onUpdateError: (callback) => ipcRenderer.on('update-error', (event, msg) => callback(msg)),
     startDownload: () => ipcRenderer.invoke('start-download'),
     restartApp: () => ipcRenderer.invoke('restart-app'),
-    downloadUpdate: () => ipcRenderer.invoke('download-update') // Fallback for manual link
+    downloadUpdate: () => ipcRenderer.invoke('download-update'),
+    minimizeApp: () => ipcRenderer.invoke('minimize-app'),
+    closeApp: () => ipcRenderer.invoke('close-app')
 });

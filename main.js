@@ -1,4 +1,4 @@
-// Kensho Tech Manager - v3.0.1 (Build Trigger: 2026-02-04 00:00)
+// Kensho Tech Manager - v3.0.5 (Build Trigger: 2026-02-05 00:00)
 const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
@@ -11,18 +11,17 @@ autoUpdater.autoDownload = false;
 
 function createWindow() {
     const win = new BrowserWindow({
-        width: 1280,
-        height: 800,
-        title: "Kensho Tech | Scoring System",
+        width: 500,
+        height: 600,
+        title: "Kensho Tech | Memulai...",
         icon: path.join(__dirname, 'Kensho.ico'),
+        frame: false, // Frameless untuk splash screen premium
+        transparent: true, // Opsional jika ingin background bulat/transparan
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js') // We will create this
-        },
-        // Frameless window for Discord look (optional, can be enabled later)
-        // titleBarStyle: 'hidden',
-        // titleBarOverlay: true
+            preload: path.join(__dirname, 'preload.js')
+        }
     });
 
     // Path fix for persistent data (ASAR read-only workaround)
@@ -30,8 +29,39 @@ function createWindow() {
     console.log('User Data Path:', userDataPath);
 
     win.setMenuBarVisibility(false);
+    win.loadFile('startup.html');
 
-    win.loadFile('login.html');
+    // Fungsi untuk beralih ke aplikasi utama
+    const launchMainApp = () => {
+        if (win.isDestroyed()) return;
+        win.setResizable(true);
+        win.setMinimumSize(1024, 768);
+        win.setSize(1280, 800);
+        win.center();
+        win.loadFile('login.html');
+    };
+
+    // Fallback keamanan: Jika dalam 10 detik tidak ada respon update, lanjut ke login
+    const startupTimeout = setTimeout(() => {
+        launchMainApp();
+    }, 10000);
+
+    // Kirim sinyal ke window saat update tidak ada
+    autoUpdater.on('update-not-available', () => {
+        console.log('No updates found. Launching app...');
+        clearTimeout(startupTimeout);
+        win.webContents.send('update-not-available');
+        // Beri jeda 1.5 detik agar user bisa melihat status "Sistem Siap" di splash
+        setTimeout(launchMainApp, 1500);
+    });
+
+    // Jika terjadi error pada update, tetap lanjut ke aplikasi
+    autoUpdater.on('error', (err) => {
+        console.error('Update error, proceeding to app:', err);
+        clearTimeout(startupTimeout);
+        win.webContents.send('update-error', err.message);
+        setTimeout(launchMainApp, 2000);
+    });
 
     // Handle window.open from renderer (e.g., monitor window & printing)
     win.webContents.setWindowOpenHandler(({ url }) => {
@@ -127,7 +157,6 @@ app.on('window-all-closed', () => {
 autoUpdater.on('update-available', (info) => {
     console.log('Update available:', info.version);
     BrowserWindow.getAllWindows().forEach(win => {
-        // Send version and release notes (releaseNotes might be an array or string)
         win.webContents.send('update-available', {
             version: info.version,
             releaseNotes: info.releaseNotes || 'Pembaruan sistem rutin untuk performa lebih baik.'
@@ -167,4 +196,14 @@ ipcMain.handle('start-download', () => {
 
 ipcMain.handle('restart-app', () => {
     autoUpdater.quitAndInstall();
+});
+
+ipcMain.handle('minimize-app', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) win.minimize();
+});
+
+ipcMain.handle('close-app', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) win.close();
 });

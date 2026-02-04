@@ -1,5 +1,5 @@
 // Excel Import/Export Functions
-import { showProgress, updateProgress, hideProgress, sleep, toggleModal } from './ui-helpers.js';
+import { showProgress, updateProgress, hideProgress, sleep, toggleModal, customAlert, customConfirm } from './ui-helpers.js';
 import { db } from '../firebase-init.js';
 import { doc, setDoc, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -86,11 +86,18 @@ export const importClassesFromExcel = async (event, eventId) => {
             const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
             if (jsonData.length === 0) {
-                alert("File Excel kosong atau tidak valid.");
+                await customAlert("File Excel kosong atau tidak valid.", "Impor Gagal", "danger");
                 return;
             }
 
-            if (confirm(`Impor ${jsonData.length} kelas dari Excel? (Data lama dengan kode yang sama akan diperbarui)`)) {
+            const okImport = await customConfirm({
+                title: "Konfirmasi Impor",
+                message: `Impor ${jsonData.length} kelas dari Excel? (Data lama dengan kode yang sama akan diperbarui)`,
+                confirmText: "Ya, Impor Semua",
+                type: 'info'
+            });
+
+            if (okImport) {
                 showProgress('IMPORT KELAS', jsonData.length);
                 try {
                     let successCount = 0;
@@ -131,18 +138,18 @@ export const importClassesFromExcel = async (event, eventId) => {
                         }
                         updateProgress(i + 1, jsonData.length);
                     }
-                    alert(`Berhasil mengimpor ${successCount} kelas!`);
+                    await customAlert(`Berhasil mengimpor ${successCount} kelas!`, "Impor Selesai", "info");
                     event.target.value = "";
                 } catch (err) {
                     console.error("Excel Import Error (Internal):", err);
-                    alert("Terjadi kesalahan saat menyimpan data: " + err.message);
+                    await customAlert("Terjadi kesalahan saat menyimpan data: " + err.message, "Gagal", "danger");
                 } finally {
                     hideProgress();
                 }
             }
         } catch (err) {
             console.error("Excel Import Error (External):", err);
-            alert("Gagal membaca file Excel. Pastikan formatnya benar.");
+            await customAlert("Gagal membaca file Excel. Pastikan formatnya benar.", "Error File", "danger");
         }
     };
     reader.readAsArrayBuffer(file);
@@ -201,7 +208,7 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
             });
 
             if (validData.length === 0) {
-                alert("Tidak ditemukan data atlet valid di file Excel ini.\nPastikan kolom 'NAMA ATLET' dan 'KODE' sudah terisi.");
+                await customAlert("Tidak ditemukan data atlet valid di file Excel ini.\nPastikan kolom 'NAMA ATLET' dan 'KODE' sudah terisi.", "Data Tidak Ditemukan", "danger");
                 hideProgress();
                 return;
             }
@@ -333,7 +340,7 @@ export const importAthletesFromExcel = async (event, eventId, latestClasses) => 
             event.target.value = "";
         } catch (err) {
             console.error(err);
-            alert("Error reading Excel: " + err.message);
+            await customAlert("Error reading Excel: " + err.message, "Gagal Baca Excel", "danger");
             hideProgress();
         }
     };
@@ -345,14 +352,20 @@ export const proceedWithConfirmedImport = async (eventId) => {
 
     const toProcess = pendingImportData.filter(a => a.action !== 'SKIP');
     if (toProcess.length === 0) {
-        alert("Tidak ada data baru atau perubahan yang perlu disimpan.");
+        await customAlert("Tidak ada data baru atau perubahan yang perlu disimpan.", "Tidak Ada Perubahan", "info");
         toggleModal('modal-import-athlete-preview', false);
         return;
     }
 
     const errors = toProcess.filter(a => !a.isOk).length;
     if (errors > 0) {
-        if (!confirm(`Ada ${errors} data dengan kode kelas yang TIDAK DITEMUKAN. Lanjutkan?`)) return;
+        const okProceed = await customConfirm({
+            title: "Data Bermasalah",
+            message: `Ada ${errors} data dengan kode kelas yang TIDAK DITEMUKAN. Lanjutkan?`,
+            confirmText: "Lanjutkan Saja",
+            type: 'danger'
+        });
+        if (!okProceed) return;
     }
 
     const btn = document.getElementById('btnConfirmImport');
@@ -391,11 +404,11 @@ export const proceedWithConfirmedImport = async (eventId) => {
             if (i % 20 === 0) await sleep(5);
         }
 
-        alert(`PROSES SELESAI!\n- Peserta Baru: ${saved}\n- Peserta Terupdate: ${updated}\n- Dilewati (Sama): ${pendingImportData.length - toProcess.length}`);
+        await customAlert(`PROSES SELESAI!\n- Peserta Baru: ${saved}\n- Peserta Terupdate: ${updated}\n- Dilewati (Sama): ${pendingImportData.length - toProcess.length}`, "Sinkronisasi Berhasil", "info");
         toggleModal('modal-import-athlete-preview', false);
     } catch (err) {
         console.error("Import Execution Error:", err);
-        alert("Gagal impor: " + err.message);
+        await customAlert("Gagal impor: " + err.message, "Error Cloud", "danger");
     } finally {
         btn.disabled = false;
         btn.innerText = "Impor Sekarang";

@@ -1,5 +1,6 @@
 import { auth } from './firebase-init.js';
 import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { customAlert } from './modules/ui-helpers.js';
 
 export const handleLogout = async () => {
     try {
@@ -9,7 +10,7 @@ export const handleLogout = async () => {
         window.location.href = 'login.html';
     } catch (error) {
         console.error("Logout Error:", error);
-        alert("Gagal keluar. Silakan coba lagi.");
+        await customAlert("Gagal keluar. Silakan coba lagi.", "Logout Gagal", "danger");
     }
 };
 

@@ -41,6 +41,8 @@ import {
     saveEmergencyAthlete,
     deleteAthlete,
     deleteContingentAthletes,
+    editContingentName,
+    saveContingentNameEdit,
     deleteAllAthletes
 } from './modules/athletes-manager.js';
 
@@ -129,7 +131,7 @@ function getEventId() {
 // ===================================
 // Initialize on DOM Ready
 // ===================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOM Content Loaded - Starting initialization...');
 
     onAuthStateChanged(auth, user => {
@@ -147,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('📋 Event ID:', eventId);
 
     if (!eventId) {
-        alert("Event ID tidak ditemukan!");
+        await customAlert("Event ID tidak ditemukan!", "Sistem Error", "danger");
         window.location.href = 'dashboard.html';
         return;
     }
@@ -164,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newLocation = document.getElementById('settingLocation').value.trim();
 
             if (!newName) {
-                alert("Nama event wajib diisi!");
+                await customAlert("Nama event wajib diisi!", "Validasi Gagal", "danger");
                 return;
             }
 
@@ -180,13 +182,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 await updateDoc(doc(db, 'events', eventId), updateData);
-                alert("Pengaturan event berhasil disimpan!");
+                await customAlert("Pengaturan event berhasil disimpan!", "Simpan Berhasil", "info");
 
                 // Real-time listener will handle global variable and UI updates
                 pendingLogoBase64 = null;
             } catch (err) {
                 console.error("Update Event Error:", err);
-                alert("Gagal menyimpan: " + err.message);
+                await customAlert("Gagal menyimpan: " + err.message, "Gagal", "danger");
             }
         };
     }
@@ -308,13 +310,13 @@ function updateLogoPreview(url) {
 }
 window.updateLogoPreview = updateLogoPreview;
 
-function previewLogo(input) {
+async function previewLogo(input) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
 
         // Final check size - keep it under 1MB for Firestore safety
         if (file.size > 1024 * 1024) {
-            alert("Ukuran logo terlalu besar! Maksimal 1MB.");
+            await customAlert("Ukuran logo terlalu besar! Maksimal 1MB.", "Ukuran File", "danger");
             input.value = "";
             return;
         }
@@ -383,6 +385,8 @@ window.handleClassCodeInput = (code) => handleClassCodeInput(code, latestClasses
 window.handleEmergencyClassCodeInput = (code) => handleEmergencyClassCodeInput(code, latestClasses);
 window.saveEmergencyAthlete = () => saveEmergencyAthlete(eventId, latestClasses);
 window.deleteAthlete = (id) => deleteAthlete(id, eventId);
+window.editContingentName = (teamName) => editContingentName(teamName);
+window.saveContingentNameEdit = () => saveContingentNameEdit(eventId);
 window.deleteContingentAthletes = (teamName) => deleteContingentAthletes(teamName, eventId);
 window.deleteAllAthletes = () => deleteAllAthletes(eventId);
 window.addNewClass = () => addNewClass(eventId);
@@ -425,6 +429,6 @@ window.updatePublicAccess = async (field, value) => {
         console.log(`✅ ${field} updated to ${value}`);
     } catch (err) {
         console.error(`❌ Error updating ${field}:`, err);
-        alert("Gagal merubah status publikasi: " + err.message);
+        await customAlert("Gagal merubah status publikasi: " + err.message, "Gagal", "danger");
     }
 };

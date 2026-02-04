@@ -702,6 +702,7 @@
                                 <th class="pb-4 text-center">Festival</th>
                                 <th class="pb-4 text-center">Beregu</th>
                                 <th class="pb-4 text-center">Total Atlet</th>
+                                <th class="pb-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="contingentTableBody" class="uppercase font-bold tracking-tight">
@@ -1528,6 +1529,47 @@
                         d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
             </button>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Kontingen -->
+    <div id="modal-edit-contingent" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
+        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5">
+            <header class="mb-8 text-center">
+                <div
+                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-indigo-400 mx-auto mb-4 border border-indigo-500/20">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1-4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Edit Nama
+                    Kontingen</h2>
+                <p id="edit-contingent-old-name-label"
+                    class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-indigo-400 italic">
+                    MENGUBAH DATA KONTINGEN</p>
+            </header>
+
+            <div class="space-y-6">
+                <input type="hidden" id="edit-contingent-old-value">
+                <div class="space-y-4">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 tracking-[0.2em]">Nama Baru
+                        Kontingen</label>
+                    <div
+                        class="neu-inset px-6 py-5 rounded-2xl flex items-center border border-white/5 focus-within:border-indigo-500/50 transition-all">
+                        <input type="text" id="edit-contingent-new-name" placeholder="MASUKKAN NAMA BARU..."
+                            class="bg-transparent text-sm font-black outline-none w-full uppercase tracking-wider text-white placeholder-slate-700">
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button onclick="toggleModal('modal-edit-contingent', false)"
+                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">Batal</button>
+                    <button onclick="window.saveContingentNameEdit()"
+                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(79,70,229,0.3)] hover:scale-[1.02] transition-all">Update
+                        Nama</button>
+                </div>
+            </div>
         </div>
     </div>
 

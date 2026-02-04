@@ -2,6 +2,7 @@
  * WINNERS PRINT MODULE
  */
 import { executeIsolatedPrint } from './print-core.js';
+import { customAlert } from '../ui-helpers.js';
 
 export const extractResultsFromBrackets = (brackets) => {
     const results = [];
@@ -55,7 +56,7 @@ export const prepareJuaraPrint = (brackets, classes, athletes, eventName, eventL
     }).sort((a, b) => (a.code || "").toString().localeCompare((b.code || "").toString(), undefined, { numeric: true }));
 
     if (openClasses.length === 0) {
-        alert("Belum ada daftar kelas Open yang memiliki pemenang untuk dicetak.");
+        customAlert("Belum ada daftar kelas Open yang memiliki pemenang untuk dicetak.", "Data Kosong", "info");
         return;
     }
 

@@ -17,7 +17,7 @@ class SyncEngine {
         this.db = null;
         this.initDB().then(() => {
             console.log('[SyncEngine] DB Ready');
-            this.syncAll(); // Initial check
+            // DISABLED: this.syncAll(); // Initial check disabled (Admin Rekap disabled)
         });
         this.startSyncTimer();
     }
@@ -55,8 +55,9 @@ class SyncEngine {
     }
 
     async startSyncTimer() {
-        setInterval(() => this.syncAll(), SYNC_INTERVAL);
-        console.log('[SyncEngine] Interval started: 3 minutes');
+        // DISABLED: Admin Rekap feature disabled, no need for cloud sync
+        // setInterval(() => this.syncAll(), SYNC_INTERVAL);
+        console.log('[SyncEngine] Cloud sync DISABLED (Admin Rekap feature disabled)');
     }
 
     async syncAll() {

@@ -309,6 +309,100 @@
             z-index: 10;
             opacity: 0.6;
         }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-down {
+            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* KATA TIMER OVERLAY */
+        #kataTimerOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 150;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 0.98) 100%);
+            backdrop-filter: blur(40px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .kata-timer-clock {
+            font-size: 25vh;
+            font-weight: 800;
+            font-style: italic;
+            line-height: 1;
+            margin-bottom: 2vh;
+            padding-right: 0.1em;
+            /* Prevent italic clipping */
+            overflow: visible;
+        }
+
+        .kata-timer-athlete {
+            font-size: 8vh;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.1;
+            max-width: 90%;
+        }
+
+        .kata-timer-team {
+            font-size: 4vh;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-top: 1vh;
+            text-transform: uppercase;
+        }
+
+        .kata-timer-kata {
+            font-size: 3vh;
+            font-weight: 800;
+            margin-top: 4vh;
+            padding: 1vh 4vh;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1vh;
+            color: #3b82f6;
+        }
+
+        .kata-timer-class {
+            font-size: 4.5vh;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            color: #ffffff;
+            text-transform: uppercase;
+            margin-bottom: 5vh;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 1vh 10vh;
+            border-radius: 2vh;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            max-width: 90vw;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -368,22 +462,16 @@
         <!-- CENTER LINE (DASHED) -->
         <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/5 z-0"></div>
 
-        <!-- Center Top Overlay (Timer & Info) -->
+        <!-- Match Info Header (Always Visible at Top) -->
+        <div id="matchInfoHeader"
+            class="fixed top-12 left-1/2 -translate-x-1/2 glass-panel px-20 py-4 rounded-3xl flex flex-col items-center shadow-xl border border-white/10 w-auto max-w-[90vw] z-40 animate-slide-down">
+            <p id="monitorCategory" class="text-[5vh] font-black uppercase tracking-[0.05em] text-white text-center">---
+            </p>
+        </div>
+
+        <!-- Center Top Overlay (Timer & Interactive UI) -->
         <div id="centerUI"
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-30 w-full max-w-2xl">
-            <!-- Match Info Header -->
-            <div id="matchInfoHeader"
-                class="glass-panel px-10 py-3 rounded-full mb-6 flex flex-col items-center shadow-xl border border-white/10 w-auto hidden">
-                <p id="monitorCategory"
-                    class="text-[1.5vh] font-black uppercase tracking-[0.6em] text-slate-400 mb-0.5">KUMITE MALE -60KG
-                </p>
-                <div class="flex items-center gap-4">
-                    <div class="h-[1px] w-8 bg-white/20"></div>
-                    <p id="monitorRound" class="text-[1.8vh] font-black uppercase tracking-widest shimmer-text italic">
-                        ROUND 1</p>
-                    <div class="h-[1px] w-8 bg-white/20"></div>
-                </div>
-            </div>
 
             <!-- Timer -->
             <div class="relative flex flex-col items-center">
@@ -405,12 +493,12 @@
             class="flex flex-col items-center justify-center relative border-r border-white/5 bg-gradient-to-br from-blue-950/10 to-transparent">
             <!-- Athlete Name -->
             <div id="athleteInfoAo" class="absolute top-44 left-12 right-12 z-10 transition-all duration-500">
-                <p class="text-[1.8vh] font-black uppercase tracking-[0.5em] text-blue-500 mb-1">AO</p>
+                <p class="text-[5vh] font-black uppercase tracking-[0.5em] text-blue-500 mb-1">AO</p>
                 <h2 id="monitorNameAo" class="text-[4.8vh] font-black uppercase tracking-tight leading-none truncate">
                     ATLET AO</h2>
                 <!-- WINNER LABEL AO -->
                 <div id="mon_winnerBadgeAo"
-                    class="hidden mt-6 px-10 py-3 bg-blue-600 text-white text-[3vh] font-black italic rounded-full shadow-[0_0_50px_rgba(37,99,235,0.8)] border-2 border-white/20 w-fit animate-bounce items-center gap-3">
+                    class="hidden mt-6 px-16 py-6 bg-blue-600 text-white text-[3vh] font-black italic rounded-full shadow-[0_0_50px_rgba(37,99,235,0.8)] border-2 border-white/20 w-fit animate-bounce items-center gap-3">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -423,7 +511,7 @@
                     </p>
                     <div id="mon_kataAoContainer"
                         class="hidden px-4 py-1 rounded bg-blue-600/20 border border-blue-500/30">
-                        <p id="monitorKataNameAo" class="text-[1.8vh] font-black italic text-blue-400 uppercase">KANKU
+                        <p id="monitorKataNameAo" class="text-[5vh] font-black italic text-blue-400 uppercase">KANKU
                             DAI</p>
                     </div>
                 </div>
@@ -468,12 +556,12 @@
             <!-- Athlete Name -->
             <div id="athleteInfoAka"
                 class="absolute top-44 left-12 right-12 text-right z-10 transition-all duration-500">
-                <p class="text-[1.8vh] font-black uppercase tracking-[0.5em] text-red-500 mb-1">AKA</p>
+                <p class="text-[5vh] font-black uppercase tracking-[0.5em] text-red-500 mb-1">AKA</p>
                 <h2 id="monitorNameAka" class="text-[4.8vh] font-black uppercase tracking-tight leading-none truncate">
                     ATLET AKA</h2>
                 <!-- WINNER LABEL AKA -->
                 <div id="mon_winnerBadgeAka"
-                    class="hidden mt-6 px-10 py-3 bg-red-600 text-white text-[3vh] font-black italic rounded-full shadow-[0_0_50px_rgba(220,38,38,0.8)] border-2 border-white/20 w-fit animate-bounce items-center gap-3 float-right">
+                    class="hidden mt-6 px-16 py-6 bg-red-600 text-white text-[3vh] font-black italic rounded-full shadow-[0_0_50px_rgba(220,38,38,0.8)] border-2 border-white/20 w-fit animate-bounce items-center gap-3 float-right">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
                         <path
                             d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -484,7 +572,7 @@
                     <div id="mon_kataAkaContainer"
                         class="hidden px-4 py-1 rounded bg-red-600/20 border border-red-500/30">
                         <p id="monitorKataNameAka"
-                            class="text-[1.8vh] font-black italic text-red-400 uppercase text-right">KANKU DAI</p>
+                            class="text-[5vh] font-black italic text-red-400 uppercase text-right">KANKU DAI</p>
                     </div>
                     <p id="monitorTeamAka"
                         class="text-[2.8vh] font-bold text-slate-100 uppercase tracking-widest truncate">KONTINGEN RED
@@ -526,13 +614,22 @@
         </div>
     </div>
 
+    <!-- KATA TIMER OVERLAY (SMART OVERLAY) -->
+    <div id="kataTimerOverlay">
+        <div id="overlayClass" class="kata-timer-class shimmer-text">---</div>
+        <div id="overlayTimer" class="kata-timer-clock shimmer-text">01:00</div>
+        <div id="overlayName" class="kata-timer-athlete">---</div>
+        <div id="overlayTeam" class="kata-timer-team">---</div>
+        <div id="overlayKata" class="kata-timer-kata italic">KATA: ---</div>
+    </div>
+
     <!-- WINNER BANNER -->
     <div id="winnerBanner" class="winner-banner">
         <div class="winner-ring"></div>
         <div class="winner-ring" style="animation-direction: reverse; width: 70vh; height: 70vh; opacity: 0.5;"></div>
         <div class="relative flex flex-col items-center w-full px-8">
             <div id="winnerSideLabel"
-                class="px-10 py-3 rounded-full bg-white/10 border border-white/20 text-[3vh] font-black tracking-[0.8em] text-slate-400 mb-8 uppercase">
+                class="px-16 py-6 rounded-full bg-white/10 border border-white/20 text-[3vh] font-black tracking-[0.8em] text-slate-400 mb-8 uppercase">
                 CHAMPION</div>
             <h1 id="winnerName"
                 class="text-[8vh] font-black uppercase tracking-tighter leading-none mb-3 italic shimmer-text drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center max-w-full">
@@ -576,32 +673,107 @@
             updateUI(data);
         });
 
-        function updateUI(data) {
-            // General Info
-            document.getElementById('monitorCategory').innerText = (data.category || '---').toUpperCase();
-            document.getElementById('monitorRound').innerText = (data.round || 'PRELIMINARY').toUpperCase();
-            document.getElementById('monitorTimer').innerText = data.timerText || '00:00';
+        // Offline storage listener
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'karate_score_update' && e.newValue) {
+                try {
+                    const data = JSON.parse(e.newValue);
+                    updateUI(data);
+                } catch (err) {
+                    console.error('[Offline] Error parsing score update:', err);
+                }
+            }
+        });
 
-            // ATOSHI BARAKU logic
-            const timerContainer = document.getElementById('timerContainer');
-            const atoshiLabel = document.getElementById('atoshiLabel');
-            if (data.isAtoshiBaraku) {
-                timerContainer.classList.add('atoshi-baraku', 'border-red-500/50');
-                atoshiLabel.classList.remove('hidden');
+        function updateUI(data) {
+            // Helper to check if string has meaningful data
+            const hasData = (str) => str && str !== '-' && str !== '---' && str.trim() !== '';
+
+            // General Info
+            const catHeader = document.getElementById('matchInfoHeader');
+            if (hasData(data.category)) {
+                catHeader.classList.remove('hidden');
+                document.getElementById('monitorCategory').innerText = data.category.toUpperCase();
             } else {
-                timerContainer.classList.remove('atoshi-baraku', 'border-red-500/50');
-                atoshiLabel.classList.add('hidden');
+                catHeader.classList.add('hidden');
+            }
+            // Visibility Logic: Hide timer if disabled globally
+            const centerUI = document.getElementById('centerUI');
+            const kataOverlay = document.getElementById('kataTimerOverlay');
+
+            if (!data.isTimerEnabled) {
+                if (centerUI) centerUI.classList.add('hidden');
+                if (kataOverlay) kataOverlay.style.display = 'none';
+            } else {
+                if (data.scoringMode === 'kata') {
+                    // KATA Mode: Large Overlay
+                    if (centerUI) centerUI.classList.add('hidden');
+                    if (kataOverlay) {
+                        kataOverlay.style.display = 'flex';
+                        document.getElementById('overlayTimer').innerText = data.timerText || '00:00';
+
+                        // Decide which athlete to show based on active performer
+                        const isAo = data.activeKataPerformer === 'ao';
+                        const overlayName = isAo ? data.nameAo : data.nameAka;
+                        const overlayTeam = isAo ? data.teamAo : data.teamAka;
+                        const overlayKata = isAo ? data.kataAo : data.kataAka;
+
+                        document.getElementById('overlayName').innerText = (overlayName || '').toUpperCase();
+                        document.getElementById('overlayName').classList.toggle('hidden', !hasData(overlayName));
+
+                        document.getElementById('overlayTeam').innerText = (overlayTeam || '').toUpperCase();
+                        document.getElementById('overlayTeam').classList.toggle('hidden', !hasData(overlayTeam));
+
+                        document.getElementById('overlayKata').innerText = `KATA: ${overlayKata || ''}`;
+                        document.getElementById('overlayKata').classList.toggle('hidden', !hasData(overlayKata));
+                        document.getElementById('overlayKata').style.color = isAo ? '#3b82f6' : '#ef4444';
+
+                        document.getElementById('overlayClass').innerText = (data.category || '').toUpperCase();
+                    }
+                } else {
+                    // KUMITE Mode: Standard small timer
+                    if (centerUI) centerUI.classList.remove('hidden');
+                    if (kataOverlay) kataOverlay.style.display = 'none';
+                    document.getElementById('monitorTimer').innerText = data.timerText || '00:00';
+
+                    // ATOSHI BARAKU logic (KUMITE ONLY)
+                    const timerContainer = document.getElementById('timerContainer');
+                    const atoshiLabel = document.getElementById('atoshiLabel');
+                    if (timerContainer && atoshiLabel) {
+                        if (data.isAtoshiBaraku) {
+                            timerContainer.classList.add('atoshi-baraku', 'border-red-500/50');
+                            atoshiLabel.classList.remove('hidden');
+                        } else {
+                            timerContainer.classList.remove('atoshi-baraku', 'border-red-500/50');
+                            atoshiLabel.classList.add('hidden');
+                        }
+                    }
+                }
             }
 
             // AO Data (LEFT)
-            document.getElementById('monitorNameAo').innerText = data.nameAo || 'ATLET AO';
-            const teamAo = data.teamAo || '';
-            document.getElementById('monitorTeamAo').innerText = (teamAo === '-' || teamAo === '---' || !teamAo) ? '' : teamAo;
-            document.getElementById('monitorScoreAo').innerText = data.scoringMode === 'kata' ?
-                data.kataScoreAo.toFixed(1) : (data.aoScore < 10 ? '0' + data.aoScore : data.aoScore);
+            const nameAoEl = document.getElementById('monitorNameAo');
+            if (nameAoEl) {
+                nameAoEl.innerText = (data.nameAo || '').toUpperCase();
+                nameAoEl.classList.toggle('hidden', !hasData(data.nameAo));
+            }
+
+            const teamAoEl = document.getElementById('monitorTeamAo');
+            if (teamAoEl) {
+                teamAoEl.innerText = hasData(data.teamAo) ? data.teamAo.toUpperCase() : '';
+                teamAoEl.classList.toggle('hidden', !hasData(data.teamAo));
+            }
+
+            let displayScoreAo = '00';
+            if (data.scoringMode === 'kata') {
+                displayScoreAo = data.kataType === 'flag' ? (data.aoFlags || 0) : data.kataScoreAo.toFixed(1);
+            } else {
+                displayScoreAo = data.aoScore < 10 ? '0' + data.aoScore : data.aoScore;
+            }
+            document.getElementById('monitorScoreAo').innerText = displayScoreAo;
 
             const kataAoContainer = document.getElementById('mon_kataAoContainer');
-            if (data.scoringMode === 'kata' && data.kataAo) {
+            if (data.scoringMode === 'kata' && hasData(data.kataAo)) {
                 kataAoContainer.classList.remove('hidden');
                 document.getElementById('monitorKataNameAo').innerText = data.kataAo;
             } else {
@@ -609,14 +781,28 @@
             }
 
             // AKA Data (RIGHT)
-            document.getElementById('monitorNameAka').innerText = data.nameAka || 'ATLET AKA';
-            const teamAka = data.teamAka || '';
-            document.getElementById('monitorTeamAka').innerText = (teamAka === '-' || teamAka === '---' || !teamAka) ? '' : teamAka;
-            document.getElementById('monitorScoreAka').innerText = data.scoringMode === 'kata' ?
-                data.kataScoreAka.toFixed(1) : (data.akaScore < 10 ? '0' + data.akaScore : data.akaScore);
+            const nameAkaEl = document.getElementById('monitorNameAka');
+            if (nameAkaEl) {
+                nameAkaEl.innerText = (data.nameAka || '').toUpperCase();
+                nameAkaEl.classList.toggle('hidden', !hasData(data.nameAka));
+            }
+
+            const teamAkaEl = document.getElementById('monitorTeamAka');
+            if (teamAkaEl) {
+                teamAkaEl.innerText = hasData(data.teamAka) ? data.teamAka.toUpperCase() : '';
+                teamAkaEl.classList.toggle('hidden', !hasData(data.teamAka));
+            }
+
+            let displayScoreAka = '00';
+            if (data.scoringMode === 'kata') {
+                displayScoreAka = data.kataType === 'flag' ? (data.akaFlags || 0) : data.kataScoreAka.toFixed(1);
+            } else {
+                displayScoreAka = data.akaScore < 10 ? '0' + data.akaScore : data.akaScore;
+            }
+            document.getElementById('monitorScoreAka').innerText = displayScoreAka;
 
             const kataAkaContainer = document.getElementById('mon_kataAkaContainer');
-            if (data.scoringMode === 'kata' && data.kataAka) {
+            if (data.scoringMode === 'kata' && hasData(data.kataAka)) {
                 kataAkaContainer.classList.remove('hidden');
                 document.getElementById('monitorKataNameAka').innerText = data.kataAka;
             } else {
@@ -743,6 +929,16 @@
                 const akaScore = data.akaScore < 10 ? '0' + data.akaScore : data.akaScore;
                 const aoScore = data.aoScore < 10 ? '0' + data.aoScore : data.aoScore;
 
+                // Detect KATA scores
+                let finalScoreDisplay = `${aoScore} - ${akaScore}`; // Swapped to AO - AKA (Blue - Red)
+                if (data.scoringMode === 'kata') {
+                    if (data.kataType === 'flag') {
+                        finalScoreDisplay = `${data.aoFlags || 0} - ${data.akaFlags || 0}`;
+                    } else {
+                        finalScoreDisplay = `${data.kataScoreAo.toFixed(1)} - ${data.kataScoreAka.toFixed(1)}`;
+                    }
+                }
+
                 // Update Banner Data
                 document.getElementById('winnerName').innerText = winnerName.toUpperCase();
                 document.getElementById('winnerTeam').innerText = (winnerTeam === '-' || !winnerTeam) ? '' : winnerTeam.toUpperCase();
@@ -754,18 +950,18 @@
                     sideLabelEl.innerText = 'HANTEI';
                     document.getElementById('winnerScore').innerText = data.hanteiScore;
                 } else {
-                    // Normal win - show CHAMPION and match score
+                    // Normal win
                     sideLabelEl.innerText = 'CHAMPION';
-                    document.getElementById('winnerScore').innerText = `${akaScore} - ${aoScore}`;
+                    document.getElementById('winnerScore').innerText = finalScoreDisplay;
                 }
 
                 // Banner Styles based on side
                 if (data.winnerSide === 'aka') {
                     banner.style.background = 'radial-gradient(circle at center, rgba(153, 27, 27, 0.4) 0%, rgba(2, 6, 23, 1) 100%)';
-                    sideLabelEl.className = "px-10 py-3 rounded-full bg-red-600/20 border border-red-500/30 text-[3vh] font-black tracking-[0.8em] text-red-500 mb-8 uppercase";
+                    sideLabelEl.className = "px-16 py-6 rounded-full bg-red-600/20 border border-red-500/30 text-[3vh] font-black tracking-[0.8em] text-red-500 mb-8 uppercase";
                 } else {
                     banner.style.background = 'radial-gradient(circle at center, rgba(30, 58, 138, 0.4) 0%, rgba(2, 6, 23, 1) 100%)';
-                    sideLabelEl.className = "px-10 py-3 rounded-full bg-blue-600/20 border border-blue-500/30 text-[3vh] font-black tracking-[0.8em] text-blue-500 mb-8 uppercase";
+                    sideLabelEl.className = "px-16 py-6 rounded-full bg-blue-600/20 border border-blue-500/30 text-[3vh] font-black tracking-[0.8em] text-blue-500 mb-8 uppercase";
                 }
 
                 banner.classList.add('show');
@@ -825,6 +1021,14 @@
 
         // Check athlete info visibility every 500ms
         setInterval(checkAndHideDefaultAthleteInfo, 500);
+
+        // CLICK TO TOGGLE FULLSCREEN
+        document.addEventListener('click', () => {
+            if (typeof window.toggleFullscreen === 'function') {
+                console.log('[Monitor] Screen clicked - toggling fullscreen');
+                window.toggleFullscreen();
+            }
+        });
 
         window.addEventListener('storage', (e) => {
             if (e.key === 'karate_display_command') {

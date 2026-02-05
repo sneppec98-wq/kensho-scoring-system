@@ -495,6 +495,51 @@
 
 <body class="min-h-screen flex text-slate-100 bg-[#020617]">
     <script src="js/window-controls.js"></script>
+
+    <!-- 🎨 CUSTOM MODAL CONFIRM/ALERT -->
+    <div id="modal-confirm"
+        class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300"
+        style="opacity: 0;">
+        <div
+            class="neu-flat scale-95 opacity-0 max-w-md w-full mx-4 p-8 rounded-[2.5rem] border border-white/10 shadow-[0_20px_80px_rgba(0,0,0,0.8)] relative overflow-hidden group transition-all duration-300">
+            <div id="confirm-bg-gradient"
+                class="absolute -right-20 -top-20 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/15 transition-all">
+            </div>
+            <div id="confirm-icon-container"
+                class="w-20 h-20 rounded-[2rem] neu-inset flex items-center justify-center text-cyan-500 mx-auto mb-6 border border-cyan-500/20 shadow-lg transition-transform duration-500 group-hover:scale-110 relative z-10">
+                <svg id="confirm-icon-danger" class="w-10 h-10 hidden" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
+                </svg>
+                <svg id="confirm-icon-info" class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="relative z-10 space-y-4">
+                <h3 id="confirm-title" class="text-xl font-black uppercase tracking-tight text-center">Konfirmasi</h3>
+                <p id="confirm-message" class="text-sm text-slate-400 text-center leading-relaxed whitespace-pre-line">
+                    Apakah Anda yakin?</p>
+                <div id="confirm-prompt-container" class="hidden mt-6">
+                    <label id="confirm-prompt-label"
+                        class="text-[9px] font-black uppercase opacity-40 ml-4 mb-3 block tracking-widest text-cyan-500">Ketik
+                        untuk konfirmasi</label>
+                    <input type="text" id="confirm-input"
+                        class="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-sm font-bold outline-none focus:border-cyan-500/50 transition-all"
+                        placeholder="Ketik disini...">
+                </div>
+                <div class="flex gap-3 mt-8">
+                    <button id="confirm-cancel-btn"
+                        class="flex-1 py-4 rounded-2xl bg-slate-800/50 border border-white/5 text-slate-400 text-[11px] font-black uppercase tracking-[0.2em] hover:bg-slate-700/50 active:scale-95 transition-all">Batal</button>
+                    <button id="confirm-action-btn"
+                        class="flex-1 py-4 rounded-2xl bg-gradient-to-br from-cyan-600 to-blue-600 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(6,182,212,0.3)] hover:brightness-110 active:scale-95 transition-all">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Aurora Background -->
     <div id="aurora-container">
         <div class="aurora aurora-1"></div>
@@ -508,7 +553,7 @@
             <a href="dashboard.html">
                 <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform mb-3">
             </a>
-            <div class="badge-version">v3.1.1</div>
+            <div class="badge-version">v3.2.0</div>
         </div>
         <nav class="flex-1 flex flex-col items-center space-y-6">
             <a href="dashboard.html" data-tooltip="Dashboard Hub" class="side-btn">
@@ -607,24 +652,26 @@
             <div class="flex flex-col items-center justify-center p-8 neu-flat rounded-[2.5rem] border border-white/5">
                 <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mb-6">Pilih Peran Petugas</p>
                 <div class="flex gap-6">
-                    <button onclick="setGlobalRole('admin_rekap')" id="roleRekapBtn"
-                        class="px-10 py-5 rounded-2xl border-2 border-white/5 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all flex flex-col items-center gap-3 group">
+                    <button
+                        onclick="customAlert('🏖️ FITUR ADMIN REKAP LAGI LIBUR\n\n🤝 DICARI DONATUR YANG BISA NGATUR\n\nBerminat jadi pengatur?\nHubungi pengembang! 💬', 'Admin Rekap Lagi Libur', 'info')"
+                        id="roleRekapBtn"
+                        class="px-6 py-3 rounded-xl border-2 border-white/5 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all flex flex-col items-center gap-2 group">
                         <div
-                            class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-500 text-2xl group-hover:scale-110 transition-transform">
+                            class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-500 text-xl group-hover:scale-110 transition-transform">
                             📝
                         </div>
                         <span
-                            class="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-purple-400">Admin
+                            class="text-[10px] font-black uppercase tracking-wider text-slate-400 group-hover:text-purple-400">Admin
                             Rekap</span>
                     </button>
                     <button onclick="setGlobalRole('scoring_juri')" id="roleScoringBtn"
-                        class="px-10 py-5 rounded-2xl border-2 border-white/5 hover:border-red-500/50 hover:bg-red-500/10 transition-all flex flex-col items-center gap-3 group">
+                        class="px-6 py-3 rounded-xl border-2 border-white/5 hover:border-red-500/50 hover:bg-red-500/10 transition-all flex flex-col items-center gap-2 group">
                         <div
-                            class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center text-red-500 text-2xl group-hover:scale-110 transition-transform">
+                            class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-500 text-xl group-hover:scale-110 transition-transform">
                             🎯
                         </div>
                         <span
-                            class="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-red-400">Scoring
+                            class="text-[10px] font-black uppercase tracking-wider text-slate-400 group-hover:text-red-400">Scoring
                             Juri</span>
                     </button>
                 </div>
@@ -1062,6 +1109,7 @@
     <script type="module">
         import { rtdb, auth, db } from './js/firebase-init.js';
         import { handleLogout } from './js/auth-helpers.js';
+        import { customAlert } from './js/modules/ui-helpers.js';
         import { onAuthStateChanged, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { ref, onValue, set, push, serverTimestamp, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         import { collection, query, where, onSnapshot, getDocs, orderBy, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -1071,6 +1119,7 @@
 
         window.triggerSeeding = seedDummyEvents;
         window.handleLogout = handleLogout;
+        window.customAlert = customAlert; // 🔥 Expose for inline onclick handlers
         window.selectedTatamiId = null;
         window.selectedEventId = new URLSearchParams(window.location.search).get('id') || '';
 

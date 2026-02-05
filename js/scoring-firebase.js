@@ -54,7 +54,7 @@ export function broadcastScoreData(scoreData) {
 
     return set(scoringRef, data)
         .then(() => {
-            console.log('[Firebase] Data synced to:', tatamiId);
+            // console.log('[Firebase] Data synced to:', tatamiId);
             // Update UI status indicator if exists
             const statusEl = document.getElementById('userNameDisplay');
             if (statusEl) {

@@ -289,7 +289,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     console.log('✅ Event Detail Modules Loaded Successfully');
+
+    // ===================================
+    // Auto Tab Selection (Deep Linking)
+    // ===================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetTab = urlParams.get('tab');
+    if (targetTab === 'bracket') {
+        const cardBracket = document.querySelector('[onclick*="tab-bracket"]');
+        if (cardBracket) {
+            switchTab('tab-bracket', cardBracket);
+        }
+    } else if (targetTab === 'kontingen') {
+        const cardKontingen = document.querySelector('[onclick*="tab-kontingen"]');
+        if (cardKontingen) switchTab('tab-kontingen', cardKontingen);
+    } else if (targetTab === 'atlet') {
+        const cardAtlet = document.querySelector('[onclick*="tab-atlet"]');
+        if (cardAtlet) switchTab('tab-atlet', cardAtlet);
+    }
 });
+
 
 // ===================================
 // UI Methods

@@ -809,7 +809,7 @@
                     <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/10 italic mr-auto">Power
                         by
                         Spartan Tournament Engine v2.0</p>
-                    <button onclick="window.history.back()"
+                    <button onclick="window.goBackToDetail()"
                         class="px-10 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batalkan</button>
                     <button id="btnSaveBracket" onclick="saveBracket()"
                         class="px-16 py-5 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(59,130,246,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
@@ -928,7 +928,18 @@
             }
         };
 
+        window.goBackToDetail = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+            if (eventId) {
+                window.location.href = `event-detail.html?id=${eventId}&tab=bracket`;
+            } else {
+                window.history.back();
+            }
+        };
+
         // Get Context from URL
+
         const urlParams = new URLSearchParams(window.location.search);
         const eventId = urlParams.get('id');
         const classId = urlParams.get('classId');
@@ -959,8 +970,15 @@
                 // Simpan host kontingen secara global
                 window.hostKontingen = eventData.settings?.hostKontingen || "";
                 // Breadcrumb
-                const breadcrumbEvent = document.querySelector('a[href="javascript:window.history.back()"]');
-                if (breadcrumbEvent) breadcrumbEvent.innerText = eventData.name;
+                const breadcrumbEvent = document.querySelector('a[href*="event-detail.html"], a[onclick*="history.back"]');
+                if (breadcrumbEvent) {
+                    breadcrumbEvent.innerText = eventData.name;
+                    breadcrumbEvent.href = `event-detail.html?id=${eventId}&tab=bracket`;
+                    breadcrumbEvent.onclick = (e) => {
+                        e.preventDefault();
+                        window.goBackToDetail();
+                    };
+                }
             }
 
             // 2. Load All Classes for Dropdown

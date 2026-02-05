@@ -127,7 +127,7 @@
                                 class="text-[11px] font-black uppercase text-white/80 tracking-[0.2em] mt-1 truncate px-10">
                                 ---</p>
                             <input type="text" id="inputKataAka" placeholder="Input Nama Kata"
-                                oninput="checkKataShortcut(this); broadcastData()"
+                                oninput="checkKataShortcut(this)" onchange="broadcastData()"
                                 class="w-auto min-w-[200px] bg-red-500/10 border border-red-500/20 rounded-2xl px-6 py-3 text-xs font-black uppercase tracking-widest text-red-400 mt-3 focus:bg-red-500/20 focus:border-red-500/50 focus:scale-105 focus:outline-none placeholder:text-red-500/30 transition-all text-center hidden shadow-inner">
                         </div>
 
@@ -184,21 +184,36 @@
                         <!-- KATA CONTROLS AKA (Integrated) -->
                         <div id="kataControlsAka" class="hidden w-full relative z-10 space-y-4 px-2">
                             <div class="grid grid-cols-5 gap-3">
-                                <button onclick="openJudgeKeypad('aka', 0)" id="judgeBtnAka0"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('aka', 1)" id="judgeBtnAka1"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('aka', 2)" id="judgeBtnAka2"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('aka', 3)" id="judgeBtnAka3"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('aka', 4)" id="judgeBtnAka4"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red hover:scale-105 active:scale-95 transition-all">0.0</button>
+                                <input type="text" id="judgeBtnAka0" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'aka', 0)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red focus:glow-red focus:ring-2 focus:ring-red-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAka1" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'aka', 1)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red focus:glow-red focus:ring-2 focus:ring-red-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAka2" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'aka', 2)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red focus:glow-red focus:ring-2 focus:ring-red-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAka3" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'aka', 3)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red focus:glow-red focus:ring-2 focus:ring-red-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAka4" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'aka', 4)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-red-500 hover:glow-red focus:glow-red focus:ring-2 focus:ring-red-500/50 outline-none transition-all bg-transparent">
                             </div>
                             <div
                                 class="p-3.5 rounded-2xl bg-red-600/10 border border-red-500/20 flex justify-between items-center shadow-inner">
-                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/50">TOTAL
-                                    SCORE</span>
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/50">TOTAL
+                                        SCORE</span>
+                                    <button onclick="window.checkKataAutoWinner()"
+                                        class="text-[8px] font-black text-red-500/80 hover:text-red-400 text-left">AUTO-CALC</button>
+                                </div>
                                 <span id="kataTotalAka" class="text-2xl font-black text-red-500 score-digit">0.0</span>
                             </div>
                         </div>
@@ -462,7 +477,7 @@
 
                         <!-- FOOTER INFO -->
                         <div class="mt-auto pt-2 text-center opacity-5">
-                            <p class="text-[6px] font-black uppercase tracking-[0.8em]">PLATINUM</p>
+                            <p class="text-[6px] font-black uppercase tracking-[0.8em]">KENSHO SCORING SYSTEM</p>
                         </div>
                     </div>
 
@@ -495,7 +510,7 @@
                                 class="text-[11px] font-black uppercase text-white/80 tracking-[0.2em] mt-1 truncate px-10">
                                 ---</p>
                             <input type="text" id="inputKataAo" placeholder="Input Nama Kata"
-                                oninput="checkKataShortcut(this); broadcastData()"
+                                oninput="checkKataShortcut(this)" onchange="broadcastData()"
                                 class="w-auto min-w-[200px] bg-blue-500/10 border border-blue-500/20 rounded-2xl px-6 py-3 text-xs font-black uppercase tracking-widest text-blue-400 mt-3 focus:bg-blue-500/20 focus:border-blue-500/50 focus:scale-105 focus:outline-none placeholder:text-blue-500/30 transition-all text-center hidden shadow-inner">
                         </div>
 
@@ -552,21 +567,36 @@
                         <!-- KATA CONTROLS AO (Integrated) -->
                         <div id="kataControlsAo" class="hidden w-full relative z-10 space-y-4 px-2">
                             <div class="grid grid-cols-5 gap-3">
-                                <button onclick="openJudgeKeypad('ao', 0)" id="judgeBtnAo0"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('ao', 1)" id="judgeBtnAo1"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('ao', 2)" id="judgeBtnAo2"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('ao', 3)" id="judgeBtnAo3"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
-                                <button onclick="openJudgeKeypad('ao', 4)" id="judgeBtnAo4"
-                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue hover:scale-105 active:scale-95 transition-all">0.0</button>
+                                <input type="text" id="judgeBtnAo0" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'ao', 0)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue focus:glow-blue focus:ring-2 focus:ring-blue-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAo1" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'ao', 1)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue focus:glow-blue focus:ring-2 focus:ring-blue-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAo2" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'ao', 2)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue focus:glow-blue focus:ring-2 focus:ring-blue-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAo3" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'ao', 3)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue focus:glow-blue focus:ring-2 focus:ring-blue-500/50 outline-none transition-all bg-transparent">
+                                <input type="text" id="judgeBtnAo4" value="0.0"
+                                    oninput="window.updateKataJudgeScoreManual(this, 'ao', 4)" onfocus="this.select()"
+                                    inputmode="decimal"
+                                    class="oled-panel rounded-2xl py-4 text-center text-lg font-black text-blue-500 hover:glow-blue focus:glow-blue focus:ring-2 focus:ring-blue-500/50 outline-none transition-all bg-transparent">
                             </div>
                             <div
                                 class="p-3.5 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex justify-between items-center shadow-inner">
-                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500/50">TOTAL
-                                    SCORE</span>
+                                <div class="flex flex-col">
+                                    <span
+                                        class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500/50">TOTAL
+                                        SCORE</span>
+                                    <button onclick="window.checkKataAutoWinner()"
+                                        class="text-[8px] font-black text-blue-500/80 hover:text-blue-400 text-left">AUTO-CALC</button>
+                                </div>
                                 <span id="kataTotalAo" class="text-2xl font-black text-blue-500 score-digit">0.0</span>
                             </div>
                         </div>
@@ -667,49 +697,7 @@
             </div>
         </div>
 
-        <!-- QUEUE SIDEBAR (NEW) -->
-        <aside id="queueSidebar"
-            class="fixed right-0 top-0 h-full w-80 bg-[#050505]/95 backdrop-blur-xl border-l border-white/5 z-[60] translate-x-full transition-transform duration-500 flex flex-col shadow-2xl">
-            <div class="p-8 border-b border-white/5 flex justify-between items-center">
-                <div>
-                    <h3 class="text-sm font-black uppercase tracking-[0.2em] italic shimmer-text">Antrean Tatami</h3>
-                    <p class="text-[8px] font-bold opacity-30 uppercase tracking-widest mt-1">Berdasarkan Admin Rekap
-                    </p>
-                </div>
-                <button onclick="toggleQueueSidebar()" class="text-slate-500 hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
 
-            <div id="queueMatchList" class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
-                <div class="py-20 text-center opacity-20 italic text-[10px] font-black uppercase tracking-widest">
-                    Menunggu Data Antrean...
-                </div>
-            </div>
-
-            <div class="p-6 border-t border-white/5">
-                <button id="btnNextMatchQueue" onclick="loadNextMatchFromQueue()"
-                    class="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-purple-600/20 active:scale-95 transition-all flex items-center justify-center gap-3">
-                    <i class="fa-solid fa-forward"></i> Match Berikutnya
-                </button>
-            </div>
-        </aside>
-
-        <!-- QUEUE TOGGLE BUTTON -->
-        <button id="btnToggleQueue" onclick="toggleQueueSidebar()"
-            class="fixed right-8 top-1/2 -translate-y-1/2 w-10 h-32 bg-white/5 border border-white/5 rounded-full flex flex-col items-center justify-center gap-4 hover:bg-white/10 transition-all z-50 group">
-            <div class="w-1 h-1 rounded-full bg-red-500 animate-pulse"></div>
-            <p
-                class="text-[8px] font-black uppercase tracking-[0.4em] rotate-90 whitespace-nowrap text-slate-500 group-hover:text-white">
-                QUEUE</p>
-            <svg class="w-4 h-4 text-slate-500 group-hover:text-red-500 -rotate-90" fill="none" stroke="currentColor"
-                viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" />
-            </svg>
-        </button>
     </main>
 
     <!-- CUSTOM MODAL HTML -->
@@ -753,12 +741,65 @@
                     </div>
                 </div>
 
+                <!-- ATHLETE INPUTS -->
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- AKA SIDE -->
+                    <div class="space-y-3">
+                        <label class="block text-[8px] font-black uppercase tracking-[0.4em] text-red-500 mb-2 ml-1">🔴
+                            AKA / RED</label>
+
+                        <div class="relative">
+                            <label
+                                class="block text-[7px] font-bold uppercase tracking-wider text-white/30 mb-1 ml-1">Nama
+                                Atlet</label>
+                            <input type="text" id="inputNameAka" placeholder="Ketik nama..."
+                                oninput="filterAthletes('aka')" onfocus="showAthleteDropdown('aka')" autocomplete="off"
+                                class="w-full bg-black/40 border border-red-500/20 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-red-500/50 focus:bg-black/60 outline-none transition-all">
+                            <div id="athleteDropdownAka"
+                                class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900/95 backdrop-blur-xl border border-red-500/30 rounded-xl max-h-40 overflow-y-auto custom-scrollbar shadow-2xl z-50">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[7px] font-bold uppercase tracking-wider text-white/30 mb-1 ml-1">Kontingen</label>
+                            <input type="text" id="inputTeamAka" placeholder="Team AKA"
+                                class="w-full bg-black/40 border border-red-500/20 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-red-500/50 focus:bg-black/60 outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <!-- AO SIDE -->
+                    <div class="space-y-3">
+                        <label class="block text-[8px] font-black uppercase tracking-[0.4em] text-blue-500 mb-2 ml-1">🔵
+                            AO / BLUE</label>
+
+                        <div class="relative">
+                            <label
+                                class="block text-[7px] font-bold uppercase tracking-wider text-white/30 mb-1 ml-1">Nama
+                                Atlet</label>
+                            <input type="text" id="inputNameAo" placeholder="Ketik nama..."
+                                oninput="filterAthletes('ao')" onfocus="showAthleteDropdown('ao')" autocomplete="off"
+                                class="w-full bg-black/40 border border-blue-500/20 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-blue-500/50 focus:bg-black/60 outline-none transition-all">
+                            <div id="athleteDropdownAo"
+                                class="hidden absolute top-full left-0 right-0 mt-1 bg-slate-900/95 backdrop-blur-xl border border-blue-500/30 rounded-xl max-h-40 overflow-y-auto custom-scrollbar shadow-2xl z-50">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[7px] font-bold uppercase tracking-wider text-white/30 mb-1 ml-1">Kontingen</label>
+                            <input type="text" id="inputTeamAo" placeholder="Team AO"
+                                class="w-full bg-black/40 border border-blue-500/20 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-blue-500/50 focus:bg-black/60 outline-none transition-all">
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="flex gap-4 mt-10">
                 <button onclick="toggleSettingsModal()"
                     class="flex-1 py-4 rounded-xl neu-button text-[10px] font-black uppercase tracking-widest text-slate-500">Tutup</button>
-                <button onclick="saveMatchSettings()"
+                <button type="button" id="btnSaveSettings"
                     class="flex-1 py-4 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(220,38,38,0.3)]">Simpan
                     Pengaturan</button>
             </div>
@@ -981,7 +1022,7 @@
                 const q = query(collection(db, `events/${window.eventId}/classes`), orderBy("name", "asc"));
                 const snap = await getDocs(q);
                 window.matchCategories = snap.docs.map(doc => doc.data().name);
-                console.log('[Scoring] Loaded categories:', window.matchCategories.length);
+                // console.log('[Scoring] Loaded categories:', window.matchCategories.length);
             } catch (err) {
                 console.error('[Scoring] Error loading categories:', err);
             }
@@ -1019,6 +1060,9 @@
             if (input) input.value = name;
             const dropdown = document.getElementById('categoryDropdown');
             if (dropdown) dropdown.classList.remove('active');
+
+            // Load athletes for selected category
+            window.loadAthletesForClass(name);
         };
 
         // Close dropdown when clicking outside
@@ -1029,136 +1073,199 @@
             }
         });
 
-        // --- ADMIN REKAP & QUEUE INTEGRATION ---
-        let matchQueue = [];
+        // --- CLASS SELECTOR LOGIC ---
+        window.eventClasses = [];
+        window.allEventClasses = []; // For filtering
+        window.selectedClass = null;
+        window.classAthletes = []; // Athletes from selected class
 
-        window.setupQueueListener = function () {
-            if (!window.eventId) return;
-            console.log('[Scoring] Setting up Match Queue listener...');
-            // Check if db is defined (it should be since it's imported as window.db)
-            if (!db) {
-                console.error('[Scoring] Firestore DB not initialized');
-                return;
-            }
-            onSnapshot(collection(db, `events/${window.eventId}/match_queue`), (snapshot) => {
-                matchQueue = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                matchQueue.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                updateQueueUI(matchQueue);
-            }, (error) => {
-                console.error('[Scoring] Queue Listener error:', error);
-            });
+        // Toggle Class Selector Sidebar
+        window.toggleClassSelector = function () {
+            const sidebar = document.getElementById('classSelectorSidebar');
+            if (!sidebar) return;
 
-            // 🆕 ADDED: Tatami Listener for Auto-Match Load from Admin Rekap
-            if (window.currentTatami) {
-                console.log(`[Scoring] Setting up Tatami ${window.currentTatami} listener...`);
-                onSnapshot(doc(db, `events/${window.eventId}/tatamis/${window.currentTatami}`), async (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = snapshot.data();
-                        // If currentMatch exists, automatically load it
-                        if (data.currentMatch) {
-                            console.log('[Scoring] 🏁 New match detected from Admin:', data.currentMatch.id);
-
-                            // Check if it's already the active match to avoid double loading
-                            if (window.activeMatchId !== data.currentMatch.id) {
-                                window.activeMatchId = data.currentMatch.id; // Keep this line
-                                if (data && data.currentMatch) {
-                                    await window.loadAdminMatch(data.currentMatch);
-                                }
-                            }
-                        }
-                    }
-                }, (error) => {
-                    console.error('[Scoring] Tatami Listener error:', error);
-                });
+            const isOpen = !sidebar.classList.contains('translate-x-full');
+            if (isOpen) {
+                sidebar.classList.add('translate-x-full');
+            } else {
+                sidebar.classList.remove('translate-x-full');
+                // Load classes if not yet loaded
+                if (window.allEventClasses.length === 0) {
+                    loadEventClasses();
+                }
             }
         };
 
-        function updateQueueUI(queue) {
-            const list = document.getElementById('queueMatchList');
-            if (!list) return;
-            if (!queue || queue.length === 0) {
-                list.innerHTML = `<div class="py-20 text-center opacity-20 italic text-[10px] font-black uppercase tracking-widest">Antrean Kosong</div>`;
+        // Load Event Classes from Firestore
+        window.loadEventClasses = async function () {
+            if (!window.eventId) {
+                console.warn('[ClassSelector] No eventId found');
                 return;
             }
-            list.innerHTML = queue.map((m, idx) => `
-                <div class="p-4 rounded-xl bg-white/5 border border-white/5 hover:border-red-500/30 transition-all cursor-pointer" onclick="window.loadAdminMatch(${JSON.stringify(m).replace(/"/g, '&quot;')})">
-                    <p class="text-[7px] font-black uppercase text-red-500 mb-1">Coming Next #${idx + 1}</p>
-                    <h5 class="text-[10px] font-black uppercase truncate">${m.akaName || '???'} vs ${m.aoName || '???'}</h5>
-                </div>
-            `).join('');
-        }
+
+            const container = document.getElementById('classListContainer');
+            if (!container) return;
+
+            try {
+                container.innerHTML = '<div class="py-20 text-center opacity-20 italic text-[10px] font-black uppercase tracking-widest">Memuat...</div>';
+
+                const q = query(collection(db, `events/${window.eventId}/classes`), orderBy("name", "asc"));
+                const snap = await getDocs(q);
+
+                window.allEventClasses = snap.docs.map(doc => ({
+                    id: doc.id,
+                    name: doc.data().name,
+                    category: doc.data().category || 'unknown',
+                }));
+
+                window.eventClasses = [...window.allEventClasses];
+
+                console.log(`[ClassSelector] Loaded ${window.eventClasses.length} classes`);
+                renderClassList();
+
+            } catch (err) {
+                console.error('[ClassSelector] Error loading classes:', err);
+                container.innerHTML = '<div class="py-20 text-center text-red-500 italic text-[10px] font-black uppercase">Error: ' + err.message + '</div>';
+            }
+        };
+
+        // Render Class List
+        window.renderClassList = function () {
+            const container = document.getElementById('classListContainer');
+            if (!container) return;
+
+            if (window.eventClasses.length === 0) {
+                container.innerHTML = '<div class="py-20 text-center opacity-20 italic text-[10px] font-black uppercase tracking-widest">Tidak ada kelas</div>';
+                return;
+            }
+
+            const html = window.eventClasses.map(cls => {
+                const isSelected = window.selectedClass && window.selectedClass.id === cls.id;
+                const badge = cls.category === 'kumite' ?
+                    '<span class="text-[7px] px-2 py-0.5 bg-red-500/20 text-red-500 rounded uppercase font-black">Kumite</span>' :
+                    '<span class="text-[7px] px-2 py-0.5 bg-blue-500/20 text-blue-500 rounded uppercase font-black">Kata</span>';
+
+                return `
+                    <button onclick="selectClass('${cls.id}')" 
+                        class="w-full text-left px-4 py-3 rounded-xl transition-all ${isSelected ?
+                        'bg-gradient-to-r from-purple-600/30 to-red-600/30 border border-purple-500/50' :
+                        'bg-white/5 border border-white/5 hover:bg-white/10 hover:border-purple-500/30'
+                    }">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="text-xs font-bold text-white leading-tight flex-1">${cls.name}</p>
+                            ${badge}
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        };
+
+        // Filter Class List
+        window.filterClassList = function () {
+            const input = document.getElementById('classSearchInput');
+            if (!input) return;
+
+            const query = input.value.toLowerCase().trim();
+
+            if (query === '') {
+                window.eventClasses = [...window.allEventClasses];
+            } else {
+                window.eventClasses = window.allEventClasses.filter(cls =>
+                    cls.name.toLowerCase().includes(query)
+                );
+            }
+
+            renderClassList();
+        };
+
+        // Select Class
+        window.selectClass = async function (classId) {
+            const classData = window.allEventClasses.find(c => c.id === classId);
+            if (!classData) return;
+
+            window.selectedClass = classData;
+
+            // Update UI
+            const badge = document.getElementById('selectedClassInfo');
+            const name = document.getElementById('selectedClassName');
+            if (badge && name) {
+                badge.classList.remove('hidden');
+                name.textContent = classData.name;
+            }
+
+            // Update category display in main panel
+            const categoryDisplay = document.getElementById('categoryDisplay');
+            if (categoryDisplay) {
+                categoryDisplay.textContent = classData.name;
+            }
+
+            // Update match category in window state
+            window.matchCategory = classData.name;
+
+            // Re-render to show selected state
+            renderClassList();
+
+            console.log(`[ClassSelector] Selected class: ${classData.name}`);
+
+            // Load athletes for this class (for autocomplete)
+            await loadAthletesForClass(classData.name);
+
+            // Broadcast category change
+            window.broadcastData();
+        };
+
+        // Load Athletes for Selected Class
+        window.loadAthletesForClass = async function (className) {
+            try {
+                // Query athletes collection for this class
+                const q = query(
+                    collection(db, 'athletes'),
+                    where('class', '==', className)
+                );
+                const snap = await getDocs(q);
+
+                window.classAthletes = snap.docs.map(doc => ({
+                    id: doc.id,
+                    name: doc.data().name || doc.data().fullName || '',
+                    team: doc.data().team || doc.data().kontingen || doc.data().contingent || '',
+                }));
+
+                console.log(`[ClassSelector] Loaded ${window.classAthletes.length} athletes for "${className}"`);
+            } catch (err) {
+                console.error('[ClassSelector] Error loading athletes:', err);
+                window.classAthletes = [];
+            }
+        };
+
+
+        // --- ADMIN REKAP & QUEUE INTEGRATION DISABLED ---
+        const matchQueue = [];
+
+        window.setupQueueListener = function () {
+            // Disabled: Admin Rekap feature disabled
+        };
+
+        window.updateQueueUI = function (queue) {
+            // Disabled: Admin Rekap feature disabled
+        };
 
         window.loadAdminMatch = async function (match) {
-            console.log('[Scoring] Loading Auto Match from Admin:', match);
-
-            // 🆕 Reset FIRST so we don't clear the new data immediately!
-            await window.resetMatch();
-
-            window.activeMatchId = match.id;
-            window.nameAka = match.akaName || '-';
-            window.teamAka = match.akaTeam || '-';
-            window.nameAo = match.aoName || '-';
-            window.teamAo = match.aoTeam || '-';
-
-            // Support both akaKataName (string) or akaKataNumber (lookup)
-            if (match.akaKataName) {
-                const inputAka = document.getElementById('inputKataAka');
-                if (inputAka) {
-                    const displayValue = match.akaKataNumber ? `${match.akaKataNumber} ${match.akaKataName}` : match.akaKataName;
-                    inputAka.value = displayValue;
-                    window.kataAka = displayValue;
-                }
-            }
-            if (match.aoKataName) {
-                const inputAo = document.getElementById('inputKataAo');
-                if (inputAo) {
-                    const displayValue = match.aoKataNumber ? `${match.aoKataNumber} ${match.aoKataName}` : match.aoKataName;
-                    inputAo.value = displayValue;
-                    window.kataAo = displayValue;
-                }
-            }
-
-            const dAka = document.getElementById('nameAkaDisplay');
-            const dAo = document.getElementById('nameAoDisplay');
-            const tAka = document.getElementById('teamAkaDisplay');
-            const tAo = document.getElementById('teamAoDisplay');
-
-            if (dAka) dAka.innerText = window.nameAka.toUpperCase();
-            if (dAo) dAo.innerText = window.nameAo.toUpperCase();
-            if (tAka) tAka.innerText = (window.teamAka === '-' || !window.teamAka) ? '---' : window.teamAka.toUpperCase();
-            if (tAo) tAo.innerText = (window.teamAo === '-' || !window.teamAo) ? '---' : window.teamAo.toUpperCase();
-
-            if (match.classId || match.currentClassId) {
-                const classId = match.classId || match.currentClassId;
-                window.matchCategory = classId;
-                const catDisplay = document.getElementById('categoryDisplay');
-                if (catDisplay) catDisplay.innerText = classId;
-            }
-            if (match.round) {
-                window.matchRound = match.round;
-                const roundDisplay = document.getElementById('roundDisplay');
-                if (roundDisplay) roundDisplay.innerText = match.round.toUpperCase();
-            }
-
-            window.broadcastData();
-            new Audio('assets/sounds/notification.mp3').play().catch(() => { });
+            // Disabled: Admin Rekap feature disabled
         };
 
         window.loadNextMatchFromQueue = function () {
-            if (matchQueue && matchQueue.length > 0) {
-                window.loadAdminMatch(matchQueue[0]);
-            } else {
-                alert('Antrean kosong');
-            }
+            // Disabled: Admin Rekap feature disabled
         };
 
         window.toggleQueueSidebar = function () {
-            if (window.toggleQueueVisibility) window.toggleQueueVisibility();
+            // Disabled: Admin Rekap feature disabled
         };
 
         // Load data on init
         window.loadMatchCategories();
-        window.setupQueueListener();
+        // window.setupQueueListener(); // Obsolete
         if (window.updateKataListLink) window.updateKataListLink();
 
         window.broadcastData = function () {
@@ -1203,15 +1310,18 @@
             // Trigger internal UI updates IMMEDIATELY (Optimistic UI)
             if (window.updateBroadcastUI) window.updateBroadcastUI();
 
+            // Offline-Ready Broadcast via localStorage (Instant)
+            localStorage.setItem('karate_score_update', JSON.stringify(scoreData));
+
             // Use modular Firebase function with a small throttle
             if (window._broadcastTimeout) {
-                // If it's the SAME data recently, we might skip, but better just throttle
+                // Throttled
             }
             clearTimeout(window._broadcastTimeout);
             window._broadcastTimeout = setTimeout(() => {
                 broadcastScoreData(scoreData)
                     .catch(err => console.error('[Scoring] Broadcast failed:', err));
-            }, 50); // Slightly increased throttle for better batching
+            }, 800);
         };
 
         window.updateBroadcastUI = function () {
@@ -1327,28 +1437,8 @@
                 }
             }
 
-            // Hide buttons if in blank mode
-            if (loadMode === 'blank') {
-                // Hide top bar buttons
-                const btnParticipant = document.getElementById('btnParticipantList');
-                const btnKataList = document.getElementById('btnKataList');
-                if (btnParticipant) btnParticipant.style.display = 'none';
-                if (btnKataList) btnKataList.style.display = 'none';
-
-                // Hide athlete name displays (since no data loaded)
-                const nameAkaDisplay = document.getElementById('nameAkaDisplay');
-                const nameAoDisplay = document.getElementById('nameAoDisplay');
-                if (nameAkaDisplay) nameAkaDisplay.style.display = 'none';
-                if (nameAoDisplay) nameAoDisplay.style.display = 'none';
-
-                // Hide kata input fields (not needed in blank mode)
-                const inputKataAka = document.getElementById('inputKataAka');
-                const inputKataAo = document.getElementById('inputKataAo');
-                if (inputKataAka) inputKataAka.style.display = 'none';
-                if (inputKataAo) inputKataAo.style.display = 'none';
-
-                console.log('[Blank Mode] UI elements hidden: buttons, names, kata inputs');
-            }
+            // Blank mode hiding logic removed
+            // console.log('[Scoring] Blank mode logic disabled - all elements visible');
 
             // Restore panel layout preference
             const savedLayout = localStorage.getItem('panelLayout');
@@ -1395,8 +1485,15 @@
         };
 
         window.setScoringMode = function (mode) {
+            const oldMode = window.scoringMode;
             window.scoringMode = mode;
             const isKata = mode === 'kata';
+
+            // Reset match data if mode actually changes
+            if (oldMode && oldMode !== mode) {
+                console.log(`[Scoring] Mode changed from ${oldMode} to ${mode} - triggering reset`);
+                window.resetMatch();
+            }
 
             // UI Toggle Buttons with Safety
             const kumiteBtn = document.getElementById('modeKumiteBtn');
@@ -1648,24 +1745,81 @@
             window.broadcastData();
         }
 
-        window.updateKataJudgeScore = function (side, index, value) {
-            const val = parseFloat(value) || 0.0;
+        window.updateKataJudgeScoreManual = function (inputEl, side, index) {
+            // Santize input: allow only numbers and dot
+            let valStr = inputEl.value.replace(/[^0-9.]/g, '');
+            inputEl.value = valStr;
+
+            const val = parseFloat(valStr) || 0.0;
             if (side === 'aka') {
                 window.judgeScoresAka[index] = val;
                 window.kataScoreAka = window.calculateKataTotal('aka', window.judgeScoresAka);
-                document.getElementById('judgeBtnAka' + index).innerText = val.toFixed(1);
                 document.getElementById('kataTotalAka').innerText = window.kataScoreAka.toFixed(1);
                 document.getElementById('scoreAka').innerText = window.kataScoreAka.toFixed(1);
             } else {
                 window.judgeScoresAo[index] = val;
                 window.kataScoreAo = window.calculateKataTotal('ao', window.judgeScoresAo);
-                document.getElementById('judgeBtnAo' + index).innerText = val.toFixed(1);
                 document.getElementById('kataTotalAo').innerText = window.kataScoreAo.toFixed(1);
                 document.getElementById('scoreAo').innerText = window.kataScoreAo.toFixed(1);
             }
+
+            // Auto-check for winner
+            window.checkKataAutoWinner();
+
             window.broadcastData();
         }
 
+        window.updateKataJudgeScore = function (side, index, value) {
+            const val = parseFloat(value) || 0.0;
+            const inputId = `judgeBtn${side.charAt(0).toUpperCase() + side.slice(1)}${index}`;
+            const inputEl = document.getElementById(inputId);
+
+            if (side === 'aka') {
+                window.judgeScoresAka[index] = val;
+                window.kataScoreAka = window.calculateKataTotal('aka', window.judgeScoresAka);
+                if (inputEl) inputEl.value = val.toFixed(1); // Changed from .value to .innerText for buttons
+                document.getElementById('kataTotalAka').innerText = window.kataScoreAka.toFixed(1);
+                document.getElementById('scoreAka').innerText = window.kataScoreAka.toFixed(1);
+            } else {
+                window.judgeScoresAo[index] = val;
+                window.kataScoreAo = window.calculateKataTotal('ao', window.judgeScoresAo);
+                if (inputEl) inputEl.value = val.toFixed(1); // Changed from .value to .innerText for buttons
+                document.getElementById('kataTotalAo').innerText = window.kataScoreAo.toFixed(1);
+                document.getElementById('scoreAo').innerText = window.kataScoreAo.toFixed(1);
+            }
+
+            // Auto-check for winner
+            window.checkKataAutoWinner();
+
+            window.broadcastData();
+        }
+
+        window.checkKataAutoWinner = function () {
+            if (window.scoringMode !== 'kata') return;
+
+            // Per WKF/Judging rules, we usually wait for all scores to be filled.
+            // Some systems allow 0.0, but here we assume non-zero means filled.
+            const allAkaFilled = window.judgeScoresAka.every(s => s > 0);
+            const allAoFilled = window.judgeScoresAo.every(s => s > 0);
+
+            if (allAkaFilled && allAoFilled) {
+                window.isWinnerDeclared = true;
+                window.showWinnerBanner = true;
+
+                // Compare calculated totals (which already dropped high/low)
+                if (window.kataScoreAka > window.kataScoreAo) {
+                    window.winnerSide = 'aka';
+                } else if (window.kataScoreAo > window.kataScoreAka) {
+                    window.winnerSide = 'ao';
+                } else {
+                    window.winnerSide = 'draw';
+                }
+
+                console.log(`[Auto-Winner] Kata Winner determined: ${window.winnerSide} (${window.kataScoreAka} vs ${window.kataScoreAo})`);
+                window.updateConsoleWinnerUI();
+                window.broadcastData();
+            }
+        }
         window.calculateKataTotal = function (side, scores) {
             // Find all indices that have a non-zero value
             const validIndices = scores.map((s, i) => ({ val: s, idx: i }));
@@ -1724,6 +1878,236 @@
                 if (iconHide) iconHide.classList.remove('hidden');
             }
         };
+
+        // --- SETTINGS MODAL FUNCTIONS ---
+        window.toggleSettingsModal = function () {
+            const modal = document.getElementById('settingsModal');
+            if (!modal) return;
+
+            const isHidden = modal.classList.contains('hidden');
+            modal.classList.toggle('hidden', !isHidden);
+            modal.classList.toggle('flex', isHidden);
+
+            // If opening, populate current values
+            if (isHidden) {
+                const inputCategory = document.getElementById('inputCategory');
+                const inputNameAka = document.getElementById('inputNameAka');
+                const inputTeamAka = document.getElementById('inputTeamAka');
+                const inputNameAo = document.getElementById('inputNameAo');
+                const inputTeamAo = document.getElementById('inputTeamAo');
+
+                if (inputCategory) inputCategory.value = window.matchCategory || '';
+                if (inputNameAka) inputNameAka.value = window.nameAka || '';
+                if (inputTeamAka) inputTeamAka.value = window.teamAka || '';
+                if (inputNameAo) inputNameAo.value = window.nameAo || '';
+                if (inputTeamAo) inputTeamAo.value = window.teamAo || '';
+            }
+        };
+
+        window.saveMatchSettings = function () {
+            console.log('[Settings] saveMatchSettings called');
+
+            try {
+                // Get values from inputs
+                const category = document.getElementById('inputCategory')?.value || '';
+                const nameAka = document.getElementById('inputNameAka')?.value || '';
+                const teamAka = document.getElementById('inputTeamAka')?.value || '';
+                const nameAo = document.getElementById('inputNameAo')?.value || '';
+                const teamAo = document.getElementById('inputTeamAo')?.value || '';
+
+                console.log('[Settings] Input values captured:', { category, nameAka, teamAka, nameAo, teamAo });
+
+                // Update global state
+                window.matchCategory = category;
+                window.nameAka = nameAka;
+                window.teamAka = teamAka;
+                window.nameAo = nameAo;
+                window.teamAo = teamAo;
+
+                // Update display elements directly
+                const elements = {
+                    category: document.getElementById('categoryDisplay'),
+                    nameAka: document.getElementById('nameAkaDisplay'),
+                    teamAka: document.getElementById('teamAkaDisplay'),
+                    nameAo: document.getElementById('nameAoDisplay'),
+                    teamAo: document.getElementById('teamAoDisplay')
+                };
+
+                if (elements.category) elements.category.textContent = category || '---';
+
+                if (elements.nameAka) {
+                    elements.nameAka.textContent = nameAka || '---';
+                    elements.nameAka.style.display = ''; // Force visible
+                }
+                if (elements.teamAka) elements.teamAka.textContent = teamAka || '---';
+
+                if (elements.nameAo) {
+                    elements.nameAo.textContent = nameAo || '---';
+                    elements.nameAo.style.display = ''; // Force visible
+                }
+                if (elements.teamAo) elements.teamAo.textContent = teamAo || '---';
+
+                console.log('[Settings] UI Elements updated');
+
+                // Broadcast to RTDB
+                if (typeof window.broadcastData === 'function') {
+                    window.broadcastData();
+                    console.log('[Settings] Data broadcasted to RTDB');
+                }
+
+                // Close modal
+                window.toggleSettingsModal();
+
+                // Update kata list link if function exists
+                if (typeof window.updateKataListLink === 'function') {
+                    window.updateKataListLink();
+                }
+
+                console.log('[Settings] Settings saved successfully');
+            } catch (error) {
+                console.error('[Settings] Error saving settings:', error);
+            }
+        };
+
+        // Attach event listener for the save button
+        setTimeout(() => {
+            const btnSave = document.getElementById('btnSaveSettings');
+            if (btnSave) {
+                btnSave.addEventListener('click', () => {
+                    console.log('[Settings] Save button clicked (via listener)');
+                    window.saveMatchSettings();
+                });
+                console.log('[Settings] Save button listener attached');
+            } else {
+                console.error('[Settings] Save button (btnSaveSettings) not found!');
+            }
+        }, 1000);
+
+        // --- ATHLETE AUTOCOMPLETE FUNCTIONS ---
+        window.showAthleteDropdown = function (side) {
+            const dropdownId = side === 'aka' ? 'athleteDropdownAka' : 'athleteDropdownAo';
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return;
+
+            // Only show if we have athletes loaded
+            if (window.classAthletes && window.classAthletes.length > 0) {
+                filterAthletes(side);
+            } else {
+                dropdown.innerHTML = '<div class="px-4 py-3 text-xs text-slate-500 text-center">Pilih kelas terlebih dahulu</div>';
+                dropdown.classList.remove('hidden');
+            }
+        };
+
+        window.filterAthletes = function (side) {
+            const inputId = side === 'aka' ? 'inputNameAka' : 'inputNameAo';
+            const dropdownId = side === 'aka' ? 'athleteDropdownAka' : 'athleteDropdownAo';
+
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+
+            if (!input || !dropdown) return;
+
+            const query = input.value.toLowerCase().trim();
+
+            // Filter athletes based on query
+            const filtered = window.classAthletes.filter(athlete =>
+                query === '' || athlete.name.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = '<div class="px-4 py-3 text-xs text-slate-500 text-center">Tidak ada hasil</div>';
+                dropdown.classList.remove('hidden');
+                return;
+            }
+
+            // Render dropdown items
+            const html = filtered.map(athlete => {
+                const color = side === 'aka' ? 'red' : 'blue';
+                return `
+                    <button type="button" onclick="selectAthlete('${side}', '${athlete.name.replace(/'/g, "\\'")}', '${(athlete.team || '').replace(/'/g, "\\'")}')"
+                        class="w-full text-left px-4 py-2.5 hover:bg-${color}-500/20 transition-colors border-b border-white/5 last:border-0">
+                        <p class="text-xs font-bold text-white">${athlete.name}</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">${athlete.team || '(No team)'}</p>
+                    </button>
+                `;
+            }).join('');
+
+            dropdown.innerHTML = html;
+            dropdown.classList.remove('hidden');
+        };
+
+        window.selectAthlete = function (side, name, team) {
+            const inputNameId = side === 'aka' ? 'inputNameAka' : 'inputNameAo';
+            const inputTeamId = side === 'aka' ? 'inputTeamAka' : 'inputTeamAo';
+            const dropdownId = side === 'aka' ? 'athleteDropdownAka' : 'athleteDropdownAo';
+
+            // Set input values
+            const inputName = document.getElementById(inputNameId);
+            const inputTeam = document.getElementById(inputTeamId);
+            const dropdown = document.getElementById(dropdownId);
+
+            if (inputName) inputName.value = name;
+            if (inputTeam) inputTeam.value = team;
+            if (dropdown) dropdown.classList.add('hidden');
+
+            console.log(`[Autocomplete] Selected ${side.toUpperCase()}: ${name} (${team})`);
+        };
+
+        // Load Athletes for Selected Class
+        window.loadAthletesForClass = async function (className) {
+            if (!className || className.trim() === '') {
+                console.log('[Autocomplete] No class selected, clearing athletes');
+                window.classAthletes = [];
+                return;
+            }
+
+            if (!window.eventId) {
+                console.warn('[Autocomplete] No eventId available');
+                window.classAthletes = [];
+                return;
+            }
+
+            console.log(`[Autocomplete] Loading athletes for class: ${className}`);
+
+            try {
+                // Query athletes collection filtered by class
+                // Athletes are stored in events/{eventId}/athletes subcollection
+                const athletesQuery = query(
+                    collection(db, `events/${window.eventId}/athletes`),
+                    where('className', '==', className.trim())
+                );
+
+                const snapshot = await getDocs(athletesQuery);
+
+                window.classAthletes = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    name: doc.data().name || doc.data().athleteName || 'Unknown',
+                    team: doc.data().team || doc.data().kontingen || ''
+                }));
+
+                console.log(`[Autocomplete] Loaded ${window.classAthletes.length} athletes for ${className}`);
+
+                if (window.classAthletes.length === 0) {
+                    console.warn(`[Autocomplete] No athletes found for class: ${className}`);
+                }
+            } catch (error) {
+                console.error('[Autocomplete] Error loading athletes:', error);
+                window.classAthletes = [];
+            }
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#inputNameAka') && !e.target.closest('#athleteDropdownAka')) {
+                const dropdown = document.getElementById('athleteDropdownAka');
+                if (dropdown) dropdown.classList.add('hidden');
+            }
+            if (!e.target.closest('#inputNameAo') && !e.target.closest('#athleteDropdownAo')) {
+                const dropdown = document.getElementById('athleteDropdownAo');
+                if (dropdown) dropdown.classList.add('hidden');
+            }
+        });
+
 
         window.addScore = function (side, amount) {
             if (window.scoringMode === 'kata') return;
@@ -2299,6 +2683,8 @@
         };
 
         window.resetMatch = async function () {
+            console.log('[Scoring] Resetting match data...');
+
             // Track Reset Activity
             if (window.akaScore > 0 || window.aoScore > 0) {
                 logActivity("Reset Pertandingan", "Membersihkan skor dan timer untuk pertandingan baru.", window.currentTatami);
@@ -2307,6 +2693,7 @@
             // Perform Timer Reset
             window.resetTimer();
 
+            // Clear Global State
             window.akaScore = 0;
             window.aoScore = 0;
             window.kataScoreAka = 0.0;
@@ -2326,26 +2713,49 @@
             window.penaltiesAka = { c1: false, c2: false, c3: false, hc: false, h: false };
             window.penaltiesAo = { c1: false, c2: false, c3: false, hc: false, h: false };
 
-            document.getElementById('inputKataAka').value = '';
-            document.getElementById('inputKataAo').value = '';
+            // Clear Athlete Data
+            window.nameAka = '';
+            window.teamAka = '';
+            window.nameAo = '';
+            window.teamAo = '';
+            window.matchCategory = '';
+            window.kataAka = '';
+            window.kataAo = '';
 
-            // Reset scoring display explicitly
+            // Update UI - Input Fields
+            if (document.getElementById('inputNameAka')) document.getElementById('inputNameAka').value = '';
+            if (document.getElementById('inputTeamAka')) document.getElementById('inputTeamAka').value = '';
+            if (document.getElementById('inputNameAo')) document.getElementById('inputNameAo').value = '';
+            if (document.getElementById('inputTeamAo')) document.getElementById('inputTeamAo').value = '';
+            if (document.getElementById('inputCategory')) document.getElementById('inputCategory').value = '';
+            if (document.getElementById('inputKataAka')) document.getElementById('inputKataAka').value = '';
+            if (document.getElementById('inputKataAo')) document.getElementById('inputKataAo').value = '';
+
+            // Update UI - Display Labels
+            const displayIds = {
+                nameAka: 'nameAkaDisplay',
+                teamAka: 'teamAkaDisplay',
+                nameAo: 'nameAoDisplay',
+                teamAo: 'teamAoDisplay',
+                category: 'categoryDisplay'
+            };
+
+            if (document.getElementById(displayIds.nameAka)) document.getElementById(displayIds.nameAka).innerText = '---';
+            if (document.getElementById(displayIds.teamAka)) document.getElementById(displayIds.teamAka).innerText = '---';
+            if (document.getElementById(displayIds.nameAo)) document.getElementById(displayIds.nameAo).innerText = '---';
+            if (document.getElementById(displayIds.teamAo)) document.getElementById(displayIds.teamAo).innerText = '---';
+
+            // Only reset category label to default for the current mode
+            const catLabel = document.getElementById(displayIds.category);
+            if (catLabel) {
+                catLabel.innerText = window.scoringMode === 'kata' ? 'KATA' : 'KUMITE';
+            }
+
+            // Reset scores on UI
             const scoreAka = document.getElementById('scoreAka');
             const scoreAo = document.getElementById('scoreAo');
             if (scoreAka) scoreAka.innerText = window.scoringMode === 'kumite' ? '00' : '0.0';
             if (scoreAo) scoreAo.innerText = window.scoringMode === 'kumite' ? '00' : '0.0';
-
-            // Mode-specific Score Reset
-            if (window.scoringMode === 'kumite') {
-                document.getElementById('scoreAka').innerText = '00';
-                document.getElementById('scoreAo').innerText = '00';
-            } else if (window.kataType === 'score') {
-                document.getElementById('scoreAka').innerText = '0.0';
-                document.getElementById('scoreAo').innerText = '0.0';
-            } else {
-                document.getElementById('scoreAka').innerText = '--';
-                document.getElementById('scoreAo').innerText = '--';
-            }
 
             // Reset Kata Judge Buttons & Totals
             for (let i = 0; i < 5; i++) {
@@ -2369,10 +2779,12 @@
                 btn.classList.add('bg-white/5', 'text-red-500');
             });
 
-            // Reset UI Terpadu AKA/AO
+            // Reset UI Terpadu AKA/AO (Senshu, VR, Penalties)
             ['aka', 'ao'].forEach(side => {
-                document.getElementById(`senshu${side.charAt(0).toUpperCase() + side.slice(1)}`).className = "py-3 rounded-lg neu-button text-[10px] font-black opacity-70 hover:opacity-100 transition-opacity";
-                document.getElementById(`vr${side.charAt(0).toUpperCase() + side.slice(1)}`).className = "py-3 rounded-lg neu-button text-[10px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100";
+                const senshuBtn = document.getElementById(`senshu${side.charAt(0).toUpperCase() + side.slice(1)}`);
+                const vrBtn = document.getElementById(`vr${side.charAt(0).toUpperCase() + side.slice(1)}`);
+                if (senshuBtn) senshuBtn.className = "py-3 rounded-lg neu-button text-[10px] font-black opacity-70 hover:opacity-100 transition-opacity";
+                if (vrBtn) vrBtn.className = "py-3 rounded-lg neu-button text-[10px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100";
 
                 ['c1', 'c2', 'c3', 'hc', 'h'].forEach(level => {
                     const btn = document.getElementById(`${side}_${level}`);
@@ -2383,20 +2795,29 @@
                 });
             });
 
-            // Reset Timer Icon to Play
+            // Reset Timer UI
             const icon = document.getElementById('timerIcon');
             if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
 
-            document.getElementById('btnTimerControl').classList.remove('bg-slate-700');
-            document.getElementById('btnTimerControl').classList.add('bg-red-500');
+            const btnTimer = document.getElementById('btnTimerControl');
+            if (btnTimer) {
+                btnTimer.classList.remove('bg-slate-700');
+                btnTimer.classList.add('bg-red-500');
+            }
 
             const dot = document.getElementById('timerStatusDot');
             const label = document.getElementById('timerLabel');
-            dot.className = "w-2.5 h-2.5 rounded-full bg-slate-600";
-            label.className = "text-[9px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap";
-            label.innerText = 'SIAP BERTANDING';
-            window.broadcastData(); // Call broadcastData to update monitor and UI
-            window.updateConsoleWinnerUI(); // Ensure winner badges are hidden
+            if (dot) dot.className = "w-2.5 h-2.5 rounded-full bg-slate-600";
+            if (label) {
+                label.className = "text-[9px] font-black uppercase tracking-widest text-slate-500 whitespace-nowrap";
+                label.innerText = 'SIAP BERTANDING';
+            }
+
+            // Final Sync & UI Update
+            window.broadcastData();
+            window.updateConsoleWinnerUI();
+
+            console.log('[Scoring] Match data reset complete');
         }
 
         window.announceWinner = function () {
@@ -2410,7 +2831,26 @@
                 window.monitorWindow = null;
                 window.updateMonitorUI();
             } else {
-                window.monitorWindow = window.open(`scoring-monitor.html?tatami=${window.currentTatami}`, 'ScoringMonitor', 'width=1200,height=800');
+                // Attempt to open on secondary monitor (assumed to be to the right)
+                const screenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+                const screenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+
+                // If we're on a multi-monitor setup, we can try to push it to the next screen
+                const leftOffset = window.screen.width;
+
+                const width = 1200;
+                const height = 800;
+                const left = screenLeft + leftOffset;
+                const top = screenTop;
+
+                const features = `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=no`;
+
+                window.monitorWindow = window.open(`scoring-monitor.html?tatami=${window.currentTatami}`, 'ScoringMonitor', features);
+
+                if (!window.monitorWindow) {
+                    alert('Pop-up blocked! Please allow pop-ups for this site.');
+                }
+
                 window.updateMonitorUI();
             }
         }
@@ -2429,19 +2869,7 @@
             }
         }
 
-        window.saveMatchSettings = function () {
-            const newCategory = document.getElementById('inputCategory').value.trim();
-            window.matchCategory = newCategory;
-
-            // Update UI Labels
-            if (document.getElementById('categoryDisplay')) {
-                document.getElementById('categoryDisplay').innerText = newCategory || '---';
-            }
-
-            window.broadcastData();
-            if (window.updateKataListLink) window.updateKataListLink();
-            window.toggleSettingsModal();
-        }
+        // Duplicate saveMatchSettings removed
 
         window.updateKataListLink = function () {
             const link = document.getElementById('kataListLink');
@@ -2692,20 +3120,8 @@
                 // Finish all 10 judges
                 window.closeJudgeKeypad();
 
-                // CHECK FOR AUTO WINNER: Only if all 10 entries are non-zero
-                const allAkaFilled = window.judgeScoresAka.every(s => s > 0);
-                const allAoFilled = window.judgeScoresAo.every(s => s > 0);
-
-                if (allAkaFilled && allAoFilled) {
-                    window.isWinnerDeclared = true;
-                    window.showWinnerBanner = true;
-                    if (window.kataScoreAka > window.kataScoreAo) window.winnerSide = 'aka';
-                    else if (window.kataScoreAo > window.kataScoreAka) window.winnerSide = 'ao';
-                    else window.winnerSide = 'draw';
-
-                    console.log(`[Auto-Winner] Kata Score automated after full 10 judges: ${window.winnerSide}`);
-                    window.broadcastData();
-                }
+                // Check for winner using central function
+                window.checkKataAutoWinner();
             }
         }
 
@@ -3276,6 +3692,195 @@
                 toggleParticipantModal();
             }
         });
+
+        // ============================================
+        // QUEUE SYSTEM
+        // ============================================
+        window.queueData = [];
+        window.queueUnsubscribe = null;
+
+        // Toggle Queue Sidebar
+        window.toggleQueueSidebar = function () {
+            const sidebar = document.getElementById('queueSidebar');
+            if (!sidebar) return;
+
+            if (sidebar.classList.contains('translate-x-full')) {
+                sidebar.classList.remove('translate-x-full');
+            } else {
+                sidebar.classList.add('translate-x-full');
+            }
+        };
+
+        // Load Queue Data from Firebase
+        // DISABLED: Queue functionality removed
+        window.loadQueueData = function () {
+            console.log('[Queue] DISABLED - Queue functionality has been removed');
+            return; // Early exit
+            /* DISABLED CODE BELOW
+            if (!window.currentTatami) {
+                console.warn('[Queue] No tatami selected');
+                return;
+            }
+
+            // Unsubscribe from previous listener if exists
+            if (window.queueUnsubscribe) {
+                window.queueUnsubscribe();
+            }
+
+            const queueRef = ref(rtdb, `tatami_queues/${window.currentTatami}/queue`);
+
+            window.queueUnsubscribe = onValue(queueRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && Array.isArray(data)) {
+                    window.queueData = data;
+                    window.renderQueueList();
+                    console.log('[Queue] Loaded queue:', data.length, 'matches');
+                } else {
+                    window.queueData = [];
+                    window.renderQueueList();
+                }
+            }, (error) => {
+                console.error('[Queue] Error loading queue:', error);
+            });
+            */ // END DISABLED CODE
+        };
+
+        // Render Queue List in Sidebar
+        window.renderQueueList = function () {
+            const container = document.getElementById('queueMatchList');
+            if (!container) return;
+
+            if (!window.queueData || window.queueData.length === 0) {
+                container.innerHTML = `
+                    <div class="py-20 text-center opacity-20 italic text-[10px] font-black uppercase tracking-widest">
+                        Antrean Kosong
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            window.queueData.forEach((match, index) => {
+                html += `
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-500/30 transition-all cursor-pointer"
+                         onclick="loadMatchFromQueueAt(${index})">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="px-2 py-1 rounded-lg bg-cyan-500/20 border border-cyan-500/30">
+                                <span class="text-[8px] font-black text-cyan-400">#${match.partaiNum || (index + 1)}</span>
+                            </div>
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex-1 truncate">
+                                ${match.className || 'Unknown Class'}
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                                <p class="text-[10px] font-bold text-white truncate flex-1">${match.aka?.name || '-'}</p>
+                                <span class="text-[8px] font-bold text-slate-500 uppercase">${match.aka?.team || ''}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                <p class="text-[10px] font-bold text-white truncate flex-1">${match.ao?.name || '-'}</p>
+                                <span class="text-[8px] font-bold text-slate-500 uppercase">${match.ao?.team || ''}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        };
+
+        // Load Next Match from Queue
+        window.loadNextMatchFromQueue = async function () {
+            if (!window.queueData || window.queueData.length === 0) {
+                console.warn('[Queue] No matches in queue');
+                alert('Tidak ada pertandingan di antrean.');
+                return;
+            }
+
+            const nextMatch = window.queueData[0];
+            await loadMatchFromQueueAt(0);
+        };
+
+        // Load Specific Match from Queue by Index
+        window.loadMatchFromQueueAt = async function (index) {
+            if (!window.queueData || index >= window.queueData.length) {
+                console.warn('[Queue] Invalid queue index:', index);
+                return;
+            }
+
+            const match = window.queueData[index];
+
+            const confirmed = await showCustomConfirm(
+                'MUAT DARI ANTREAN?',
+                `Partai #${match.partaiNum || (index + 1)}\\n${match.aka?.name || '-'} VS ${match.ao?.name || '-'}\\nKelas: ${match.className || '-'}`
+            );
+
+            if (!confirmed) return;
+
+            // Reset and load match
+            resetMatch();
+            window.nameAka = match.aka?.name || '-';
+            window.nameAo = match.ao?.name || '-';
+            window.teamAka = match.aka?.team || match.aka?.kontingen || '-';
+            window.teamAo = match.ao?.team || match.ao?.kontingen || '-';
+            window.matchCategory = match.className || '-';
+            window.matchRound = match.round || 'Penyisihan';
+
+            // Update UI
+            document.getElementById('nameAkaDisplay').innerText = window.nameAka.toUpperCase();
+            document.getElementById('nameAoDisplay').innerText = window.nameAo.toUpperCase();
+            document.getElementById('teamAkaDisplay').innerText = (window.teamAka === '-' || !window.teamAka) ? '---' : window.teamAka.toUpperCase();
+            document.getElementById('teamAoDisplay').innerText = (window.teamAo === '-' || !window.teamAo) ? '---' : window.teamAo.toUpperCase();
+            document.getElementById('categoryDisplay').innerText = window.matchCategory.split(' ')[0].toUpperCase();
+            document.getElementById('roundDisplay').innerText = window.matchRound.toUpperCase();
+
+            // Remove match from queue in Firebase
+            const newQueue = window.queueData.filter((__, i) => i !== index);
+            const queueRef = ref(rtdb, `tatami_queues/${window.currentTatami}/queue`);
+            await set(queueRef, newQueue);
+
+            window.broadcastData();
+
+            // Play notification sound
+            // DISABLED: new Audio('assets/sounds/notification.mp3').play().catch(() => { });
+
+            console.log('[Queue] Loaded match from queue:', match);
+        };
+
+        // Initialize Queue on Page Load
+        // DISABLED: Queue functionality removed
+        /*
+        setTimeout(() => {
+            window.loadQueueData();
+        }, 1000);
+        */
+
+        // ============================================
+        // FIREBASE LISTENER CLEANUP (Quota Optimization)
+        // ============================================
+
+        window.addEventListener('beforeunload', () => {
+            console.log('[Cleanup] Cleaning up Firebase listeners on page unload');
+
+            // Cleanup queue listener
+            if (window.queueUnsubscribe) {
+                try {
+                    window.queueUnsubscribe();
+                } catch (e) {
+                    console.warn('[Cleanup] Error unsubscribing queue:', e);
+                }
+            }
+
+            // Clear broadcast timeout
+            if (window._broadcastTimeout) {
+                clearTimeout(window._broadcastTimeout);
+            }
+        });
+
+        console.log('[Scoring] 🔥 Firebase quota optimization active');
+
     </script>
 </body>
 

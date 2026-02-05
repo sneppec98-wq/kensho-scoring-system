@@ -1124,3 +1124,87 @@ function updateLiveMonitor(activeMatchId) {
         }
     });
 }
+
+// ============================================
+// QUEUE SYNCHRONIZATION TO FIREBASE
+// ============================================
+
+// Sync queue to Firebase whenever matches change
+function syncQueueToFirebase() {
+    if (!currentClassId || !tatamiId) return;
+
+    const pendingMatches = allMatchesInClass.filter(m =>
+        m.status === 'pending' ||
+        m.status === 'sent_to_scoring' ||
+        m.status === 'waiting'
+    );
+
+    const queueArray = pendingMatches.map((m, idx) => ({
+        partaiNum: m.matchNumber || (idx + 1),
+        className: currentClassId,
+        round: m.round || 'Penyisihan',
+        aka: {
+            name: m.akaName || '-',
+            team: resolveTeamFromName(m.akaName, m.akaTeam || m.akaKontingen),
+            slot: m.akaSlot || null
+        },
+        ao: {
+            name: m.aoName || '-',
+            team: resolveTeamFromName(m.aoName, m.aoTeam || m.aoKontingen),
+            slot: m.aoSlot || null
+        },
+        matchId: m.id
+    }));
+
+    const queueRef = ref(rtdb, `tatami_queues/${tatamiId}/queue`);
+    set(queueRef, queueArray).then(() => {
+        console.log(`[Queue Sync] Pushed ${queueArray.length} matches to Firebase queue`);
+    }).catch(err => {
+        console.error('[Queue Sync] Error syncing queue:', err);
+    });
+}
+
+// Call syncQueueToFirebase after matches update
+const originalUpdateQueueDisplay = updateQueueDisplay;
+updateQueueDisplay = function () {
+    originalUpdateQueueDisplay();
+    syncQueueToFirebase();
+};
+
+// ============================================
+// FIREBASE LISTENER CLEANUP (Quota Optimization)
+// ============================================
+
+// Track all active listeners globally
+const allUnsubscribers = [];
+
+function registerUnsubscriber(unsubFunc) {
+    if (unsubFunc && typeof unsubFunc === 'function') {
+        allUnsubscribers.push(unsubFunc);
+    }
+}
+
+// Register existing listeners
+if (unsubMatches) registerUnsubscriber(unsubMatches);
+if (unsubBracket) registerUnsubscriber(unsubBracket);
+if (unsubAthletes) registerUnsubscriber(unsubAthletes);
+if (unsubLiveScore) registerUnsubscriber(unsubLiveScore);
+
+// Cleanup all listeners on page unload
+window.addEventListener('beforeunload', () => {
+    console.log(`[Cleanup] Unsubscribing ${allUnsubscribers.length} Firebase listeners`);
+    allUnsubscribers.forEach(unsub => {
+        try {
+            unsub();
+        } catch (e) {
+            console.warn('[Cleanup] Error unsubscribing:', e);
+        }
+    });
+
+    // Clear queue unsubscribe
+    if (window.queueUnsubscribe) {
+        window.queueUnsubscribe();
+    }
+});
+
+console.log('[Admin Rekap] 🔥 Firebase quota optimization active');

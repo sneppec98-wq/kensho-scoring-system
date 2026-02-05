@@ -252,3 +252,10 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+/* KATA Discarded Score Style */
+.kata-discarded {
+    opacity: 0.3 !important;
+    text-decoration: line-through !important;
+    pointer-events: none;
+    filter: grayscale(1);
+}

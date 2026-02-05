@@ -1,6 +1,16 @@
 /* Custom Window Controls Script */
 
 function initWindowControls() {
+    // 🔥 FIX: Only show window controls in Electron app, NOT in browser!
+    const isElectron = window.electronAPI && typeof window.electronAPI === 'object';
+
+    if (!isElectron) {
+        console.log('[Window Controls] Running in browser - controls disabled');
+        return; // Don't create controls in regular browser
+    }
+
+    console.log('[Window Controls] Running in Electron - controls enabled');
+
     // 1. Create Title Bar Element
     const titleBar = document.createElement('div');
     titleBar.className = 'custom-title-bar';

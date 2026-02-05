@@ -483,3 +483,17 @@ aside {
         font-family: 'Montserrat', sans-serif;
     }
 }
+
+/* Version Badge */
+.badge-version {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(248, 113, 113, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 6px;
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}

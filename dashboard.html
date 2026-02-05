@@ -515,6 +515,24 @@
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
+        /* Elegant minimalist scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--blue);
+        }
     </style>
 </head>
 
@@ -532,7 +550,7 @@
             <a href="dashboard.html">
                 <img src="kensho-logo.png" alt="Logo" class="w-10 h-auto hover:scale-110 transition-transform mb-3">
             </a>
-            <div class="badge-version">v3.0.7</div>
+            <div class="badge-version">v3.0.9</div>
         </div>
         <nav class="flex-1 flex flex-col items-center space-y-6">
             <a href="dashboard.html" data-tooltip="Dashboard Hub" class="side-btn active">

@@ -14,5 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     restartApp: () => ipcRenderer.invoke('restart-app'),
     downloadUpdate: () => ipcRenderer.invoke('download-update'),
     minimizeApp: () => ipcRenderer.invoke('minimize-app'),
-    closeApp: () => ipcRenderer.invoke('close-app')
+    maximizeApp: () => ipcRenderer.invoke('maximize-app'),
+    closeApp: () => ipcRenderer.invoke('close-app'),
+    centerWindow: () => ipcRenderer.send('center-window')
 });

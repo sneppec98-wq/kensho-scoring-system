@@ -8,11 +8,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="css/window-controls.css">
     <link rel="stylesheet" href="css/scoring.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="h-screen overflow-hidden text-slate-100 bg-[#020617]">
+    <script src="js/window-controls.js"></script>
     <!-- Aurora Background -->
     <div id="aurora-container">
         <div class="aurora aurora-1"></div>
@@ -300,21 +302,13 @@
                                 <!-- QUICK ADJUST -->
                                 <div
                                     class="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
-                                    <button onmousedown="startTimerAdjust(-60)" onmouseup="stopTimerAdjust()"
-                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(-60)"
-                                        ontouchend="stopTimerAdjust()"
+                                    <button onclick="adjustTimer(-60)"
                                         class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 shadow-lg">-1M</button>
-                                    <button onmousedown="startTimerAdjust(-1)" onmouseup="stopTimerAdjust()"
-                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(-1)"
-                                        ontouchend="stopTimerAdjust()"
+                                    <button onclick="adjustTimer(-1)"
                                         class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-red-500/20 hover:text-red-400 transition-all border border-white/5 shadow-lg">-1S</button>
-                                    <button onmousedown="startTimerAdjust(1)" onmouseup="stopTimerAdjust()"
-                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(1)"
-                                        ontouchend="stopTimerAdjust()"
+                                    <button onclick="adjustTimer(1)"
                                         class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-green-500/20 hover:text-green-400 transition-all border border-white/5 shadow-lg">+1S</button>
-                                    <button onmousedown="startTimerAdjust(60)" onmouseup="stopTimerAdjust()"
-                                        onmouseleave="stopTimerAdjust()" ontouchstart="startTimerAdjust(60)"
-                                        ontouchend="stopTimerAdjust()"
+                                    <button onclick="adjustTimer(60)"
                                         class="w-10 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[8px] font-black hover:bg-green-500/20 hover:text-green-400 transition-all border border-white/5 shadow-lg">+1M</button>
                                 </div>
                             </div>
@@ -2059,25 +2053,6 @@
             const secsDisplay = window.timeLeft % 60;
             document.getElementById('timerDisplay').value = `${minsDisplay.toString().padStart(2, '0')}:${secsDisplay.toString().padStart(2, '0')}`;
             window.broadcastData();
-        }
-
-        // Hold-to-repeat timer adjustment
-        window._timerAdjustInterval = null;
-        window.startTimerAdjust = function (secs) {
-            // Immediate first adjustment
-            window.adjustTimer(secs);
-
-            // Start repeating after a short delay
-            window._timerAdjustInterval = setInterval(() => {
-                window.adjustTimer(secs);
-            }, 100); // Repeat every 100ms while held
-        }
-
-        window.stopTimerAdjust = function () {
-            if (window._timerAdjustInterval) {
-                clearInterval(window._timerAdjustInterval);
-                window._timerAdjustInterval = null;
-            }
         }
 
         window.showCustomConfirm = function (title, message) {

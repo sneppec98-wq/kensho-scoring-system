@@ -8,6 +8,7 @@ let isMuted = false;
 let audioContext = null;
 let analyser = null;
 let speakingInterval = null;
+let remoteAudios = {}; // Storage for remote audio elements
 
 const servers = {
     iceServers: [
@@ -67,6 +68,7 @@ export async function joinVoice(user) {
         localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         setupSpeakingDetection();
     } catch (err) {
+        console.error("Mic Error:", err);
         throw new Error("Izin mikrofon ditolak atau tidak ditemukan");
     }
 
@@ -83,9 +85,8 @@ export async function joinVoice(user) {
 
     // Auto-cleanup on disconnect
     onDisconnect(userRef).remove();
-    // Also cleanup calls/signals from me
-    onDisconnect(ref(rtdb, `voice_lounge/calls/${user.uid}`)).remove();
-    onDisconnect(ref(rtdb, `voice_lounge/signals/${user.uid}`)).remove();
+    onDisconnect(ref(rtdb, `voice_lounge/calls_to/${user.uid}`)).remove();
+    onDisconnect(ref(rtdb, `voice_lounge/signals_to/${user.uid}`)).remove();
 
     // Handle incoming calls (Signaling)
     setupSignaling();
@@ -107,34 +108,38 @@ export async function joinVoice(user) {
 }
 
 function setupSpeakingDetection() {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioContext.createMediaStreamSource(localStream);
-    analyser = audioContext.createAnalyser();
-    analyser.fftSize = 512;
-    source.connect(analyser);
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(localStream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 512;
+        source.connect(analyser);
 
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
 
-    let wasSpeaking = false;
-    let lastUpdate = 0;
+        let wasSpeaking = false;
+        let lastUpdate = 0;
 
-    speakingInterval = setInterval(async () => {
-        if (isMuted) return;
+        speakingInterval = setInterval(async () => {
+            if (isMuted || !currentUser) return;
 
-        analyser.getByteFrequencyData(dataArray);
-        let sum = 0;
-        for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-        const average = sum / bufferLength;
-        const isSpeaking = average > 20;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
+            const average = sum / bufferLength;
+            const isSpeaking = average > 15; // Lowered threshold slightly
 
-        // Optimized: Throttle and only update if changed
-        if (isSpeaking !== wasSpeaking && Date.now() - lastUpdate > 1000) {
-            wasSpeaking = isSpeaking;
-            lastUpdate = Date.now();
-            update(ref(rtdb, `voice_lounge/users/${currentUser.uid}`), { isSpeaking: isSpeaking });
-        }
-    }, 200);
+            // Optimized: Throttle and only update if changed
+            if (isSpeaking !== wasSpeaking && Date.now() - lastUpdate > 1000) {
+                wasSpeaking = isSpeaking;
+                lastUpdate = Date.now();
+                update(ref(rtdb, `voice_lounge/users/${currentUser.uid}`), { isSpeaking: isSpeaking });
+            }
+        }, 200);
+    } catch (e) {
+        console.warn("Audio Context init failed:", e);
+    }
 }
 
 async function setupSignaling() {
@@ -142,13 +147,16 @@ async function setupSignaling() {
     const myCallsRef = ref(rtdb, `voice_lounge/calls_to/${currentUser.uid}`);
     onChildAdded(myCallsRef, async (snapshot) => {
         const data = snapshot.val();
+        if (!data) return;
+
         if (data.type === 'offer') {
-            await handleOffer(data, snapshot.key);
+            await handleOffer(data);
         } else if (data.type === 'answer') {
             const pc = peerConnections[data.from];
-            if (pc) await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
+            if (pc && pc.signalingState === 'have-local-offer') {
+                await pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: data.sdp }));
+            }
         }
-        // Cleanup call after handled
         remove(snapshot.ref);
     });
 
@@ -156,17 +164,40 @@ async function setupSignaling() {
     const mySignalsRef = ref(rtdb, `voice_lounge/signals_to/${currentUser.uid}`);
     onChildAdded(mySignalsRef, async (snapshot) => {
         const data = snapshot.val();
+        if (!data) return;
+
         const pc = peerConnections[data.from];
-        if (pc) await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        if (pc && pc.remoteDescription) {
+            try {
+                await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+            } catch (e) {
+                console.error("Error adding ICE candidate:", e);
+            }
+        }
         remove(snapshot.ref);
     });
 }
 
-async function handleOffer(data, callId) {
+function getAudioElement(remoteUid) {
+    if (!remoteAudios[remoteUid]) {
+        const audio = new Audio();
+        audio.autoplay = true;
+        remoteAudios[remoteUid] = audio;
+    }
+    return remoteAudios[remoteUid];
+}
+
+async function handleOffer(data) {
+    if (peerConnections[data.from]) {
+        peerConnections[data.from].close();
+    }
+
     const pc = new RTCPeerConnection(servers);
     peerConnections[data.from] = pc;
 
-    localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+    if (localStream) {
+        localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+    }
 
     pc.onicecandidate = (event) => {
         if (event.candidate) {
@@ -179,9 +210,9 @@ async function handleOffer(data, callId) {
     };
 
     pc.ontrack = (event) => {
-        const audio = new Audio();
+        const audio = getAudioElement(data.from);
         audio.srcObject = event.streams[0];
-        audio.play();
+        audio.play().catch(e => console.warn("Audio play blocked:", e));
     };
 
     await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: data.sdp }));
@@ -200,7 +231,9 @@ async function createCall(remoteUserId) {
     const pc = new RTCPeerConnection(servers);
     peerConnections[remoteUserId] = pc;
 
-    localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+    if (localStream) {
+        localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+    }
 
     pc.onicecandidate = (event) => {
         if (event.candidate) {
@@ -213,9 +246,9 @@ async function createCall(remoteUserId) {
     };
 
     pc.ontrack = (event) => {
-        const audio = new Audio();
+        const audio = getAudioElement(remoteUserId);
         audio.srcObject = event.streams[0];
-        audio.play();
+        audio.play().catch(e => console.warn("Audio play blocked:", e));
     };
 
     const offer = await pc.createOffer();
@@ -231,29 +264,38 @@ async function createCall(remoteUserId) {
 
 export async function leaveVoice() {
     if (speakingInterval) clearInterval(speakingInterval);
-    if (audioContext) audioContext.close();
+    if (audioContext && audioContext.state !== 'closed') audioContext.close();
+
     if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
     }
 
     if (currentUser) {
         await remove(ref(rtdb, `voice_lounge/users/${currentUser.uid}`));
-        // Cleanup signals/calls
         await remove(ref(rtdb, `voice_lounge/calls_to/${currentUser.uid}`));
         await remove(ref(rtdb, `voice_lounge/signals_to/${currentUser.uid}`));
     }
 
     Object.values(peerConnections).forEach(pc => pc.close());
+    Object.values(remoteAudios).forEach(audio => {
+        audio.srcObject = null;
+        audio.remove();
+    });
+
     peerConnections = {};
+    remoteAudios = {};
     localStream = null;
     analyser = null;
+    currentUser = null;
 }
 
 export function toggleMicMute() {
     if (!localStream) return false;
     isMuted = !isMuted;
     localStream.getAudioTracks().forEach(track => track.enabled = !isMuted);
-    update(ref(rtdb, `voice_lounge/users/${currentUser.uid}`), { isMuted: isMuted, isSpeaking: false });
+    if (currentUser) {
+        update(ref(rtdb, `voice_lounge/users/${currentUser.uid}`), { isMuted: isMuted, isSpeaking: false });
+    }
     return isMuted;
 }
 

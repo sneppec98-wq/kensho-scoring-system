@@ -1,4 +1,4 @@
-// Kensho Tech Manager - v3.0.8 (Build Trigger: 2026-02-05 00:00)
+// Kensho Tech Manager - v3.0.9 (Build Trigger: 2026-02-05 07:25)
 const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
@@ -18,11 +18,18 @@ function createWindow() {
         icon: path.join(__dirname, 'Kensho.ico'),
         frame: false, // Frameless untuk splash screen premium
         transparent: true, // Opsional jika ingin background bulat/transparan
+        center: true, // Pastikan di tengah
+        show: false, // Jangan tampilkan sebelum siap (opsional, tapi bagus untuk visual)
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         }
+    });
+
+    win.once('ready-to-show', () => {
+        win.show();
+        win.center();
     });
 
     // Path fix for persistent data (ASAR read-only workaround)
@@ -37,9 +44,17 @@ function createWindow() {
         if (win.isDestroyed()) return;
         win.setResizable(true);
         win.setMinimumSize(1024, 768);
+
+        // Atur ukuran dan POSISI ke tengah
         win.setSize(1280, 800);
         win.center();
+
         win.loadFile('login.html');
+
+        // Panggil center sekali lagi setelah load file (beberapa OS butuh delay)
+        setTimeout(() => {
+            if (!win.isDestroyed()) win.center();
+        }, 500);
     };
 
     // Fallback keamanan: Jika dalam 10 detik tidak ada respon update, lanjut ke login
@@ -78,6 +93,7 @@ function createWindow() {
                     frame: url.includes('update-notification.html') ? false : true,
                     width: url.includes('update-notification.html') ? 500 : 900,
                     height: url.includes('update-notification.html') ? 450 : 700,
+                    center: true,
                     webPreferences: {
                         nodeIntegration: false,
                         contextIsolation: true,
@@ -214,4 +230,20 @@ ipcMain.handle('minimize-app', (event) => {
 ipcMain.handle('close-app', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (win) win.close();
+});
+
+ipcMain.handle('maximize-app', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+        if (win.isMaximized()) {
+            win.unmaximize();
+        } else {
+            win.maximize();
+        }
+    }
+});
+
+ipcMain.handle('center-window', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) win.center();
 });

@@ -175,7 +175,7 @@
             </button>
         </div>
 
-        <div class="version-tag">VERSION 3.0.9</div>
+        <div class="version-tag">VERSION 3.1.1</div>
     </div>
 
     <script src="js/window-controls.js"></script>
@@ -187,8 +187,11 @@
         const installBtn = document.getElementById('installBtn');
 
         function handleDownload() {
-            downloadBtn.classList.add('hidden');
+            downloadBtn.disabled = true;
+            downloadBtn.innerText = 'MENGUNDUH...';
+            downloadBtn.classList.add('opacity-50', 'cursor-not-allowed');
             statusText.innerText = 'Menyiapkan Unduhan...';
+            progressBar.style.width = '0%'; // Reset for actual download
             window.electronAPI.startDownload();
         }
 
@@ -212,6 +215,9 @@
                 statusText.classList.remove('loading-dots');
                 updateActions.classList.remove('hidden');
                 downloadBtn.classList.remove('hidden');
+                downloadBtn.disabled = false;
+                downloadBtn.innerText = 'UNDUH PEMBARUAN';
+                downloadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                 installBtn.classList.add('hidden');
             });
 
@@ -219,7 +225,12 @@
                 const p = Math.round(percent);
                 progressBar.style.width = p + '%';
                 statusText.innerText = `Mengunduh Pembaruan: ${p}%`;
-                updateActions.classList.add('hidden'); // Sembunyikan tombol saat download
+                statusText.classList.remove('loading-dots');
+
+                // Ensure button shows downloading state if not already set
+                downloadBtn.disabled = true;
+                downloadBtn.innerText = 'MENGUNDUH...';
+                downloadBtn.classList.add('opacity-50', 'cursor-not-allowed');
             });
 
             window.electronAPI.onUpdateDownloaded(() => {

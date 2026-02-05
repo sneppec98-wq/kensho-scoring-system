@@ -36,7 +36,12 @@ const findVal = (row, aliases) => {
 // Helper: Parse Indonesian Date (03 Juli 2016)
 function parseIndoDate(dateVal) {
     if (!dateVal) return "";
-    if (dateVal instanceof Date) return dateVal.toISOString().split('T')[0];
+    if (dateVal instanceof Date) {
+        const year = dateVal.getFullYear();
+        const month = String(dateVal.getMonth() + 1).padStart(2, '0');
+        const day = String(dateVal.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
     const dateStr = dateVal.toString().toUpperCase().trim();
 

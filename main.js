@@ -1,4 +1,4 @@
-// Kensho Tech Manager - v3.0.7 (Build Trigger: 2026-02-05 00:00)
+// Kensho Tech Manager - v3.0.8 (Build Trigger: 2026-02-05 00:00)
 const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');
@@ -8,6 +8,7 @@ const { autoUpdater } = require('electron-updater');
 // Disable auto-downloading, we only want to notify the user
 autoUpdater.autoDownload = false;
 
+let startupTimeout;
 
 function createWindow() {
     const win = new BrowserWindow({
@@ -42,7 +43,7 @@ function createWindow() {
     };
 
     // Fallback keamanan: Jika dalam 10 detik tidak ada respon update, lanjut ke login
-    const startupTimeout = setTimeout(() => {
+    startupTimeout = setTimeout(() => {
         launchMainApp();
     }, 10000);
 
@@ -156,6 +157,13 @@ app.on('window-all-closed', () => {
 // AUTO-UPDATE LOGIC - IPC Communication
 autoUpdater.on('update-available', (info) => {
     console.log('Update available:', info.version);
+
+    // Clear startup timeout when update is found to prevent redirect to login
+    if (startupTimeout) {
+        clearTimeout(startupTimeout);
+        startupTimeout = null;
+    }
+
     BrowserWindow.getAllWindows().forEach(win => {
         win.webContents.send('update-available', {
             version: info.version,

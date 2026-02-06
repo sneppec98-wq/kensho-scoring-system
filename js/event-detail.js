@@ -7,7 +7,7 @@
 import { db, auth } from './firebase-init.js';
 import { handleLogout } from './auth-helpers.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './voice-chat.js';
 
 // Import UI Helpers
@@ -71,15 +71,23 @@ import { renderSchedule } from './modules/schedule-generator.js';
 import { prepareJadwalPrint } from './modules/print/print-jadwal.js';
 import { prepareBracketPrint } from './modules/print/print-bracket.js';
 import { renderWinnerStatusList, copyToClipboard, resetPrintingData } from './modules/print-manager.js';
+import { initialiseWinnerEditor } from './modules/verification/winner-editor.js';
+import { initialiseMedalTallyManager } from './modules/verification/medal-tally-manager.js';
 
-// Import Firestore Listeners
+// Import Firestore Cached Reads (OPTIMIZED!)
 import {
-    setupAthletesListener,
-    setupClassesListener,
-    setupBracketsListener,
-    setupEventListener,
-    setupRewardsListener
+    getClasses,
+    getAthletes,
+    getBrackets,
+    getEventData,
+    getRewards,
+    fetchMedalsManual,
+    invalidateEventCache,
+    refreshAllData
 } from './modules/firestore-listeners.js';
+
+// Import Quota Monitor
+import quotaMonitor from './modules/quota-monitor.js';
 
 // ===================================
 // Global State
@@ -92,6 +100,7 @@ let latestAthletes = [];
 let latestClasses = [];
 let latestBrackets = [];
 let latestRewards = {};
+let latestMedalsManual = [];
 let currentSubTab = 'OPEN'; // For Classes & Brackets
 let currentAthleteSubTab = 'OPEN'; // For Athletes Table
 let currentVerifikasiSubTab = 'PESERTA'; // For Verification Tab
@@ -134,15 +143,41 @@ function getEventId() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 DOM Content Loaded - Starting initialization...');
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async user => {
         if (!user) {
-            console.log('❌ No user authenticated, redirecting to login...');
+            console.log('❌ Tidak ada user terautentikasi, mengalihkan ke login...');
             window.location.href = 'login.html';
             return;
         }
-        console.log('✅ User authenticated:', user.email);
-        const userDisplay = document.getElementById('userNameDisplay');
-        if (userDisplay) userDisplay.innerText = user.displayName || user.email.split('@')[0];
+
+        // Security Check: Hanya OWNER atau ADMIN dengan KODE 2026 yang boleh akses Event Detail
+        try {
+            const q = query(collection(db, "admins"), where("email", "==", user.email.toLowerCase()));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                console.warn('🚫 Akses Ditolak: Bukan Admin/Owner');
+                await customAlert("Akses Terbatas!", "Akses Ditolak", "danger");
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            const adminData = snap.docs[0].data();
+            if (adminData.role !== 'owner') {
+                const accessCode = prompt("🔐 HALAMAN KHUSUS OWNER\n\nMasukkan Kode Akses untuk Admin:");
+                if (accessCode !== '2026') {
+                    await customAlert("Kode Akses Salah!", "Akses Ditolak", "danger");
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+            }
+
+            console.log('✅ Akses Terverifikasi:', user.email);
+            const userDisplay = document.getElementById('userNameDisplay');
+            if (userDisplay) userDisplay.innerText = user.displayName || user.email.split('@')[0];
+        } catch (err) {
+            console.error("Gagal memeriksa otoritas:", err);
+        }
     });
 
     eventId = getEventId();
@@ -153,6 +188,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'dashboard.html';
         return;
     }
+
+    // Initialize Winner Editor
+    initialiseWinnerEditor(eventId);
+    initialiseMedalTallyManager(eventId);
 
     // ===================================
     // Settings Save
@@ -193,34 +232,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
-    // ===================================
-    // Setup Firestore Listeners
-    // ===================================
-    console.log('🔥 Setting up Firestore listeners...');
+    // ===================================================
+    // OPTIMIZED: Load Data with Caching (Instead of Realtime Listeners)
+    // ===================================================
+    console.log('🔥 Loading initial data from cache/Firestore...');
 
     try {
-        setupEventListener(eventId, (data) => {
-            console.log('📅 Event Info updated:', data);
-            eventName = data.name || 'Event Tidak Dikenal';
-            eventLogo = data.logo || null;
-            window.currentEventData = data; // Store globally for other modules
+        // Load all data in parallel
+        const [eventData, athletes, classes, brackets, rewards, medalsManual] = await Promise.all([
+            getEventData(db, eventId),
+            getAthletes(db, eventId),
+            getClasses(db, eventId),
+            getBrackets(db, eventId),
+            getRewards(db, eventId),
+            fetchMedalsManual(db, eventId)
+        ]);
 
-            // Update UI Labels
+        // Update event info
+        if (eventData) {
+            eventName = eventData.name || 'Event Tidak Dikenal';
+            eventLogo = eventData.logo || null;
+            window.currentEventData = eventData;
+
             const nameDisplay = document.getElementById('event-name-display');
             if (nameDisplay) nameDisplay.innerText = eventName;
 
             const breadcrumbName = document.getElementById('breadcrumbEventName');
             if (breadcrumbName) breadcrumbName.innerText = eventName;
 
-            // Update Settings Modal
             const nameInput = document.getElementById('settingEventName');
             if (nameInput) nameInput.value = eventName;
 
             const deadlineInput = document.getElementById('settingDeadline');
-            if (deadlineInput) deadlineInput.value = data.date || "";
+            if (deadlineInput) deadlineInput.value = eventData.date || "";
 
             const locationInput = document.getElementById('settingLocation');
-            if (locationInput) locationInput.value = data.location || "";
+            if (locationInput) locationInput.value = eventData.location || "";
 
             if (eventLogo) {
                 updateLogoPreview(eventLogo);
@@ -232,50 +279,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             const chkWinners = document.getElementById('check-public-winners');
             const chkMedals = document.getElementById('check-public-medals');
 
-            if (chkBracket) chkBracket.checked = data.isBracketPublic || false;
-            if (chkSchedule) chkSchedule.checked = data.isSchedulePublic || false;
-            if (chkWinners) chkWinners.checked = data.isWinnersPublic || false;
-            if (chkMedals) chkMedals.checked = data.isMedalsPublic || false;
+            if (chkBracket) chkBracket.checked = eventData.isBracketPublic || false;
+            if (chkSchedule) chkSchedule.checked = eventData.isSchedulePublic || false;
+            if (chkWinners) chkWinners.checked = eventData.isWinnersPublic || false;
+            if (chkMedals) chkMedals.checked = eventData.isMedalsPublic || false;
+        }
 
-            // Trigger Re-render of Verification/Print to catch logo changes
-            renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
-        });
+        // Update global state
+        latestAthletes = athletes;
+        latestClasses = classes;
+        latestBrackets = brackets;
+        latestRewards = rewards;
+        latestMedalsManual = medalsManual;
 
-        setupAthletesListener(eventId, (athletes) => {
-            console.log('👥 Athletes updated:', athletes.length);
-            latestAthletes = athletes;
-            renderAthleteData(athletes, latestClasses, currentAthleteSubTab);
-            renderVerificationData(athletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
-            renderWinnerStatusList(latestClasses, latestBrackets, latestRewards);
-        });
+        window.latestAthletes = athletes;
+        window.latestClasses = classes;
+        window.latestBrackets = brackets;
+        window.latestRewards = rewards;
+        window.latestMedalsManual = medalsManual;
 
-        setupClassesListener(eventId, (classes) => {
-            console.log('🏅 Classes updated:', classes.length);
-            latestClasses = classes;
-            renderAthleteData(latestAthletes, classes, currentAthleteSubTab);
-            renderClassesData(classes, latestAthletes, latestBrackets, currentSubTab, eventId);
-            renderBracketsConfig(classes, latestBrackets);
-            renderVerificationData(latestAthletes, classes, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
-            renderWinnerStatusList(classes, latestBrackets, latestRewards);
-        });
+        // Render all views
+        renderAthleteData(athletes, classes, currentAthleteSubTab);
+        renderClassesData(classes, athletes, brackets, currentSubTab, eventId);
+        renderBracketsConfig(classes, brackets);
+        renderVerificationData(athletes, classes, brackets, currentVerifikasiSubTab, eventName, eventLogo, medalsManual);
+        renderWinnerStatusList(classes, brackets, rewards);
 
-        setupBracketsListener(eventId, (brackets) => {
-            console.log('📊 Brackets updated:', brackets.length);
-            latestBrackets = brackets;
-            renderClassesData(latestClasses, latestAthletes, latestBrackets, currentSubTab, eventId);
-            renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
-            renderWinnerStatusList(latestClasses, brackets, latestRewards);
-        });
-
-        setupRewardsListener(eventId, (rewards) => {
-            console.log('🎁 Rewards status updated');
-            latestRewards = rewards;
-            renderWinnerStatusList(latestClasses, latestBrackets, rewards);
-        });
-
-        console.log('✅ All Firestore listeners setup complete');
+        console.log('✅ All data loaded and rendered from cache');
     } catch (err) {
-        console.error('❌ Error setting up listeners:', err);
+        console.error('❌ Error loading data:', err);
+        await customAlert('Gagal memuat data event: ' + err.message, 'Error', 'danger');
     }
 
     // ===================================
@@ -372,7 +405,7 @@ window.setVerifikasiSubTab = (tab) => {
     document.querySelectorAll('.verifikasi-sub-tab').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.sub === tab);
     });
-    renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo);
+    renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo, latestMedalsManual);
 };
 
 function toggleVoiceLounge() {
@@ -455,21 +488,92 @@ window.toggleMute = () => {
     }
 };
 window.toggleMicMute = toggleMicMute;
-window.printSchedule = (name, logo) => prepareJadwalPrint(name || eventName, logo || eventLogo);
-window.handlePrintFestivalBracket = () => {
+window.printSchedule = async (name, logo) => await prepareJadwalPrint(name || eventName, logo || eventLogo);
+window.handlePrintFestivalBracket = async () => {
     const bracketsMap = {};
     if (latestBrackets && latestBrackets.length > 0) {
         latestBrackets.forEach(b => {
             bracketsMap[b.class] = b;
         });
     }
-    prepareBracketPrint(latestAthletes, latestClasses, eventName, eventLogo, bracketsMap);
+    await prepareBracketPrint(latestAthletes, latestClasses, eventName, eventLogo, bracketsMap);
 };
 
 window.renderWinnerStatusList = (searchTerm) => renderWinnerStatusList(latestClasses, latestBrackets, latestRewards, searchTerm);
 window.copyToClipboard = copyToClipboard;
 window.filterWinnerStatus = (term) => {
     renderWinnerStatusList(latestClasses, latestBrackets, latestRewards, term);
+};
+
+// ===================================
+// Manual Data Refresh (QUOTA SAVER!)
+// ===================================
+window.refreshEventData = async () => {
+    if (!eventId) return;
+
+    const btn = document.getElementById('btn-refresh-data');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `
+            <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Refreshing...</span>
+            </div>
+        `;
+    }
+
+    try {
+        console.log('🔄 Manual refresh triggered...');
+
+        // Force refresh all data
+        const { classes, athletes, brackets, eventData, rewards, medalsManual } = await refreshAllData(db, eventId);
+
+        // Update global state
+        if (eventData) {
+            eventName = eventData.name || eventName;
+            eventLogo = eventData.logo || eventLogo;
+            window.currentEventData = eventData;
+        }
+
+        latestAthletes = athletes;
+        latestClasses = classes;
+        latestBrackets = brackets;
+        latestRewards = rewards;
+
+        // Re-render all views
+        renderAthleteData(athletes, classes, currentAthleteSubTab);
+        renderClassesData(classes, athletes, brackets, currentSubTab, eventId);
+        renderBracketsConfig(classes, brackets);
+        renderVerificationData(athletes, classes, brackets, currentVerifikasiSubTab, eventName, eventLogo, medalsManual);
+        renderWinnerStatusList(classes, brackets, rewards);
+
+        console.log('✅ Manual refresh complete!');
+
+        // Show success notification
+        const tempMsg = document.createElement('div');
+        tempMsg.className = 'fixed top-4 right-4 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 font-black text-xs uppercase tracking-widest';
+        tempMsg.textContent = '✅ Data Berhasil di-Refresh!';
+        document.body.appendChild(tempMsg);
+
+        setTimeout(() => tempMsg.remove(), 2000);
+    } catch (err) {
+        console.error('❌ Refresh error:', err);
+        await customAlert('Gagal refresh data: ' + err.message, 'Error', 'danger');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Refresh Data</span>
+                </div>
+            `;
+        }
+    }
 };
 
 // ===================================

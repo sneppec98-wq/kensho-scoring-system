@@ -1108,8 +1108,9 @@
 
             // Real-time Listener for updates from Scoring Console
             if (bracketListener) bracketListener(); // Unsubscribe prev
-            console.log(`📡 Attaching Real-Time Listener for "${className}"...`);
-            bracketListener = onSnapshot(doc(db, `events/${eventId}/brackets`, className.trim()), (snap) => {
+            const listenerId = currentClassCode || className.trim();
+            console.log(`📡 Attaching Real-Time Listener for "${className}" [${listenerId}]...`);
+            bracketListener = onSnapshot(doc(db, `events/${eventId}/brackets`, listenerId), (snap) => {
                 if (snap.exists() && !snap.metadata.hasPendingWrites) {
                     console.log("🔄 Bracket update detected from Cloud!");
                     fetchSavedBracket(className.trim());
@@ -1798,7 +1799,8 @@
             }
 
             try {
-                const path = `events/${eventId}/brackets/${currentClass}`;
+                const docId = currentClassCode || currentClass;
+                const path = `events/${eventId}/brackets/${docId}`;
 
                 const dataToSave = {
                     class: currentClass,
@@ -1815,7 +1817,7 @@
                     dataToSave.festivalResults = window.festivalResults || {};
                 }
 
-                await setDoc(doc(db, `events/${eventId}/brackets`, currentClass), dataToSave);
+                await setDoc(doc(db, `events/${eventId}/brackets`, docId), dataToSave);
 
                 console.log("✅ Save successful:", path);
                 label.innerText = "TERSIMPAN! ✅";
@@ -1832,7 +1834,15 @@
         async function fetchSavedBracket(className) {
             if (!eventId || !className || !svgDoc) return;
 
-            const snap = await getDoc(doc(db, `events/${eventId}/brackets`, className));
+            // Try fetching by classCode first, fallback to className
+            const docId = currentClassCode || className;
+            let snap = await getDoc(doc(db, `events/${eventId}/brackets`, docId));
+
+            if (!snap.exists() && currentClassCode) {
+                // Try legacy className fallback
+                snap = await getDoc(doc(db, `events/${eventId}/brackets`, className));
+            }
+
             if (snap.exists()) {
                 const cloudData = snap.data();
                 const saved = cloudData.data;

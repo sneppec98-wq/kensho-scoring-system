@@ -1,13 +1,24 @@
 /**
  * UI MODULE: WINNERS VIEW
  */
-export const renderWinnersView = (results, classes, athletes) => {
+export const renderWinnersView = (results, classes, athletes, searchTerm = "") => {
+    const s = searchTerm.toLowerCase();
     const openClasses = classes.filter(c =>
         !c.code?.toString().toUpperCase().startsWith('F') &&
-        athletes.some(a => a.className === c.name)
+        athletes.some(a => a.className === c.name) &&
+        ((c.name || "").toLowerCase().includes(s) || (c.code || "").toString().toLowerCase().includes(s))
     ).sort((a, b) => (a.code || "").toString().localeCompare((b.code || "").toString(), undefined, { numeric: true }));
 
-    if (openClasses.length === 0) {
+    const PAGE_SIZE = 10;
+    const totalPages = Math.ceil(openClasses.length / PAGE_SIZE) || 1;
+    window.verifikasiTotalPages = totalPages;
+
+    const currentPage = window.verifikasiCurrentPage || 1;
+    const startIdx = (currentPage - 1) * PAGE_SIZE;
+    const endIdx = Math.min(startIdx + PAGE_SIZE, openClasses.length);
+    const pagedClasses = openClasses.slice(startIdx, endIdx);
+
+    if (pagedClasses.length === 0) {
         return `
             <div class="text-center py-20 bg-slate-900/40 border border-white/5 rounded-3xl">
                 <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Belum ada data pemenang untuk kelas Open.</p>
@@ -17,25 +28,37 @@ export const renderWinnersView = (results, classes, athletes) => {
 
     return `
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            ${openClasses.map(cls => {
-        const res = results.find(r => r.className === cls.name);
+            ${pagedClasses.map(cls => {
+        const res = results.find(r => r.id === cls.id || r.className === cls.name);
         const w = res?.winners || { gold: '-', silver: '-', bronze: ['-', '-'] };
+
+        // Filter out "PESERTA KOSONG" for display
+        const displayGold = w.gold === "PESERTA KOSONG" ? "-" : w.gold;
+        const displaySilver = w.silver === "PESERTA KOSONG" ? "-" : w.silver;
+        const displayBronze = (w.bronze || []).map(b => b === "PESERTA KOSONG" ? "-" : b);
+
         return `
-                    <div class="bg-slate-900/40 border border-white/5 p-6 rounded-3xl">
-                        <div class="flex items-center justify-between mb-6">
+                    <div class="bg-slate-900/40 border border-white/5 p-6 rounded-3xl relative group">
+                        <!-- EDIT BUTTON (For Admin/Owner) -->
+                        <button onclick="editJuaraManual('${cls.name.replace(/'/g, "\\'")}', '${cls.code}')" 
+                            class="absolute top-6 right-6 px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[8px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all hover:bg-blue-500 hover:text-white">
+                            📝 EDIT
+                        </button>
+
+                        <div class="flex items-center justify-between mb-6 pr-16">
                             <span class="bg-blue-500/10 text-blue-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-blue-500/20">${cls.code}</span>
                             <h4 class="text-sm font-black text-white uppercase">${cls.name}</h4>
                         </div>
                         <div class="space-y-3">
                             <div class="flex items-center justify-between p-3 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl">
                                 <span class="text-[10px] font-black text-yellow-500 uppercase">GOLD</span>
-                                <span class="text-xs font-black text-white uppercase">${w.gold}</span>
+                                <span class="text-xs font-black text-white uppercase">${displayGold}</span>
                             </div>
                             <div class="flex items-center justify-between p-3 bg-slate-500/5 border border-slate-500/10 rounded-2xl">
                                 <span class="text-[10px] font-black text-slate-400 uppercase">SILVER</span>
-                                <span class="text-xs font-black text-white uppercase">${w.silver}</span>
+                                <span class="text-xs font-black text-white uppercase">${displaySilver}</span>
                             </div>
-                            ${(w.bronze || []).map(b => `
+                            ${displayBronze.map(b => `
                                 <div class="flex items-center justify-between p-3 bg-orange-700/5 border border-orange-700/10 rounded-2xl">
                                     <span class="text-[10px] font-black text-orange-700 uppercase">BRONZE</span>
                                     <span class="text-xs font-black text-white uppercase">${b}</span>

@@ -1,7 +1,24 @@
-// Athletes Data Manager
-import { showProgress, updateProgress, hideProgress, toggleModal, customConfirm, customAlert } from './ui-helpers.js';
-import { db } from '../firebase-init.js';
 import { doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, collection, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { db } from "../firebase-init.js";
+
+const PAGE_SIZE = 10;
+window.athleteCurrentPage = 1;
+window.contingentCurrentPage = 1;
+
+let lastAthletesRef = [];
+let lastClassesRef = [];
+let lastFilteredAthletes = [];
+let lastFilteredTeams = [];
+
+window.changeAthletePage = (delta) => {
+    window.athleteCurrentPage += delta;
+    renderAthleteData(lastAthletesRef, lastClassesRef, window.currentAthleteSubTab || 'OPEN');
+};
+
+window.changeContingentPage = (delta) => {
+    window.contingentCurrentPage += delta;
+    renderContingentTracking(lastAthletesRef, lastClassesRef);
+};
 
 export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab = 'OPEN') => {
     const tableBody = document.getElementById('athlete-table-body');
@@ -82,7 +99,36 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
         return (a.name || "").localeCompare(b.name || "");
     });
 
-    tableBody.innerHTML = filtered.map(athlete => `
+    lastAthletesRef = athletes;
+    lastClassesRef = latestClasses;
+    window.currentAthleteSubTab = currentAthleteSubTab;
+    lastFilteredAthletes = filtered;
+
+    // Pagination Logic
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+
+    if (window.athleteCurrentPage > totalPages) window.athleteCurrentPage = totalPages;
+    if (window.athleteCurrentPage < 1) window.athleteCurrentPage = 1;
+
+    const startIdx = (window.athleteCurrentPage - 1) * PAGE_SIZE;
+    const endIdx = Math.min(startIdx + PAGE_SIZE, totalItems);
+    const pagedData = filtered.slice(startIdx, endIdx);
+
+    // Update Pagination UI
+    const pageInfo = document.getElementById('athletePageInfo');
+    const currentLbl = document.getElementById('athleteCurrentPage');
+    const totalLbl = document.getElementById('athleteTotalPages');
+    const prevBtn = document.getElementById('athletePrevBtn');
+    const nextBtn = document.getElementById('athleteNextBtn');
+
+    if (pageInfo) pageInfo.innerText = `Menampilkan ${totalItems === 0 ? 0 : startIdx + 1} - ${endIdx} dari ${totalItems} data`;
+    if (currentLbl) currentLbl.innerText = window.athleteCurrentPage;
+    if (totalLbl) totalLbl.innerText = totalPages;
+    if (prevBtn) prevBtn.disabled = window.athleteCurrentPage <= 1;
+    if (nextBtn) nextBtn.disabled = window.athleteCurrentPage >= totalPages;
+
+    tableBody.innerHTML = pagedData.map(athlete => `
         <tr class="row-hover border-b border-white/5 group">
             <td class="p-4">
                 <div class="font-bold text-white text-lg">${athlete.name}</div>
@@ -161,9 +207,35 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
 
     let submittedCount = 0;
     let totalAthletesFound = athletes.length;
+
+    lastFilteredTeams = actualTeams;
+    const totalItems = actualTeams.length;
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+
+    if (window.contingentCurrentPage > totalPages) window.contingentCurrentPage = totalPages;
+    if (window.contingentCurrentPage < 1) window.contingentCurrentPage = 1;
+
+    const startIdx = (window.contingentCurrentPage - 1) * PAGE_SIZE;
+    const endIdx = Math.min(startIdx + PAGE_SIZE, totalItems);
+    const pagedTeams = actualTeams.slice(startIdx, endIdx);
+
+    // Update Pagination UI
+    const pageInfo = document.getElementById('contingentPageInfo');
+    const currentLbl = document.getElementById('contingentCurrentPage');
+    const totalLbl = document.getElementById('contingentTotalPages');
+    const prevBtn = document.getElementById('contingentPrevBtn');
+    const nextBtn = document.getElementById('contingentNextBtn');
+
+    if (pageInfo) pageInfo.innerText = `Menampilkan ${totalItems === 0 ? 0 : startIdx + 1} - ${endIdx} dari ${totalItems} kontingen`;
+    if (currentLbl) currentLbl.innerText = window.contingentCurrentPage;
+    if (totalLbl) totalLbl.innerText = totalPages;
+    if (prevBtn) prevBtn.disabled = window.contingentCurrentPage <= 1;
+    if (nextBtn) nextBtn.disabled = window.contingentCurrentPage >= totalPages;
+
     let html = '';
 
-    actualTeams.forEach((name, idx) => {
+    pagedTeams.forEach((name, idxIdx) => {
+        const actualIdx = startIdx + idxIdx;
         const matchedAthletes = athletes.filter(a => (a.team || "").trim().toUpperCase() === name);
 
         // Per-contingent breakdown
@@ -194,7 +266,7 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
             <tr class="row-hover border-b border-white/5 bg-white/5">
                 <td class="p-4">
                     <div class="flex flex-col">
-                        <span class="text-[8px] opacity-20 font-black">#${(idx + 1).toString().padStart(2, '0')}</span>
+                        <span class="text-[8px] opacity-20 font-black">#${(actualIdx + 1).toString().padStart(2, '0')}</span>
                     </div>
                 </td>
                 <td class="p-4 font-black italic text-slate-200 text-sm uppercase">${name}</td>

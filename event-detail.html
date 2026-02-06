@@ -48,7 +48,7 @@
                     <img src="kensho-logo.png" alt="Logo" class="w-8 h-8 object-contain">
                 </div>
             </a>
-            <div class="badge-version mt-3">v3.2.0</div>
+            <div class="badge-version mt-3">v3.3.1</div>
         </div>
         <nav class="flex-1 flex flex-col items-center">
             <a href="dashboard.html" data-tooltip="Beranda Dashboard" class="side-btn">
@@ -103,6 +103,16 @@
                     Manajemen Kompetisi Teknis</p>
             </div>
             <div class="flex items-center gap-6">
+                <button onclick="window.refreshEventData()" id="btn-refresh-data"
+                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-emerald-500 hover:text-white transition-all">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <span>Refresh Data</span>
+                    </div>
+                </button>
                 <button onclick="toggleModal('modal-settings', true)"
                     class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-blue-500 hover:text-white transition-all">Pengaturan
                     Event</button>
@@ -338,6 +348,31 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <!-- Pagination Controls for Athletes -->
+                    <div id="athletePaginationControls" class="flex justify-between items-center mt-6 px-2">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <span id="athletePageInfo">Menampilkan 0 - 0 dari 0 data</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.changeAthletePage(-1)"
+                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                id="athletePrevBtn">
+                                ← Sebelumnya
+                            </button>
+                            <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                <span id="athleteCurrentPage" class="text-[10px] font-black text-blue-400">1</span>
+                                <span class="text-[10px] text-slate-500 mx-1">/</span>
+                                <span id="athleteTotalPages" class="text-[10px] font-bold text-slate-400">1</span>
+                            </div>
+                            <button onclick="window.changeAthletePage(1)"
+                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                id="athleteNextBtn">
+                                Berikutnya →
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -634,6 +669,31 @@
                         </div>
                     </div>
 
+                    <!-- Pagination Controls for Brackets -->
+                    <div id="bracketPaginationControls" class="flex justify-between items-center mt-8 px-2">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <span id="bracketPageInfo">Menampilkan 0 - 0 dari 0 kelas</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.changeBracketPage(-1)"
+                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                id="bracketPrevBtn">
+                                ← Sebelumnya
+                            </button>
+                            <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                <span id="bracketCurrentPage" class="text-[10px] font-black text-blue-400">1</span>
+                                <span class="text-[10px] text-slate-500 mx-1">/</span>
+                                <span id="bracketTotalPages" class="text-[10px] font-bold text-slate-400">1</span>
+                            </div>
+                            <button onclick="window.changeBracketPage(1)"
+                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                id="bracketNextBtn">
+                                Berikutnya →
+                            </button>
+                        </div>
+                    </div>
+
+
                     <div id="bracket-mapping-container" class="hidden">
                         <div class="p-8 rounded-[2.5rem] bg-indigo-50/5 border border-white/5">
                             <div class="flex justify-between items-center mb-6">
@@ -652,7 +712,7 @@
                                     EKSPOR MASTER .XLSX
                                 </button>
                             </div>
-                            <div class="badge-version">v3.2.0</div>
+                            <div class="badge-version">v3.3.1</div>
                             <div class="overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50">
                                 <table class="w-full text-left">
                                     <thead
@@ -672,6 +732,32 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+
+                            <!-- Pagination Controls -->
+                            <div id="mappingPaginationControls" class="flex justify-between items-center mt-6 px-2">
+                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                    <span id="mappingPageInfo">Menampilkan 0 - 0 dari 0 data</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="window.changeMappingPage(-1)"
+                                        class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                        id="mappingPrevBtn">
+                                        ← Sebelumnya
+                                    </button>
+                                    <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                        <span id="mappingCurrentPage"
+                                            class="text-[10px] font-black text-blue-400">1</span>
+                                        <span class="text-[10px] text-slate-500 mx-1">/</span>
+                                        <span id="mappingTotalPages"
+                                            class="text-[10px] font-bold text-slate-400">1</span>
+                                    </div>
+                                    <button onclick="window.changeMappingPage(1)"
+                                        class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                        id="mappingNextBtn">
+                                        Berikutnya →
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -720,6 +806,31 @@
                             <!-- Populated by JS -->
                         </tbody>
                     </table>
+
+                    <!-- Pagination Controls for Contingents -->
+                    <div id="contingentPaginationControls" class="flex justify-between items-center mt-6 px-2">
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <span id="contingentPageInfo">Menampilkan 0 - 0 dari 0 kontingen</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="window.changeContingentPage(-1)"
+                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                id="contingentPrevBtn">
+                                ← Sebelumnya
+                            </button>
+                            <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                <span id="contingentCurrentPage" class="text-[10px] font-black text-blue-400">1</span>
+                                <span class="text-[10px] text-slate-500 mx-1">/</span>
+                                <span id="contingentTotalPages" class="text-[10px] font-bold text-slate-400">1</span>
+                            </div>
+                            <button onclick="window.changeContingentPage(1)"
+                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                id="contingentNextBtn">
+                                Berikutnya →
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -1579,6 +1690,169 @@
                     <button onclick="window.saveContingentNameEdit()"
                         class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(79,70,229,0.3)] hover:scale-[1.02] transition-all">Update
                         Nama</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Juara Manual -->
+    <div id="modal-winner-edit" class="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 hidden">
+        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5 shadow-2xl">
+            <header class="mb-8 text-center">
+                <div
+                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-blue-400 mx-auto mb-4 border border-blue-500/20">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Edit Hasil Juara
+                </h2>
+                <p id="winner-edit-subtitle"
+                    class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-blue-400 italic">KELAS:
+                    LOADING...</p>
+            </header>
+
+            <div class="space-y-4">
+                <div class="relative">
+                    <label
+                        class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-yellow-500">JUARA
+                        1 (GOLD)</label>
+                    <input type="text" id="edit-win1"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-yellow-500/50 transition-all"
+                        placeholder="NAMA PESERTA...">
+                </div>
+                <div class="relative">
+                    <label
+                        class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-slate-400">JUARA
+                        2 (SILVER)</label>
+                    <input type="text" id="edit-win2"
+                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-slate-400/50 transition-all"
+                        placeholder="NAMA PESERTA...">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="relative">
+                        <label
+                            class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-orange-700">BRONZE
+                            1</label>
+                        <input type="text" id="edit-win3a"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-orange-700/50 transition-all"
+                            placeholder="NAMA PESERTA...">
+                    </div>
+                    <div class="relative">
+                        <label
+                            class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-orange-700">BRONZE
+                            2</label>
+                        <input type="text" id="edit-win3b"
+                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-orange-700/50 transition-all"
+                            placeholder="NAMA PESERTA...">
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-6">
+                    <button onclick="toggleModal('modal-winner-edit', false)"
+                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">BATAL</button>
+                    <button id="save-winner-edit-btn" onclick="window.saveWinnerEdit()"
+                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-all">SIMPAN
+                        HASIL</button>
+                </div>
+            </div>
+
+            <!-- Autocomplete Container -->
+            <div id="winner-edit-autocomplete"
+                class="absolute z-[130] bg-slate-900 border border-white/10 rounded-2xl shadow-2xl hidden max-h-48 overflow-y-auto custom-scrollbar">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Medali Manual (CRUD) -->
+    <div id="modal-medal-manual-edit" class="fixed inset-0 z-[125] flex items-center justify-center bg-black/90 hidden">
+        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5 shadow-2xl">
+            <header class="mb-8 text-center">
+                <div
+                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-orange-400 mx-auto mb-4 border border-orange-500/20">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                    </svg>
+                </div>
+                <h2 id="medal-manual-title"
+                    class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Input Medali
+                    Manual</h2>
+                <p class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-orange-400 italic">
+                    MENAMBAH/MENGUBAH DATA KLASEMEN</p>
+            </header>
+
+            <div class="space-y-6">
+                <input type="hidden" id="medal-manual-id">
+
+                <div class="space-y-4">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 tracking-[0.2em]">Nama
+                        Kontingen</label>
+                    <div
+                        class="neu-inset px-6 py-5 rounded-2xl flex items-center border border-white/5 focus-within:border-orange-500/50 transition-all">
+                        <input type="text" id="medal-manual-team" placeholder="MASUKKAN NAMA KONTINGEN..."
+                            class="bg-transparent text-sm font-black outline-none w-full uppercase tracking-wider text-white placeholder-slate-700">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- GOLD -->
+                    <div class="space-y-4 text-center">
+                        <div class="flex flex-col gap-1 mb-2">
+                            <label
+                                class="text-[9px] font-black uppercase opacity-40 tracking-[0.2em] text-yellow-500">GOLD</label>
+                            <span id="system-gold-display"
+                                class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Sistem: 0</span>
+                        </div>
+                        <div class="neu-inset p-4 rounded-2xl border border-white/5 relative">
+                            <input type="number" id="medal-manual-gold" value="0" min="0"
+                                class="bg-transparent text-2xl font-black outline-none w-full text-center text-white">
+                            <p
+                                class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[6px] font-black text-white/30 tracking-widest uppercase">
+                                Target Total</p>
+                        </div>
+                    </div>
+                    <!-- SILVER -->
+                    <div class="space-y-4 text-center">
+                        <div class="flex flex-col gap-1 mb-2">
+                            <label
+                                class="text-[9px] font-black uppercase opacity-40 tracking-[0.2em] text-slate-400">SILVER</label>
+                            <span id="system-silver-display"
+                                class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Sistem: 0</span>
+                        </div>
+                        <div class="neu-inset p-4 rounded-2xl border border-white/5 relative">
+                            <input type="number" id="medal-manual-silver" value="0" min="0"
+                                class="bg-transparent text-2xl font-black outline-none w-full text-center text-white">
+                            <p
+                                class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[6px] font-black text-white/30 tracking-widest uppercase">
+                                Target Total</p>
+                        </div>
+                    </div>
+                    <!-- BRONZE -->
+                    <div class="space-y-4 text-center">
+                        <div class="flex flex-col gap-1 mb-2">
+                            <label
+                                class="text-[9px] font-black uppercase opacity-40 tracking-[0.2em] text-orange-700">BRONZE</label>
+                            <span id="system-bronze-display"
+                                class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Sistem: 0</span>
+                        </div>
+                        <div class="neu-inset p-4 rounded-2xl border border-white/5 relative">
+                            <input type="number" id="medal-manual-bronze" value="0" min="0"
+                                class="bg-transparent text-2xl font-black outline-none w-full text-center text-white">
+                            <p
+                                class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[6px] font-black text-white/30 tracking-widest uppercase">
+                                Target Total</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button onclick="toggleModal('modal-medal-manual-edit', false)"
+                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">Batal</button>
+                    <button id="save-medal-manual-btn" onclick="window.saveMedalManual()"
+                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-orange-600 to-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-all">Simpan
+                        Data</button>
                 </div>
             </div>
         </div>

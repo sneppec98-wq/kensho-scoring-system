@@ -2,7 +2,7 @@ import { generatePrintHeaderHTML, executeIsolatedPrint } from './print-core.js';
 import { getLatestSchedule } from '../schedule-generator.js';
 import { customAlert } from '../ui-helpers.js';
 
-export const prepareJadwalPrint = (eventName, eventLogo) => {
+export const prepareJadwalPrint = async (eventName, eventLogo) => {
     const schedule = getLatestSchedule();
     if (!schedule || schedule.length === 0) {
         customAlert("Silakan generate jadwal terlebih dahulu!", "Jadwal Kosong", "info");
@@ -126,5 +126,5 @@ export const prepareJadwalPrint = (eventName, eventLogo) => {
         </tbody>
     `;
 
-    executeIsolatedPrint(wrappedHtml, 'REKAPITULASI JADWAL PERTANDINGAN', eventName, eventLogo, 1, true);
+    await executeIsolatedPrint(wrappedHtml, 'REKAPITULASI JADWAL PERTANDINGAN', eventName, eventLogo, 1, true, true);
 };

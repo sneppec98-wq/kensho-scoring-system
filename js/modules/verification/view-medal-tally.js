@@ -85,17 +85,33 @@ export const calculateMedalTallyNew = (athletes, classes) => {
     return classResults;
 };
 
-export const renderMedalTallyView = (sortedClassResults) => {
-    if (sortedClassResults.length === 0) {
+export const renderMedalTallyView = (sortedClassResults, searchTerm = "") => {
+    const s = searchTerm.toLowerCase();
+    const filteredResults = sortedClassResults.filter(c =>
+        (c.name || "").toLowerCase().includes(s) ||
+        (c.code || "").toString().toLowerCase().includes(s)
+    );
+
+    if (filteredResults.length === 0) {
         return `
             <div class="text-center py-20 bg-slate-900/40 border border-white/5 rounded-3xl">
-                <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Belum ada data pendaftar untuk dihitung.</p>
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">Tidak ada data hasil perhitungan yang sesuai pencarian.</p>
             </div>
         `;
     }
 
-    const openResults = sortedClassResults.filter(c => !c.code.startsWith('F'));
-    const festivalResults = sortedClassResults.filter(c => c.code.startsWith('F'));
+    const PAGE_SIZE = 10;
+    const totalPages = Math.ceil(filteredResults.length / PAGE_SIZE) || 1;
+    window.verifikasiTotalPages = totalPages;
+
+    const currentPage = window.verifikasiCurrentPage || 1;
+    const startIdx = (currentPage - 1) * PAGE_SIZE;
+    const endIdx = Math.min(startIdx + PAGE_SIZE, filteredResults.length);
+    const pagedResults = filteredResults.map((c, i) => ({ ...c, originalIdx: i }))
+        .slice(startIdx, endIdx);
+
+    const openResults = pagedResults.filter(c => !c.code.startsWith('F'));
+    const festivalResults = pagedResults.filter(c => c.code.startsWith('F'));
 
     const renderTable = (results, title, colorClass) => {
         if (results.length === 0) return '';
@@ -134,7 +150,7 @@ export const renderMedalTallyView = (sortedClassResults) => {
                                 <tr class="hover:bg-blue-500/5 transition-all group">
                                     <td class="p-6">
                                         <div class="w-8 h-8 rounded-lg bg-slate-800 text-slate-500 flex items-center justify-center text-[10px] font-black">
-                                            ${idx + 1}
+                                            ${c.originalIdx + 1}
                                         </div>
                                     </td>
                                     <td>

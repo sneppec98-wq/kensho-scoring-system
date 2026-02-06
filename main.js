@@ -1,4 +1,4 @@
-// Kensho Tech Manager - v3.2.0 (Build Trigger: 2026-02-05 19:30)
+// Kensho Tech Manager - v3.3.1 (Build Trigger: 2026-02-05 19:30)
 const { app, BrowserWindow, shell, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { exec } = require('child_process');

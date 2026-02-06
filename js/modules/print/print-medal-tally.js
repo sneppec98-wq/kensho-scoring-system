@@ -4,7 +4,7 @@
 import { executeIsolatedPrint } from './print-core.js';
 import { calculateMedalTallyNew } from '../verification/view-medal-tally.js';
 
-export const prepareMedalTallyPrint = (athletes, classes, eventName, eventLogo) => {
+export const prepareMedalTallyPrint = async (athletes, classes, eventName, eventLogo) => {
     const classResults = calculateMedalTallyNew(athletes, classes);
     const hasData = classResults && classResults.length > 0;
 
@@ -147,5 +147,5 @@ export const prepareMedalTallyPrint = (athletes, classes, eventName, eventLogo) 
         </div>
     `;
 
-    executeIsolatedPrint(html, 'REKAP STOK MEDALI', eventName, eventLogo, 6, true);
+    await executeIsolatedPrint(html, 'REKAP STOK MEDALI', eventName, eventLogo, 6, true, true);
 };

@@ -12,7 +12,7 @@ export const extractResultsFromBrackets = (brackets) => {
             const gold = (data.winner_name || data.winner_nama || "").trim();
             if (gold && gold !== "-") {
                 const res = {
-                    className: bracket.name,
+                    className: bracket.class || bracket.id || bracket.name,
                     winners: { gold: gold, silver: null, bronze: [] },
                     goldTeam: null,
                     silverTeam: null,
@@ -44,7 +44,7 @@ export const extractResultsFromBrackets = (brackets) => {
     return results;
 };
 
-export const prepareJuaraPrint = (brackets, classes, athletes, eventName, eventLogo) => {
+export const prepareJuaraPrint = async (brackets, classes, athletes, eventName, eventLogo) => {
     const results = extractResultsFromBrackets(brackets);
     const openClasses = classes.filter(c => {
         const code = (c.code || "").toString().toUpperCase();
@@ -67,6 +67,19 @@ export const prepareJuaraPrint = (brackets, classes, athletes, eventName, eventL
         const w = res?.winners || { gold: '', silver: '', bronze: ['', ''] };
         const t = { gold: res?.goldTeam || '', silver: res?.silverTeam || '', bronze: res?.bronzeTeams || ['', ''] };
         const dot = ' . . . . . . . . . . .';
+
+        // Filter out "PESERTA KOSONG" for print
+        const printGold = (w.gold === "PESERTA KOSONG") ? dot : (w.gold || dot);
+        const printGoldTeam = (w.gold === "PESERTA KOSONG") ? dot : (t.gold || dot);
+
+        const printSilver = (w.silver === "PESERTA KOSONG") ? dot : (w.silver || dot);
+        const printSilverTeam = (w.silver === "PESERTA KOSONG") ? dot : (t.silver || dot);
+
+        const printBronze1 = (w.bronze[0] === "PESERTA KOSONG") ? dot : (w.bronze[0] || dot);
+        const printBronze1Team = (w.bronze[0] === "PESERTA KOSONG") ? dot : (t.bronze[0] || dot);
+
+        const printBronze2 = (w.bronze[1] === "PESERTA KOSONG") ? dot : (w.bronze[1] || dot);
+        const printBronze2Team = (w.bronze[1] === "PESERTA KOSONG") ? dot : (t.bronze[1] || dot);
 
         // Add page break after every 5 classes
         const needsPageBreak = (index > 0 && index % 5 === 0);
@@ -91,26 +104,26 @@ export const prepareJuaraPrint = (brackets, classes, athletes, eventName, eventL
                     <tbody>
                         <tr>
                             <td style="border: 1px solid #000; text-align: center; font-weight: bold; font-size: 5.5pt; height: 16px;">1</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${w.gold || dot}</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${t.gold || dot}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${printGold}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${printGoldTeam}</td>
                             <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 5.5pt; color: #a16207;">GOLD</td>
                         </tr>
                         <tr>
                             <td style="border: 1px solid #000; text-align: center; font-weight: bold; font-size: 5.5pt; height: 16px;">2</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${w.silver || dot}</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${t.silver || dot}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${printSilver}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${printSilverTeam}</td>
                             <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 5.5pt; color: #475569;">SILVER</td>
                         </tr>
                         <tr>
                             <td style="border: 1px solid #000; text-align: center; font-weight: bold; font-size: 5.5pt; height: 16px;">3</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${w.bronze[0] || dot}</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${t.bronze[0] || dot}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${printBronze1}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${printBronze1Team}</td>
                             <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 5.5pt; color: #9a3412;">BRONZE</td>
                         </tr>
                         <tr>
                             <td style="border: 1px solid #000; text-align: center; font-weight: bold; font-size: 5.5pt; height: 16px;">3</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${w.bronze[1] || dot}</td>
-                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${t.bronze[1] || dot}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; font-weight: 900; text-transform: uppercase; font-size: 6pt; line-height: 1; text-align: left;">${printBronze2}</td>
+                            <td style="border: 1px solid #000; padding-left: 4px; text-transform: uppercase; font-size: 5.5pt; text-align: left;">${printBronze2Team}</td>
                             <td style="border: 1px solid #000; text-align: center; font-weight: 900; font-size: 5.5pt; color: #9a3412;">BRONZE</td>
                         </tr>
                     </tbody>
@@ -131,5 +144,5 @@ export const prepareJuaraPrint = (brackets, classes, athletes, eventName, eventL
         </tbody>
     `;
 
-    executeIsolatedPrint(wrappedHtml, 'DAFTAR PEMENANG (Open Class)', eventName, eventLogo, 1, true);
+    await executeIsolatedPrint(wrappedHtml, 'DAFTAR PEMENANG (Open Class)', eventName, eventLogo, 1, true, true);
 };

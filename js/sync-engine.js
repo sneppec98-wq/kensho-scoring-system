@@ -54,6 +54,11 @@ class SyncEngine {
         });
     }
 
+    // Alias for saveMatchResult
+    async save(matchData) {
+        return this.saveMatchResult(matchData);
+    }
+
     async startSyncTimer() {
         // DISABLED: Admin Rekap feature disabled, no need for cloud sync
         // setInterval(() => this.syncAll(), SYNC_INTERVAL);
@@ -154,12 +159,14 @@ class SyncEngine {
     async pushToCloud(data) {
         console.log(`[SyncEngine] Pushing data for ${data.category} to Cloud...`);
         try {
-            const { eventId, category, winner, nextSlot, matchId, aka, ao } = data;
+            const { eventId, category, classCode, winner, nextSlot, matchId, aka, ao } = data;
 
             if (!eventId || !category) {
                 console.error('[SyncEngine] Missing eventId or category in data:', data);
                 return false;
             }
+
+            const docId = classCode || category;
 
             // 1. Save Match Record (General Log)
             const timestamp = Date.now();
@@ -173,7 +180,7 @@ class SyncEngine {
 
             // 2. 🆕 Update Specific Match Document (for Admin Rekap sync)
             if (matchId) {
-                const specificMatchRef = doc(db, `events/${eventId}/brackets/${category}/matches`, matchId);
+                const specificMatchRef = doc(db, `events/${eventId}/brackets/${docId}/matches`, matchId);
                 await updateDoc(specificMatchRef, {
                     status: 'completed',
                     winnerSide: winner.side,
@@ -188,7 +195,7 @@ class SyncEngine {
 
             // 3. Auto-Progression (Update Bracket Tree)
             if (nextSlot) {
-                const bracketRef = doc(db, `events/${eventId}/brackets`, category);
+                const bracketRef = doc(db, `events/${eventId}/brackets`, docId);
                 const bracketSnap = await getDoc(bracketRef);
 
                 if (bracketSnap.exists()) {

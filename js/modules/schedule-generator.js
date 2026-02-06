@@ -392,101 +392,93 @@ const renderScheduleResult = (schedule) => {
     const output = document.getElementById('scheduleOutput');
     if (!output) return;
 
-    let html = '';
+    const PAGE_SIZE = 10;
+    const allMatches = [];
     schedule.forEach((dayData, dayIdx) => {
-        html += `
-            <div class="mb-12">
-                <h3 class="text-xl font-black italic uppercase text-blue-400 mb-6 flex items-center gap-4">
-                    <span class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 italic not-italic text-sm">#D${dayIdx + 1}</span>
-                    JADWAL PERTANDINGAN - HARI KE-${dayIdx + 1}
-                </h3>
-                <div class="grid grid-cols-1 xl:grid-cols-${dayData.length} gap-6">
-        `;
-
         dayData.forEach((arena, arenaIdx) => {
-            html += `
-                        <div class="neu-inset p-8 rounded-[2.5rem] bg-slate-900/20 border border-white/5">
-                            <div class="flex items-center justify-between mb-6">
-                                <span class="text-[10px] font-black uppercase text-blue-500 tracking-[0.3em]">TATAMI ${arenaIdx + 1}</span>
-                                <span class="px-3 py-1 rounded-full bg-slate-800 text-[8px] font-black opacity-50">${arena.classes.length} KELAS</span>
-                            </div>
-                            <div class="space-y-6">
-                    `;
-
-            const renderClassList = (classList, title, colorClass) => {
-                if (classList.length === 0) return '';
-                const phaseTotal = classList.reduce((sum, cls) => sum + (cls.rawCount || cls.athleteCount || 0), 0);
-                return `
-                <div class="space-y-3">
-                    <div class="flex justify-between items-center ml-2 mb-2">
-                        <p class="text-[9px] font-black ${colorClass} uppercase tracking-[0.2em]">${title}</p>
-                        <span class="text-[9px] font-black opacity-40 uppercase tracking-widest">${phaseTotal} PESERTA</span>
-                    </div>
-                    ${classList.map(item => {
-                    const cls = item.data;
-                    const idxInArena = item.originalIdx;
-                    return `
-                                <div class="p-4 rounded-2xl bg-slate-800/40 border border-white/5 hover:border-blue-500/20 transition-all group/card relative overflow-hidden">
-                                    <div class="flex items-start justify-between">
-                                         <div class="flex-1">
-                                            <span class="text-[8px] font-black opacity-30 block mb-1 uppercase tracking-widest">${cls.code}</span>
-                                            <h5 class="text-[11px] font-black uppercase leading-tight text-white mb-2">${cls.name}</h5>
-                                            
-                                            <!-- Move Button -->
-                                            <button onclick="window.openMoveMatchDialog(${dayIdx}, ${arenaIdx}, ${idxInArena})" 
-                                                class="opacity-0 group-hover/card:opacity-100 transition-opacity bg-blue-600/80 hover:bg-blue-600 text-white text-[7px] font-black px-3 py-1.5 rounded-lg uppercase tracking-wider flex items-center gap-2">
-                                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                                                PINDAH KELAS
-                                            </button>
-                                         </div>
-                                         <div class="flex flex-col items-center justify-center">
-                                            <span class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 text-[10px] font-black">${cls.athleteCount}</span>
-                                            <span class="text-[7px] font-black opacity-30 uppercase mt-1">${cls.isTeamCategory ? 'TIM' : 'ATLET'}</span>
-                                         </div>
-                                    </div>
-                                </div>
-                            `;
-                }).join('')}
-                </div>
-                `;
-            };
-
-            const openClasses = arena.classes.map((c, i) => ({ data: c, originalIdx: i })).filter(item => {
-                const cls = item.data;
-                const name = (cls.name || "").toUpperCase();
-                const code = (cls.code || "").toString().toUpperCase();
-                return !(code.startsWith('F') || name.includes('FESTIVAL'));
+            arena.classes.forEach((cls, clsIdx) => {
+                allMatches.push({
+                    data: cls,
+                    day: dayIdx + 1,
+                    arena: arenaIdx + 1,
+                    originalIdx: clsIdx
+                });
             });
-            const festivalClasses = arena.classes.map((c, i) => ({ data: c, originalIdx: i })).filter(item => {
-                const cls = item.data;
-                const name = (cls.name || "").toUpperCase();
-                const code = (cls.code || "").toString().toUpperCase();
-                return (code.startsWith('F') || name.includes('FESTIVAL'));
-            });
-
-            const openTotal = openClasses.reduce((sum, item) => sum + (item.data.rawCount || item.data.athleteCount || 0), 0);
-            const festivalTotal = festivalClasses.reduce((sum, item) => sum + (item.data.rawCount || item.data.athleteCount || 0), 0);
-            const totalPeserta = openTotal + festivalTotal;
-
-            html += renderClassList(openClasses, 'KELAS OPEN', 'text-blue-400');
-            html += renderClassList(festivalClasses, 'KELAS FESTIVAL', 'text-emerald-400');
-
-            if (arena.classes.length === 0) {
-                html += '<p class="text-[10px] italic opacity-20 py-4 text-center">Tidak ada jadwal</p>';
-            } else {
-                html += `
-                            <div class="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
-                                <span class="text-[9px] font-black uppercase opacity-30 tracking-widest">TOTAL PESERTA</span>
-                                <span class="text-xs font-black text-blue-400">${totalPeserta} ATLET</span>
-                            </div>
-                        `;
-            }
-
-            html += '</div></div > ';
         });
-
-        html += '</div></div>';
     });
+
+    const totalItems = allMatches.length;
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+    window.verifikasiTotalPages = totalPages;
+
+    const currentPage = window.verifikasiCurrentPage || 1;
+    const startIdx = (currentPage - 1) * PAGE_SIZE;
+    const endIdx = Math.min(startIdx + PAGE_SIZE, totalItems);
+    const pagedMatches = allMatches.slice(startIdx, endIdx);
+
+    let html = `
+        <div class="space-y-4 no-print">
+            <div class="overflow-x-auto bg-slate-900/40 border border-white/5 rounded-3xl p-6">
+                <table class="w-full text-left">
+                    <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em] text-slate-400">
+                        <tr>
+                            <th class="pb-4 pl-4">Urutan</th>
+                            <th class="pb-4 text-center">Hari</th>
+                            <th class="pb-4 text-center">Arena</th>
+                            <th class="pb-4">Kelas / Kategori Pertandingan</th>
+                            <th class="pb-4 text-center">Peserta</th>
+                            <th class="pb-4 text-right pr-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+    `;
+
+    if (pagedMatches.length === 0) {
+        html += `<tr><td colspan="6" class="py-20 text-center opacity-30 italic text-xs uppercase tracking-widest font-black">Belum ada jadwal terbuat</td></tr>`;
+    }
+
+    pagedMatches.forEach((match, idx) => {
+        const cls = match.data;
+        html += `
+            <tr class="hover:bg-white/5 transition-colors group">
+                <td class="py-4 pl-4">
+                    <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] font-black opacity-50">#${startIdx + idx + 1}</span>
+                </td>
+                <td class="py-4 text-center">
+                    <span class="px-3 py-1 rounded-lg bg-blue-500/10 text-blue-400 text-[10px] font-black">D${match.day}</span>
+                </td>
+                <td class="py-4 text-center">
+                    <span class="px-3 py-1 rounded-lg bg-indigo-500/10 text-indigo-400 text-[10px] font-black">T${match.arena}</span>
+                </td>
+                <td class="py-4">
+                    <div class="flex flex-col">
+                        <span class="text-[8px] font-black opacity-30 uppercase tracking-widest mb-1">${cls.code || '-'}</span>
+                        <span class="text-[11px] font-black text-white uppercase">${cls.name}</span>
+                        <span class="text-[8px] font-bold opacity-30 uppercase mt-1">${cls.ageCategory || ''} - ${cls.gender || ''}</span>
+                    </div>
+                </td>
+                <td class="py-4 text-center">
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs font-black text-white">${cls.athleteCount}</span>
+                        <span class="text-[7px] font-black opacity-30 uppercase">${cls.isTeamCategory ? 'TIM' : 'ATLET'}</span>
+                    </div>
+                </td>
+                <td class="py-4 text-right pr-4">
+                    <button onclick="window.openMoveMatchDialog(${match.day - 1}, ${match.arena - 1}, ${match.originalIdx})" 
+                        class="ml-auto bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white text-[8px] font-black px-4 py-2 rounded-xl uppercase tracking-widest transition-all">
+                        PINDAH
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
 
     output.innerHTML = html;
 };

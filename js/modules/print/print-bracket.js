@@ -1,6 +1,6 @@
 import { executeIsolatedPrint } from './print-core.js';
 
-export const prepareBracketPrint = (athletes, classes, eventName, eventLogo, bracketsMap = {}) => {
+export const prepareBracketPrint = async (athletes, classes, eventName, eventLogo, bracketsMap = {}) => {
     // 1. Filter and Sort by Code (F01, F02, etc.)
     const festivalClasses = classes
         .filter(c => (c.code || "").toString().toUpperCase().startsWith('F'))
@@ -101,5 +101,5 @@ export const prepareBracketPrint = (athletes, classes, eventName, eventLogo, bra
         </table>
     `;
 
-    executeIsolatedPrint(html, 'BAGAN FESTIVAL', eventName, eventLogo, 7, true);
+    await executeIsolatedPrint(html, 'BAGAN FESTIVAL', eventName, eventLogo, 7, true, true);
 };

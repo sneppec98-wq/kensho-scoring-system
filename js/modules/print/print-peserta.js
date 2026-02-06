@@ -3,7 +3,7 @@
  */
 import { executeIsolatedPrint } from './print-core.js';
 
-export const preparePesertaPrint = (athletes, classes, eventName, eventLogo, searchTerm = "") => {
+export const preparePesertaPrint = async (athletes, classes, eventName, eventLogo, searchTerm = "") => {
     const s = searchTerm.toLowerCase();
     const filtered = athletes.filter(a => {
         if (!s) return true;
@@ -23,11 +23,11 @@ export const preparePesertaPrint = (athletes, classes, eventName, eventLogo, sea
 
     let html = `
         <colgroup>
-            <col style="width: 5%;">
+            <col style="width: 12mm;">
             <col style="width: auto;">
-            <col style="width: 15%;">
-            <col style="width: 15%;">
-            <col style="width: 30%;">
+            <col style="width: 12mm;">
+            <col style="width: 25mm;">
+            <col style="width: 50mm;">
         </colgroup>
         ${sortedTeams.map((team) => {
         const teamAthletes = grouped[team];
@@ -95,5 +95,5 @@ export const preparePesertaPrint = (athletes, classes, eventName, eventLogo, sea
         </tbody>
     `;
 
-    executeIsolatedPrint(html, 'DAFTAR KONTINGEN ATLET', eventName, eventLogo, 5, true);
+    await executeIsolatedPrint(html, 'DAFTAR KONTINGEN ATLET', eventName, eventLogo, 5, true, true);
 };

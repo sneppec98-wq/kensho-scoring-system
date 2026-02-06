@@ -1,5 +1,5 @@
 import { db, auth } from './firebase-init.js';
-import { collection, getDocs, doc, getDoc, query, orderBy, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc, query, orderBy, onSnapshot, setDoc, getDocsFromCache, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { bulkPrintBrackets } from './modules/print/bulk-print-brackets.js';
 
@@ -79,50 +79,58 @@ async function init() {
             logoContainer.classList.add('hidden');
         }
 
-        // --- Real-time Event Listener (for Locking) ---
-        onSnapshot(doc(db, "events", eventId), (snap) => {
+        // --- Real-time Event Listener (REDUCED FREQUENCY/IMMEDIATE CACHE) ---
+        onSnapshot(doc(db, "events", eventId), { includeMetadataChanges: false }, (snap) => {
             if (snap.exists()) {
                 const newData = snap.data();
-
-                // If visibility changed, we might need to refresh the current view
                 const flagsChanged = currentEventData && (
                     newData.isBracketPublic !== currentEventData.isBracketPublic ||
                     newData.isWinnersPublic !== currentEventData.isWinnersPublic ||
                     newData.isMedalsPublic !== currentEventData.isMedalsPublic ||
                     newData.isSchedulePublic !== currentEventData.isSchedulePublic
                 );
-
                 currentEventData = newData;
-
-                // Sync UI elements
                 eventName = newData.name || eventName;
                 document.getElementById('eventName').innerText = eventName;
-
                 if (flagsChanged) {
-                    console.log("🔒 Public access flags updated, re-evaluating current tab...");
-                    // Reset cache if winners/medals become locked
+                    console.log("🔒 Access flags updated.");
                     if (!newData.isWinnersPublic || !newData.isMedalsPublic) cachedWinners = null;
-
-                    // Re-trigger current tab logic
                     switchTab(activeTab);
                 }
             }
         });
 
-        // --- Reward Status Listener ---
-        onSnapshot(collection(db, `events/${eventId}/rewards`), (snap) => {
-            snap.docs.forEach(d => {
-                rewardStatus[d.id] = d.data();
-            });
-            if (activeTab === 'winners') renderWinnersList(cachedWinners || []);
-        });
+        // --- Aggressive Cache-First Fetching ---
+        async function fetchOptimized(colPath, queryObj = null) {
+            try {
+                const q = queryObj || collection(db, colPath);
+                // Try cache first
+                const cacheSnap = await getDocsFromCache(q);
+                if (cacheSnap.empty) {
+                    console.log(`[NETWORK] Loading ${colPath} from server (cache empty)...`);
+                    return await getDocs(q);
+                }
+                console.log(`[CACHE] Loading ${colPath} from local storage...`);
+                return cacheSnap;
+            } catch (e) {
+                console.log(`[FALLBACK] Loading ${colPath} from server...`);
+                return await getDocs(queryObj || collection(db, colPath));
+            }
+        }
 
-        // Fetch Classes (for lookup)
-        const classSnap = await getDocs(collection(db, `events/${eventId}/classes`));
+        // --- Reward Status Fetch (ONE-TIME instead of full snapshot) ---
+        const fetchRewards = async () => {
+            const snap = await fetchOptimized(`events/${eventId}/rewards`);
+            snap.docs.forEach(d => { rewardStatus[d.id] = d.data(); });
+        };
+        await fetchRewards();
+
+        // Fetch Classes
+        const classSnap = await fetchOptimized(`events/${eventId}/classes`);
         allClasses = classSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // Fetch Athletes
-        const athleteSnap = await getDocs(query(collection(db, `events/${eventId}/athletes`), orderBy("name", "asc")));
+        const athleteSnap = await fetchOptimized(`events/${eventId}/athletes`, query(collection(db, `events/${eventId}/athletes`), orderBy("name", "asc")));
         allAthletes = athleteSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // --- Bracket Initialization ---
@@ -130,12 +138,20 @@ async function init() {
             const openSelector = document.getElementById('bracketClassSelectorOpen');
             const festivalSelector = document.getElementById('bracketClassSelectorFestival');
 
-            // 1. Fetch ALL brackets to see which classes have participants
+            // 1. Fetch ALL brackets
             const bracketSnap = await getDocs(collection(db, `events/${eventId}/brackets`));
-            const activeClassNames = bracketSnap.docs.map(doc => doc.id); // Firestore IDs are class names
+            const bracketDataList = bracketSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // 2. Filter allClasses to only include those that are "Active"
-            const activeClasses = allClasses.filter(c => activeClassNames.includes(c.name));
+            // 2. Filter allClasses to only include those that have a bracket generated
+            const activeClasses = allClasses.filter(c => {
+                // Check if document ID is class name OR if class name is inside the document data
+                return bracketDataList.some(b =>
+                    b.id === c.name ||
+                    b.id === c.code ||
+                    (b.class && b.class === c.name) ||
+                    (b.classCode && b.classCode === c.code)
+                );
+            });
 
             // 3. Split into Open and Festival
             const openClasses = activeClasses.filter(c => !c.code.toString().toUpperCase().startsWith('F'));
@@ -329,12 +345,20 @@ async function loadBracket(className) {
     </div>`;
 
     try {
-        // Find class info to check if Festival
+        // Find class info
         const clsInfo = allClasses.find(c => c.name === className);
-        const isFestival = (clsInfo?.code || "").toString().toUpperCase().startsWith('F');
+        const classCode = clsInfo?.code || "";
+        const isFestival = classCode.toString().toUpperCase().startsWith('F');
 
         // Fetch Bracket Data from Firestore
-        const bracketDoc = await getDoc(doc(db, `events/${eventId}/brackets`, className));
+        const docId = classCode || className;
+        let bracketDoc = await getDoc(doc(db, `events/${eventId}/brackets`, docId));
+
+        // Fallback for legacy data (using className as ID)
+        if (!bracketDoc.exists() && classCode) {
+            bracketDoc = await getDoc(doc(db, `events/${eventId}/brackets`, className));
+        }
+
         if (!bracketDoc.exists()) {
             container.innerHTML = `<div class="text-center py-20">
                 <p class="text-xs font-black text-slate-300 uppercase italic">Bagan Pertandingan Belum Digenerate Panitia</p>
@@ -551,9 +575,9 @@ async function loadWinnersData(mode = 'both') {
 
         bracketSnap.forEach(docSnap => {
             const b = docSnap.data();
-            const className = docSnap.id;
-            const classInfo = allClasses.find(c => c.name === className);
-            const isFestival = (classInfo?.code || "").toString().toUpperCase().startsWith('F');
+            const className = b.class || docSnap.id;
+            const classInfo = allClasses.find(c => c.name === className || c.code === docSnap.id);
+            const isFestival = (classInfo?.code || b.classCode || "").toString().toUpperCase().startsWith('F');
 
             const classWinners = {
                 className: className,

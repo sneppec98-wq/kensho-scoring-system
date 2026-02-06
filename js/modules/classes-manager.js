@@ -1,7 +1,19 @@
-// Classes Data Manager
-import { showProgress, updateProgress, hideProgress, toggleModal, customConfirm, customAlert } from './ui-helpers.js';
-import { db } from '../firebase-init.js';
 import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { db } from "../firebase-init.js";
+
+const PAGE_SIZE = 10;
+window.bracketCurrentPage = 1;
+
+let lastClassesRef = [];
+let lastAthletesRef = [];
+let lastBracketsRef = [];
+let lastSubTabRef = 'OPEN';
+let lastEventIdRef = '';
+
+window.changeBracketPage = (delta) => {
+    window.bracketCurrentPage += delta;
+    renderClassesData(lastClassesRef, lastAthletesRef, lastBracketsRef, lastSubTabRef, lastEventIdRef);
+};
 
 export const renderClassesData = async (classes, allAthletes, brackets, currentSubTab = 'OPEN', eventId) => {
     const tableBody = document.getElementById('classes-table-body');
@@ -20,9 +32,10 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
         if (publicAccessContainer) publicAccessContainer.classList.add('hidden');
         if (mappingContainer) {
             mappingContainer.classList.remove('hidden');
-            renderMasterMappingTable(brackets, classes);
         }
         if (classCountLabel) classCountLabel.innerText = 'MODE MAPPING';
+        // Pastikan renderMasterMappingTable selalu dipanggil untuk update real-time
+        renderMasterMappingTable(brackets, classes);
         return;
     } else {
         if (cardsContainer) cardsContainer.classList.remove('hidden');
@@ -108,6 +121,12 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
     `).join('');
 
     if (bracketListArea) {
+        lastClassesRef = classes;
+        lastAthletesRef = allAthletes;
+        lastBracketsRef = brackets;
+        lastSubTabRef = currentSubTab;
+        lastEventIdRef = eventId;
+
         bracketListArea.innerHTML = '';
         if (filtered.length === 0) {
             bracketListArea.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Belum ada data ${currentSubTab}</div>`;
@@ -121,6 +140,23 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
                 }
             } catch (err) {
                 console.warn("Could not load schedule for tatami display:", err);
+            }
+
+            // OPTIMIZED: Batch load ALL brackets once
+            let allBracketsMap = {};
+            try {
+                // Import getBrackets from firestore-listeners
+                const { getBrackets } = await import('./firestore-listeners.js');
+                const allBrackets = await getBrackets(db, eventId);
+
+                // Create map for fast lookup
+                allBrackets.forEach(bracket => {
+                    allBracketsMap[bracket.class || bracket.id] = bracket;
+                });
+
+                console.log(`[CLASSES] Loaded ${allBrackets.length} brackets (CACHED)`);
+            } catch (err) {
+                console.warn("Could not batch load brackets:", err);
             }
 
             // Global Actions for Festival
@@ -140,7 +176,7 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
                 `;
             }
 
-            const renderPromises = filtered.map(async (data) => {
+            const cards = filtered.map((data) => {
                 const athleteCount = allAthletes.filter(a =>
                     (a.classCode === data.code) || (a.className.trim().toUpperCase() === data.name.trim().toUpperCase())
                 ).length;
@@ -167,27 +203,24 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
                     );
                     const tatamiLabel = scheduleEntry ? `<div class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black tracking-widest uppercase w-fit">TATAMI ${scheduleEntry.arena}</div>` : '';
 
-                    try {
-                        const bracketDoc = await getDoc(doc(db, `events/${eventId}/brackets`, data.name));
-                        if (bracketDoc.exists() && bracketDoc.data().status === 'complete') {
-                            const savedCount = bracketDoc.data().athleteCount || 0;
-                            const isRevised = athleteCount !== savedCount;
+                    // OPTIMIZED: Use pre-loaded bracket data
+                    const bracketData = allBracketsMap[data.name];
+                    if (bracketData && bracketData.status === 'complete') {
+                        const savedCount = bracketData.athleteCount || 0;
+                        const isRevised = athleteCount !== savedCount;
 
-                            if (isRevised) {
-                                const diff = athleteCount - savedCount;
-                                const diffText = diff > 0 ? `+ ${diff} ATLET BARU` : `${diff} ATLET DIHAPUS`;
-                                statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30 shadow-lg shadow-red-500/10">⚠️ REVISI</span>`;
-                                statusReason = `<p class="text-[8px] text-red-400 mt-1 uppercase font-black">${diffText}</p>`;
-                            } else {
-                                statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">✅ OK</span>`;
-                                statusReason = `<p class="text-[8px] text-emerald-400 mt-1 uppercase">BAGAN SELESAI</p>`;
-                            }
+                        if (isRevised) {
+                            const diff = athleteCount - savedCount;
+                            const diffText = diff > 0 ? `+ ${diff} ATLET BARU` : `${diff} ATLET DIHAPUS`;
+                            statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30 shadow-lg shadow-red-500/10">⚠️ REVISI</span>`;
+                            statusReason = `<p class="text-[8px] text-red-400 mt-1 uppercase font-black">${diffText}</p>`;
                         } else {
-                            statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/10">⏳ PENDING</span>`;
-                            statusReason = `<p class="text-[8px] text-orange-400/60 mt-1 italic">Bagan belum dibuat</p>`;
+                            statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">✅ OK</span>`;
+                            statusReason = `<p class="text-[8px] text-emerald-400 mt-1 uppercase">BAGAN SELESAI</p>`;
                         }
-                    } catch (err) {
-                        statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30">⏳ ERR</span>`;
+                    } else {
+                        statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/10">⏳ PENDING</span>`;
+                        statusReason = `<p class="text-[8px] text-orange-400/60 mt-1 italic">Bagan belum dibuat</p>`;
                     }
 
                     const card = `
@@ -236,10 +269,33 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
                     return card;
                 }
                 return '';
-            });
+            }).filter(card => card !== '');
 
-            const cards = await Promise.all(renderPromises);
-            bracketListArea.innerHTML = globalActions + cards.join('');
+            // Bracket Pagination Logic
+            const totalItems = cards.length;
+            const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+
+            if (window.bracketCurrentPage > totalPages) window.bracketCurrentPage = totalPages;
+            if (window.bracketCurrentPage < 1) window.bracketCurrentPage = 1;
+
+            const startIdx = (window.bracketCurrentPage - 1) * PAGE_SIZE;
+            const endIdx = Math.min(startIdx + PAGE_SIZE, totalItems);
+            const pagedCards = cards.slice(startIdx, endIdx);
+
+            // Update Pagination UI
+            const pageInfo = document.getElementById('bracketPageInfo');
+            const currentLbl = document.getElementById('bracketCurrentPage');
+            const totalLbl = document.getElementById('bracketTotalPages');
+            const prevBtn = document.getElementById('bracketPrevBtn');
+            const nextBtn = document.getElementById('bracketNextBtn');
+
+            if (pageInfo) pageInfo.innerText = `Menampilkan ${totalItems === 0 ? 0 : startIdx + 1} - ${endIdx} dari ${totalItems} kelas`;
+            if (currentLbl) currentLbl.innerText = window.bracketCurrentPage;
+            if (totalLbl) totalLbl.innerText = totalPages;
+            if (prevBtn) prevBtn.disabled = window.bracketCurrentPage <= 1;
+            if (nextBtn) nextBtn.disabled = window.bracketCurrentPage >= totalPages;
+
+            bracketListArea.innerHTML = globalActions + pagedCards.join('');
         }
     }
 };
@@ -250,6 +306,7 @@ async function renderMasterMappingTable(brackets, classes = []) {
 
     if (!brackets || brackets.length === 0) {
         tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-20 text-center opacity-30 italic">Belum ada data bagan yang disimpan.</td></tr>';
+        hideMappingPagination();
         return;
     }
 
@@ -262,27 +319,26 @@ async function renderMasterMappingTable(brackets, classes = []) {
             const className = bracket.class || bracket.classCode || 'Unknown';
             const classCode = bracket.classCode;
 
-            // EXCLUDE BEREGU (Team) from Mapping Master
             const classInfo = classes.find(c => c.name === className || c.code === classCode);
-            if (classInfo && classInfo.type === 'BEREGU') {
-                console.log(`Skipping BEREGU class in mapping: ${className}`);
-                return;
-            }
-
             const bracketData = data;
 
-            // Extract only athlete names (sn, qn, pn, fn slots)
+            // DEBUG: Log all slot IDs to see what's actually in the data
+            console.log(`[MAPPING DEBUG] Class: ${className}, Slot IDs:`, Object.keys(bracketData).filter(k => k.includes('_n_')));
+
+            // Extract only athlete names from all slot formats (s_n_, q_n_, f_n_, p_n_)
             Object.keys(bracketData).forEach(slotId => {
-                if (slotId.match(/^(sn|qn|fn|p_n_)\d+$/)) {
+                // Match current format with underscores: s_n_1, q_n_1, f_n_1, p_n_1
+                if (slotId.match(/^(s_n_|q_n_|f_n_|p_n_)\d+$/)) {
                     const name = bracketData[slotId];
-                    // Look for corresponding team slot
-                    const teamSlotId = slotId.replace('n', 'k').replace('p_n_', 'p_k_');
+                    // Look for corresponding team slot (replace _n_ with _k_)
+                    const teamSlotId = slotId.replace('_n_', '_k_');
                     const team = bracketData[teamSlotId] || '-';
 
                     // Use class code as prefix (e.g. 001_sn1)
                     const uniqueId = classInfo ? `${classInfo.code}_${slotId}` : slotId;
 
                     allBracketsData.push({
+                        classCode: classInfo ? classInfo.code : 'ZZZ',
                         className,
                         slotId: uniqueId,
                         name,
@@ -294,13 +350,39 @@ async function renderMasterMappingTable(brackets, classes = []) {
 
         if (allBracketsData.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-20 text-center opacity-30 italic">Bagan ditemukan tapi tidak berisi data atlet.</td></tr>';
+            hideMappingPagination();
             return;
         }
 
-        // Sort by Class Name then Slot ID
-        allBracketsData.sort((a, b) => a.className.localeCompare(b.className) || a.slotId.localeCompare(b.slotId, undefined, { numeric: true }));
+        // Sort by Class Code then Slot ID (Correctly handles 001 -> ... -> F40)
+        allBracketsData.sort((a, b) => {
+            const codeA = (a.classCode || "").toString();
+            const codeB = (b.classCode || "").toString();
 
-        allBracketsData.forEach(row => {
+            // Numeric comparison for codes like 001, 002
+            const codeSort = codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+            if (codeSort !== 0) return codeSort;
+
+            return a.slotId.localeCompare(b.slotId, undefined, { numeric: true });
+        });
+
+        // Store for export and pagination
+        window.latestMasterMappingData = allBracketsData;
+
+        // Pagination logic
+        const itemsPerPage = 10;
+        const totalPages = Math.ceil(allBracketsData.length / itemsPerPage);
+
+        // Initialize or maintain current page - prevent NaN
+        if (typeof window.mappingCurrentPage !== 'number' || isNaN(window.mappingCurrentPage) || window.mappingCurrentPage < 1 || window.mappingCurrentPage > totalPages) {
+            window.mappingCurrentPage = 1;
+        }
+
+        const startIndex = (window.mappingCurrentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, allBracketsData.length);
+        const pageData = allBracketsData.slice(startIndex, endIndex);
+
+        pageData.forEach(row => {
             html += `
                 <tr class="hover:bg-white/5 transition-colors">
                     <td class="px-6 py-4 text-blue-400 font-black text-[10px]">${row.className}</td>
@@ -311,12 +393,69 @@ async function renderMasterMappingTable(brackets, classes = []) {
             `;
         });
         tbody.innerHTML = html;
-        window.latestMasterMappingData = allBracketsData; // Store for export
+
+        // Update pagination UI
+        updateMappingPaginationUI(window.mappingCurrentPage, totalPages, startIndex + 1, endIndex, allBracketsData.length);
     } catch (err) {
         console.error("Render Master Mapping Error:", err);
         tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-20 text-center text-red-400 italic">Gagal memproses data: ' + err.message + '</td></tr>';
+        hideMappingPagination();
     }
 }
+
+function updateMappingPaginationUI(currentPage, totalPages, startItem, endItem, totalItems) {
+    const paginationContainer = document.getElementById('mappingPaginationControls');
+    const pageInfo = document.getElementById('mappingPageInfo');
+    const currentPageSpan = document.getElementById('mappingCurrentPage');
+    const totalPagesSpan = document.getElementById('mappingTotalPages');
+    const prevBtn = document.getElementById('mappingPrevBtn');
+    const nextBtn = document.getElementById('mappingNextBtn');
+
+    if (paginationContainer) paginationContainer.classList.remove('hidden');
+    if (pageInfo) pageInfo.textContent = `Menampilkan ${startItem} - ${endItem} dari ${totalItems} data`;
+    if (currentPageSpan) currentPageSpan.textContent = currentPage;
+    if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+}
+
+function hideMappingPagination() {
+    const paginationContainer = document.getElementById('mappingPaginationControls');
+    if (paginationContainer) paginationContainer.classList.add('hidden');
+}
+
+window.changeMappingPage = (direction) => {
+    if (!window.latestMasterMappingData) return;
+
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(window.latestMasterMappingData.length / itemsPerPage);
+
+    window.mappingCurrentPage = Math.max(1, Math.min(window.mappingCurrentPage + direction, totalPages));
+
+    // Re-render with new page
+    const tbody = document.getElementById('masterMappingTableBody');
+    if (!tbody) return;
+
+    const startIndex = (window.mappingCurrentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, window.latestMasterMappingData.length);
+    const pageData = window.latestMasterMappingData.slice(startIndex, endIndex);
+
+    let html = '';
+    pageData.forEach(row => {
+        html += `
+            <tr class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4 text-blue-400 font-black text-[10px]">${row.className}</td>
+                <td class="px-6 py-4 font-mono text-indigo-400">${row.slotId}</td>
+                <td class="px-6 py-4">${row.name}</td>
+                <td class="px-6 py-4 text-slate-500">${row.team}</td>
+            </tr>
+        `;
+    });
+    tbody.innerHTML = html;
+
+    updateMappingPaginationUI(window.mappingCurrentPage, totalPages, startIndex + 1, endIndex, window.latestMasterMappingData.length);
+};
+
 
 window.exportAllMappingToExcel = async () => {
     if (!window.latestMasterMappingData || window.latestMasterMappingData.length === 0) {
@@ -397,7 +536,8 @@ export const deleteClass = async (classCode, eventId) => {
 
             if (classSnap.exists()) {
                 const className = classSnap.data().name;
-                // 2. Delete Bracket if exists
+                // 2. Delete Bracket if exists (using both classCode and legacy className)
+                await deleteDoc(doc(db, `events/${eventId}/brackets`, classCode));
                 await deleteDoc(doc(db, `events/${eventId}/brackets`, className));
             }
 

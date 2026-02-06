@@ -1114,8 +1114,10 @@
 
                 window.allEventClasses = snap.docs.map(doc => ({
                     id: doc.id,
+                    code: doc.id, // Ensure code is explicitly set to doc.id (classCode)
                     name: doc.data().name,
                     category: doc.data().category || 'unknown',
+                    type: doc.data().type || 'PERORANGAN'
                 }));
 
                 window.eventClasses = [...window.allEventClasses];
@@ -1186,6 +1188,7 @@
             if (!classData) return;
 
             window.selectedClass = classData;
+            window.currentClassCode = classData.id; // Store current classCode
 
             // Update UI
             const badge = document.getElementById('selectedClassInfo');
@@ -1298,6 +1301,7 @@
                 hanteiScore: window.hanteiScore || null,
                 scoringMode: window.scoringMode,
                 kataType: window.kataType,
+                classCode: window.currentClassCode || '', // 🆕 Include classCode
                 kataScoreAka: window.kataScoreAka,
                 kataScoreAo: window.kataScoreAo,
                 judgeScoresAka: window.judgeScoresAka,
@@ -1393,6 +1397,7 @@
             window.currentTatami = urlParams.get('tatami') || 1;
             window.eventId = urlParams.get('id');
             const classParam = urlParams.get('class');
+            window.currentClassCode = urlParams.get('classCode') || ''; // 🆕 Load classCode from URL
 
             if (document.getElementById('activeTatamiLabel')) {
                 document.getElementById('activeTatamiLabel').innerText = `${window.currentTatami}`;
@@ -2243,6 +2248,7 @@
             const matchData = {
                 eventId: eventId,
                 category: window.matchCategory || selectedClass,
+                classCode: window.currentClassCode || '', // 🆕 Standardized ID
                 tatami: tatamiNumber,
                 winner: winnerName,
                 winnerTeam: winnerTeam,
@@ -2961,6 +2967,7 @@
                 syncEngine.saveMatchResult({
                     eventId: window.eventId,
                     category: window.matchCategory,
+                    classCode: window.currentClassCode || '', // 🆕 Standardized ID
                     matchId: window.activeMatchId, // 🆕 PASS THE MATCH ID
                     winner: {
                         name: winnerName,

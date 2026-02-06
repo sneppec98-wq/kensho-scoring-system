@@ -13,14 +13,52 @@ import { renderMedalView, calculateMedalTally } from './verification/view-medali
 import { renderMedalTallyView, calculateMedalTallyNew } from './verification/view-medal-tally.js';
 import { customAlert } from './ui-helpers.js';
 
-// Global State for Search
+// Global State
 window.verifikasiSearchTerm = '';
-window.handleVerifikasiSearch = (value, tab, athletes, classes, brackets, eventName, eventLogo) => {
-    window.verifikasiSearchTerm = value.toLowerCase();
+window.verifikasiCurrentPage = 1;
+window.verifikasiCurrentTab = '';
+
+window.changeVerifikasiPage = (delta, athletes, classes, brackets, tab, eventName, eventLogo) => {
+    window.verifikasiCurrentPage += delta;
     renderVerificationData(athletes, classes, brackets, tab, eventName, eventLogo);
 };
 
-export const renderVerificationData = (athletes, classes, brackets = [], tab = 'PESERTA', eventName = '', eventLogo = null) => {
+window.handleVerifikasiSearch = (value, tab, athletes, classes, brackets, eventName, eventLogo) => {
+    window.verifikasiSearchTerm = value.toLowerCase();
+    window.verifikasiCurrentPage = 1; // Reset page on search
+    renderVerificationData(athletes, classes, brackets, tab, eventName, eventLogo);
+};
+
+window.switchVerificationTab = (tab) => {
+    if (typeof window.setVerifikasiSubTab === 'function') {
+        window.setVerifikasiSubTab(tab);
+    } else {
+        window.verifikasiCurrentTab = tab;
+        window.verifikasiCurrentPage = 1;
+        renderVerificationData(window.latestAthletes, window.latestClasses, window.latestBrackets, tab);
+    }
+};
+
+window.editJuaraManual = (className, classCode = null) => {
+    if (typeof window.openWinnerEditModal === 'function') {
+        window.openWinnerEditModal(className, classCode);
+    } else {
+        customAlert("Membuka tab manajemen Juara...", "Info", "info");
+
+        if (typeof window.switchTab === 'function') {
+            window.switchTab('verification');
+        }
+
+        window.switchVerificationTab('JUARA');
+    }
+};
+
+export const renderVerificationData = (athletes, classes, brackets = [], tab = 'PESERTA', eventName = '', eventLogo = null, manualMedals = []) => {
+    if (window.verifikasiCurrentTab !== tab) {
+        window.verifikasiCurrentTab = tab;
+        window.verifikasiCurrentPage = 1;
+        window.verifikasiSearchTerm = '';
+    }
     const verifikasiContent = document.getElementById('verifikasiContent');
     if (!verifikasiContent) return;
 
@@ -96,14 +134,48 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
         renderSchedule(classes, athletes, 'scheduleContent');
         return;
     } else if (tab === 'JUARA') {
-        html += renderWinnersView(results, classes, athletes);
+        html += renderWinnersView(results, classes, athletes, window.verifikasiSearchTerm);
     } else if (tab === 'MEDALI') {
         const allContingents = [...new Set(athletes.map(a => a.team).filter(t => t))];
-        const sortedTally = calculateMedalTally(results, allContingents);
-        html += renderMedalView(sortedTally);
+        const sortedTally = calculateMedalTally(results, allContingents, manualMedals);
+        html += renderMedalView(results, sortedTally, window.verifikasiSearchTerm);
     } else if (tab === 'MEDALI_TALLY') {
         const sortedTally = calculateMedalTallyNew(athletes, classes, brackets);
-        html += renderMedalTallyView(sortedTally);
+        html += renderMedalTallyView(sortedTally, window.verifikasiSearchTerm);
+    }
+
+    // Standard Pagination for Verification (All Sub-tabs)
+    const paginatedTabs = ['PESERTA', 'JADWAL', 'JUARA', 'MEDALI', 'MEDALI_TALLY'];
+    if (paginatedTabs.includes(tab)) {
+        // We'll need a way for the view modules to communicate total pages
+        // For now, let's assume they set window.verifikasiTotalPages
+        const totalPages = window.verifikasiTotalPages || 1;
+        if (window.verifikasiCurrentPage > totalPages) window.verifikasiCurrentPage = totalPages;
+        if (window.verifikasiCurrentPage < 1) window.verifikasiCurrentPage = 1;
+
+        const paginationHtml = `
+            <div id="verifikasiPaginationControls" class="flex justify-between items-center mt-12 mb-8 px-2 no-print">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Halaman ${window.verifikasiCurrentPage} dari ${totalPages}
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.changeVerifikasiPage(-1, latestAthletes, latestClasses, latestBrackets, '${tab}', '${eventName}', '${eventLogo || ''}')"
+                        class="px-4 py-2 rounded-lg bg-slate-900/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30"
+                        ${window.verifikasiCurrentPage <= 1 ? 'disabled' : ''}>
+                        ← Sebelum
+                    </button>
+                    <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                        <span class="text-[10px] font-black text-blue-400">${window.verifikasiCurrentPage}</span>
+                    </div>
+                    <button onclick="window.changeVerifikasiPage(1, latestAthletes, latestClasses, latestBrackets, '${tab}', '${eventName}', '${eventLogo || ''}')"
+                        class="px-4 py-2 rounded-lg bg-slate-900/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30"
+                        ${window.verifikasiCurrentPage >= totalPages ? 'disabled' : ''}>
+                        Lanjut →
+                    </button>
+                </div>
+            </div>
+        `;
+        html += paginationHtml;
     }
 
     verifikasiContent.innerHTML = html;
@@ -119,23 +191,23 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
 /**
  * GLOBAL DISPATCHER FOR PRINTING
  */
-window.printVerificationSubTab = (tab, eventName, eventLogo) => {
+window.printVerificationSubTab = async (tab, eventName, eventLogo) => {
     const athletes = window.latestAthletes || [];
     const classes = window.latestClasses || [];
     const brackets = window.latestBrackets || [];
 
     if (tab === 'PESERTA') {
-        preparePesertaPrint(athletes, classes, eventName, eventLogo, window.verifikasiSearchTerm);
+        await preparePesertaPrint(athletes, classes, eventName, eventLogo, window.verifikasiSearchTerm);
     } else if (tab === 'JUARA') {
-        prepareJuaraPrint(brackets, classes, athletes, eventName, eventLogo);
+        await prepareJuaraPrint(brackets, classes, athletes, eventName, eventLogo);
     } else if (tab === 'MEDALI') {
-        prepareMedaliPrint(brackets, athletes, eventName, eventLogo);
+        await prepareMedaliPrint(brackets, athletes, eventName, eventLogo);
     } else if (tab === 'MEDALI_TALLY') {
-        prepareMedalTallyPrint(athletes, classes, eventName, eventLogo);
+        await prepareMedalTallyPrint(athletes, classes, eventName, eventLogo);
     } else if (tab === 'JADWAL_FESTIVAL') {
-        prepareBracketPrint(athletes, classes, eventName, eventLogo);
+        await prepareBracketPrint(athletes, classes, eventName, eventLogo);
     } else if (tab === 'JADWAL') {
-        prepareJadwalPrint(eventName, eventLogo);
+        await prepareJadwalPrint(eventName, eventLogo);
     }
 };
 

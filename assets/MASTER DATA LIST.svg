@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 518.16 889.1">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 24px;
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        fill: #231f20;
+        font-family: FranklinGothic-Medium, 'Franklin Gothic Medium';
+        font-weight: 500;
+      }
+
+      .cls-4, .cls-5, .cls-6 {
+        fill: #fff;
+      }
+
+      .cls-5, .cls-6 {
+        stroke: #231f20;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-7 {
+        letter-spacing: -.04em;
+      }
+
+      .cls-2 {
+        font-size: 9px;
+      }
+
+      .cls-8 {
+        letter-spacing: -.05em;
+      }
+
+      .cls-6 {
+        stroke-width: .25px;
+      }
+
+      .cls-3 {
+        font-size: 16px;
+      }
+
+      .cls-9 {
+        letter-spacing: -.05em;
+      }
+
+      .cls-10 {
+        letter-spacing: 0em;
+      }
+
+      .cls-11 {
+        letter-spacing: -.01em;
+      }
+    </style>
+  </defs>
+  <rect id="area_logo" class="cls-4" x=".05" width="517.91" height="66.65"/>
+  <text id="nama_event" class="cls-1" transform="translate(113.67 104.3)"><tspan x="0" y="0">JUDUL DOKUMEN NANTIN</tspan><tspan class="cls-8" x="264.27" y="0">Y</tspan><tspan x="276.04" y="0">A</tspan></text>
+  <text id="tempat_event" class="cls-3" transform="translate(207.03 130.43)"><tspan x="0" y="0">TEM</tspan><tspan class="cls-7" x="29.13" y="0">P</tspan><tspan class="cls-9" x="38.02" y="0">A</tspan><tspan x="46.8" y="0">T EVENT</tspan></text>
+  <rect id="area_footer" class="cls-6" x=".12" y="845.51" width="517.91" height="43.47"/>
+  <image width="1024" height="1024" transform="translate(9.79 854) scale(.02)" xlink:href="../../Downloads/Kensho/AplikasiScoring/kensho-logo.png"/>
+  <text class="cls-2" transform="translate(52.31 863.15)"><tspan x="0" y="0">KENSHO TECH </tspan><tspan class="cls-11" x="0" y="10.8">T</tspan><tspan x="4.22" y="10.8">OURNAMENT APLI</tspan><tspan class="cls-10" x="74.62" y="10.8">C</tspan><tspan class="cls-9" x="79.79" y="10.8">A</tspan><tspan x="84.73" y="10.8">TION</tspan></text>
+  <rect id="area_tabel" class="cls-4" x=".05" y="150.93" width="517.91" height="690"/>
+  <rect class="cls-5" x="474.35" y="18.66" width="22.39" height="0"/>
+</svg>

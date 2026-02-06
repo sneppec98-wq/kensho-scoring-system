@@ -5,6 +5,9 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
+// ====================================================
+// NEW FIREBASE PROJECT - FRESH QUOTA! (50k reads/day)
+// ====================================================
 const firebaseConfig = {
   apiKey: "AIzaSyCRMDmIfNWhICl7CLYgd2MteLpjI4OzkgM",
   authDomain: "adm-spartan-sport-2f4ec.firebaseapp.com",
@@ -25,7 +28,10 @@ const analytics = getAnalytics(app);
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const db = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+    cacheSizeBytes: 100 * 1024 * 1024 // 100MB cache untuk aggressive caching
+  })
 });
 
 const rtdb = getDatabase(app);

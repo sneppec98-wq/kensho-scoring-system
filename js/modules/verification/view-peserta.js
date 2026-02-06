@@ -17,8 +17,22 @@ export const renderPesertaView = (athletes, classes, searchTerm = "") => {
         grouped[team].push(a);
     });
 
+    const teamKeys = Object.keys(grouped).sort();
+    const PAGE_SIZE = 10;
+    const totalPages = Math.ceil(teamKeys.length / PAGE_SIZE) || 1;
+    window.verifikasiTotalPages = totalPages;
+
+    const currentPage = window.verifikasiCurrentPage || 1;
+    const startIdx = (currentPage - 1) * PAGE_SIZE;
+    const endIdx = Math.min(startIdx + PAGE_SIZE, teamKeys.length);
+    const pagedTeams = teamKeys.slice(startIdx, endIdx);
+
     let html = '<div class="space-y-8">';
-    Object.keys(grouped).sort().forEach(team => {
+    if (pagedTeams.length === 0) {
+        html += '<p class="text-center py-10 opacity-40 italic">Tidak ada data ditemukan.</p>';
+    }
+
+    pagedTeams.forEach(team => {
         html += `
             <div>
                 <h4 class="text-lg font-black uppercase bg-blue-500/10 px-6 py-3 rounded-xl mb-4 border border-blue-500/20 text-blue-400">${team}</h4>

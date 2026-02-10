@@ -69,17 +69,21 @@ export const prepareJuaraPrint = async (brackets, classes, athletes, eventName, 
         const dot = ' . . . . . . . . . . .';
 
         // Filter out "PESERTA KOSONG" for print
-        const printGold = (w.gold === "PESERTA KOSONG") ? dot : (w.gold || dot);
-        const printGoldTeam = (w.gold === "PESERTA KOSONG") ? dot : (t.gold || dot);
+        const isGoldKosong = w.gold === "PESERTA KOSONG" || w.gold === "-";
+        const printGold = isGoldKosong ? dot : (w.gold || dot);
+        const printGoldTeam = isGoldKosong ? dot : (t.gold || dot);
 
-        const printSilver = (w.silver === "PESERTA KOSONG") ? dot : (w.silver || dot);
-        const printSilverTeam = (w.silver === "PESERTA KOSONG") ? dot : (t.silver || dot);
+        const isSilverKosong = w.silver === "PESERTA KOSONG" || w.silver === "-";
+        const printSilver = isSilverKosong ? dot : (w.silver || dot);
+        const printSilverTeam = isSilverKosong ? dot : (t.silver || dot);
 
-        const printBronze1 = (w.bronze[0] === "PESERTA KOSONG") ? dot : (w.bronze[0] || dot);
-        const printBronze1Team = (w.bronze[0] === "PESERTA KOSONG") ? dot : (t.bronze[0] || dot);
+        const isBronze1Kosong = w.bronze[0] === "PESERTA KOSONG" || w.bronze[0] === "-";
+        const printBronze1 = isBronze1Kosong ? dot : (w.bronze[0] || dot);
+        const printBronze1Team = isBronze1Kosong ? dot : (t.bronze[0] || dot);
 
-        const printBronze2 = (w.bronze[1] === "PESERTA KOSONG") ? dot : (w.bronze[1] || dot);
-        const printBronze2Team = (w.bronze[1] === "PESERTA KOSONG") ? dot : (t.bronze[1] || dot);
+        const isBronze2Kosong = w.bronze[1] === "PESERTA KOSONG" || w.bronze[1] === "-";
+        const printBronze2 = isBronze2Kosong ? dot : (w.bronze[1] || dot);
+        const printBronze2Team = isBronze2Kosong ? dot : (t.bronze[1] || dot);
 
         // Add page break after every 5 classes
         const needsPageBreak = (index > 0 && index % 5 === 0);

@@ -1,4 +1,5 @@
-import { doc, getDoc, setDoc, deleteDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, writeBatch, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
 import { db } from "../firebase-init.js";
 
 const PAGE_SIZE = 10;
@@ -595,4 +596,102 @@ export const deleteAllClasses = async (eventId) => {
         hideProgress();
     }
 };
+
+export const editClassName = (code, oldName) => {
+    const codeEl = document.getElementById('edit-class-code');
+    const labelEl = document.getElementById('edit-class-old-name-label');
+    const nameInput = document.getElementById('edit-class-new-name');
+
+    if (codeEl) codeEl.value = code;
+    if (labelEl) labelEl.innerText = `MENGUBAH: ${oldName.toUpperCase()}`;
+    if (nameInput) {
+        nameInput.value = oldName;
+        setTimeout(() => nameInput.focus(), 300);
+    }
+
+    import('./ui-helpers.js').then(m => m.toggleModal('modal-edit-class-name', true));
+};
+
+export const saveClassNameEdit = async (eventId) => {
+    const classCode = document.getElementById('edit-class-code')?.value || '';
+    const newName = document.getElementById('edit-class-new-name')?.value.trim().toUpperCase() || '';
+
+    if (!newName) return;
+
+    const { customConfirm, customAlert, toggleModal, showProgress, hideProgress, updateProgress } = await import('./ui-helpers.js');
+
+    const confirmed = await customConfirm({
+        title: "Ubah Nama Kelas",
+        message: `Ubah nama kelas menjadi "${newName}"? Sistem akan mengupdate nama kelas pada seluruh database atlet dan bagan terkait secara otomatis.`,
+        confirmText: "Ya, Update Nama",
+        type: 'info'
+    });
+
+    if (!confirmed) return;
+
+    toggleModal('modal-edit-class-name', false);
+    showProgress(`MENGUPDATE NAMA KELAS`, 0);
+
+    try {
+        // 1. Get current class data to get the old name
+        const classRef = doc(db, `events/${eventId}/classes`, classCode);
+        const classSnap = await getDoc(classRef);
+        if (!classSnap.exists()) throw new Error("Kelas tidak ditemukan.");
+
+        const oldName = classSnap.data().name;
+
+        // 2. Update Class Document
+        await updateDoc(classRef, { name: newName });
+
+        // 3. Update Athletes (Mass Update)
+        const athletesRef = collection(db, `events/${eventId}/athletes`);
+        const athleteSnap = await getDocs(query(athletesRef, where("classCode", "==", classCode)));
+
+        if (!athleteSnap.empty) {
+            const batchSize = 500;
+            const docs = athleteSnap.docs;
+            for (let i = 0; i < docs.length; i += batchSize) {
+                const batch = writeBatch(db);
+                docs.slice(i, i + batchSize).forEach(d => {
+                    batch.update(d.ref, { className: newName });
+                });
+                await batch.commit();
+                updateProgress(Math.round(((i + batchSize) / docs.length) * 50)); // Progress up to 50%
+            }
+        }
+
+        // 4. Update Brackets (Handle logic migration)
+        updateProgress(60);
+        const bracketRef = doc(db, `events/${eventId}/brackets`, classCode);
+        const bracketSnap = await getDoc(bracketRef);
+
+        if (bracketSnap.exists()) {
+            await updateDoc(bracketRef, { class: newName });
+        } else {
+            // Check legacy bracket keyed by NAME
+            const legacyRef = doc(db, `events/${eventId}/brackets`, oldName);
+            const legacySnap = await getDoc(legacyRef);
+            if (legacySnap.exists()) {
+                const legacyData = legacySnap.data();
+                await setDoc(bracketRef, { ...legacyData, class: newName, classCode: classCode });
+                await deleteDoc(legacyRef);
+            }
+        }
+        updateProgress(90);
+
+        await customAlert("Nama kelas dan data terkait berhasil diperbarui!", "Update Berhasil", "info");
+
+        // Refresh UI if possible
+        if (typeof window.refreshEventData === 'function') {
+            await window.refreshEventData();
+        }
+
+    } catch (err) {
+        console.error("Save Class Name Edit Error:", err);
+        await customAlert("Gagal mengupdate nama kelas: " + err.message, "Gagal", "danger");
+    } finally {
+        hideProgress();
+    }
+};
+
 

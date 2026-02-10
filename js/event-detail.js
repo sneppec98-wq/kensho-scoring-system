@@ -51,7 +51,9 @@ import {
     renderClassesData,
     addNewClass,
     deleteClass,
-    deleteAllClasses
+    deleteAllClasses,
+    editClassName,
+    saveClassNameEdit
 } from './modules/classes-manager.js';
 
 // Import Brackets Manager
@@ -448,6 +450,8 @@ window.openBracketConfig = (code) => openBracketConfig(code, eventId, latestClas
 window.saveBracketConfig = () => saveBracketConfig(eventId);
 window.deleteBracketConfig = (code) => deleteBracketConfig(code, eventId);
 window.deleteAllBrackets = () => deleteAllBrackets(eventId);
+window.editClassName = (code, oldName) => editClassName(code, oldName);
+window.saveClassNameEdit = () => saveClassNameEdit(eventId);
 window.handleJoinVoice = async () => {
     const user = auth.currentUser;
     if (!user) return;

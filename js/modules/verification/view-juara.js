@@ -45,10 +45,19 @@ export const renderWinnersView = (results, classes, athletes, searchTerm = "") =
                             📝 EDIT
                         </button>
 
-                        <div class="flex items-center justify-between mb-6 pr-16">
-                            <span class="bg-blue-500/10 text-blue-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-blue-500/20">${cls.code}</span>
-                            <h4 class="text-sm font-black text-white uppercase">${cls.name}</h4>
+                        <div class="flex items-center justify-between mb-6 pr-16 gap-4">
+                            <span class="bg-blue-500/10 text-blue-400 px-4 py-2 rounded-xl text-[10px] font-black uppercase border border-blue-500/20 shrink-0">${cls.code}</span>
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <h4 class="text-sm font-black text-white uppercase truncate">${cls.name}</h4>
+                                <button onclick="window.editClassName('${cls.code}', '${cls.name.replace(/'/g, "\\'")}')" 
+                                    class="w-6 h-6 rounded-lg bg-white/5 hover:bg-blue-500/20 text-white/20 hover:text-blue-400 flex items-center justify-center transition-all shrink-0">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
+
                         <div class="space-y-3">
                             <div class="flex items-center justify-between p-3 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl">
                                 <span class="text-[10px] font-black text-yellow-500 uppercase">GOLD</span>

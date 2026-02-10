@@ -93,10 +93,22 @@ export const openWinnerEditModal = async (className, classCode = null) => {
         if (bracketDoc.exists()) {
             const data = bracketDoc.data().data || {};
             if (bracketDoc.data().status === 'complete') {
-                document.getElementById('edit-win1').value = data.winner_name || data.winner_nama || '';
-                document.getElementById('edit-win2').value = data.fn1 || data.fn2 || data.fn_1 || data.fn_2 || '';
-                document.getElementById('edit-win3a').value = data.sn1 || data.sn_1 || '';
-                document.getElementById('edit-win3b').value = data.sn2 || data.sn_2 || '';
+                const results = {
+                    w1: data.winner_name || data.winner_nama || '',
+                    w2: data.fn1 || data.fn2 || data.fn_1 || data.fn_2 || '',
+                    w3a: data.sn1 || data.sn_1 || '',
+                    w3b: data.sn2 || data.sn_2 || ''
+                };
+
+                // Convert "PESERTA KOSONG" to "-"
+                Object.keys(results).forEach(key => {
+                    if (results[key] === "PESERTA KOSONG") results[key] = "-";
+                });
+
+                document.getElementById('edit-win1').value = results.w1;
+                document.getElementById('edit-win2').value = results.w2;
+                document.getElementById('edit-win3a').value = results.w3a;
+                document.getElementById('edit-win3b').value = results.w3b;
             }
         }
     } catch (err) {
@@ -112,10 +124,16 @@ export const openWinnerEditModal = async (className, classCode = null) => {
  * SAVE WINNER EDIT
  */
 export const saveWinnerEdit = async () => {
-    const w1 = document.getElementById('edit-win1').value.trim();
-    const w2 = document.getElementById('edit-win2').value.trim();
-    const w3a = document.getElementById('edit-win3a').value.trim();
-    const w3b = document.getElementById('edit-win3b').value.trim();
+    let w1 = document.getElementById('edit-win1').value.trim();
+    let w2 = document.getElementById('edit-win2').value.trim();
+    let w3a = document.getElementById('edit-win3a').value.trim();
+    let w3b = document.getElementById('edit-win3b').value.trim();
+
+    // Convert "-" or empty to "PESERTA KOSONG" for DB
+    if (!w1 || w1 === "-") w1 = "PESERTA KOSONG";
+    if (!w2 || w2 === "-") w2 = "PESERTA KOSONG";
+    if (!w3a || w3a === "-") w3a = "PESERTA KOSONG";
+    if (!w3b || w3b === "-") w3b = "PESERTA KOSONG";
 
     if (!eventId || !currentClassName) return;
 

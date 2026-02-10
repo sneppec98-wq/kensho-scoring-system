@@ -1694,6 +1694,50 @@
             </div>
         </div>
     </div>
+    <!-- Modal: Edit Nama Kelas -->
+    <div id="modal-edit-class-name" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 hidden">
+        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5 shadow-2xl">
+            <header class="mb-8 text-center">
+                <div
+                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-blue-400 mx-auto mb-4 border border-blue-500/20">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Edit Nama Kelas
+                </h2>
+                <p id="edit-class-old-name-label"
+                    class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-blue-400 italic">
+                    MENGUBAH DATA KATEGORI</p>
+            </header>
+
+            <div class="space-y-6">
+                <input type="hidden" id="edit-class-code">
+                <div class="space-y-4">
+                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 tracking-[0.2em]">Nama Baru
+                        Kelas</label>
+                    <div
+                        class="neu-inset px-6 py-5 rounded-2xl flex items-center border border-white/5 focus-within:border-blue-500/50 transition-all">
+                        <input type="text" id="edit-class-new-name" placeholder="MASUKKAN NAMA BARU..."
+                            class="bg-transparent text-sm font-black outline-none w-full uppercase tracking-wider text-white placeholder-slate-700">
+                    </div>
+                    <p class="text-[8px] text-orange-400/60 ml-4 font-bold italic uppercase tracking-widest">⚠️
+                        PERHATIAN:
+                        Perubahan ini akan mengupdate data seluruh atlet di kelas ini secara otomatis.</p>
+                </div>
+
+                <div class="flex gap-4 pt-4">
+                    <button onclick="toggleModal('modal-edit-class-name', false)"
+                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">Batal</button>
+                    <button onclick="window.saveClassNameEdit()"
+                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-all">Simpan
+                        Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal: Edit Juara Manual -->
     <div id="modal-winner-edit" class="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 hidden">

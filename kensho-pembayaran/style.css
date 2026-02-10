@@ -265,6 +265,21 @@ td p {
         margin: 15mm;
     }
 
+    .page-break {
+        page-break-after: always;
+        clear: both;
+    }
+
+    /* Force visibility for animated rows in print */
+    tr {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    #print-all-container {
+        display: block !important;
+    }
+
     body {
         background: #fff;
         padding: 0;
@@ -307,6 +322,21 @@ td p {
 
     .summary-container {
         page-break-inside: avoid;
+    }
+}
+
+/* Hidden by default, only shown during print-all */
+#print-all-container {
+    display: none;
+}
+
+.page-break {
+    display: none;
+}
+
+@media print {
+    .page-break {
+        display: block;
     }
 }
 

@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupStaticActions();
 });
 
-function processTeamData(teamName) {
+function processTeamData(teamName, isBatch = false) {
     const teamNameUpper = teamName.toUpperCase().trim();
 
     // Update Brand Label
@@ -134,10 +134,10 @@ function processTeamData(teamName) {
         beregu: bereguCount,
         kontingen: teamAthletes.length > 0 ? 1 : 0,
         cashback: totalEntries
-    });
+    }, "", isBatch);
 }
 
-function updateInvoiceTable(data, teamDisplay = "") {
+function updateInvoiceTable(data, teamDisplay = "", isBatch = false) {
     const tbody = document.querySelector('tbody');
     const prices = { fest: 250000, open: 250000, beregu: 300000, kontingen: 100000, cashback: 25000 };
 
@@ -149,7 +149,7 @@ function updateInvoiceTable(data, teamDisplay = "") {
         const lineTotal = qty * price;
         total += lineTotal;
         html += `
-            <tr style="opacity: 0; transform: translateX(-10px);">
+            <tr ${isBatch ? '' : 'style="opacity: 0; transform: translateX(-10px);"'}>
                 <td>
                     <strong>${label}</strong>
                     <p>${sub}</p>
@@ -172,7 +172,7 @@ function updateInvoiceTable(data, teamDisplay = "") {
     const cbTotal = data.cashback * prices.cashback;
     total -= cbTotal;
     html += `
-        <tr style="opacity: 0; transform: translateX(-10px);">
+        <tr ${isBatch ? '' : 'style="opacity: 0; transform: translateX(-10px);"'}>
             <td>
                 <strong>CashBack</strong>
                 <p>Potongan biaya pendaftaran per atlet</p>
@@ -186,15 +186,17 @@ function updateInvoiceTable(data, teamDisplay = "") {
     tbody.innerHTML = html;
     document.getElementById('grand-total').innerText = `Rp ${total.toLocaleString('id-ID')}`;
 
-    // Trigger animation
-    const rows = tbody.querySelectorAll('tr:not(.spacer-row)');
-    rows.forEach((row, index) => {
-        setTimeout(() => {
-            row.style.transition = 'all 0.4s ease';
-            row.style.opacity = '1';
-            row.style.transform = 'translateX(0)';
-        }, index * 80);
-    });
+    if (!isBatch) {
+        // Trigger animation
+        const rows = tbody.querySelectorAll('tr:not(.spacer-row)');
+        rows.forEach((row, index) => {
+            setTimeout(() => {
+                row.style.transition = 'all 0.4s ease';
+                row.style.opacity = '1';
+                row.style.transform = 'translateX(0)';
+            }, index * 80);
+        });
+    }
 }
 
 function setupStaticActions() {
@@ -206,5 +208,83 @@ function setupStaticActions() {
         btnDownload.onclick = () => {
             alert('Gunakan opsi "Save as PDF" pada menu Cetak untuk hasil maksimal.');
         };
+    }
+
+    const btnDownloadAll = document.getElementById('btn-download-all');
+    if (btnDownloadAll) {
+        btnDownloadAll.onclick = async () => {
+            await downloadAllInvoices();
+        };
+    }
+}
+
+async function downloadAllInvoices() {
+    const printContainer = document.getElementById('print-all-container');
+    const mainContent = document.querySelector('.invoice-card');
+    const teamSelect = document.getElementById('select-team');
+
+    // Get all unique teams from the dropdown options
+    const teams = Array.from(teamSelect.options)
+        .map(opt => opt.value)
+        .filter(val => val !== "");
+
+    if (teams.length === 0) {
+        alert("Tidak ada data kontingen untuk didownload.");
+        return;
+    }
+
+    // Show loading state
+    const originalText = document.getElementById('btn-download-all').innerText;
+    document.getElementById('btn-download-all').innerText = "Menyiapkan PDF...";
+    document.getElementById('btn-download-all').disabled = true;
+
+    printContainer.innerHTML = '';
+
+    // Temporarily hide the main card to avoid double printing
+    const originalMainDisplay = mainContent.style.display;
+    mainContent.classList.add('no-print');
+
+    try {
+        for (let i = 0; i < teams.length; i++) {
+            const teamName = teams[i];
+
+            // We use a temporary div to generate the invoice content
+            // We reuse the existing logic by temporarily setting the UI
+            processTeamData(teamName, true);
+
+            // Clone the current invoice card
+            const clone = mainContent.cloneNode(true);
+            clone.classList.remove('no-print');
+
+            // Add page break except for the last one
+            if (i < teams.length - 1) {
+                const pb = document.createElement('div');
+                pb.className = 'page-break';
+                printContainer.appendChild(clone);
+                printContainer.appendChild(pb);
+            } else {
+                printContainer.appendChild(clone);
+            }
+        }
+
+        // Wait a bit for animations/rendering if needed
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        window.print();
+
+    } catch (err) {
+        console.error("Gagal generate PDF:", err);
+        alert("Terjadi kesalahan saat menyiapkan PDF.");
+    } finally {
+        // Restore UI
+        mainContent.classList.remove('no-print');
+        mainContent.style.display = originalMainDisplay;
+        printContainer.innerHTML = '';
+        document.getElementById('btn-download-all').innerText = originalText;
+        document.getElementById('btn-download-all').disabled = false;
+
+        // Reset to original selection if possible
+        const currentTeam = new URLSearchParams(window.location.search).get('team');
+        if (currentTeam) processTeamData(currentTeam);
     }
 }

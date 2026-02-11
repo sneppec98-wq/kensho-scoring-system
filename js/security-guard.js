@@ -2,7 +2,7 @@ import { auth, db } from './firebase-init.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { doc, onSnapshot, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const APP_VERSION = "3.4.0";
+const APP_VERSION = "4.0.0";
 let licenseUnsubscribe = null;
 let accountUnsubscribe = null;
 

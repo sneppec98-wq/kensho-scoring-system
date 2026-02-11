@@ -15,163 +15,61 @@
     <style>
         :root {
             --bg: #f8fafc;
-            /* Slate 50 */
-            --light: #f1f5f9;
-            /* Slate 100 */
-            --dark: #e2e8f0;
-            /* Slate 200 */
+            --card: #ffffff;
+            --border: #e5e7eb;
             --text: #0f172a;
-            /* Slate 900 */
-            --accent: #ef4444;
-            /* Red 500 */
-            --blue: #3b82f6;
-            /* Blue 500 */
+            --muted: #6b7280;
+            --accent: #2563eb;
+        }
+
+        .dark {
+            --bg: #0f172a;
+            --card: #111827;
+            --border: #1f2937;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --accent: #3b82f6;
         }
 
         body {
             background: var(--bg);
-            font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text);
-            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background .25s ease, color .25s ease;
         }
 
-        /* NEUMORPHISM UI */
         .neu-flat {
-            background: rgba(248, 250, 252, 0.8);
-            backdrop-filter: blur(20px);
-            box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.05), -5px -5px 20px rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.03);
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            transition: .25s ease;
         }
 
         .neu-inset {
-            background: rgba(241, 245, 249, 0.5);
-            backdrop-filter: blur(5px);
-            box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.05), inset -2px -2px 8px rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.02);
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
         }
 
         .neu-button {
-            background: #ffffff;
-            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.05), -2px -2px 8px rgba(255, 255, 255, 0.8);
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--card);
+            border: 1px solid var(--border);
+            transition: .2s ease;
             cursor: pointer;
-            border: 1px solid rgba(0, 0, 0, 0.03);
             color: var(--text);
         }
 
         .neu-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 6px 6px 15px rgba(0, 0, 0, 0.4), -3px -3px 10px rgba(255, 255, 255, 0.05);
-            color: var(--blue);
-            border-color: rgba(59, 130, 246, 0.2);
-        }
-
-        /* Aurora Background */
-        #aurora-container {
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-            background: var(--bg);
-        }
-
-        .aurora {
-            position: absolute;
-            width: 80vmax;
-            height: 80vmax;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.05;
-            /* Even softer for light theme */
-            mix-blend-mode: multiply;
-            animation: drift 20s infinite alternate linear;
-        }
-
-        .aurora-1 {
             background: var(--accent);
-            top: -20%;
-            left: -20%;
+            color: white;
+            border-color: var(--accent);
         }
 
-        .aurora-2 {
-            background: #4f46e5;
-            bottom: -20%;
-            right: -20%;
-            animation-delay: -5s;
+        aside {
+            background: var(--card) !important;
+            border-right: 1px solid var(--border) !important;
         }
 
-        .aurora-3 {
-            background: #06b6d4;
-            top: 40%;
-            left: 30%;
-            animation-duration: 25s;
-        }
-
-        @keyframes drift {
-            from {
-                transform: translate(0, 0) scale(1);
-            }
-
-            to {
-                transform: translate(10%, 10%) scale(1.1);
-            }
-        }
-
-        .shimmer-text {
-            background: linear-gradient(to right, var(--text) 20%, #ffffff 50%, var(--text) 80%);
-            background-size: 200% auto;
-            color: transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: shine 3s linear infinite;
-        }
-
-        @keyframes shine {
-            to {
-                background-position: 200% center;
-            }
-        }
-
-        /* SIDEBAR DROPDOWN SYSTEM */
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            left: 100%;
-            top: 0;
-            padding-left: 20px;
-            z-index: 100;
-            min-width: 200px;
-        }
-
-        .group:hover .dropdown-menu {
-            display: block;
-            animation: slideRight 0.2s ease-out;
-        }
-
-        .dropdown-content {
-            background: rgba(15, 23, 42, 0.98);
-            backdrop-filter: blur(25px);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 1.25rem;
-            border-radius: 1.25rem;
-        }
-
-        @keyframes slideRight {
-            from {
-                opacity: 0;
-                transform: translateX(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -181,149 +79,8 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--dark);
+            background: var(--border);
             border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent);
-        }
-
-        /* Refined Sidebar */
-        aside {
-            background: rgba(15, 23, 42, 0.8) !important;
-            backdrop-filter: blur(25px) saturate(180%) !important;
-            border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-
-        .side-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #94a3b8;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            background: transparent;
-            margin-bottom: 1.5rem;
-        }
-
-        .side-btn:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateY(-2px) scale(1.05);
-        }
-
-        .side-btn.active {
-            color: var(--blue);
-            background: rgba(59, 130, 246, 0.1);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.05);
-            border: 1px solid rgba(59, 130, 246, 0.15);
-        }
-
-        .side-btn.active::before {
-            content: '';
-            position: absolute;
-            left: -18px;
-            width: 3px;
-            height: 18px;
-            background: var(--blue);
-            border-radius: 0 4px 4px 0;
-            box-shadow: 0 0 10px var(--blue);
-        }
-
-        /* Sidebar Tooltip */
-        [data-tooltip] {
-            position: relative;
-        }
-
-        [data-tooltip]::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            left: calc(100% + 15px);
-            top: 50%;
-            transform: translateY(-50%) translateX(-5px);
-            background: rgba(15, 17, 26, 0.9);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.2s;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 100;
-        }
-
-        [data-tooltip]:hover::after {
-            opacity: 1;
-            transform: translateY(-50%) translateX(0);
-        }
-
-        /* Voice Lounge Floating Panel */
-        #voice-lounge-panel {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 320px;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 2.5rem;
-            z-index: 1000;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateY(120%);
-        }
-
-        #voice-lounge-panel.active {
-            transform: translateY(0);
-        }
-
-        .voice-user {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            transition: all 0.3s;
-        }
-
-        .voice-user.speaking {
-            background: rgba(248, 113, 113, 0.1);
-            box-shadow: 0 0 15px rgba(248, 113, 113, 0.1);
-            border-color: rgba(248, 113, 113, 0.2);
-        }
-
-        .pulse-mic {
-            animation: mic-pulse 2s infinite;
-        }
-
-        @keyframes mic-pulse {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.2);
-                opacity: 0.5;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
         }
 
         /* BRACKET VISUAL SYSTEM */
@@ -332,14 +89,10 @@
             justify-content: center;
             align-items: center;
             gap: 40px;
+            width: 100%;
+            aspect-ratio: 1.57;
             padding: 20px;
             position: relative;
-
-            /* F4 Landscape Proportions (330:210 = 1.57:1) */
-            width: 100%;
-            max-width: 100%;
-            aspect-ratio: 1.57;
-            margin: 0 auto;
         }
 
         .bracket-round {
@@ -357,17 +110,13 @@
             margin-bottom: 30px;
         }
 
-        .bracket-match:last-child {
-            margin-bottom: 0;
-        }
-
         .bracket-node {
             width: 190px;
             padding: 12px 18px;
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
             margin: 6px 0;
             display: flex;
             justify-content: space-between;
@@ -376,7 +125,6 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: var(--text);
             position: relative;
             z-index: 2;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -384,11 +132,17 @@
 
         .bracket-node:hover {
             transform: translateX(5px);
-            border-color: rgba(248, 113, 113, 0.3);
+            border-color: var(--accent);
         }
 
         .bracket-node.winner {
             color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .bracket-node.empty {
+            border-style: dashed !important;
+            opacity: 0.15;
         }
 
         /* Connectors */
@@ -399,22 +153,20 @@
             top: 50%;
             width: 30px;
             height: 2px;
-            background: var(--dark);
+            background: var(--border);
             z-index: 1;
         }
 
-        /* Dynamic Connectors Vertical Lines */
         .bracket-round:not(:last-child) .bracket-match:nth-child(odd)::before,
         .bracket-round:not(:last-child) .bracket-match:nth-child(even)::before {
             content: '';
             position: absolute;
             right: -30px;
             width: 2px;
-            background: var(--dark);
+            background: var(--border);
             z-index: 1;
         }
 
-        /* Round 1 (8 matches -> 4 next) */
         .round-1 .bracket-match:nth-child(odd)::before {
             top: 50%;
             height: calc(50% + 23px);
@@ -425,7 +177,6 @@
             height: calc(50% + 23px);
         }
 
-        /* Round 2 (4 matches -> 2 next) */
         .round-2 .bracket-match:nth-child(odd)::before {
             top: 50%;
             height: calc(50% + 60px);
@@ -436,7 +187,6 @@
             height: calc(50% + 60px);
         }
 
-        /* Round 3 (2 matches -> 1 next) */
         .round-3 .bracket-match:nth-child(odd)::before {
             top: 50%;
             height: calc(50% + 140px);
@@ -447,50 +197,15 @@
             height: calc(50% + 140px);
         }
 
-        /* Round 4 (Specific for 16-man 1st round if needed) */
-        /* Currently bracket-match margin/height is handled by flex-around */
-
-        /* Remove horizontal line for final round */
         .bracket-round:last-child .bracket-match::after {
             display: none;
         }
 
-        /* Empty Node style */
-        .bracket-node.empty {
-            border-style: dashed !important;
-            opacity: 0.15;
-            color: rgba(255, 255, 255, 0.2);
-        }
-
-        .final-node {
-            background: rgba(248, 113, 113, 0.05);
-            border: 1px solid rgba(248, 113, 113, 0.2) !important;
-            animation: finalPulse 2s infinite;
-        }
-
-        @keyframes finalPulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.2);
-            }
-
-            70% {
-                box-shadow: 0 0 0 15px rgba(248, 113, 113, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(248, 113, 113, 0);
-            }
-        }
-
-        /* PRINT SYSTEM */
         @media print {
 
             aside,
             header,
-            .no-print,
-            footer,
-            #step-1,
-            #step-2 {
+            .no-print {
                 display: none !important;
             }
 
@@ -498,28 +213,15 @@
                 background: white !important;
                 color: black !important;
                 padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            main {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                background: white !important;
             }
 
             .neu-flat,
             .neu-inset,
-            .neu-button {
-                box-shadow: none !important;
-                border: 1px solid #ddd !important;
-                background: white !important;
-            }
-
             .bracket-node {
-                color: black !important;
                 border: 1px solid #333 !important;
                 background: white !important;
+                color: black !important;
+                box-shadow: none !important;
             }
 
             .bracket-match::after,
@@ -527,405 +229,157 @@
                 background: #333 !important;
             }
 
-            .bracket-container {
-                scale: 1 !important;
-                transform: none !important;
-                padding: 20px !important;
-                color: black !important;
-            }
-
-            .text-red-400,
-            .text-red-500,
-            .text-accent {
-                color: #cc0000 !important;
-            }
-
-            /* LEGAL/F4 Page Size */
             @page {
                 size: 215.9mm 330.2mm;
-                /* F4/Legal approx */
                 margin: 10mm;
             }
         }
     </style>
 </head>
 
-<body class="min-h-screen flex text-slate-900 bg-[#f8fafc]">
+<body class="min-h-screen flex">
     <script src="js/window-controls.js"></script>
-    <!-- Aurora Background -->
-    <div id="aurora-container">
-        <div class="aurora aurora-1"></div>
-        <div class="aurora aurora-2"></div>
-        <div class="aurora aurora-3"></div>
-    </div>
 
     <main class="flex-1 p-10 overflow-y-auto custom-scrollbar">
-        <header class="flex justify-between items-end mb-12">
-            <div>
-                <div
-                    class="flex items-center space-x-4 mb-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-                    <a href="data-pertandingan.html" class="hover:text-blue-500 transition-colors">PERTANDINGAN</a>
-                    <span>/</span>
-                    <a href="javascript:window.history.back()"
-                        class="hover:text-blue-500 transition-colors uppercase font-bold text-slate-700">PIALA
-                        SPARTAN
-                        2026</a>
-                    <span>/</span>
-                    <span class="text-blue-500 opacity-100 font-extrabold">GENERATOR BAGAN</span>
-                </div>
-                <h1 class="text-5xl font-black italic tracking-tighter uppercase leading-none shimmer-text">
-                    Generator
-                    Bagan</h1>
-            </div>
-            <div class="flex items-center gap-6">
-                <!-- USER INFO REMOVED -->
+        <header class="flex justify-between items-center mb-10">
+            <h1 class="text-xl font-semibold tracking-tight">
+                Generator Bagan <span id="bracketEventLabel" class="text-gray-400 font-normal ml-2"></span>
+            </h1>
+
+            <div class="flex items-center gap-4">
                 <button onclick="window.history.back()"
-                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-all">Kembali</button>
+                    class="text-sm text-gray-500 hover:text-black dark:hover:text-white transition">
+                    Kembali
+                </button>
+
+                <button onclick="toggleTheme()"
+                    class="text-sm text-gray-500 hover:text-black dark:hover:text-white transition">
+                    🌓
+                </button>
             </div>
         </header>
 
-        <div class="space-y-12">
-            <!-- SECTION 1: KONFIGURASI (HORIZONTAL BAR) -->
-            <section class="neu-flat p-10 rounded-[3rem] border border-white/5">
-                <div class="flex flex-col gap-10">
-                    <!-- Step 1 Header -->
-                    <div
-                        class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-white/5 pb-8">
-                        <div>
-                            <p class="text-[9px] font-black uppercase tracking-[0.3em] text-blue-500 mb-2">Langkah 1
-                            </p>
-                            <h3 class="text-3xl font-black italic uppercase">Konfigurasi Turnamen</h3>
-                            <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1 italic">Sesuaikan
-                                parameter
-                                event dan kelas tanding</p>
-                        </div>
-                        <div class="flex gap-4 w-full md:w-auto">
-                            <!-- Tombol Excel, Generate, dan Reset dihapus untuk otomatisasi penuh -->
-                        </div>
-                    </div>
-
-                    <!-- Step 1 Inputs -->
-                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
-                        <div class="space-y-4">
-                            <label
-                                class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em] text-blue-500">Kategori
-                                Tanding</label>
-                            <select
-                                class="w-full neu-inset px-8 py-6 rounded-[2rem] outline-none text-sm font-black uppercase tracking-widest text-slate-900 border border-slate-200 focus:border-blue-400/50 transition-all cursor-pointer bg-white">
-                                <option>Kumite Putra -55KG</option>
-                                <option>Kumite Putri -50KG</option>
-                                <option>Kata Perorangan Putra</option>
-                                <option>Kumite Perorangan Putri -50KG (Senior)</option>
-                                <option>Kumite Perorangan Putri +68KG (Senior)</option>
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-b border-slate-100 pb-8">
-                            <div class="space-y-4">
-                                <label
-                                    class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em]">Event
-                                    Aktif</label>
-                                <div
-                                    class="neu-inset px-8 py-6 rounded-[2rem] text-sm font-black text-slate-400 border border-slate-100 uppercase italic bg-white">
-                                    PIALA SPARTAN 2026</div>
-                            </div>
-                            <div class="space-y-4">
-                                <label
-                                    class="text-[10px] font-black uppercase opacity-40 ml-4 block tracking-[0.2em]">Jumlah
-                                    Peserta</label>
-                                <div class="flex items-center gap-4">
-                                    <input id="participantCount" type="number" min="2" max="16" value="0" readonly
-                                        class="w-full neu-inset px-8 py-6 rounded-[2rem] outline-none text-sm font-black uppercase tracking-widest text-slate-400 border border-slate-200 bg-slate-50/50 cursor-not-allowed transition-all">
-                                    <span class="text-[11px] font-black opacity-30 italic pr-6">ORG</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 2: LIST ATLET (TABBED INTERFACE) -->
-            <section class="neu-flat p-10 rounded-[3rem] border border-white">
-                <div class="flex flex-col gap-10">
-                    <!-- HEADER & ACTIONS -->
-                    <div
-                        class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 border-b border-slate-100 pb-10">
-                        <div class="space-y-1">
-                            <h3 class="text-3xl font-black italic uppercase text-slate-900">Peserta</h3>
-                            <p id="athleteTotalLabel" class="text-xs font-black italic text-blue-500 opacity-60">0 ATLET
-                            </p>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-6">
-                            <!-- ACTION: DRAW -->
-                            <button onclick="smartDrawParticipants()"
-                                class="px-8 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 shadow-[0_15px_30px_rgba(59,130,246,0.3)] transition-all flex items-center gap-3 group">
-                                <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg> SMART DRAW (OTO)
-                            </button>
-
-                            <!-- TABS NAVIGATION -->
-                            <div class="flex p-1.5 bg-slate-100 rounded-[1.5rem] border border-slate-200/50">
-                                <button onclick="switchStep2Tab('text')" id="tabBtnText"
-                                    class="px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-white text-blue-600 shadow-md">
-                                    1. DATA FIX
-                                </button>
-                                <button onclick="switchStep2Tab('visual')" id="tabBtnVisual"
-                                    class="px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
-                                    2. ATUR BAGIAN
-                                </button>
-                                <button onclick="switchStep2Tab('magic')" id="tabBtnMagic"
-                                    class="hidden px-8 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600">
-                                    3. MAGIC BEREGU 🪄
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- MAIN CONTENT AREA -->
-                    <div class="space-y-8">
-                        <!-- TAB CONTENT 1: DATA FIX (TEXTAREA) -->
-                        <div id="step2TabText" class="block">
-                            <textarea id="manualNames" rows="10" readonly
-                                placeholder="Daftar peserta resmi akan muncul di sini..."
-                                class="w-full neu-inset px-8 py-6 rounded-[2.5rem] outline-none text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500 border border-slate-200 bg-slate-50/50 cursor-not-allowed transition-all custom-scrollbar resize-none font-mono leading-relaxed"></textarea>
-                        </div>
-
-                        <!-- TAB CONTENT 2: ATUR BAGIAN (VISUAL) -->
-                        <div id="step2TabVisual" class="hidden">
-                            <div
-                                class="p-8 rounded-[2.5rem] bg-indigo-50/50 border border-indigo-100/50 mb-6 group hover:bg-indigo-50 transition-colors">
-                                <div class="flex items-start gap-4">
-                                    <div class="p-3 bg-white rounded-2xl shadow-sm text-indigo-500">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="text-[10px] font-black uppercase text-indigo-600 tracking-wider">Mode
-                                            Pengaturan Visual</p>
-                                        <p class="text-[11px] font-bold text-slate-500 leading-relaxed">Klik dua kartu
-                                            atlet di bawah ini untuk menukar posisi tanding mereka secara langsung pada
-                                            bagan SVG.</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="athleteTags"
-                                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                <!-- Visual cards rendered here -->
-                            </div>
-                        </div>
-
-                        <!-- TAB CONTENT 3: MAGIC BEREGU -->
-                        <div id="step2TabMagic" class="hidden">
-                            <div class="p-10 rounded-[2.5rem] bg-blue-50/50 border border-blue-100/50 mb-8">
-                                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                                    <div class="flex items-start gap-5">
-                                        <div
-                                            class="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center text-blue-500 text-2xl">
-                                            🪄</div>
-                                        <div>
-                                            <h4 class="text-xl font-black italic uppercase text-slate-900 mb-1">Magic
-                                                Team Builder</h4>
-                                            <p class="text-xs font-bold text-slate-500">Otomatis menggabungkan 3 atlet
-                                                dari kontingen yang sama menjadi satu tim.</p>
-                                        </div>
-                                    </div>
-                                    <button onclick="groupAthletesByTeamMagic()"
-                                        class="px-10 py-5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
-                                        🪄 SULAP JADI TIM
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="magicTeamList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                                <!-- Grouped teams will be rendered here -->
-                                <div
-                                    class="col-span-full py-20 text-center opacity-30 italic font-bold uppercase tracking-widest text-xs">
-                                    Klik tombol sulap untuk memproses data anggota...
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 3: VISUALISASI BAGAN (LARGE AREA) -->
-            <section class="neu-flat p-6 rounded-[3rem] border border-white/5 min-h-[600px] flex flex-col">
-                <header class="mb-12 flex justify-between items-end border-b border-white/5 pb-8">
-                    <div>
-                        <p id="bracketCategoryLabel"
-                            class="text-xs font-black uppercase tracking-[0.4em] text-blue-500 mb-2">Kumite Putra
-                            -55KG
-                        </p>
-                        <h3 id="bracketEventLabel" class="text-3xl font-black italic uppercase">PIALA SPARTAN 2026
-                        </h3>
-                        <p
-                            class="text-[10px] font-bold opacity-30 tracking-widest mt-2 italic border-t border-white/5 pt-2">
-                            Bagan Pertandingan Otomatis</p>
-                    </div>
-
-                    <div class="flex items-center gap-6 mb-1">
-                        <div class="flex items-center gap-3 px-4 py-2 rounded-xl bg-slate-100 border border-slate-200">
-                            <input type="checkbox" id="useShortName" onchange="generateBracket()"
-                                class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
-                            <label for="useShortName"
-                                class="text-[9px] font-black uppercase tracking-widest text-slate-500 cursor-pointer">Nama
-                                Singkat</label>
-                        </div>
-                        <button id="btnPreviewFestival" onclick="handlePreviewFestival()"
-                            class="neu-button px-8 py-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-600 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            PRATINJAU FESTIVAL
-                        </button>
-                        <button onclick="exportToPremium('pdf', event)"
-                            class="neu-button px-8 py-3 rounded-xl flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-500/5 border border-blue-500/10 hover:bg-blue-600 hover:text-white transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            EXPORT PDF (F4)
-                        </button>
-                    </div>
-                </header>
-
-                <div
-                    class="flex-1 rounded-[3rem] border border-slate-200 flex items-center justify-center bg-white overflow-x-auto custom-scrollbar relative p-4 shadow-xl">
-                    <div id="bracketVisualArea"
-                        class="bracket-container w-full h-full flex items-center justify-center transition-all duration-700 bg-white">
-                        <!-- Generated by JavaScript -->
-                    </div>
+        <section class="border-b border-gray-200 dark:border-gray-800 py-8">
+            <div class="flex flex-wrap items-center gap-6 text-sm">
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 mb-1">Kategori</label>
+                    <select id="categorySelect"
+                        class="px-3 py-2 border rounded-lg bg-transparent outline-none focus:ring-2 focus:ring-blue-500/20 cursor-pointer min-w-[200px]">
+                        <option value="">Pilih Kategori...</option>
+                    </select>
                 </div>
 
-                <footer class="mt-12 flex justify-end space-x-6 items-center">
-                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-white/10 italic mr-auto">Power
-                        by
-                        Spartan Tournament Engine v2.0</p>
-                    <button onclick="window.goBackToDetail()"
-                        class="px-10 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batalkan</button>
-                    <button id="btnSaveBracket" onclick="saveBracket()"
-                        class="px-16 py-5 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.4em] shadow-[0_20px_40px_rgba(59,130,246,0.3)] hover:scale-105 active:scale-95 transition-all flex items-center gap-3">
-                        <span id="saveStatus">SIMPAN & SELESAI</span>
+                <div class="flex items-center gap-3 mt-5">
+                    <input type="checkbox" id="filterNeedsEdit" onchange="window.renderCategoryDropdown()"
+                        class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                    <label for="filterNeedsEdit" class="text-xs text-gray-500 cursor-pointer select-none">Hanya Perlu
+                        Diedit</label>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-xs text-gray-500 mb-1">Jumlah Peserta</label>
+                    <input id="participantCount" type="number" readonly
+                        class="px-3 py-2 border rounded-lg w-24 bg-transparent outline-none focus:ring-2 focus:ring-blue-500/20">
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="smartDrawParticipants()"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20">
+                        Generate
                     </button>
-                </footer>
-            </section>
+
+                    <button id="btnSaveBracket" onclick="saveBracket()"
+                        class="px-6 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-500/20">
+                        <span id="saveStatus">Simpan & Selesai</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div class="mt-10">
+            <h2 class="text-sm font-semibold mb-4 flex justify-between items-center">
+                <span>Peserta</span>
+                <span id="athleteTotalLabel" class="text-[10px] font-normal text-gray-400 uppercase tracking-widest">0
+                    ATLET</span>
+            </h2>
+
+            <textarea id="manualNames" readonly
+                class="w-full border rounded-lg p-4 text-sm bg-transparent outline-none focus:ring-2 focus:ring-blue-500/20 custom-scrollbar resize-none font-mono"
+                rows="6" placeholder="Daftar peserta akan muncul di sini...">
+            </textarea>
+        </div>
+
+        <div class="mt-12">
+            <h2 class="text-sm font-semibold mb-6 flex items-center justify-between">
+                <span>Visualisasi Bagan</span>
+                <span id="bracketCategoryLabel"
+                    class="text-xs font-normal text-blue-500 uppercase tracking-widest"></span>
+            </h2>
+
+            <div class="border rounded-xl p-6 overflow-x-auto bg-white/50 dark:bg-black/20">
+                <div id="bracketVisualArea" class="bracket-container"></div>
+            </div>
         </div>
     </main>
-    <!-- UI: Kensho Voice Lounge Panel -->
-    <div id="voice-lounge-panel" class="p-6">
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-red-400/20 flex items-center justify-center text-red-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                </div>
-                <div>
-                    <h4 class="text-xs font-black tracking-widest uppercase">Voice Lounge</h4>
-                    <p class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Live Coordination
-                    </p>
-                </div>
-            </div>
-            <button onclick="toggleVoiceLounge()" class="text-slate-500 hover:text-white transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-        </div>
 
-        <div id="voice-users-list" class="space-y-3 mb-8 max-h-48 overflow-y-auto custom-scrollbar">
-            <!-- Joined users will appear here -->
-            <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
-                <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
-            </div>
-        </div>
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
 
-        <div class="flex gap-3">
-            <button id="btn-join-voice" onclick="handleJoinVoice()"
-                class="flex-1 py-4 rounded-xl bg-red-500 text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2">
-                Join Lounge
-            </button>
-            <button id="btn-mute-voice" onclick="toggleMute()"
-                class="hidden w-14 h-14 rounded-xl border border-white/10 flex items-center justify-center text-slate-500 hover:text-white transition-all">
-                <svg id="mute-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-            </button>
-            <button id="btn-leave-voice" onclick="handleLeaveVoice()"
-                class="hidden w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-            </button>
-        </div>
-    </div>
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        (function () {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
 
     <script type="module">
         import { db, auth } from './js/firebase-init.js';
         import { handleLogout } from './js/auth-helpers.js';
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { collection, onSnapshot, query, where, getDocs, doc, getDoc, setDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './js/voice-chat.js';
         import { prepareBracketPrint } from './js/modules/print/print-bracket.js';
         import { getLogicalIdFromSVGId, getNextSlot, getTeamSlot } from './js/bracket-utils.js';
 
         window.handleLogout = handleLogout;
         let bracketListener = null;
+        let allEventClasses = [];
+        let allEventAthletes = [];
+        let allEventBrackets = [];
 
-        // Voice Lounge UI Logic
-        window.toggleVoiceLounge = () => {
-            const panel = document.getElementById('voice-lounge-panel');
-            panel.classList.toggle('active');
-            const btn = document.getElementById('btn-voice');
-            btn.classList.toggle('active');
-        };
+        window.renderCategoryDropdown = () => {
+            const select = document.getElementById('categorySelect');
+            const filterEnabled = document.getElementById('filterNeedsEdit').checked;
+            const currentVal = select.value;
 
-        window.handleJoinVoice = async () => {
-            const user = auth.currentUser;
-            if (!user) return;
-            const btnJoin = document.getElementById('btn-join-voice');
-            btnJoin.disabled = true;
-            try {
-                await joinVoice(user);
-                btnJoin.classList.add('hidden');
-                document.getElementById('btn-mute-voice').classList.remove('hidden');
-                document.getElementById('btn-leave-voice').classList.remove('hidden');
-            } catch (err) {
-                alert("Gagal join Voice Lounge: " + err.message);
-                btnJoin.disabled = false;
-            }
-        };
+            select.innerHTML = '<option value="">Pilih Kategori...</option>';
 
-        window.handleLeaveVoice = async () => {
-            await leaveVoice();
-            document.getElementById('btn-join-voice').classList.remove('hidden');
-            document.getElementById('btn-join-voice').disabled = false;
-            document.getElementById('btn-mute-voice').classList.add('hidden');
-            document.getElementById('btn-leave-voice').classList.add('hidden');
-        };
+            allEventClasses.forEach(cls => {
+                const classAthletes = allEventAthletes.filter(a => (cls.code && a.classCode === cls.code) || (a.className === cls.name));
+                const athleteCount = classAthletes.length;
 
-        window.toggleMute = () => {
-            const isMuted = toggleMicMute();
-            const icon = document.getElementById('mute-icon');
-            const btn = document.getElementById('btn-mute-voice');
-            if (isMuted) {
-                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
-                btn.classList.add('text-red-400');
-            } else {
-                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
-                btn.classList.remove('text-red-400');
-            }
+                if (athleteCount === 0) return; // Skip classes with no participants
+
+                const bracket = allEventBrackets.find(b => b.id === (cls.code || cls.name));
+                const isComplete = bracket && bracket.status === 'complete' && bracket.athleteCount === athleteCount;
+
+                if (filterEnabled && isComplete) return;
+
+                const option = document.createElement('option');
+                option.value = cls.name;
+                option.textContent = `${cls.name} (${athleteCount})${!isComplete ? ' ⚠️' : ''}`;
+                if (cls.name === currentVal || (initialClass && cls.name === initialClass)) option.selected = true;
+                select.appendChild(option);
+            });
         };
 
         window.goBackToDetail = () => {
@@ -967,9 +421,7 @@
             if (eventDoc.exists()) {
                 const eventData = eventDoc.data();
                 document.getElementById('bracketEventLabel').innerText = eventData.name;
-                // Simpan host kontingen secara global
                 window.hostKontingen = eventData.settings?.hostKontingen || "";
-                // Breadcrumb
                 const breadcrumbEvent = document.querySelector('a[href*="event-detail.html"], a[onclick*="history.back"]');
                 if (breadcrumbEvent) {
                     breadcrumbEvent.innerText = eventData.name;
@@ -981,38 +433,37 @@
                 }
             }
 
-            // 2. Load All Classes for Dropdown
-            const qClasses = query(collection(db, `events/${eventId}/classes`), orderBy("name", "asc"));
-            const classSnap = await getDocs(qClasses);
-            const categorySelect = document.querySelector('select');
-            categorySelect.innerHTML = '<option value="">Pilih Kategori...</option>';
+            // 2. Pre-fetch Event Data for Smart Filtering
+            const [classSnap, athleteSnap, bracketSnap] = await Promise.all([
+                getDocs(query(collection(db, `events/${eventId}/classes`), orderBy("name", "asc"))),
+                getDocs(collection(db, `events/${eventId}/athletes`)),
+                getDocs(collection(db, `events/${eventId}/brackets`))
+            ]);
 
-            classSnap.forEach(snap => {
-                const cls = snap.data();
-                const option = document.createElement('option');
-                option.value = cls.name;
-                option.textContent = cls.name;
-                if (initialClass && cls.name === initialClass) option.selected = true;
-                categorySelect.appendChild(option);
-            });
+            allEventClasses = classSnap.docs.map(d => d.data());
+            allEventAthletes = athleteSnap.docs.map(d => d.data());
+            allEventBrackets = bracketSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            // 3. Listener for Change
+            // 3. Render Dropdown
+            window.renderCategoryDropdown();
+
+            // 4. Change Listener
+            const categorySelect = document.getElementById('categorySelect');
             categorySelect.addEventListener('change', (e) => {
                 if (e.target.value) loadAthletesForClass(e.target.value);
             });
 
-            // 4. Load Schedule for Tatami Automation (Before initial class load)
+            // 5. Load Schedule for Tatami Automation
             try {
                 const scheduleSnap = await getDoc(doc(db, `events/${eventId}/metadata`, 'schedule'));
                 if (scheduleSnap.exists()) {
                     window.currentEventSchedule = scheduleSnap.data().schedule || [];
-                    console.log(`📅 Schedule loaded: ${window.currentEventSchedule.length} entries`);
                 }
             } catch (err) {
                 console.error("Error loading schedule:", err);
             }
 
-            // 5. Initial Load if class is set
+            // 6. Initial Load if class is set
             if (initialClass) {
                 await loadAthletesForClass(initialClass);
             }

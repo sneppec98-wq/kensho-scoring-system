@@ -12,177 +12,78 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #020617;
+            background: #0B1220;
             color: #f8fafc;
             overflow: hidden;
         }
 
-        /* Aurora Animation */
-        .aurora-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            filter: blur(100px);
-            opacity: 0.3;
-            overflow: hidden;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
         }
 
-        .blob {
-            position: absolute;
-            width: 500px;
-            height: 500px;
-            border-radius: 50%;
-            animation: move 20s infinite alternate;
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
 
-        .blob-1 {
-            background: #f87171;
-            top: -10%;
-            left: -10%;
-        }
-
-        .blob-2 {
-            background: #3b82f6;
-            bottom: -10%;
-            right: -10%;
-            animation-duration: 30s;
-        }
-
-        .blob-3 {
-            background: #de2b2b;
-            top: 40%;
-            left: 30%;
-            width: 300px;
-            height: 300px;
-            animation-duration: 25s;
-            opacity: 0.3;
-        }
-
-        @keyframes move {
-            from {
-                transform: translate(0, 0) rotate(0deg);
-            }
-
-            to {
-                transform: translate(200px, 100px) rotate(360deg);
-            }
-        }
-
-        /* Glassmorphism Card - Dark Mode */
-        .discord-card {
-            background: rgba(15, 23, 42, 0.7) !important;
-            backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .input-dark {
-            background: rgba(0, 0, 0, 0.4) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: #f8fafc !important;
-        }
-
-        .btn-premium {
-            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-            border: none;
-        }
-
-        .btn-premium:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
-        }
-
-        /* Watermark Background Text */
-        .bg-watermark {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-15deg);
-            font-size: 12vw;
-            font-weight: 900;
-            color: rgba(255, 255, 255, 0.03);
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 0;
-            text-transform: uppercase;
-            letter-spacing: -0.05em;
-            font-style: italic;
-            user-select: none;
-        }
-
-        /* Version Badge */
-        .badge-version {
-            display: table;
-            margin: 0 auto;
-            padding: 3px 10px;
-            background: rgba(248, 113, 113, 0.1);
-            color: #f87171;
-            border: 1px solid rgba(248, 113, 113, 0.2);
-            border-radius: 6px;
-            font-size: 0.65rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+        ::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.2);
+            border-radius: 10px;
         }
     </style>
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#f87171">
-    <link rel="stylesheet" href="css/window-controls.css">
+    <meta name="theme-color" content="#3b82f6">
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen bg-[#0B1220] flex items-center justify-center">
+
     <script src="js/window-controls.js"></script>
-    <!-- Aurora Background -->
-    <div class="aurora-container">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
 
-    <!-- Background Watermark -->
-    <div class="bg-watermark">
-        KENSHO TECH SCORING
-    </div>
+    <div class="w-full max-w-sm px-6">
 
-    <div class="discord-card w-full max-w-[420px] rounded-2xl p-10 z-10">
-
-        <div class="text-center mb-10">
-            <img src="kensho-logo.png" alt="Kensho Tech Logo" class="w-16 mx-auto mb-4 drop-shadow-xl">
-            <div class="badge-version mb-6">v3.4.0</div>
-            <h1 class="text-2xl font-bold text-white mb-2">Selamat Datang</h1>
-            <p id="dynamicGreeting"
-                class="text-slate-500 text-sm font-medium transition-opacity duration-500 opacity-100">
-                Senang melihat Anda lagi!
+        <!-- Logo + Title -->
+        <div class="text-center mb-10 pt-12">
+            <img src="kensho-logo.png" class="w-12 mx-auto mb-6 drop-shadow-2xl">
+            <h1 class="text-lg font-semibold text-white tracking-tight">
+                Kensho Tech Manager
+            </h1>
+            <p class="text-slate-400 text-[10px] mt-1 font-medium italic">
+                Sistem Manajemen Pertandingan
             </p>
         </div>
 
-        <form id="loginForm" class="space-y-4" onsubmit="handleLogin(event)">
-            <div class="grid grid-cols-2 gap-4">
+        <!-- Login Box -->
+        <div class="bg-[#111827] border border-white/5 rounded-2xl p-6 shadow-2xl relative overflow-hidden group">
+            <div
+                class="absolute -right-10 -top-10 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl group-hover:bg-blue-500/10 transition-all">
+            </div>
+
+            <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+
+                <!-- Email -->
                 <div>
-                    <label
-                        class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Email</label>
+                    <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+                        Email Address
+                    </label>
                     <input type="email" id="email" required
-                        class="w-full px-4 py-3 input-dark rounded focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm"
-                        placeholder="nama@kensho.com">
+                        class="mt-2 w-full px-4 py-2.5 rounded-xl bg-[#0B1220] border border-white/5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-700"
+                        placeholder="nama@email.com">
                 </div>
 
+                <!-- Password -->
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-400 mb-2 uppercase tracking-wider">Kata
-                        Sandi</label>
-                    <div class="relative">
+                    <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+                        Password Key
+                    </label>
+                    <div class="relative mt-2">
                         <input type="password" id="password" required
-                            class="w-full px-4 py-3 input-dark rounded focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm"
+                            class="w-full px-4 py-2.5 rounded-xl bg-[#0B1220] border border-white/5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-700 font-mono"
                             placeholder="••••••••">
                         <button type="button" onclick="togglePassword()"
-                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-all">
                             <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                stroke-width="2" stroke="currentColor" class="w-4 h-4">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -191,96 +92,79 @@
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <button type="submit" id="btnSubmit"
-                class="w-full btn-premium text-white font-bold py-3.5 rounded-lg transition-all active:scale-[0.98] text-sm mt-4">
-                <span id="btnText">Log In</span>
-            </button>
+                <!-- Button -->
+                <button type="submit" id="btnSubmit"
+                    class="w-full bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-black uppercase tracking-widest py-3 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20">
+                    <span id="btnText">Masuk</span>
+                </button>
 
-            <!-- Launch in Browser Button (Only for Electron) -->
-            <div id="electronOnly" class="hidden">
-                <div class="flex items-center my-6">
-                    <div class="flex-1 h-[1px] bg-white/5"></div>
-                    <span class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Atau</span>
-                    <div class="flex-1 h-[1px] bg-white/5"></div>
+                <!-- Launch in Browser Button (Only for Electron) -->
+                <div id="electronOnly" class="hidden pt-1">
+                    <button type="button" onclick="launchInBrowser()"
+                        class="w-full py-2.5 rounded-xl border border-white/5 text-slate-500 text-[9px] font-bold uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all flex items-center justify-center gap-2">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Versi Browser
+                    </button>
                 </div>
-                <button type="button" onclick="launchInBrowser()"
-                    class="w-full py-3 rounded-lg border border-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 hover:text-white transition-all flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    Buka di Browser
-                </button>
-            </div>
-        </form>
 
-        <!-- Minimalist Serial Display -->
-        <div class="mt-10 pt-6 border-t border-white/5 flex flex-col items-center">
-            <span class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Copy Serial for
-                Activation</span>
-            <div
-                class="flex items-center gap-2 bg-black/40 border border-white/10 pl-4 pr-1 py-1 rounded-2xl w-full group hover:border-blue-400 transition-all">
-                <span id="displaySerial"
-                    class="text-[10px] font-mono text-blue-500 font-bold tracking-wider flex-1 truncate">MENUNGGU...</span>
-                <button type="button" onclick="copySerial()"
-                    class="w-8 h-8 rounded-xl bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600 shadow-lg shadow-blue-500/30 transition-all active:scale-95">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                    </svg>
-                </button>
+            </form>
+
+            <!-- Serial -->
+            <div class="mt-6 pt-5 border-t border-white/5">
+                <div
+                    class="flex items-center justify-between bg-black/30 pl-4 pr-1 py-1 rounded-xl border border-white/5">
+                    <span id="displaySerial" class="text-[10px] font-mono text-blue-500/70 truncate tracking-tight">
+                        MENUNGGU...
+                    </span>
+                    <button onclick="copySerial()"
+                        class="px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest text-blue-500 hover:bg-blue-500 hover:text-white transition-all">
+                        Copy
+                    </button>
+                </div>
             </div>
+
         </div>
 
+        <!-- Version -->
+        <div class="text-center mt-8 text-[9px] font-black uppercase tracking-widest text-slate-700">
+            v3.4.0 &bull; Kensho Tech
+        </div>
 
     </div>
 
     <!-- Modal: Premium Action Confirmation (Replaces native confirm/prompt) -->
-    <div id="modal-confirm" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/95 hidden">
+    <div id="modal-confirm"
+        class="fixed inset-0 z-[150] flex items-center justify-center bg-slate-950/90 backdrop-blur-md hidden">
         <div
-            class="discord-card w-full max-w-md p-10 rounded-[2rem] relative mx-4 border border-white/10 overflow-hidden group">
-            <div
-                class="absolute -right-20 -top-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/15 transition-all">
+            class="bg-[#111827] border border-white/10 w-full max-w-sm p-8 rounded-3xl shadow-2xl relative mx-4 text-center">
+            <div id="confirm-icon-container"
+                class="w-12 h-12 rounded-xl bg-slate-900 flex items-center justify-center text-blue-500 mx-auto mb-6 border border-white/5">
+                <svg id="confirm-icon-danger" class="w-6 h-6 text-red-500 hidden" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <svg id="confirm-icon-info" class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
             </div>
-
-            <header class="mb-8 text-center relative z-10">
-                <div id="confirm-icon-container"
-                    class="w-16 h-16 rounded-2xl bg-slate-900/50 flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20">
-                    <svg id="confirm-icon-danger" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <svg id="confirm-icon-info" class="w-8 h-8 hidden" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h2 id="confirm-title" class="text-2xl font-black italic uppercase text-white leading-tight">Konfirmasi
-                </h2>
-                <p id="confirm-message" class="text-xs font-bold opacity-50 mt-4 leading-relaxed text-slate-300">Pesan
-                    konfirmasi di sini...</p>
-            </header>
-
-            <div id="confirm-prompt-container" class="mb-8 hidden relative z-10">
-                <label id="confirm-prompt-label"
-                    class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-red-500">Ketik
-                    konfirmasi di bawah</label>
-                <div class="relative">
-                    <input type="text" id="confirm-input"
-                        class="w-full input-dark px-6 py-4 rounded-2xl outline-none text-sm font-black uppercase tracking-widest text-white border border-white/5 focus:border-red-500/50 transition-all"
-                        placeholder="...">
-                </div>
+            <h2 id="confirm-title" class="text-lg font-bold text-white uppercase tracking-tight">Konfirmasi</h2>
+            <p id="confirm-message" class="text-xs text-slate-400 mt-2 leading-relaxed px-4">Pesan konfirmasi...</p>
+            <div id="confirm-prompt-container" class="mt-6 mb-2 hidden">
+                <input type="text" id="confirm-input"
+                    class="w-full bg-[#0B1220] border border-white/5 px-4 py-3 rounded-xl outline-none text-xs text-center uppercase tracking-widest text-white focus:border-blue-500 transition-all font-bold">
             </div>
-
-            <div class="flex space-x-4 relative z-10">
+            <div class="flex gap-3 mt-8">
                 <button type="button" id="confirm-cancel-btn"
-                    class="flex-1 py-4 rounded-xl bg-slate-800/50 text-white text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batal</button>
+                    class="flex-1 py-3 rounded-xl bg-slate-900 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:text-white transition-all">Batal</button>
                 <button id="confirm-action-btn"
-                    class="flex-1 py-4 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(220,38,38,0.3)] hover:scale-[1.02] transition-all">Ya,
-                    Lanjutkan</button>
+                    class="flex-1 py-3 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20">Lanjut</button>
             </div>
         </div>
     </div>

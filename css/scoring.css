@@ -252,10 +252,145 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
 /* KATA Discarded Score Style */
 .kata-discarded {
     opacity: 0.3 !important;
     text-decoration: line-through !important;
     pointer-events: none;
     filter: grayscale(1);
+}
+
+/* ========================================= */
+/*        KENSHO OPERATOR HARD MODE          */
+/* ========================================= */
+
+/* REMOVE ALL BLUR & GLASS */
+* {
+    backdrop-filter: none !important;
+}
+
+/* REMOVE AURORA */
+#aurora-container {
+    display: none !important;
+}
+
+/* BASE BACKGROUND */
+body {
+    background: #0a0f1a !important;
+}
+
+/* ================= PANELS ================= */
+
+#panelContainerAka {
+    background: #7f1d1d !important;
+    /* solid red */
+    border: none !important;
+}
+
+#panelContainerAo {
+    background: #1e3a8a !important;
+    /* solid blue */
+    border: none !important;
+}
+
+#panelContainerCenter {
+    background: #111827 !important;
+    /* dark neutral */
+    border-left: 2px solid #000 !important;
+    border-right: 2px solid #000 !important;
+}
+
+/* REMOVE ALL TRANSPARENCY */
+.bg-white\/5,
+.bg-white\/10,
+.bg-white\/20,
+.bg-black\/40,
+.bg-slate-900\/40,
+.bg-slate-950\/40 {
+    background: #1f2937 !important;
+}
+
+/* REMOVE GRADIENTS */
+[class*="gradient"] {
+    background: none !important;
+}
+
+/* REMOVE SHADOWS */
+* {
+    box-shadow: none !important;
+}
+
+/* ================= SCORE STYLE ================= */
+
+#scoreAka,
+#scoreAo {
+    font-family: 'Courier New', monospace !important;
+    font-size: 150px !important;
+    font-weight: 900 !important;
+    letter-spacing: -6px !important;
+    font-style: normal !important;
+    text-shadow: none !important;
+}
+
+/* Remove shimmer */
+.shimmer-text {
+    background: none !important;
+    color: white !important;
+    animation: none !important;
+}
+
+/* ================= NAMES ================= */
+
+#nameAkaDisplay,
+#nameAoDisplay {
+    font-style: normal !important;
+    letter-spacing: 0 !important;
+}
+
+/* ================= BUTTONS ================= */
+
+.neu-button {
+    background: #1f2937 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    transition: none !important;
+}
+
+.neu-button:hover {
+    background: #374151 !important;
+    transform: none !important;
+}
+
+/* ================= TIMER ================= */
+
+#timerDisplay {
+    font-family: 'Courier New', monospace !important;
+    letter-spacing: -3px !important;
+}
+
+#timerStatusDot {
+    animation: none !important;
+}
+
+/* ================= REMOVE GLOW EFFECTS ================= */
+
+[class*="glow"],
+[class*="shadow"],
+.drop-shadow {
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+/* ================= CLEAN MODALS ================= */
+
+#settingsModal,
+#judgeKeypadModal,
+#participantModal {
+    backdrop-filter: none !important;
+}
+
+/* ================= REMOVE MICRO ANIMATIONS ================= */
+
+* {
+    animation: none !important;
 }

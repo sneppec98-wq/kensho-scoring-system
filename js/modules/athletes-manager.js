@@ -70,22 +70,8 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
         if (dashTeam) dashTeam.innerText = teamTotal;
     }
 
-    // Filter by sub-tab
-    const filtered = athletes.filter(a => {
-        const classInfo = findClassInfo(a);
-        if (!classInfo) return currentAthleteSubTab === 'OPEN';
-
-        if (currentAthleteSubTab === 'BEREGU') {
-            return classInfo.type === 'BEREGU';
-        }
-
-        const isFestival = (classInfo.code || classInfo.id || "").toString().toUpperCase().startsWith('F');
-
-        if (currentAthleteSubTab === 'FESTIVAL') return isFestival;
-        if (currentAthleteSubTab === 'OPEN') return !isFestival;
-
-        return false;
-    });
+    // Unified list (No filtering by sub-tab)
+    const filtered = athletes;
 
     // Natural Sorting by Class Code
     filtered.sort((a, b) => {
@@ -360,11 +346,13 @@ export const renderContingentTracking = (athletes, latestClasses = []) => {
 
     // Auto-update Contingent Datalist
     updateContingentDatalist(athletes);
-    // Auto-update Payment Tracking
-    renderPaymentTracking(athletes, latestClasses);
+    // Auto-update Payment Tracking (Need payments map from state)
+    if (window.latestPaymentsMap) {
+        renderPaymentTracking(athletes, latestClasses, window.latestPaymentsMap);
+    }
 };
 
-export const renderPaymentTracking = (athletes, latestClasses = []) => {
+export const renderPaymentTracking = (athletes, latestClasses = [], paymentsMap = {}) => {
     const tbody = document.getElementById('paymentTableBody');
     if (!tbody) return;
 
@@ -374,6 +362,7 @@ export const renderPaymentTracking = (athletes, latestClasses = []) => {
 
     const prices = { fest: 250000, open: 250000, beregu: 300000, kontingen: 100000, cashback: 25000 };
     let globalTotal = 0;
+    let globalPaid = 0;
     let html = '';
 
     actualTeams.forEach((name, idx) => {
@@ -406,18 +395,35 @@ export const renderPaymentTracking = (athletes, latestClasses = []) => {
         const finalAmount = subTotal - cashback;
         globalTotal += finalAmount;
 
+        const isPaid = paymentsMap[name.toUpperCase()]?.paid || false;
+        if (isPaid) globalPaid += finalAmount;
+
         html += `
-            <tr class="row-hover border-b border-white/5 bg-white/5">
+            <tr class="row-hover border-b border-white/5 ${isPaid ? 'bg-green-500/5' : 'bg-white/5'}">
                 <td class="p-4 font-black italic text-slate-200 uppercase">${name}</td>
                 <td class="p-4 text-center text-blue-400 font-bold">${open}</td>
                 <td class="p-4 text-center text-purple-400 font-bold">${fest}</td>
                 <td class="p-4 text-center text-orange-400 font-bold">${beregu}</td>
-                <td class="p-4 text-right font-black text-slate-100">Rp ${finalAmount.toLocaleString('id-ID')}</td>
+                <td class="p-4 text-right font-black text-slate-100">
+                    <div class="flex flex-col items-end">
+                        <span>Rp ${finalAmount.toLocaleString('id-ID')}</span>
+                        ${isPaid ? '<span class="text-[8px] text-green-500 font-black tracking-widest uppercase mt-0.5">TERBAYAR</span>' : ''}
+                    </div>
+                </td>
                 <td class="p-4 text-center">
-                    <a href="https://kensho-invoice.web.app?team=${encodeURIComponent(name)}" target="_blank"
-                        class="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all text-[10px] font-black uppercase">
-                        INVOICE
-                    </a>
+                    <div class="flex items-center justify-center gap-2">
+                        <a href="https://kensho-invoice.web.app?team=${encodeURIComponent(name)}" target="_blank"
+                            class="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all text-[10px] font-black uppercase">
+                            INVOICE
+                        </a>
+                        ${isPaid ?
+                `<span class="px-3 py-1.5 rounded-lg bg-green-500/20 text-green-400 border border-green-500/30 text-[10px] font-black uppercase">LUNAS ✅</span>` :
+                `<button onclick="window.applyPayment('${name.replace(/'/g, "\\'")}', ${finalAmount})"
+                                class="px-3 py-1.5 rounded-lg bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-[10px] font-black uppercase">
+                                APPLY
+                            </button>`
+            }
+                    </div>
                 </td>
             </tr>
         `;
@@ -429,7 +435,51 @@ export const renderPaymentTracking = (athletes, latestClasses = []) => {
 
     tbody.innerHTML = html;
     const labelTotal = document.getElementById('labelTotalBiaya');
-    if (labelTotal) labelTotal.innerText = `Rp ${globalTotal.toLocaleString('id-ID')}`;
+    if (labelTotal) {
+        labelTotal.innerHTML = `
+            <div class="flex flex-col items-end">
+                <div class="text-[10px] opacity-40 mb-1">TOTAL TAGIHAN</div>
+                <div class="text-2xl font-black text-blue-400">Rp ${globalTotal.toLocaleString('id-ID')}</div>
+                <div class="flex gap-4 mt-2">
+                    <div class="text-right">
+                        <div class="text-[8px] opacity-40">MASUK</div>
+                        <div class="text-sm font-black text-green-400">Rp ${globalPaid.toLocaleString('id-ID')}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[8px] opacity-40">SISA</div>
+                        <div class="text-sm font-black text-red-500">Rp ${(globalTotal - globalPaid).toLocaleString('id-ID')}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+};
+
+export const applyPayment = async (contingentName, amount, eventId) => {
+    const ok = await customConfirm({
+        title: "Konfirmasi Pembayaran",
+        message: `Tandai kontingen "${contingentName}" sebagai LUNAS sebesar Rp ${amount.toLocaleString('id-ID')}?`,
+        confirmText: "Ya, Apply Pembayaran",
+        type: "info"
+    });
+
+    if (!ok) return;
+
+    try {
+        const paymentRef = doc(db, `events/${eventId}/payments`, contingentName.toUpperCase());
+        await setDoc(paymentRef, {
+            paid: true,
+            amount: amount,
+            updatedAt: new Date().getTime(),
+            timestamp: new Date()
+        });
+
+        await customAlert(`Pembayaran ${contingentName} berhasil di-apply!`, "Berhasil", "info");
+        // We will need orchestrator to trigger refresh
+    } catch (err) {
+        console.error("Apply Payment Error:", err);
+        await customAlert("Gagal apply pembayaran: " + err.message, "Gagal", "danger");
+    }
 };
 
 const updateContingentDatalist = (athletes) => {

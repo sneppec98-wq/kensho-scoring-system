@@ -2,6 +2,28 @@
 
 All notable changes to the Kensho Scoring System will be documented in this file.
 
+## [4.0.0] - 2026-02-11
+
+### 🚀 Major Evolution: Scoring System Overhaul
+This major release focuses on complete architectural refactoring of the scoring console and the introduction of a high-performance "Hard Operator Mode".
+
+### Added
+- **Hard Operator Mode - No Blur**: A new aggressive visual mode for the scoring console designed for maximum performance and visibility in high-pressure environments.
+- **Dynamic Scoreboard**: Font-size and contrast adjustments for the scoreboard, featuring 'Courier New' for a solid mechanical feel.
+
+### Changed
+- **Architectural Refactor**: Separated scoring logic from `scoring.html` into a dedicated modular JavaScript file `js/scoring.js`.
+- **UI/UX Cleanup**:
+  - Removed all `italic` fonts across the scoring console for a cleaner, modern look.
+  - Eliminated legacy and heavy visual effects including the aurora background to reduce DOM complexity.
+  - Consolidated all operator-specific styles into an external `css/scoring.css`.
+- **Performance**: Significant reduction in HTML file size and DOM element count, resulting in faster load times and smoother interactions.
+
+### Fixed
+- Resolved minor CSS nesting and syntax issues in custom operator styles.
+- Improved real-time data synchronization stability during scoring.
+
+
 ## [2.6.1] - 2026-02-02
 
 ### Added

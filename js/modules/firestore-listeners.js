@@ -150,6 +150,28 @@ export async function fetchMedalsManual(db, eventId, forceRefresh = false) {
     return medals;
 }
 
+export async function getPayments(db, eventId, forceRefresh = false) {
+    const cacheKey = `payments_${eventId}`;
+
+    if (!forceRefresh) {
+        const cached = await cacheManager.getCachedData(cacheKey);
+        if (cached) {
+            console.log('[LISTENERS] Payments loaded from CACHE');
+            return cached;
+        }
+    }
+
+    console.log('[LISTENERS] Fetching payments from Firestore...');
+    const snapshot = await getDocs(collection(db, `events/${eventId}/payments`));
+
+    trackFirestoreRead('getPayments', snapshot.size);
+
+    const payments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    await cacheManager.cacheData(cacheKey, payments, 30); // Cache 30 menit
+
+    return payments;
+}
+
 // ============================================
 // REAL-TIME LISTENERS (Only for Critical Data)
 // ============================================
@@ -244,6 +266,7 @@ export async function invalidateEventCache(eventId) {
     await cacheManager.invalidateCache(`event_${eventId}`);
     await cacheManager.invalidateCache(`rewards_${eventId}`);
     await cacheManager.invalidateCache(`medals_manual_${eventId}`);
+    await cacheManager.invalidateCache(`payments_${eventId}`);
 }
 
 export async function refreshAllData(db, eventId) {
@@ -251,15 +274,16 @@ export async function refreshAllData(db, eventId) {
     await invalidateEventCache(eventId);
 
     // Preload semua data
-    const [classes, athletes, brackets, eventData, rewards, medalsManual] = await Promise.all([
+    const [classes, athletes, brackets, eventData, rewards, medalsManual, payments] = await Promise.all([
         getClasses(db, eventId, true),
         getAthletes(db, eventId, true),
         getBrackets(db, eventId, true),
         getEventData(db, eventId, true),
         getRewards(db, eventId, true),
-        fetchMedalsManual(db, eventId, true)
+        fetchMedalsManual(db, eventId, true),
+        getPayments(db, eventId, true)
     ]);
 
     console.log('[LISTENERS] All data refreshed and cached');
-    return { classes, athletes, brackets, eventData, rewards, medalsManual };
+    return { classes, athletes, brackets, eventData, rewards, medalsManual, payments };
 }

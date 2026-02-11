@@ -68,8 +68,8 @@ class QuotaMonitor {
         indicator.id = 'quota-indicator';
         indicator.style.cssText = `
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 24px;
+            left: 84px;
             background: rgba(0, 0, 0, 0.85);
             color: #60a5fa;
             padding: 12px 20px;

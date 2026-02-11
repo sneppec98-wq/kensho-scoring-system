@@ -39,6 +39,19 @@ window.switchVerificationTab = (tab) => {
     }
 };
 
+window.setVerificationSearch = (val) => {
+    const input = document.getElementById('verifikasiSearchInput');
+    if (input) {
+        input.value = val;
+        window.handleVerifikasiSearch(val, window.verifikasiCurrentTab, window.latestAthletes, window.latestClasses, window.latestBrackets, window.currentEventName || '', window.currentEventLogo || '');
+    } else {
+        // If searching but input not visible, just update term and re-render
+        window.verifikasiSearchTerm = val.toLowerCase();
+        window.verifikasiCurrentPage = 1;
+        renderVerificationData(window.latestAthletes, window.latestClasses, window.latestBrackets, window.verifikasiCurrentTab, window.currentEventName || '', window.currentEventLogo || '');
+    }
+};
+
 window.editJuaraManual = (className, classCode = null) => {
     if (typeof window.openWinnerEditModal === 'function') {
         window.openWinnerEditModal(className, classCode);
@@ -59,6 +72,11 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
         window.verifikasiCurrentPage = 1;
         window.verifikasiSearchTerm = '';
     }
+
+    // Cache event metadata for search handlers
+    window.currentEventName = eventName;
+    window.currentEventLogo = eventLogo;
+
     const verifikasiContent = document.getElementById('verifikasiContent');
     if (!verifikasiContent) return;
 

@@ -8,8 +8,6 @@ import { db, auth } from './firebase-init.js';
 import { handleLogout } from './auth-helpers.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { initVoiceLounge, joinVoice, leaveVoice, toggleMicMute } from './voice-chat.js';
-
 // Import UI Helpers
 import {
     showProgress,
@@ -34,6 +32,7 @@ import {
 // Import Athletes Manager
 import {
     renderAthleteData,
+    renderPaymentTracking,
     editAthlete,
     saveAthleteEdit,
     handleClassCodeInput,
@@ -43,7 +42,8 @@ import {
     deleteContingentAthletes,
     editContingentName,
     saveContingentNameEdit,
-    deleteAllAthletes
+    deleteAllAthletes,
+    applyPayment
 } from './modules/athletes-manager.js';
 
 // Import Classes Manager
@@ -84,6 +84,7 @@ import {
     getEventData,
     getRewards,
     fetchMedalsManual,
+    getPayments,
     invalidateEventCache,
     refreshAllData
 } from './modules/firestore-listeners.js';
@@ -103,8 +104,8 @@ let latestClasses = [];
 let latestBrackets = [];
 let latestRewards = {};
 let latestMedalsManual = [];
+let latestPaymentsMap = {};
 let currentSubTab = 'OPEN'; // For Classes & Brackets
-let currentAthleteSubTab = 'OPEN'; // For Athletes Table
 let currentVerifikasiSubTab = 'PESERTA'; // For Verification Tab
 let pendingLogoBase64 = null;
 
@@ -206,6 +207,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             const newDate = document.getElementById('settingDeadline').value;
             const newLocation = document.getElementById('settingLocation').value.trim();
 
+            // Biaya
+            const feeOpenIndiv = document.getElementById('feeOpenIndiv').value;
+            const feeOpenTeam = document.getElementById('feeOpenTeam').value;
+            const feeFestIndiv = document.getElementById('feeFestIndiv').value;
+            const feeFestTeam = document.getElementById('feeFestTeam').value;
+            const feeContingent = document.getElementById('feeContingent').value;
+
+            // Bank
+            const bankName = document.getElementById('bankName').value.trim();
+            const bankAccount = document.getElementById('bankAccount').value.trim();
+            const bankOwner = document.getElementById('bankOwner').value.trim();
+
+            // Teknis
+            const hostKontingen = document.getElementById('hostKontingen').value.trim();
+
             if (!newName) {
                 await customAlert("Nama event wajib diisi!", "Validasi Gagal", "danger");
                 return;
@@ -215,7 +231,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const updateData = {
                     name: newName,
                     date: newDate,
-                    location: newLocation
+                    location: newLocation,
+                    fees: {
+                        openIndiv: Number(feeOpenIndiv) || 0,
+                        openTeam: Number(feeOpenTeam) || 0,
+                        festIndiv: Number(feeFestIndiv) || 0,
+                        festTeam: Number(feeFestTeam) || 0,
+                        contingent: Number(feeContingent) || 0
+                    },
+                    bank: {
+                        name: bankName,
+                        account: bankAccount,
+                        owner: bankOwner
+                    },
+                    hostKontingen: hostKontingen
                 };
 
                 if (pendingLogoBase64) {
@@ -225,7 +254,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await updateDoc(doc(db, 'events', eventId), updateData);
                 await customAlert("Pengaturan event berhasil disimpan!", "Simpan Berhasil", "info");
 
-                // Real-time listener will handle global variable and UI updates
+                // Refresh cache/state after update
+                await refreshEventData();
                 pendingLogoBase64 = null;
             } catch (err) {
                 console.error("Update Event Error:", err);
@@ -241,14 +271,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         // Load all data in parallel
-        const [eventData, athletes, classes, brackets, rewards, medalsManual] = await Promise.all([
+        const [eventData, athletes, classes, brackets, rewards, medalsManual, payments] = await Promise.all([
             getEventData(db, eventId),
             getAthletes(db, eventId),
             getClasses(db, eventId),
             getBrackets(db, eventId),
             getRewards(db, eventId),
-            fetchMedalsManual(db, eventId)
+            fetchMedalsManual(db, eventId),
+            getPayments(db, eventId)
         ]);
+
+        // Map payments for O(1) lookup
+        latestPaymentsMap = {};
+        if (payments) {
+            payments.forEach(p => {
+                latestPaymentsMap[p.id.toUpperCase()] = p;
+            });
+        }
+        window.latestPaymentsMap = latestPaymentsMap;
 
         // Update event info
         if (eventData) {
@@ -270,6 +310,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const locationInput = document.getElementById('settingLocation');
             if (locationInput) locationInput.value = eventData.location || "";
+
+            // Populate Fees
+            if (eventData.fees) {
+                if (document.getElementById('feeOpenIndiv')) document.getElementById('feeOpenIndiv').value = eventData.fees.openIndiv || 0;
+                if (document.getElementById('feeOpenTeam')) document.getElementById('feeOpenTeam').value = eventData.fees.openTeam || 0;
+                if (document.getElementById('feeFestIndiv')) document.getElementById('feeFestIndiv').value = eventData.fees.festIndiv || 0;
+                if (document.getElementById('feeFestTeam')) document.getElementById('feeFestTeam').value = eventData.fees.festTeam || 0;
+                if (document.getElementById('feeContingent')) document.getElementById('feeContingent').value = eventData.fees.contingent || 0;
+            }
+
+            // Populate Bank
+            if (eventData.bank) {
+                if (document.getElementById('bankName')) document.getElementById('bankName').value = eventData.bank.name || "";
+                if (document.getElementById('bankAccount')) document.getElementById('bankAccount').value = eventData.bank.account || "";
+                if (document.getElementById('bankOwner')) document.getElementById('bankOwner').value = eventData.bank.owner || "";
+            }
+
+            // Populate Host
+            if (document.getElementById('hostKontingen')) document.getElementById('hostKontingen').value = eventData.hostKontingen || "";
 
             if (eventLogo) {
                 updateLogoPreview(eventLogo);
@@ -301,10 +360,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.latestMedalsManual = medalsManual;
 
         // Render all views
-        renderAthleteData(athletes, classes, currentAthleteSubTab);
+        renderAthleteData(athletes, classes);
         renderClassesData(classes, athletes, brackets, currentSubTab, eventId);
         renderBracketsConfig(classes, brackets);
         renderVerificationData(athletes, classes, brackets, currentVerifikasiSubTab, eventName, eventLogo, medalsManual);
+        renderPaymentTracking(athletes, classes, latestPaymentsMap);
         renderWinnerStatusList(classes, brackets, rewards);
 
         console.log('✅ All data loaded and rendered from cache');
@@ -313,15 +373,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         await customAlert('Gagal memuat data event: ' + err.message, 'Error', 'danger');
     }
 
-    // ===================================
-    // Initialize Voice Lounge
-    // ===================================
-    try {
-        initVoiceLounge();
-        console.log('🎤 Voice Lounge initialized');
-    } catch (err) {
-        console.error('Voice Lounge initialization error:', err);
-    }
 
     console.log('✅ Event Detail Modules Loaded Successfully');
 
@@ -331,16 +382,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const targetTab = urlParams.get('tab');
     if (targetTab === 'bracket') {
-        const cardBracket = document.querySelector('[onclick*="tab-bracket"]');
-        if (cardBracket) {
-            switchTab('tab-bracket', cardBracket);
-        }
+        window.switchTab('bracket');
     } else if (targetTab === 'kontingen') {
-        const cardKontingen = document.querySelector('[onclick*="tab-kontingen"]');
-        if (cardKontingen) switchTab('tab-kontingen', cardKontingen);
+        window.switchTab('kontingen');
     } else if (targetTab === 'atlet') {
-        const cardAtlet = document.querySelector('[onclick*="tab-atlet"]');
-        if (cardAtlet) switchTab('tab-atlet', cardAtlet);
+        window.switchTab('atlet');
     }
 });
 
@@ -395,11 +441,7 @@ window.setSubTab = (tab) => {
 };
 
 window.setAthleteSubTab = (tab) => {
-    currentAthleteSubTab = tab;
-    document.querySelectorAll('.athlete-sub-tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.sub === tab);
-    });
-    renderAthleteData(latestAthletes, latestClasses, currentAthleteSubTab);
+    console.warn("setAthleteSubTab is deprecated. All athletes are now shown in a unified list.");
 };
 
 window.setVerifikasiSubTab = (tab) => {
@@ -410,18 +452,11 @@ window.setVerifikasiSubTab = (tab) => {
     renderVerificationData(latestAthletes, latestClasses, latestBrackets, currentVerifikasiSubTab, eventName, eventLogo, latestMedalsManual);
 };
 
-function toggleVoiceLounge() {
-    const panel = document.getElementById('voice-lounge-panel');
-    if (panel) {
-        panel.classList.toggle('active');
-    }
-}
-window.toggleVoiceLounge = toggleVoiceLounge;
 
 // ===================================
 // Global Exports (for HTML onclick)
 // ===================================
-window.switchTab = switchTab;
+// NOTE: window.switchTab is defined at the bottom of event-detail.html for custom UI handling
 window.toggleModal = toggleModal;
 window.filterTable = filterTable;
 window.customConfirm = customConfirm;
@@ -443,6 +478,12 @@ window.editContingentName = (teamName) => editContingentName(teamName);
 window.saveContingentNameEdit = () => saveContingentNameEdit(eventId);
 window.deleteContingentAthletes = (teamName) => deleteContingentAthletes(teamName, eventId);
 window.deleteAllAthletes = () => deleteAllAthletes(eventId);
+
+window.applyPayment = async (name, amount) => {
+    await applyPayment(name, amount, eventId);
+    await window.refreshEventData(); // UI Refresh
+};
+
 window.addNewClass = () => addNewClass(eventId);
 window.deleteClass = (code) => deleteClass(code, eventId);
 window.deleteAllClasses = () => deleteAllClasses(eventId);
@@ -452,46 +493,28 @@ window.deleteBracketConfig = (code) => deleteBracketConfig(code, eventId);
 window.deleteAllBrackets = () => deleteAllBrackets(eventId);
 window.editClassName = (code, oldName) => editClassName(code, oldName);
 window.saveClassNameEdit = () => saveClassNameEdit(eventId);
-window.handleJoinVoice = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-    const btnJoin = document.getElementById('btn-join-voice');
-    btnJoin.innerHTML = '<span class="skeleton w-20 h-3"></span>';
-    btnJoin.disabled = true;
+
+window.copyOfficialLink = async () => {
+    if (!eventId) return;
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    const url = `${protocol}//${host}/official-peserta.html?id=${eventId}`;
+
     try {
-        await joinVoice(user);
-        btnJoin.classList.add('hidden');
-        document.getElementById('btn-mute-voice').classList.remove('hidden');
-        document.getElementById('btn-leave-voice').classList.remove('hidden');
+        await navigator.clipboard.writeText(url);
+        await customAlert("Link Official Peserta berhasil disalin ke clipboard!", "Link Tersalin", "info");
     } catch (err) {
-        alert("Gagal join Voice Lounge: " + err.message);
-        btnJoin.innerHTML = 'Join Lounge';
-        btnJoin.disabled = false;
+        console.error("Gagal menyalin link:", err);
+        // Fallback jika navigator.clipboard tidak didukung (jarang terjadi di browser modern)
+        const textArea = document.createElement("textarea");
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        await customAlert("Link Official Peserta berhasil disalin ke clipboard!", "Link Tersalin", "info");
     }
 };
-
-window.handleLeaveVoice = async () => {
-    await leaveVoice();
-    document.getElementById('btn-join-voice').classList.remove('hidden');
-    document.getElementById('btn-join-voice').disabled = false;
-    document.getElementById('btn-join-voice').innerHTML = 'Join Lounge';
-    document.getElementById('btn-mute-voice').classList.add('hidden');
-    document.getElementById('btn-leave-voice').classList.add('hidden');
-};
-
-window.toggleMute = () => {
-    const isMuted = toggleMicMute();
-    const icon = document.getElementById('mute-icon');
-    const btn = document.getElementById('btn-mute-voice');
-    if (isMuted) {
-        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-3.674m0 0L3 21m0-18l18 18" />';
-        btn.classList.add('text-red-400');
-    } else {
-        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />';
-        btn.classList.remove('text-red-400');
-    }
-};
-window.toggleMicMute = toggleMicMute;
 window.printSchedule = async (name, logo) => await prepareJadwalPrint(name || eventName, logo || eventLogo);
 window.handlePrintFestivalBracket = async () => {
     const bracketsMap = {};
@@ -532,9 +555,16 @@ window.refreshEventData = async () => {
         console.log('🔄 Manual refresh triggered...');
 
         // Force refresh all data
-        const { classes, athletes, brackets, eventData, rewards, medalsManual } = await refreshAllData(db, eventId);
+        const { classes, athletes, brackets, eventData, rewards, medalsManual, payments } = await refreshAllData(db, eventId);
 
         // Update global state
+        latestPaymentsMap = {};
+        if (payments) {
+            payments.forEach(p => {
+                latestPaymentsMap[p.id.toUpperCase()] = p;
+            });
+        }
+        window.latestPaymentsMap = latestPaymentsMap;
         if (eventData) {
             eventName = eventData.name || eventName;
             eventLogo = eventData.logo || eventLogo;
@@ -547,10 +577,11 @@ window.refreshEventData = async () => {
         latestRewards = rewards;
 
         // Re-render all views
-        renderAthleteData(athletes, classes, currentAthleteSubTab);
+        renderAthleteData(athletes, classes);
         renderClassesData(classes, athletes, brackets, currentSubTab, eventId);
         renderBracketsConfig(classes, brackets);
         renderVerificationData(athletes, classes, brackets, currentVerifikasiSubTab, eventName, eventLogo, medalsManual);
+        renderPaymentTracking(athletes, classes, latestPaymentsMap);
         renderWinnerStatusList(classes, brackets, rewards);
 
         console.log('✅ Manual refresh complete!');

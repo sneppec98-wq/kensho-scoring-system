@@ -4,1979 +4,1017 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kontrol Event | Spartan Sport</title>
+    <title>Event Control | Spartan Sport</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: '#0f172a',
-                        light: '#1e293b',
-                        accent: '#3b82f6',
-                        blue: '#3b82f6',
-                    }
-                }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="css/window-controls.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            color: #94a3b8;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tab-btn:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .tab-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s;
+            border: 1px solid #334155;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #7f1d1d;
+            color: #fca5a5;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #991b1b;
+            color: white;
+        }
+
+        .input-search {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: white;
+            width: 280px;
+            transition: all 0.2s;
+        }
+
+        .input-search:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: #1e293b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-    </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="css/event-detail.css?v=2">
-    <link rel="stylesheet" href="css/window-controls.css">
+        .kbd {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-left: 4px;
+            color: #64748b;
+        }
+
+        /* SIDEBAR Style */
+        .side-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.2s;
+            margin-bottom: 1rem;
+        }
+
+        .side-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .side-btn.active {
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        tr {
+            transition: background 0.2s;
+        }
+
+        td,
+        th {
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        th {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            font-weight: 800;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 16px;
+        }
+
+        .table-row {
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+        }
+
+        .table-row:hover {
+            background: #1e293b;
+        }
+
+        .table-row td:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .table-row td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-container {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Sub-tabs */
+        .sub-tab-btn {
+            padding: 6px 14px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 6px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+
+        .sub-tab-btn:hover {
+            color: white;
+        }
+
+        .sub-tab-btn.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+    </style>
 </head>
 
-<body class="min-h-screen flex flex-row text-slate-200 overflow-x-hidden">
-    <script src="js/window-controls.js"></script>
-    <!-- Aurora Background -->
-    <div id="aurora-container">
-        <div class="aurora aurora-1" style="background: var(--blue);"></div>
-        <div class="aurora aurora-2" style="background: #4f46e5;"></div>
-        <div class="aurora aurora-3" style="background: #06b6d4;"></div>
-    </div>
+<body>
 
-    <aside class="w-20 h-screen fixed left-0 top-0 flex flex-col items-center py-8 z-50">
-        <div class="mb-14">
-            <a href="dashboard.html">
-                <div
-                    class="w-12 h-12 bg-slate-800/50 rounded-2xl shadow-lg shadow-blue-500/10 flex items-center justify-center border border-white/5 hover:scale-110 transition-all">
-                    <img src="kensho-logo.png" alt="Logo" class="w-8 h-8 object-contain">
-                </div>
+    <!-- SIDEBAR -->
+    <aside
+        class="fixed left-0 top-0 h-screen w-16 bg-slate-900 border-r border-white/5 flex flex-col items-center py-6 z-50">
+        <div class="mb-10">
+            <a href="dashboard.html" class="side-btn">
+                <img src="kensho-logo.png" alt="L" class="w-6 h-6 opacity-80">
             </a>
-            <div class="badge-version mt-3">v3.4.0</div>
         </div>
-        <nav class="flex-1 flex flex-col items-center">
-            <a href="dashboard.html" data-tooltip="Beranda Dashboard" class="side-btn">
+
+        <nav class="flex flex-col items-center space-y-2">
+            <a href="dashboard.html" title="Dashboard" class="side-btn">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <path
                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
             </a>
-
-            <a href="data-pertandingan.html" data-tooltip="Data Pertandingan" class="side-btn active">
+            <a href="data-pertandingan.html" title="Event" class="side-btn active">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
             </a>
-            <a id="linkScoringHub" href="scoring-home.html" data-tooltip="Pusat Scoring" class="side-btn">
+            <a href="scoring-home.html" title="Scoring" class="side-btn">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    <path
                         d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
             </a>
-
-            <button onclick="toggleVoiceLounge()" data-tooltip="Kensho Voice Lounge" class="side-btn" id="btn-voice">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-            </button>
         </nav>
-        <!-- LOGOUT BUTTON -->
-        <button onclick="handleLogout()" data-tooltip="Keluar Sistem" class="side-btn mb-8 mt-auto">
+
+        <button onclick="handleLogout()" title="Logout" class="mt-auto side-btn text-red-500/50 hover:text-red-500">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
         </button>
     </aside>
 
-    <main class="ml-20 flex-1 p-10">
-        <header class="flex justify-between items-center mb-12">
+    <main class="ml-16 p-10 min-h-screen max-w-[1600px] mx-auto">
+
+        <!-- HEADER -->
+        <header class="mb-10 flex justify-between items-end">
             <div>
                 <div
-                    class="flex items-center space-x-4 mb-4 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-                    <a href="data-pertandingan.html" class="hover:text-blue-500 transition-colors">PERTANDINGAN</a>
+                    class="flex items-center space-x-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
+                    <a href="data-pertandingan.html" class="hover:text-blue-500">Event</a>
                     <span>/</span>
-                    <span id="breadcrumbEventName"
-                        class="text-blue-500 opacity-100 uppercase font-black tracking-widest">LOADING...</span>
+                    <span id="breadcrumbEventName" class="text-blue-400">Loading...</span>
                 </div>
-                <h1 class="text-4xl font-black italic tracking-tighter uppercase leading-none text-white">Kontrol Event
-                </h1>
-                <p class="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-3 text-blue-500 italic">
-                    Manajemen Kompetisi Teknis</p>
+                <h1 id="event-name-display" class="text-3xl font-extrabold tracking-tight text-white uppercase italic">
+                    Nama Event</h1>
+                <p class="text-xs text-slate-500 mt-1 uppercase font-bold tracking-widest">Event Control | Manajemen
+                    Kompetisi Teknis</p>
             </div>
-            <div class="flex items-center gap-6">
+
+            <div class="flex items-center space-x-3">
                 <button onclick="window.refreshEventData()" id="btn-refresh-data"
-                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-emerald-500 hover:text-white transition-all">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        <span>Refresh Data</span>
-                    </div>
+                    class="btn-secondary flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    REFRESH
                 </button>
-                <button onclick="toggleModal('modal-settings', true)"
-                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-blue-500 hover:text-white transition-all">Pengaturan
-                    Event</button>
-                <button onclick="window.copyOfficialLink()"
-                    class="neu-button px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest text-green-500 hover:text-white transition-all">Bagikan
-                    Link</button>
-                <div class="flex items-center gap-4 neu-inset px-6 py-3 rounded-2xl border border-white/5">
-                    <div class="text-right">
-                        <p
-                            class="text-[8px] font-black uppercase opacity-40 tracking-widest leading-none mb-1 text-slate-400">
-                            Authenticated As</p>
-                        <p id="userNameDisplay" class="text-xs font-black uppercase tracking-wider text-blue-500">
-                            Loading...</p>
-                    </div>
-                    <div
-                        class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                </div>
+                <button onclick="toggleModal('modal-settings', true)" class="btn-secondary">PENGATURAN</button>
+                <button onclick="window.copyOfficialLink()" class="btn-primary">BAGIKAN LINK</button>
             </div>
         </header>
 
-        <div class="card-grid-container">
-            <!-- 1. Data Kontingen -->
-            <div onclick="switchTab('tab-kontingen', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">MONITORING</p>
-                <h3 class="text-xl font-black italic uppercase text-indigo-400">Data Kontingen</h3>
-                <div class="mt-4 flex justify-between items-center">
-                    <span id="labelDataMasuk" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0
-                        Masuk</span>
-                    <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 2.944a11.955 11.955 0 01-8.618 3.04m8.618-3.04V12m0 0l-5.618-4.016m5.618 4.016a11.955 11.955 0 018.618 3.04" />
-                    </svg>
-                </div>
+        <!-- NAVIGATION BAR -->
+        <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+            <div class="flex space-x-2">
+                <button onclick="switchTab('atlet')" class="tab-btn active" id="btn-atlet">Atlet</button>
+                <button onclick="switchTab('kontingen')" class="tab-btn" id="btn-kontingen">Kontingen</button>
+                <button onclick="switchTab('kelas')" class="tab-btn" id="btn-kelas">Kelas</button>
+                <button onclick="switchTab('bracket')" class="tab-btn" id="btn-bagan">Bagan</button>
+                <button onclick="switchTab('pembayaran')" class="tab-btn" id="btn-pembayaran">Pembayaran</button>
+                <button onclick="switchTab('verifikasi')" class="tab-btn" id="btn-hasil">Hasil</button>
             </div>
 
-            <!-- 2. Data Atlet -->
-            <div onclick="switchTab('tab-atlet', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu card-active flex-1 cursor-pointer">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">BASIS DATA</p>
-                <h3 class="text-xl font-black italic uppercase">Data Atlet</h3>
-                <div class="mt-4 flex flex-col gap-2">
-                    <div class="flex justify-between items-center">
-                        <span id="athlete-count-badge" class="text-2xl font-black text-blue-500 italic">0</span>
-                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </div>
-                    <div class="flex items-center gap-3 opacity-40">
-                        <span class="text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
-                            <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                            <span id="dash-open-count">0</span> OPEN
-                        </span>
-                        <span class="text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
-                            <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                            <span id="dash-fest-count">0</span> FEST
-                        </span>
-                        <span class="text-[8px] font-black uppercase tracking-widest flex items-center gap-1">
-                            <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                            <span id="dash-team-count">0</span> TEAM
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. Kelas Tanding -->
-            <div onclick="switchTab('tab-kelas', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">KATEGORI</p>
-                <h3 class="text-xl font-black italic uppercase text-blue-400">Kelas Tanding</h3>
-                <div class="mt-4 flex justify-between items-center text-blue-400">
-                    <span id="countKelas" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">0
-                        Kelas</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                </div>
-            </div>
-
-            <!-- 4. Pembayaran -->
-            <div onclick="switchTab('tab-pembayaran', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu cursor-pointer group">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">KEUANGAN & INVOICE</p>
-                <h3 class="text-xl font-black italic uppercase text-blue-400">Pembayaran</h3>
-                <div class="mt-4 flex justify-between items-center text-blue-400">
-                    <span id="labelTotalBiaya" class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Rp
-                        0</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
-            </div>
-
-            <!-- 5. Bagan -->
-            <div onclick="switchTab('tab-bracket', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">BAGAN LIVE</p>
-                <h3 class="text-xl font-black italic uppercase text-yellow-500">Bagan Pertandingan</h3>
-                <div class="mt-4 flex justify-between items-center text-yellow-500">
-                    <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Peta Turnamen</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                    </svg>
-                </div>
-            </div>
-
-            <!-- 6. Hasil -->
-            <div onclick="switchTab('tab-verifikasi', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu flex-1 cursor-pointer">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">HASIL PERTANDINGAN</p>
-                <h3 class="text-xl font-black italic uppercase text-green-500">Verifikasi & Hasil</h3>
-                <div class="mt-4 flex justify-between items-center text-green-500">
-                    <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Print PDF</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-            </div>
-
-            <!-- 7. Cetak -->
-            <div id="card-cetak" onclick="switchTab('tab-cetak', this)"
-                class="neu-flat p-8 rounded-[2.5rem] card-menu cursor-pointer">
-                <p class="text-[9px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">OUTPUT & DOKUMEN</p>
-                <h3 class="text-xl font-black italic uppercase text-emerald-400">Pencetakan</h3>
-                <div class="mt-4 flex justify-between items-center text-emerald-400">
-                    <span class="text-[10px] font-bold opacity-40 uppercase tracking-widest">Salin Nama</span>
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                </div>
+            <div class="text-[9px] font-bold text-slate-600 uppercase tracking-widest flex items-center">
+                SHORTCUTS:
+                <span class="kbd">1-6</span> TABS
+                <span class="kbd">A</span> TAMBAH ATLET
+                <span class="kbd">/</span> CARI
             </div>
         </div>
 
-        <div id="content-area">
-            <datalist id="contingent-list"></datalist>
-            <div id="tab-atlet" class="tab-content">
-                <div class="neu-flat p-8 rounded-[2.5rem]">
-                    <div class="mb-8 flex justify-between items-center">
-                        <div class="flex flex-col gap-4">
-                            <div class="sub-tab-container !mb-0">
-                                <button onclick="setAthleteSubTab('OPEN')"
-                                    class="sub-tab-btn athlete-sub-tab-btn active" data-sub="OPEN">OPEN
-                                    (PRESTASI)</button>
-                                <button onclick="setAthleteSubTab('FESTIVAL')" class="sub-tab-btn athlete-sub-tab-btn"
-                                    data-sub="FESTIVAL">FESTIVAL (PEMULA)</button>
-                                <button onclick="setAthleteSubTab('BEREGU')" class="sub-tab-btn athlete-sub-tab-btn"
-                                    data-sub="BEREGU">BEREGU (TIM)</button>
-                            </div>
+        <!-- TAB CONTENTS -->
 
-                            <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-96">
-                                <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                <input type="text" onkeyup="filterTable(this, 'tableAtlet')"
-                                    placeholder="CARI NAMA ATLET..."
-                                    class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
-                            </div>
-                        </div>
+        <!-- 1. ATLET -->
+        <div id="tab-atlet" class="tab-content active">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-6">
+                    <input id="searchInput" type="text" onkeyup="filterTable(this, 'tableAtlet')"
+                        placeholder="Cari nama atlet..." class="input-search">
+                </div>
 
-                        <div class="flex items-center gap-4">
-
-
-                            <button onclick="document.getElementById('excelAthleteInput').click()"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
-                                <span
-                                    class="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white">Import
-                                    Excel</span>
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-white" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg>
-                            </button>
-                            <input type="file" id="excelAthleteInput" class="hidden" accept=".xlsx, .xls"
-                                onchange="importAthletesFromExcel(event)">
-
-                            <button onclick="deleteAllAthletes()"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-red-500 hover:text-white hover:bg-red-500"
-                                title="HAPUS SEMUA ATLET">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                <span class="text-[9px] font-black uppercase tracking-widest hidden lg:block">Reset
-                                    Data</span>
-                            </button>
-
-                            <button
-                                onclick="document.getElementById('athleteId').value = ''; toggleModal('modal-atlet', true)"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
-                                <div
-                                    class="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-blue-500">Tambah
-                                    Atlet
-                                    (Darurat)</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <table class="w-full text-left" id="tableAtlet">
-                        <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">
-                            <tr>
-                                <th class="pb-4 pl-6">Detail Peserta</th>
-                                <th class="pb-4">Kontingen</th>
-                                <th class="pb-4">Kategori</th>
-                                <th class="pb-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="athlete-table-body" class="uppercase italic">
-                            <tr>
-                                <td colspan="4"
-                                    class="py-20 text-center opacity-30 font-black uppercase tracking-widest text-[10px]">
-                                    Belum ada data atlet.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination Controls for Athletes -->
-                    <div id="athletePaginationControls" class="flex justify-between items-center mt-6 px-2">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            <span id="athletePageInfo">Menampilkan 0 - 0 dari 0 data</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="window.changeAthletePage(-1)"
-                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                id="athletePrevBtn">
-                                ← Sebelumnya
-                            </button>
-                            <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                <span id="athleteCurrentPage" class="text-[10px] font-black text-blue-400">1</span>
-                                <span class="text-[10px] text-slate-500 mx-1">/</span>
-                                <span id="athleteTotalPages" class="text-[10px] font-bold text-slate-400">1</span>
-                            </div>
-                            <button onclick="window.changeAthletePage(1)"
-                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                id="athleteNextBtn">
-                                Berikutnya →
-                            </button>
-                        </div>
-                    </div>
-
+                <div class="flex items-center space-x-3">
+                    <button onclick="document.getElementById('excelAthleteInput').click()" class="btn-secondary">IMPORT
+                        EXCEL</button>
+                    <input type="file" id="excelAthleteInput" class="hidden" accept=".xlsx, .xls"
+                        onchange="importAthletesFromExcel(event)">
+                    <button onclick="deleteAllAthletes()" class="btn-danger">RESET DATA</button>
+                    <button onclick="document.getElementById('athleteId').value = ''; toggleModal('modal-atlet', true)"
+                        class="btn-primary">TAMBAH ATLET</button>
                 </div>
             </div>
 
-            <div id="tab-cetak" class="tab-content hidden">
-                <div class="neu-flat p-8 rounded-[2.5rem]">
-                    <div class="mb-10 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8">
-                        <div>
-                            <h3 class="text-2xl font-black italic uppercase text-slate-200">Hub Monitoring & Pencetakan
-                            </h3>
-                            <p class="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.3em] mt-2">Pantau
-                                Status Pengambilan Medali & Piagam</p>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-6 w-full xl:w-auto">
-                            <!-- Stats Cards -->
-                            <div class="flex items-center gap-4">
-                                <div
-                                    class="neu-inset px-6 py-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
-                                    <div class="text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-1">
-                                        Sudah Diambil</div>
-                                    <div class="flex items-end gap-2">
-                                        <span id="stat-rewards-claimed"
-                                            class="text-2xl font-black text-white leading-none">0</span>
-                                        <span class="text-[10px] font-bold text-emerald-500/50 uppercase">Item</span>
-                                    </div>
-                                </div>
-                                <div
-                                    class="neu-inset px-6 py-4 rounded-2xl border border-orange-500/20 bg-orange-500/5">
-                                    <div class="text-[8px] font-black text-orange-500 uppercase tracking-widest mb-1">
-                                        Belum Diambil</div>
-                                    <div class="flex items-end gap-2">
-                                        <span id="stat-rewards-pending"
-                                            class="text-2xl font-black text-white leading-none">0</span>
-                                        <span class="text-[10px] font-bold text-orange-500/50 uppercase">Item</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-4 ml-auto">
-                                <button onclick="resetPrintingData()"
-                                    class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white"
-                                    title="PEMBERSIHAN DATA UJI">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    <span class="text-[10px] font-black uppercase tracking-widest">Reset Data
-                                        Hasil</span>
-                                </button>
-                                <a href="public_portal/index.html" target="_blank"
-                                    class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-emerald-400 border-emerald-500/20 hover:bg-emerald-500 hover:text-white">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                    <span class="text-[10px] font-black uppercase tracking-widest">Buka Portal
-                                        Pengambilan</span>
-                                </a>
-                                <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-72">
-                                    <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                    <input type="text" onkeyup="filterWinnerStatus(this.value)"
-                                        placeholder="CARI PEMENANG / KELAS..."
-                                        class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="printing-athlete-list"
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[600px] overflow-y-auto pr-4 custom-scrollbar">
-                        <!-- Populated by JS -->
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-kelas" class="tab-content hidden">
-                <div class="neu-flat p-8 rounded-[2.5rem]">
-                    <div class="mb-8 flex justify-between items-center">
-                        <div class="sub-tab-container">
-                            <button onclick="setSubTab('OPEN')" class="sub-tab-btn class-sub-tab active"
-                                data-sub="OPEN">OPEN (PRESTASI)</button>
-                            <button onclick="setSubTab('FESTIVAL')" class="sub-tab-btn class-sub-tab"
-                                data-sub="FESTIVAL">FESTIVAL (PEMULA)</button>
-                            <button onclick="setSubTab('BEREGU')" class="sub-tab-btn class-sub-tab"
-                                data-sub="BEREGU">BEREGU (TIM)</button>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <button onclick="downloadClassTemplate()"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
-                                <span
-                                    class="text-[9px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white">Template</span>
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-white" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                            </button>
-
-                            <button onclick="document.getElementById('excelClassInput').click()"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-blue-500">Import
-                                    Excel</span>
-                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg>
-                            </button>
-                            <input type="file" id="excelClassInput" class="hidden" accept=".xlsx, .xls"
-                                onchange="importClassesFromExcel(event)">
-
-                            <button onclick="deleteAllClasses()"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-red-500 hover:text-white hover:bg-red-500"
-                                title="HAPUS SEMUA KELAS">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                <span class="text-[9px] font-black uppercase tracking-widest hidden lg:block">Reset
-                                    Semua</span>
-                            </button>
-
-                            <button onclick="toggleModal('modal-kelas', true)"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
-                                <div
-                                    class="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                                <span class="text-[10px] font-black uppercase tracking-widest text-blue-500">Tambah
-                                    Kelas</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <table class="w-full text-left" id="tableKelas">
-                        <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">
-                            <tr>
-                                <th class="pb-4 pl-6">Detail Kelas</th>
-                                <th class="pb-4">Kategori Umur</th>
-                                <th class="pb-4">Gender</th>
-                                <th class="pb-4">Tipe</th>
-                                <th class="pb-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="classes-table-body" class="uppercase">
-                            <tr>
-                                <td colspan="4"
-                                    class="py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">
-                                    Belum ada data kelas tanding.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="tab-bracket" class="tab-content hidden">
-                <div class="neu-flat p-8 rounded-[2.5rem]">
-                    <div class="mb-12 flex justify-between items-center">
-                        <div>
-                            <h3 class="text-2xl font-black italic uppercase text-slate-200">Bagan Pertandingan</h3>
-                            <div class="sub-tab-container mt-4">
-                                <button onclick="setSubTab('OPEN')" class="sub-tab-btn bracket-sub-tab active"
-                                    data-sub="OPEN">PENYISIHAN OPEN</button>
-                                <button onclick="setSubTab('FESTIVAL')" class="sub-tab-btn bracket-sub-tab"
-                                    data-sub="FESTIVAL">BAGAN FESTIVAL</button>
-                                <button onclick="setSubTab('BEREGU')" class="sub-tab-btn bracket-sub-tab"
-                                    data-sub="BEREGU">BEREGU (TIM)</button>
-                                <button onclick="setSubTab('MAPPING')" class="sub-tab-btn bracket-sub-tab"
-                                    data-sub="MAPPING">DATA MAPPING 📊</button>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-4">
-                            <!-- 
-                            HAPUS PENGATURAN FISIK (Full Auto Mode Activated) 
-                            <button onclick="openBracketConfig()" 
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-yellow-500 hover:text-white hover:bg-yellow-500"
-                                title="PENGATURAN GLOBAL">
-                                ...
-                            </button> 
-                            -->
-
-                            <button onclick="deleteAllBrackets()"
-                                class="neu-button px-6 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white"
-                                title="HAPUS SEMUA BAGAN">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                                <span class="text-[10px] font-black uppercase tracking-widest hidden lg:block">Reset
-                                    Data Bagan</span>
-                            </button>
-
-                            <a id="btnBagan" href="#"
-                                class="neu-button px-8 py-4 rounded-2xl flex items-center space-x-3 group transition-all">
-                                <div
-                                    class="w-8 h-8 rounded-xl bg-yellow-400/10 flex items-center justify-center text-yellow-500 group-hover:bg-yellow-400 group-hover:text-dark transition-all">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </div>
-                                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-yellow-500">Buat
-                                    Bagan
-                                    Baru</span>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- PUBLIC ACCESS CONTROL (Direct Toggles) -->
-                    <div id="bracket-public-access-container"
-                        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
-                            <div>
-                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Bagan Publik
-                                </h4>
-                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="check-public-bracket"
-                                    onchange="window.updatePublicAccess('isBracketPublic', this.checked)"
-                                    class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500 peer-checked:after:bg-white">
-                                </div>
-                            </label>
-                        </div>
-                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
-                            <div>
-                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Jadwal
-                                    Publik</h4>
-                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="check-public-schedule"
-                                    onchange="window.updatePublicAccess('isSchedulePublic', this.checked)"
-                                    class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500 peer-checked:after:bg-white">
-                                </div>
-                            </label>
-                        </div>
-                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
-                            <div>
-                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Juara Publik
-                                </h4>
-                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="check-public-winners"
-                                    onchange="window.updatePublicAccess('isWinnersPublic', this.checked)"
-                                    class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 peer-checked:after:bg-white">
-                                </div>
-                            </label>
-                        </div>
-                        <div class="neu-inset p-6 rounded-3xl border border-white/5 flex items-center justify-between">
-                            <div>
-                                <h4 class="text-[10px] font-black uppercase tracking-widest text-slate-200">Medali
-                                    Publik</h4>
-                                <p class="text-[8px] font-bold opacity-30 uppercase mt-1">Portal Peserta</p>
-                            </div>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" id="check-public-medals"
-                                    onchange="window.updatePublicAccess('isMedalsPublic', this.checked)"
-                                    class="sr-only peer">
-                                <div
-                                    class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 peer-checked:after:bg-white">
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div id="bracket-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div
-                            class="neu-inset p-8 rounded-[2rem] border border-white/5 flex flex-col items-center justify-center text-center opacity-40 py-20 col-span-full">
-                            <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            <p class="text-xs font-black uppercase tracking-widest">Belum ada bagan yang dibuat</p>
-                            <p class="text-[9px] mt-2 max-w-[200px]">Silakan klik tombol di atas untuk mulai
-                                menyusun
-                                bagan pertandingan.</p>
-                        </div>
-                    </div>
-
-                    <!-- Pagination Controls for Brackets -->
-                    <div id="bracketPaginationControls" class="flex justify-between items-center mt-8 px-2">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            <span id="bracketPageInfo">Menampilkan 0 - 0 dari 0 kelas</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="window.changeBracketPage(-1)"
-                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                id="bracketPrevBtn">
-                                ← Sebelumnya
-                            </button>
-                            <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                <span id="bracketCurrentPage" class="text-[10px] font-black text-blue-400">1</span>
-                                <span class="text-[10px] text-slate-500 mx-1">/</span>
-                                <span id="bracketTotalPages" class="text-[10px] font-bold text-slate-400">1</span>
-                            </div>
-                            <button onclick="window.changeBracketPage(1)"
-                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                id="bracketNextBtn">
-                                Berikutnya →
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div id="bracket-mapping-container" class="hidden">
-                        <div class="p-8 rounded-[2.5rem] bg-indigo-50/5 border border-white/5">
-                            <div class="flex justify-between items-center mb-6">
-                                <div>
-                                    <h4 class="text-xl font-black italic uppercase text-slate-200">Tabel Pemetaan Sel
-                                        Master</h4>
-                                    <p class="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-1">Data
-                                        gabungan seluruh kelas untuk Excel Query</p>
-                                </div>
-                                <button onclick="window.exportAllMappingToExcel()"
-                                    class="px-8 py-4 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-all flex items-center gap-3 shadow-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                            d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-10l-4-4m0 0L8 8m4-4v12" />
-                                    </svg>
-                                    EKSPOR MASTER .XLSX
-                                </button>
-                            </div>
-                            <div class="badge-version">v3.4.0</div>
-                            <div class="overflow-hidden rounded-3xl border border-white/5 bg-slate-900/50">
-                                <table class="w-full text-left">
-                                    <thead
-                                        class="bg-slate-800/50 text-[9px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5">
-                                        <tr>
-                                            <th class="px-6 py-4">Kategori / Kelas</th>
-                                            <th class="px-6 py-4">ID Sel Excel</th>
-                                            <th class="px-6 py-4">Nama Peserta</th>
-                                            <th class="px-6 py-4">Kontingen</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="masterMappingTableBody"
-                                        class="text-[11px] font-bold uppercase text-slate-300 divide-y divide-white/5">
-                                        <tr>
-                                            <td colspan="4" class="px-6 py-20 text-center opacity-30 italic">Lakukan
-                                                Shuffle di tiap kelas untuk melihat data mapping...</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- Pagination Controls -->
-                            <div id="mappingPaginationControls" class="flex justify-between items-center mt-6 px-2">
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <span id="mappingPageInfo">Menampilkan 0 - 0 dari 0 data</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button onclick="window.changeMappingPage(-1)"
-                                        class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                        id="mappingPrevBtn">
-                                        ← Sebelumnya
-                                    </button>
-                                    <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                        <span id="mappingCurrentPage"
-                                            class="text-[10px] font-black text-blue-400">1</span>
-                                        <span class="text-[10px] text-slate-500 mx-1">/</span>
-                                        <span id="mappingTotalPages"
-                                            class="text-[10px] font-bold text-slate-400">1</span>
-                                    </div>
-                                    <button onclick="window.changeMappingPage(1)"
-                                        class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                        id="mappingNextBtn">
-                                        Berikutnya →
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-kontingen" class="tab-content hidden">
-                <div class="neu-flat p-8 rounded-[2.5rem]">
-                    <div class="mb-8 flex justify-between items-center">
-                        <div>
-                            <h3 class="text-2xl font-black italic uppercase text-indigo-400">Data Masuk per Kontingen
-                            </h3>
-                            <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1">Monitoring pendaftaran
-                                berdasarkan daftar klub peserta</p>
-                        </div>
-                        <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-72">
-                            <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="text" onkeyup="filterTable(this, 'tableKontingen')"
-                                placeholder="CARI KONTINGEN..."
-                                class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
-                        </div>
-                    </div>
-
-                    <div id="contingentSummary" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        <!-- Summary cards will be here -->
-                    </div>
-
-                    <table class="w-full text-left" id="tableKontingen">
-                        <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">
-                            <tr>
-                                <th class="pb-4 pl-6 w-16">No</th>
-                                <th class="pb-4">Nama Kontingen (Daftar)</th>
-                                <th class="pb-4 text-center">Status Data</th>
-                                <th class="pb-4 text-center">Open</th>
-                                <th class="pb-4 text-center">Festival</th>
-                                <th class="pb-4 text-center">Beregu</th>
-                                <th class="pb-4 text-center">Total Atlet</th>
-                                <th class="pb-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="contingentTableBody" class="uppercase font-bold tracking-tight">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-
-                    <!-- Pagination Controls for Contingents -->
-                    <div id="contingentPaginationControls" class="flex justify-between items-center mt-6 px-2">
-                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            <span id="contingentPageInfo">Menampilkan 0 - 0 dari 0 kontingen</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="window.changeContingentPage(-1)"
-                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                id="contingentPrevBtn">
-                                ← Sebelumnya
-                            </button>
-                            <div class="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                                <span id="contingentCurrentPage" class="text-[10px] font-black text-blue-400">1</span>
-                                <span class="text-[10px] text-slate-500 mx-1">/</span>
-                                <span id="contingentTotalPages" class="text-[10px] font-bold text-slate-400">1</span>
-                            </div>
-                            <button onclick="window.changeContingentPage(1)"
-                                class="px-4 py-2 rounded-lg bg-slate-800/50 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                id="contingentNextBtn">
-                                Berikutnya →
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div id="tab-verifikasi" class="tab-content hidden">
-                <div class="neu-flat p-8 rounded-[2.5rem] no-print">
-                    <div class="mb-8 flex justify-between items-center">
-                        <div>
-                            <h3 class="text-2xl font-black italic uppercase text-slate-200">Data Verifikasi & Hasil
-                                Pertandingan</h3>
-                            <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1">Laporan verifikasi, daftar
-                                juara, dan perolehan medali</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="sub-tab-container mt-4 mb-8">
-                    <button onclick="setVerifikasiSubTab('PESERTA')" class="sub-tab-btn verifikasi-sub-tab active"
-                        data-sub="PESERTA">DAFTAR PESERTA</button>
-                    <button onclick="setVerifikasiSubTab('JADWAL')" class="sub-tab-btn verifikasi-sub-tab"
-                        data-sub="JADWAL">JADWAL PERTANDINGAN</button>
-                    <button onclick="setVerifikasiSubTab('JUARA')" class="sub-tab-btn verifikasi-sub-tab"
-                        data-sub="JUARA">DAFTAR JUARA</button>
-                    <button onclick="setVerifikasiSubTab('MEDALI')" class="sub-tab-btn verifikasi-sub-tab"
-                        data-sub="MEDALI">PEROLEHAN MEDALI</button>
-                    <button onclick="setVerifikasiSubTab('MEDALI_TALLY')" class="sub-tab-btn verifikasi-sub-tab"
-                        data-sub="MEDALI_TALLY">PENGHITUNGAN MEDALI</button>
-                </div>
-
-                <div id="verifikasiContent" class="text-slate-300">
-                    <p class="text-center opacity-40 py-20 italic">Memuat data...</p>
-                </div>
-            </div>
-
-            <div id="tab-pembayaran" class="tab-content hidden">
-                <div class="neu-flat p-8 rounded-[2.5rem]">
-                    <div class="mb-8 flex justify-between items-center">
-                        <div>
-                            <h3 class="text-2xl font-black italic uppercase text-blue-400">Ringkasan Pembayaran
-                                Kontingen</h3>
-                            <p class="text-[10px] font-bold opacity-30 tracking-widest mt-1">Monitoring administrasi
-                                keuangan per klub</p>
-                        </div>
-                        <div class="neu-inset px-6 py-4 rounded-2xl flex items-center w-72">
-                            <svg class="w-4 h-4 opacity-30 mr-4 text-slate-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <input type="text" onkeyup="filterTable(this, 'tablePembayaran')"
-                                placeholder="CARI KONTINGEN..."
-                                class="bg-transparent text-[10px] font-black outline-none w-full uppercase tracking-widest text-slate-200 placeholder-slate-500">
-                        </div>
-                    </div>
-
-                    <table class="w-full text-left" id="tablePembayaran">
-                        <thead class="text-[9px] font-black opacity-30 uppercase tracking-[0.2em]">
-                            <tr>
-                                <th class="pb-4 pl-6">Kontingen</th>
-                                <th class="pb-4 text-center">Open</th>
-                                <th class="pb-4 text-center">Festival</th>
-                                <th class="pb-4 text-center">Beregu</th>
-                                <th class="pb-4 text-right">Total Biaya</th>
-                                <th class="pb-4 text-center">Invoice</th>
-                            </tr>
-                        </thead>
-                        <tbody id="paymentTableBody" class="uppercase font-bold tracking-tight">
-                            <tr>
-                                <td colspan="6"
-                                    class="p-20 text-center opacity-30 italic font-black uppercase tracking-widest text-xs">
-                                    Memproses data keuangan...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-        </div>
-    </main>
-
-    <div id="modal-atlet" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
-        <div
-            class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <header class="mb-6 text-center">
-                <div class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-red-400 mx-auto mb-4">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                </div>
-                <h2 class="text-3xl font-black italic uppercase shimmer-text">Entri Darurat</h2>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mt-2 text-blue-500">
-                    Pendaftaran
-                    Darurat Atlet Baru</p>
-            </header>
-
-            <form id="formAthlete" onsubmit="event.preventDefault(); window.saveEmergencyAthlete();"
-                class="grid grid-cols-2 gap-4">
-                <input type="hidden" id="athleteId">
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
-                        Lengkap Atlet</label>
-                    <input type="text" id="athleteName" required
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="NAMA ATLET...">
-                </div>
-
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kontingen
-                        / Tim</label>
-                    <input type="text" id="athleteTeam" required list="contingent-list"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="MASUKKAN NAMA KONTINGEN...">
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Jenis
-                        Kelamin</label>
-                    <select id="athleteGender"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
-                        <option value="PUTRA">PUTRA</option>
-                        <option value="PUTRI">PUTRI</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Tanggal
-                        Lahir</label>
-                    <input type="date" id="athleteBirth" required
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5">
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Berat
-                        Badan (KG)</label>
-                    <input type="number" id="athleteWeight" step="0.1"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="00.0">
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kode
-                        Kelas</label>
-                    <input type="text" id="athlete-classCode" oninput="window.handleEmergencyClassCodeInput(this.value)"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="CONTOH: 001, 002...">
-                    <p id="athlete-class-preview"
-                        class="text-[10px] font-bold text-blue-400 mt-2 ml-4 uppercase tracking-wider h-4">
-                        <!-- Preview Nama Kelas -->
-                    </p>
-                </div>
-
-                <div id="teamMembersContainer" class="col-span-2 hidden space-y-4">
-                    <p class="text-[9px] font-black uppercase text-orange-400 tracking-widest text-center">Kelas Beregu:
-                        Masukkan Nama Anggota 2 & 3</p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="col-span-2 md:col-span-1">
-                            <label
-                                class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Anggota
-                                2</label>
-                            <input type="text" id="athleteName2"
-                                class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                                placeholder="ANGGOTA 2...">
-                        </div>
-                        <div class="col-span-2 md:col-span-1">
-                            <label
-                                class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Anggota
-                                3</label>
-                            <input type="text" id="athleteName3"
-                                class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                                placeholder="ANGGOTA 3...">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-span-2 flex space-x-4 mt-2">
-                    <button type="button" onclick="toggleModal('modal-atlet', false)"
-                        class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.3em] opacity-50">Batalkan</button>
-                    <button type="submit"
-                        class="flex-1 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(59,130,246,0.3)]">Simpan
-                        Atlet</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Edit Atlet (Missing Modal Fix) -->
-    <div id="modal-edit-athlete" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
-        <div
-            class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <header class="mb-6 text-center">
-                <div
-                    class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-blue-400 mx-auto mb-4 border border-blue-500/20">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                </div>
-                <h2 class="text-3xl font-black italic uppercase shimmer-text">Edit Data Atlet</h2>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mt-2 text-blue-500">Update
-                    Informasi
-                    Pendaftaran</p>
-            </header>
-
-            <form id="formEditAthlete" onsubmit="event.preventDefault(); window.saveAthleteEdit();"
-                class="grid grid-cols-2 gap-4">
-                <input type="hidden" id="edit-athlete-id">
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
-                        Lengkap Atlet</label>
-                    <input type="text" id="edit-athlete-name" required
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="NAMA ATLET...">
-                </div>
-
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kontingen
-                        /
-                        Tim</label>
-                    <input type="text" id="edit-athlete-team" required list="contingent-list"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="MASUKKAN NAMA KONTINGEN...">
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Jenis
-                        Kelamin</label>
-                    <select id="edit-athlete-gender"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
-                        <option value="PUTRA">PUTRA</option>
-                        <option value="PUTRI">PUTRI</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Tanggal
-                        Lahir</label>
-                    <input type="date" id="edit-athlete-birthDate" required
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5">
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Berat
-                        Badan
-                        (KG)</label>
-                    <input type="number" id="edit-athlete-weight" step="0.1"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="00.0">
-                </div>
-
-                <div>
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kode
-                        Kelas</label>
-                    <input type="text" id="edit-athlete-classCode" oninput="window.handleClassCodeInput(this.value)"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="CONTOH: 001, 002...">
-                    <p id="edit-athlete-class-preview"
-                        class="text-[10px] font-bold text-blue-400 mt-2 ml-4 uppercase tracking-wider h-4">
-                        <!-- Preview Nama Kelas -->
-                    </p>
-                </div>
-
-                <!-- BEREGU Members for Edit Modal -->
-                <div id="edit-teamMembersContainer" class="col-span-2 hidden space-y-4">
-                    <div class="border-t border-white/5 pt-4">
-                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
-                            Anggota 2</label>
-                        <input type="text" id="edit-athlete-name2"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="NAMA ANGGOTA 2...">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
-                            Anggota 3</label>
-                        <input type="text" id="edit-athlete-name3"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="NAMA ANGGOTA 3...">
-                    </div>
-                </div>
-
-                <div class="col-span-2 flex space-x-4 mt-2">
-                    <button type="button" onclick="toggleModal('modal-edit-athlete', false)"
-                        class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.3em] opacity-50">Batalkan</button>
-                    <button type="submit"
-                        class="flex-1 py-4 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(37,99,235,0.3)] hover:brightness-110 transition-all">Simpan
-                        Perubahan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-kelas" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
-        <div
-            class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <header class="mb-6 text-center">
-                <div class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-red-400 mx-auto mb-4">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                </div>
-                <h2 class="text-3xl font-black italic uppercase shimmer-text">Pengaturan Kelas</h2>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mt-2 text-blue-500">Tambah
-                    Kategori
-                    Tanding Baru</p>
-            </header>
-
-            <form id="formClass" class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kode Kelas
-                        (ID unik - Sesuaikan dengan Excel)</label>
-                    <input type="text" id="classCode" required
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5"
-                        placeholder="CONTOH: 001, 002, 003...">
-                </div>
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Nama
-                        Kelas</label>
-                    <input type="text" id="className" required
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="CONTOH: KUMITE PUTRA -55KG...">
-                </div>
-
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Kategori
-                        Umur</label>
-                    <input list="kategori-umur" id="classAgeCategory" required
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="Pilih atau Ketik Kategori...">
-                    <datalist id="kategori-umur">
-                        <option value="Pra Usia Dini">
-                        <option value="Usia Dini">
-                        <option value="Pra Pemula">
-                        <option value="Pemula">
-                        <option value="Kadet">
-                        <option value="Junior">
-                        <option value="Under 21">
-                        <option value="Senior">
-                        <option value="Veteran">
-                    </datalist>
-                </div>
-
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Jenis
-                        Kelamin</label>
-                    <select id="classGender"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
-                        <option value="PUTRA">PUTRA</option>
-                        <option value="PUTRI">PUTRI</option>
-                    </select>
-                </div>
-
-                <div class="col-span-2">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Tipe Kelas
-                        (Perorangan / Beregu)</label>
-                    <select id="classType"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-blue-500 border-white/5 appearance-none">
-                        <option value="PERORANGAN">PERORANGAN</option>
-                        <option value="BEREGU">BEREGU</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 col-span-2">
-                    <div>
-                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Usia
-                            (Batas Bawah)</label>
-                        <input type="number" id="classAgeMin"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="MIN">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Usia
-                            (Batas Atas)</label>
-                        <input type="number" id="classAgeMax"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="MAX">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 col-span-2">
-                    <div>
-                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Berat
-                            (Batas Bawah)</label>
-                        <input type="number" step="0.1" id="classWeightMin"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="MIN">
-                    </div>
-                    <div>
-                        <label class="text-[9px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Berat
-                            (Batas Atas)</label>
-                        <input type="number" step="0.1" id="classWeightMax"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-sm font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="MAX">
-                    </div>
-                </div>
-
-                <div class="col-span-2 flex space-x-4 mt-2">
-                    <button type="button" onclick="toggleModal('modal-kelas', false)"
-                        class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.3em] opacity-50">Batalkan</button>
-                    <button type="submit"
-                        class="flex-1 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(59,130,246,0.3)]">Simpan
-                        Kelas</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-settings" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
-        <div
-            class="neu-flat w-full max-w-xl p-10 rounded-[3rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar border-white">
-            <header class="mb-4 text-center">
-                <div
-                    class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-blue-500 mx-auto mb-4 border-slate-100">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                </div>
-                <h2 class="text-xl font-black italic uppercase shimmer-text">Pengaturan Event</h2>
-                <p class="text-[8px] font-black uppercase tracking-[0.3em] opacity-40 mt-1 text-blue-500">
-                    Konfigurasi
-                    Nama, Deadline, & Biaya</p>
-            </header>
-
-            <form id="formSettings" class="grid grid-cols-2 gap-4">
-                <!-- Logo Upload Section -->
-                <div class="col-span-2 flex flex-col items-center mb-6">
-                    <div id="logoPreviewContainer"
-                        class="w-full h-40 rounded-2xl neu-inset border border-white/5 flex items-center justify-center overflow-hidden mb-3 relative group cursor-pointer"
-                        onclick="document.getElementById('settingEventLogo').click()">
-                        <div id="logoPlaceholder"
-                            class="text-[8px] font-black opacity-30 uppercase tracking-widest text-center">
-                            Klik untuk Upload Banner Logo<br>(Mendukung banyak logo berjejer)
-                        </div>
-                        <img id="logoPreviewImage" class="w-full h-full object-contain hidden">
-                        <div
-                            class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                    <input type="file" id="settingEventLogo" accept="image/*" class="hidden"
-                        onchange="previewLogo(this)">
-                    <p class="text-[7px] font-bold opacity-30 uppercase tracking-widest mt-1">Logo Event (Rasio 1:1
-                        Disarankan)</p>
-                </div>
-                <div class="col-span-2">
-                    <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-1 block tracking-widest">Nama
-                        Event</label>
-                    <input type="text" id="settingEventName" required
-                        class="w-full neu-inset bg-slate-900/50 px-5 py-4 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="NAMA EVENT...">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 col-span-2">
-                    <div>
-                        <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-1 block tracking-widest">Batas
-                            Akhir Pendaftaran</label>
-                        <input type="date" id="settingDeadline" required
-                            class="w-full neu-inset bg-slate-900/50 px-5 py-4 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5">
-                    </div>
-                    <div>
-                        <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-1 block tracking-widest">Lokasi
-                            Event</label>
-                        <input type="text" id="settingLocation"
-                            class="w-full neu-inset bg-slate-900/50 px-5 py-4 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="CONTOH: JAKARTA / BOGOR...">
-                    </div>
-                </div>
-
-                <div class="col-span-2 mt-2">
-                    <p class="text-[8px] font-black uppercase tracking-[0.3em] mb-3 text-center text-slate-400">
-                        Biaya
-                        Pendaftaran (Rp)</p>
-                    <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                        <div>
-                            <label
-                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Open
-                                Perorangan</label>
-                            <input type="number" id="feeOpenIndiv" required
-                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
-                                placeholder="0">
-                        </div>
-                        <div>
-                            <label
-                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Open
-                                Bergu</label>
-                            <input type="number" id="feeOpenTeam" required
-                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
-                                placeholder="0">
-                        </div>
-                        <div>
-                            <label
-                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Festival
-                                Perorangan</label>
-                            <input type="number" id="feeFestIndiv" required
-                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
-                                placeholder="0">
-                        </div>
-                        <div>
-                            <label
-                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Festival
-                                Bergu</label>
-                            <input type="number" id="feeFestTeam" required
-                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
-                                placeholder="0">
-                        </div>
-                        <div class="col-span-2">
-                            <label
-                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Biaya
-                                Kontingen (Flat)</label>
-                            <input type="number" id="feeContingent" required
-                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-blue-400 border-white/5"
-                                placeholder="0">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-span-2 mt-2 space-y-3">
-                    <p class="text-[8px] font-black uppercase tracking-[0.3em] mb-2 text-center text-slate-400">
-                        Informasi Pembayaran (Transfer)</p>
-                    <div>
-                        <label class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Nama
-                            Bank</label>
-                        <input type="text" id="bankName"
-                            class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                            placeholder="CONTOH: BANK MANDIRI / BCA...">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Nomor
-                                Rekening</label>
-                            <input type="text" id="bankAccount"
-                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold tracking-widest text-slate-200 border-white/5"
-                                placeholder="0000000000">
-                        </div>
-                        <div>
-                            <label
-                                class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Nama
-                                Pemilik</label>
-                            <input type="text" id="bankOwner"
-                                class="w-full neu-inset bg-slate-900/50 px-5 py-3 rounded-xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                                placeholder="NAMA SESUAI BUKU TABUNGAN...">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-span-2 mt-4 pt-4 border-t border-white/5">
-                    <p class="text-[8px] font-black uppercase tracking-[0.3em] mb-3 text-center text-blue-500 italic">
-                        Konfigurasi Teknis Bagan (Sistem Drawing)</p>
-                    <div>
-                        <label
-                            class="text-[7px] font-black uppercase opacity-30 ml-4 mb-1 block tracking-widest">Kontingen
-                            Penyelenggara (Host)</label>
-                        <input type="text" id="hostKontingen"
-                            class="w-full neu-inset bg-blue-500/5 px-5 py-3 rounded-xl outline-none text-[11px] font-black uppercase tracking-widest text-blue-400 border-blue-500/20 focus:border-blue-500/50 transition-all"
-                            placeholder="NAMA KONTINGEN PENYELENGGARA...">
-                        <p class="text-[7px] font-bold opacity-30 mt-2 ml-4 italic">* Kontingen ini akan diprioritaskan
-                            mendapat 'Bye' jika peserta ganjil.</p>
-                    </div>
-                </div>
-
-                <div class="col-span-2 flex space-x-3 mt-4">
-                    <button type="button" onclick="toggleModal('modal-settings', false)"
-                        class="flex-1 py-3 rounded-xl neu-button text-[9px] font-black uppercase tracking-[0.2em] opacity-50">Batalkan</button>
-                    <button type="submit"
-                        class="flex-1 py-4 rounded-xl bg-blue-500 text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-[0_8px_20px_rgba(59,130,246,0.3)]">Simpan
-                        Perubahan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    </div>
-
-    <!-- Modal: Schedule Settings -->
-    <div id="modal-schedule-settings" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 hidden">
-        <div class="neu-flat w-full max-w-md p-8 rounded-[2.5rem] relative mx-4">
-            <header class="mb-6 text-center">
-                <div
-                    class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-blue-500 mx-auto mb-4">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <h2 class="text-xl font-black italic uppercase shimmer-text">Pengaturan Jadwal</h2>
-                <p class="text-[8px] font-black uppercase tracking-[0.3em] opacity-40 mt-1 text-blue-500">Konfigurasi
-                    Tanggal & Lokasi</p>
-            </header>
-
-            <form id="formScheduleSettings" class="space-y-4">
-                <!-- Date and Schedule removed as per request -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Jumlah
-                            Hari</label>
-                        <input type="number" id="scheduleNumDays" min="1" max="7"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-[11px] font-bold tracking-widest text-slate-200 border-white/5"
-                            placeholder="1">
-                    </div>
-                    <div>
-                        <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest">Jumlah
-                            Tatami</label>
-                        <input type="number" id="scheduleTotalTatami" min="1" max="10"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-[11px] font-bold tracking-widest text-slate-200 border-white/5"
-                            placeholder="1">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="text-[8px] font-black uppercase opacity-40 ml-4 mb-1 block tracking-widest">Lokasi
-                        Kejuaraan</label>
-                    <input type="text" id="scheduleEventLocation"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-[11px] font-bold uppercase tracking-widest text-slate-200 border-white/5"
-                        placeholder="CONTOH: GOR SERBAGUNA...">
-                </div>
-
-                <div class="pt-4">
-                    <button type="button" onclick="autoGenerateSchedule()"
-                        class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Auto-Generate Schedule
-                    </button>
-                    <p
-                        class="text-[7px] font-bold opacity-30 mt-3 text-center uppercase tracking-widest leading-relaxed">
-                        *Sistem akan membagi kelas secara otomatis<br>berdasarkan kategori & beban atlet
-                    </p>
-                </div>
-
-                <div class="flex space-x-3 mt-6">
-                    <button type="button" onclick="toggleModal('modal-schedule-settings', false)"
-                        class="flex-1 py-3 rounded-xl neu-button text-[9px] font-black uppercase tracking-[0.2em] opacity-50">Batal</button>
-                    <button type="submit"
-                        class="flex-1 py-4 rounded-xl bg-blue-500 text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-[0_8px_20px_rgba(59,130,246,0.3)]">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal: Import Athlete Preview -->
-    <div id="modal-import-athlete-preview"
-        class="fixed inset-0 z-[120] flex items-center justify-center bg-black/95 hidden">
-        <div
-            class="neu-flat w-full max-w-4xl p-10 rounded-[3rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar border-white">
-            <header class="mb-8 text-center">
-                <div
-                    class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-blue-500 mx-auto mb-4 border border-blue-500/20">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-black italic uppercase text-white">Validasi Impor Atlet</h2>
-                <p class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mt-1 text-blue-500">Kroscek Data
-                    Sebelum Simpan ke Database</p>
-            </header>
-
-            <div class="grid grid-cols-4 gap-4 mb-8">
-                <div class="neu-inset p-4 rounded-2xl text-center">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1">Total</p>
-                    <p id="preview-total-count" class="text-xl font-black text-white">0</p>
-                </div>
-                <div class="neu-inset p-4 rounded-2xl text-center border-green-500/20 border">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-green-500">Baru</p>
-                    <p id="preview-ready-count" class="text-xl font-black text-green-400">0</p>
-                </div>
-                <div class="neu-inset p-4 rounded-2xl text-center border-blue-500/20 border">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-blue-500">Update</p>
-                    <p id="preview-update-count" class="text-xl font-black text-blue-400">0</p>
-                </div>
-                <div class="neu-inset p-4 rounded-2xl text-center border-white/10 border">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-slate-500">Skip (Sama)</p>
-                    <p id="preview-skip-count" class="text-xl font-black text-slate-400">0</p>
-                </div>
-                <div class="neu-inset p-4 rounded-2xl text-center border-red-500/20 border col-span-4 mt-2">
-                    <p class="text-[8px] font-black opacity-40 uppercase mb-1 text-red-500">Error (Invalid Kode Kelas)
-                    </p>
-                    <p id="preview-error-count" class="text-lg font-black text-red-500">0</p>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto neu-inset rounded-3xl mb-8">
-                <table class="w-full text-left text-[10px]">
-                    <thead class="bg-slate-900/50 border-b border-white/5">
+            <div class="overflow-x-auto">
+                <table id="tableAtlet">
+                    <thead>
                         <tr>
-                            <th class="p-4 font-black uppercase tracking-widest opacity-40">Tindakan</th>
-                            <th class="p-4 font-black uppercase tracking-widest opacity-40">Nama Atlet</th>
-                            <th class="p-4 font-black uppercase tracking-widest opacity-40">Kontingen</th>
-                            <th class="p-4 font-black uppercase tracking-widest opacity-40">Status Kelas</th>
+                            <th>Detail Peserta</th>
+                            <th>Kontingen</th>
+                            <th>Kategori</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="import-preview-body" class="font-bold">
-                        <!-- Rows injected here -->
+                    <tbody id="athlete-table-body">
+                        <tr>
+                            <td colspan="4"
+                                class="text-center py-20 text-slate-600 font-bold uppercase tracking-widest text-[10px]">
+                                Memuat data atlet...</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="flex space-x-4">
-                <button type="button" onclick="toggleModal('modal-import-athlete-preview', false)"
-                    class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50">Batalkan</button>
-                <button id="btnConfirmImport" onclick="proceedWithConfirmedImport()"
-                    class="flex-1 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_15px_30px_rgba(59,130,246,0.3)]">Impor
-                    Sekarang</button>
+            <!-- Pagination -->
+            <div id="athletePaginationControls" class="flex justify-between items-center mt-6">
+                <span id="athletePageInfo" class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Page 1
+                    of 1</span>
+                <div class="flex space-x-2">
+                    <button onclick="window.changeAthletePage(-1)" id="athletePrevBtn" class="btn-secondary">←
+                        PREV</button>
+                    <button onclick="window.changeAthletePage(1)" id="athleteNextBtn" class="btn-secondary">NEXT
+                        →</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal: Global Bracket Layout Configuration -->
-    <div id="modal-bracket-config" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 hidden">
-        <div
-            class="neu-flat w-full max-w-2xl p-10 rounded-[3rem] relative mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar border-white">
-            <header class="mb-8 text-center">
-                <div
-                    class="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-yellow-500 mx-auto mb-4 border border-yellow-500/20">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    </svg>
+        <!-- 2. KONTINGEN -->
+        <div id="tab-kontingen" class="tab-content">
+            <div class="flex items-center justify-between mb-6">
+                <input type="text" onkeyup="filterTable(this, 'tableKontingen')" placeholder="Cari kontingen..."
+                    class="input-search">
+                <div id="labelDataMasuk" class="text-xs font-bold text-blue-500 uppercase tracking-widest">0 KONTINGEN
+                    TERDAFTAR</div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="tableKontingen">
+                    <thead>
+                        <tr>
+                            <th class="w-16">No</th>
+                            <th>Kontingen</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Open</th>
+                            <th class="text-center">Fest</th>
+                            <th class="text-center">Team</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contingentTableBody">
+                        <tr>
+                            <td colspan="8"
+                                class="text-center py-20 text-slate-600 font-bold uppercase tracking-widest text-[10px]">
+                                Memuat data kontingen...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination -->
+            <div id="contingentPaginationControls" class="flex justify-between items-center mt-6">
+                <span id="contingentPageInfo"
+                    class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Page 1 of 1</span>
+                <div class="flex space-x-2">
+                    <button onclick="window.changeContingentPage(-1)" id="contingentPrevBtn" class="btn-secondary">←
+                        PREV</button>
+                    <button onclick="window.changeContingentPage(1)" id="contingentNextBtn" class="btn-secondary">NEXT
+                        →</button>
                 </div>
-                <h2 id="configModalTitle" class="text-2xl font-black italic uppercase text-white">Setting Bagan
-                    Pertandingan</h2>
-                <p id="configModalSubtitle"
-                    class="text-[9px] font-black uppercase tracking-[0.3em] opacity-40 mt-1 text-yellow-500">Konfigurasi
-                    Layout Peserta & Slot</p>
-            </header>
+            </div>
+        </div>
 
-            <div class="space-y-6">
-                <!-- Preset PAX -->
-                <div class="p-6 bg-slate-900/40 rounded-3xl border border-white/5">
-                    <label
-                        class="text-[9px] font-black uppercase opacity-40 mb-4 block tracking-widest text-yellow-500">1.
-                        Pilih Jumlah Peserta (PAX)</label>
-                    <div id="layout-pax-tabs" class="flex flex-wrap gap-2">
-                        <!-- Injected via JS -->
+        <!-- 3. KELAS -->
+        <div id="tab-kelas" class="tab-content">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-6">
+                    <div class="flex bg-slate-900 p-1 rounded-lg">
+                        <button onclick="setSubTab('OPEN')" class="sub-tab-btn class-sub-tab active"
+                            data-sub="OPEN">OPEN</button>
+                        <button onclick="setSubTab('FESTIVAL')" class="sub-tab-btn class-sub-tab"
+                            data-sub="FESTIVAL">FESTIVAL</button>
+                        <button onclick="setSubTab('BEREGU')" class="sub-tab-btn class-sub-tab"
+                            data-sub="BEREGU">BEREGU</button>
                     </div>
+                    <input type="text" onkeyup="filterTable(this, 'tableKelas')" placeholder="Cari kelas..."
+                        class="input-search">
                 </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="downloadClassTemplate()" class="btn-secondary">TEMPLATE</button>
+                    <button onclick="document.getElementById('excelClassInput').click()" class="btn-secondary">IMPORT
+                        EXCEL</button>
+                    <input type="file" id="excelClassInput" class="hidden" accept=".xlsx, .xls"
+                        onchange="importClassesFromExcel(event)">
+                    <button onclick="deleteAllClasses()" class="btn-danger">RESET KELAS</button>
+                    <button onclick="toggleModal('modal-kelas', true)" class="btn-primary">TAMBAH KELAS</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table id="tableKelas">
+                    <thead>
+                        <tr>
+                            <th>Detail Kelas</th>
+                            <th>Umur</th>
+                            <th>Gender</th>
+                            <th>Tipe</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classes-table-body">
+                        <tr>
+                            <td colspan="5"
+                                class="text-center py-20 text-slate-600 font-bold uppercase tracking-widest text-[10px]">
+                                Memuat data kelas...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                <!-- Participant Mapping Area -->
-                <div class="p-6 bg-slate-900/40 rounded-3xl border border-white/5">
+        <!-- 4. BAGAN -->
+        <div id="tab-bracket" class="tab-content">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex bg-slate-900 p-1 rounded-lg">
+                    <button onclick="setSubTab('OPEN')" class="sub-tab-btn bracket-sub-tab active"
+                        data-sub="OPEN">OPEN</button>
+                    <button onclick="setSubTab('FESTIVAL')" class="sub-tab-btn bracket-sub-tab"
+                        data-sub="FESTIVAL">FESTIVAL</button>
+                    <button onclick="setSubTab('BEREGU')" class="sub-tab-btn bracket-sub-tab"
+                        data-sub="BEREGU">BEREGU</button>
+                    <button onclick="setSubTab('MAPPING')" class="sub-tab-btn bracket-sub-tab"
+                        data-sub="MAPPING">MAPPING</button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div id="bracketStatusLabel"
+                        class="text-[10px] font-black text-orange-500 uppercase tracking-widest mr-4"></div>
+                    <button onclick="deleteAllBrackets()" class="btn-danger">RESET BAGAN</button>
+                    <a id="btnBagan" href="#" class="btn-primary">BUAT BAGAN BARU</a>
+                </div>
+            </div>
+
+            <!-- Public Access Control Bar -->
+            <div id="bracket-public-access-container"
+                class="mb-8 bg-slate-900/40 p-1 rounded-[1.5rem] border border-white/5 flex items-center">
+                <div class="px-6 py-3 border-r border-white/5 flex items-center space-x-3">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span class="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Public Live View
+                        Control</span>
+                </div>
+                <div class="flex-1 flex items-center justify-around px-2 py-2">
+                    <!-- Toggle Bagan -->
                     <label
-                        class="text-[9px] font-black uppercase opacity-40 mb-4 block tracking-widest text-blue-400">2.
-                        Atur Posisi / Slot Peserta</label>
-                    <div id="mapping-container" class="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        <div class="text-center py-10 opacity-30 text-[10px] uppercase font-bold tracking-widest">
-                            Silakan pilih PAX terlebih dahulu
+                        class="flex items-center space-x-3 cursor-pointer group px-4 py-2 hover:bg-white/5 rounded-xl transition-all">
+                        <span
+                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-white transition-colors">Bagan</span>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" id="check-public-bracket" class="sr-only peer"
+                                onchange="window.updatePublicAccess('isBracketPublic', this.checked)">
+                            <div
+                                class="w-8 h-4 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4">
+                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <div class="flex space-x-4 pt-4">
-                    <button type="button" onclick="toggleModal('modal-bracket-config', false)"
-                        class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50">Batalkan</button>
-                    <button id="btnSaveGlobalLayout" onclick="saveGlobalLayout()"
-                        class="flex-1 py-4 rounded-2xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-[0_15px_30px_rgba(59,130,246,0.25)]">Simpan
-                        Pemetaan</button>
+                    </label>
+                    <div class="w-px h-6 bg-white/5"></div>
+                    <!-- Toggle Jadwal -->
+                    <label
+                        class="flex items-center space-x-3 cursor-pointer group px-4 py-2 hover:bg-white/5 rounded-xl transition-all">
+                        <span
+                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-white transition-colors">Jadwal</span>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" id="check-public-schedule" class="sr-only peer"
+                                onchange="window.updatePublicAccess('isSchedulePublic', this.checked)">
+                            <div
+                                class="w-8 h-4 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4">
+                            </div>
+                        </div>
+                    </label>
+                    <div class="w-px h-6 bg-white/5"></div>
+                    <!-- Toggle Hasil -->
+                    <label
+                        class="flex items-center space-x-3 cursor-pointer group px-4 py-2 hover:bg-white/5 rounded-xl transition-all">
+                        <span
+                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-white transition-colors">Hasil</span>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" id="check-public-winners" class="sr-only peer"
+                                onchange="window.updatePublicAccess('isWinnersPublic', this.checked)">
+                            <div
+                                class="w-8 h-4 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4">
+                            </div>
+                        </div>
+                    </label>
+                    <div class="w-px h-6 bg-white/5"></div>
+                    <!-- Toggle Medali -->
+                    <label
+                        class="flex items-center space-x-3 cursor-pointer group px-4 py-2 hover:bg-white/5 rounded-xl transition-all">
+                        <span
+                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-white transition-colors">Medali</span>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" id="check-public-medals" class="sr-only peer"
+                                onchange="window.updatePublicAccess('isMedalsPublic', this.checked)">
+                            <div
+                                class="w-8 h-4 bg-slate-800 rounded-full peer peer-checked:bg-blue-600 transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:after:translate-x-4">
+                            </div>
+                        </div>
+                    </label>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- UI: Kensho Voice Lounge Panel -->
-    <div id="voice-lounge-panel" class="p-6">
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
+            <div id="bracket-cards-container" class="grid grid-cols-2 gap-4">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Bracket Pagination -->
+            <div id="bracketPaginationControls"
+                class="flex justify-between items-center mt-12 bg-slate-900/20 p-6 rounded-3xl border border-white/5">
+                <span id="bracketPageInfo" class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Page
+                    1 of 1</span>
+                <div class="flex items-center space-x-4">
+                    <button onclick="window.changeBracketPage(-1)" id="bracketPrevBtn"
+                        class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-white/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-2 bg-slate-900 px-4 py-2 rounded-xl border border-white/5">
+                        <span id="bracketCurrentPage" class="text-xs font-black text-blue-400">1</span>
+                        <span class="text-[10px] font-black text-slate-600">/</span>
+                        <span id="bracketTotalPages" class="text-xs font-black text-slate-500">1</span>
+                    </div>
+                    <button onclick="window.changeBracketPage(1)" id="bracketNextBtn"
+                        class="w-10 h-10 rounded-xl bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-white/10 transition-all disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mapping Table (Hidden by default) -->
+            <div id="bracket-mapping-container" class="hidden mt-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Master Data Mapping</h3>
+                    <button onclick="window.exportAllMappingToExcel()" class="btn-primary">EKSPOR MASTER .XLSX</button>
+                </div>
+                <table class="w-full">
+                    <thead>
+                        <tr>
+                            <th>Kelas</th>
+                            <th>ID Sel</th>
+                            <th>Peserta</th>
+                            <th>Kontingen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="masterMappingTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 5. PEMBAYARAN -->
+        <div id="tab-pembayaran" class="tab-content">
+            <div class="flex items-center justify-between mb-6">
+                <input type="text" onkeyup="filterTable(this, 'tablePembayaran')" placeholder="Cari kontingen..."
+                    class="input-search">
+                <div class="text-xs font-bold text-blue-500 uppercase tracking-widest">ADMINISTRASI KEUANGAN</div>
+            </div>
+            <table id="tablePembayaran">
+                <thead>
+                    <tr>
+                        <th>Kontingen</th>
+                        <th class="text-center">Open</th>
+                        <th class="text-center">Fest</th>
+                        <th class="text-center">Team</th>
+                        <th class="text-right">Total Biaya</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentTableBody">
+                    <tr>
+                        <td colspan="6"
+                            class="text-center py-20 text-slate-600 font-bold uppercase tracking-widest text-[10px]">
+                            Memuat data keuangan...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 6. HASIL (Verifikasi) -->
+        <div id="tab-verifikasi" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex bg-slate-900 p-1 rounded-lg">
+                    <button onclick="setVerifikasiSubTab('PESERTA')" class="sub-tab-btn verifikasi-sub-tab active"
+                        data-sub="PESERTA">PESERTA</button>
+                    <button onclick="setVerifikasiSubTab('JADWAL')" class="sub-tab-btn verifikasi-sub-tab"
+                        data-sub="JADWAL">JADWAL</button>
+                    <button onclick="setVerifikasiSubTab('JUARA')" class="sub-tab-btn verifikasi-sub-tab"
+                        data-sub="JUARA">JUARA</button>
+                    <button onclick="setVerifikasiSubTab('MEDALI')" class="sub-tab-btn verifikasi-sub-tab"
+                        data-sub="MEDALI">MEDALI</button>
+                    <button onclick="setVerifikasiSubTab('MEDALI_TALLY')" class="sub-tab-btn verifikasi-sub-tab"
+                        data-sub="MEDALI_TALLY">PENGHITUNGAN</button>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="resetPrintingData()" class="btn-danger">RESET HASIL</button>
+                    <a href="public_portal/index.html" target="_blank" class="btn-primary">BUKA PORTAL</a>
+                </div>
+            </div>
+            <div id="verifikasiContent" class="bg-slate-900/30 rounded-xl p-8 border border-white/5">
+                <p class="text-center opacity-40 py-20 italic">Memuat data hasil...</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODALS -->
+
+    <!-- Modal: Athlete Entry -->
+    <div id="modal-atlet" class="fixed inset-0 z-[100] flex items-center justify-center modal-overlay hidden">
+        <div class="modal-container w-full max-w-lg p-8">
+            <h2 class="text-xl font-bold uppercase text-white mb-6">Entri Darurat Atlet</h2>
+            <form id="formAthlete" onsubmit="event.preventDefault(); window.saveEmergencyAthlete();"
+                class="grid grid-cols-2 gap-4">
+                <input type="hidden" id="athleteId">
+                <div class="col-span-2">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-2 block">Nama Atlet</label>
+                    <input type="text" id="athleteName" required
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
+                </div>
+                <div class="col-span-2">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-2 block">Kontingen</label>
+                    <input type="text" id="athleteTeam" required list="contingent-list"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
                 </div>
                 <div>
-                    <h4 class="text-xs font-black tracking-widest uppercase">Voice Lounge</h4>
-                    <p class="text-[8px] font-bold opacity-30 uppercase tracking-[0.2em] mt-0.5">Live Coordination
-                    </p>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-2 block">Jenis Kelamin</label>
+                    <select id="athleteGender"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none appearance-none">
+                        <option value="PUTRA">PUTRA</option>
+                        <option value="PUTRI">PUTRI</option>
+                    </select>
                 </div>
-            </div>
-            <button onclick="toggleVoiceLounge()" class="text-slate-500 hover:text-white transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-        </div>
-
-        <div id="voice-users-list" class="space-y-3 mb-8 max-h-48 overflow-y-auto custom-scrollbar">
-            <!-- Joined users will appear here -->
-            <div class="flex flex-col items-center justify-center py-6 opacity-20 italic">
-                <p class="text-[10px] font-bold uppercase tracking-widest">Lounge Kosong</p>
-            </div>
-        </div>
-
-        <div class="flex gap-3">
-            <button id="btn-join-voice" onclick="handleJoinVoice()"
-                class="flex-1 py-4 rounded-xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2">
-                Join Lounge
-            </button>
-            <button id="btn-mute-voice" onclick="toggleMute()"
-                class="hidden w-14 h-14 rounded-xl border border-white/10 flex items-center justify-center text-slate-500 hover:text-white transition-all">
-                <svg id="mute-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-            </button>
-            <button id="btn-leave-voice" onclick="handleLeaveVoice()"
-                class="hidden w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 hover:text-red-400 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-            </button>
-        </div>
-    </div>
-
-    <!-- Modal: Edit Kontingen -->
-    <div id="modal-edit-contingent" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 hidden">
-        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5">
-            <header class="mb-8 text-center">
-                <div
-                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-indigo-400 mx-auto mb-4 border border-indigo-500/20">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1-4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-2 block">Lahir</label>
+                    <input type="date" id="athleteBirth" required
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
                 </div>
-                <h2 class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Edit Nama
-                    Kontingen</h2>
-                <p id="edit-contingent-old-name-label"
-                    class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-indigo-400 italic">
-                    MENGUBAH DATA KONTINGEN</p>
-            </header>
-
-            <div class="space-y-6">
-                <input type="hidden" id="edit-contingent-old-value">
-                <div class="space-y-4">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 tracking-[0.2em]">Nama Baru
-                        Kontingen</label>
-                    <div
-                        class="neu-inset px-6 py-5 rounded-2xl flex items-center border border-white/5 focus-within:border-indigo-500/50 transition-all">
-                        <input type="text" id="edit-contingent-new-name" placeholder="MASUKKAN NAMA BARU..."
-                            class="bg-transparent text-sm font-black outline-none w-full uppercase tracking-wider text-white placeholder-slate-700">
-                    </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-2 block">Berat (KG)</label>
+                    <input type="number" id="athleteWeight" step="0.1"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
                 </div>
-
-                <div class="flex gap-4 pt-4">
-                    <button onclick="toggleModal('modal-edit-contingent', false)"
-                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">Batal</button>
-                    <button onclick="window.saveContingentNameEdit()"
-                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(79,70,229,0.3)] hover:scale-[1.02] transition-all">Update
-                        Nama</button>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-2 block">Kode Kelas</label>
+                    <input type="text" id="athlete-classCode" oninput="window.handleEmergencyClassCodeInput(this.value)"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
+                    <p id="athlete-class-preview" class="text-[9px] text-blue-400 mt-1 uppercase font-bold"></p>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal: Edit Nama Kelas -->
-    <div id="modal-edit-class-name" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 hidden">
-        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5 shadow-2xl">
-            <header class="mb-8 text-center">
-                <div
-                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-blue-400 mx-auto mb-4 border border-blue-500/20">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                <div id="teamMembersContainer" class="col-span-2 hidden grid grid-cols-2 gap-4 mt-2">
+                    <div><label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Anggota 2</label><input
+                            type="text" id="athleteName2"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                    <div><label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Anggota 3</label><input
+                            type="text" id="athleteName3"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
                 </div>
-                <h2 class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Edit Nama Kelas
-                </h2>
-                <p id="edit-class-old-name-label"
-                    class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-blue-400 italic">
-                    MENGUBAH DATA KATEGORI</p>
-            </header>
-
-            <div class="space-y-6">
-                <input type="hidden" id="edit-class-code">
-                <div class="space-y-4">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 tracking-[0.2em]">Nama Baru
-                        Kelas</label>
-                    <div
-                        class="neu-inset px-6 py-5 rounded-2xl flex items-center border border-white/5 focus-within:border-blue-500/50 transition-all">
-                        <input type="text" id="edit-class-new-name" placeholder="MASUKKAN NAMA BARU..."
-                            class="bg-transparent text-sm font-black outline-none w-full uppercase tracking-wider text-white placeholder-slate-700">
-                    </div>
-                    <p class="text-[8px] text-orange-400/60 ml-4 font-bold italic uppercase tracking-widest">⚠️
-                        PERHATIAN:
-                        Perubahan ini akan mengupdate data seluruh atlet di kelas ini secara otomatis.</p>
+                <div class="col-span-2 flex space-x-3 mt-4">
+                    <button type="button" onclick="toggleModal('modal-atlet', false)"
+                        class="flex-1 btn-secondary">BATAL</button>
+                    <button type="submit" class="flex-1 btn-primary">SIMPAN</button>
                 </div>
-
-                <div class="flex gap-4 pt-4">
-                    <button onclick="toggleModal('modal-edit-class-name', false)"
-                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">Batal</button>
-                    <button onclick="window.saveClassNameEdit()"
-                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-all">Simpan
-                        Perubahan</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 
-
-    <!-- Modal: Edit Juara Manual -->
-    <div id="modal-winner-edit" class="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 hidden">
-        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5 shadow-2xl">
-            <header class="mb-8 text-center">
-                <div
-                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-blue-400 mx-auto mb-4 border border-blue-500/20">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+    <!-- Modal: Event Settings -->
+    <div id="modal-settings" class="fixed inset-0 z-[100] flex items-center justify-center modal-overlay hidden">
+        <div class="modal-container w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
+            <h2 class="text-xl font-bold uppercase text-white mb-6">Pengaturan Event</h2>
+            <form id="formSettings" class="grid grid-cols-2 gap-6">
+                <div class="col-span-2">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Nama Event</label>
+                    <input type="text" id="settingsEventName" required
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
                 </div>
-                <h2 class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Edit Hasil Juara
-                </h2>
-                <p id="winner-edit-subtitle"
-                    class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-blue-400 italic">KELAS:
-                    LOADING...</p>
-            </header>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Tanggal</label>
+                    <input type="text" id="settingsEventDate"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Lokasi</label>
+                    <input type="text" id="settingsEventLocation"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white focus:border-blue-500 outline-none">
+                </div>
 
+                <div class="col-span-2 grid grid-cols-4 gap-4 bg-slate-950/50 p-4 rounded-xl border border-white/5">
+                    <p class="col-span-4 text-[9px] font-black text-slate-500 uppercase tracking-widest">Biaya
+                        Pendaftaran (Rp)</p>
+                    <div><label class="text-[8px] font-bold text-slate-600 block">Open Indiv</label><input type="number"
+                            id="feeOpenIndiv"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                    <div><label class="text-[8px] font-bold text-slate-600 block">Open Team</label><input type="number"
+                            id="feeOpenTeam"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                    <div><label class="text-[8px] font-bold text-slate-600 block">Fest Indiv</label><input type="number"
+                            id="feeFestIndiv"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                    <div><label class="text-[8px] font-bold text-slate-600 block">Fest Team</label><input type="number"
+                            id="feeFestTeam"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                </div>
+
+                <div class="col-span-2 grid grid-cols-2 gap-4 bg-slate-950/50 p-4 rounded-xl border border-white/5">
+                    <p class="col-span-2 text-[9px] font-black text-slate-500 uppercase tracking-widest">Informasi
+                        Pembayaran</p>
+                    <div><label class="text-[8px] font-bold text-slate-600 block">Nama Bank</label><input type="text"
+                            id="bankName"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                    <div><label class="text-[8px] font-bold text-slate-600 block">No Rekening</label><input type="text"
+                            id="bankAccount"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                    <div class="col-span-2"><label class="text-[8px] font-bold text-slate-600 block">Atas
+                            Nama</label><input type="text" id="bankOwner"
+                            class="w-full bg-slate-950 border border-slate-800 p-2 rounded text-xs text-white"></div>
+                </div>
+
+                <div class="col-span-2 bg-blue-500/5 p-4 rounded-xl border border-blue-500/10">
+                    <label class="text-[9px] font-bold text-blue-500 uppercase mb-1 block">Kontingen Penyelenggara
+                        (Host)</label>
+                    <input type="text" id="hostKontingen"
+                        class="w-full bg-slate-950 border border-blue-900/50 p-3 rounded-lg text-sm text-blue-400 outline-none">
+                </div>
+
+                <div class="col-span-2 flex space-x-3 mt-2">
+                    <button type="button" onclick="toggleModal('modal-settings', false)"
+                        class="flex-1 btn-secondary">BATAL</button>
+                    <button type="submit" class="flex-1 btn-primary">SIMPAN PERUBAHAN</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Class Entry -->
+    <div id="modal-kelas" class="fixed inset-0 z-[100] flex items-center justify-center modal-overlay hidden">
+        <div class="modal-container w-full max-w-lg p-8">
+            <h2 class="text-xl font-bold uppercase text-white mb-6">Tambah Kelas Tanding</h2>
+            <form id="formClass" onsubmit="event.preventDefault(); window.addNewClass();"
+                class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Kode Kelas (Unique)</label>
+                    <input type="text" id="classCode" required
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white outline-none">
+                </div>
+                <div class="col-span-2">
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Nama Kelas</label>
+                    <input type="text" id="className" required
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white outline-none">
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Gender</label>
+                    <select id="classGender"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white outline-none">
+                        <option value="PUTRA">PUTRA</option>
+                        <option value="PUTRI">PUTRI</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block">Tipe</label>
+                    <select id="classType"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-sm text-white outline-none">
+                        <option value="PERORANGAN">PERORANGAN</option>
+                        <option value="BEREGU">BEREGU</option>
+                    </select>
+                </div>
+                <div class="col-span-2 flex space-x-3 mt-4">
+                    <button type="button" onclick="toggleModal('modal-kelas', false)"
+                        class="flex-1 btn-secondary">BATAL</button>
+                    <button type="submit" class="flex-1 btn-primary">SIMPAN KELAS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Winner (Manual) -->
+    <div id="modal-winner-edit" class="fixed inset-0 z-[120] flex items-center justify-center modal-overlay hidden">
+        <div class="modal-container w-full max-w-lg p-8">
+            <h2 class="text-xl font-bold uppercase text-white mb-1">Edit Hasil Juara</h2>
+            <p id="winner-edit-subtitle" class="text-[10px] text-blue-500 font-bold mb-6 uppercase tracking-widest"></p>
             <div class="space-y-4">
-                <div class="relative">
-                    <label
-                        class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-yellow-500">JUARA
-                        1 (GOLD)</label>
-                    <input type="text" id="edit-win1"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-yellow-500/50 transition-all"
-                        placeholder="NAMA PESERTA...">
-                </div>
-                <div class="relative">
-                    <label
-                        class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-slate-400">JUARA
-                        2 (SILVER)</label>
-                    <input type="text" id="edit-win2"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-slate-400/50 transition-all"
-                        placeholder="NAMA PESERTA...">
-                </div>
+                <div><label class="text-[8px] font-bold text-yellow-500 uppercase mb-1 block">Juara 1
+                        (GOLD)</label><input type="text" id="edit-win1"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs text-white"></div>
+                <div><label class="text-[8px] font-bold text-slate-400 uppercase mb-1 block">Juara 2
+                        (SILVER)</label><input type="text" id="edit-win2"
+                        class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs text-white"></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="relative">
-                        <label
-                            class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-orange-700">BRONZE
-                            1</label>
-                        <input type="text" id="edit-win3a"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-orange-700/50 transition-all"
-                            placeholder="NAMA PESERTA...">
-                    </div>
-                    <div class="relative">
-                        <label
-                            class="text-[8px] font-black uppercase opacity-40 ml-4 mb-2 block tracking-widest text-orange-700">BRONZE
-                            2</label>
-                        <input type="text" id="edit-win3b"
-                            class="w-full neu-inset bg-slate-900/50 px-6 py-4 rounded-2xl outline-none text-xs font-bold uppercase tracking-widest text-white border-white/5 focus:border-orange-700/50 transition-all"
-                            placeholder="NAMA PESERTA...">
-                    </div>
+                    <div><label class="text-[8px] font-bold text-orange-700 uppercase mb-1 block">Bronze 1</label><input
+                            type="text" id="edit-win3a"
+                            class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs text-white"></div>
+                    <div><label class="text-[8px] font-bold text-orange-700 uppercase mb-1 block">Bronze 2</label><input
+                            type="text" id="edit-win3b"
+                            class="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs text-white"></div>
                 </div>
-
-                <div class="flex gap-4 pt-6">
+                <div class="flex gap-3 pt-4">
                     <button onclick="toggleModal('modal-winner-edit', false)"
-                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">BATAL</button>
+                        class="flex-1 btn-secondary">BATAL</button>
                     <button id="save-winner-edit-btn" onclick="window.saveWinnerEdit()"
-                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-all">SIMPAN
-                        HASIL</button>
-                </div>
-            </div>
-
-            <!-- Autocomplete Container -->
-            <div id="winner-edit-autocomplete"
-                class="absolute z-[130] bg-slate-900 border border-white/10 rounded-2xl shadow-2xl hidden max-h-48 overflow-y-auto custom-scrollbar">
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Edit Medali Manual (CRUD) -->
-    <div id="modal-medal-manual-edit" class="fixed inset-0 z-[125] flex items-center justify-center bg-black/90 hidden">
-        <div class="neu-flat w-full max-w-lg p-8 rounded-[2.5rem] relative mx-4 border border-white/5 shadow-2xl">
-            <header class="mb-8 text-center">
-                <div
-                    class="w-16 h-16 rounded-2xl neu-inset flex items-center justify-center text-orange-400 mx-auto mb-4 border border-orange-500/20">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                    </svg>
-                </div>
-                <h2 id="medal-manual-title"
-                    class="text-3xl font-black italic uppercase text-white tracking-tight leading-none">Input Medali
-                    Manual</h2>
-                <p class="text-[10px] font-bold opacity-40 mt-3 uppercase tracking-widest text-orange-400 italic">
-                    MENAMBAH/MENGUBAH DATA KLASEMEN</p>
-            </header>
-
-            <div class="space-y-6">
-                <input type="hidden" id="medal-manual-id">
-
-                <div class="space-y-4">
-                    <label class="text-[9px] font-black uppercase opacity-40 ml-4 tracking-[0.2em]">Nama
-                        Kontingen</label>
-                    <div
-                        class="neu-inset px-6 py-5 rounded-2xl flex items-center border border-white/5 focus-within:border-orange-500/50 transition-all">
-                        <input type="text" id="medal-manual-team" placeholder="MASUKKAN NAMA KONTINGEN..."
-                            class="bg-transparent text-sm font-black outline-none w-full uppercase tracking-wider text-white placeholder-slate-700">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-4">
-                    <!-- GOLD -->
-                    <div class="space-y-4 text-center">
-                        <div class="flex flex-col gap-1 mb-2">
-                            <label
-                                class="text-[9px] font-black uppercase opacity-40 tracking-[0.2em] text-yellow-500">GOLD</label>
-                            <span id="system-gold-display"
-                                class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Sistem: 0</span>
-                        </div>
-                        <div class="neu-inset p-4 rounded-2xl border border-white/5 relative">
-                            <input type="number" id="medal-manual-gold" value="0" min="0"
-                                class="bg-transparent text-2xl font-black outline-none w-full text-center text-white">
-                            <p
-                                class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[6px] font-black text-white/30 tracking-widest uppercase">
-                                Target Total</p>
-                        </div>
-                    </div>
-                    <!-- SILVER -->
-                    <div class="space-y-4 text-center">
-                        <div class="flex flex-col gap-1 mb-2">
-                            <label
-                                class="text-[9px] font-black uppercase opacity-40 tracking-[0.2em] text-slate-400">SILVER</label>
-                            <span id="system-silver-display"
-                                class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Sistem: 0</span>
-                        </div>
-                        <div class="neu-inset p-4 rounded-2xl border border-white/5 relative">
-                            <input type="number" id="medal-manual-silver" value="0" min="0"
-                                class="bg-transparent text-2xl font-black outline-none w-full text-center text-white">
-                            <p
-                                class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[6px] font-black text-white/30 tracking-widest uppercase">
-                                Target Total</p>
-                        </div>
-                    </div>
-                    <!-- BRONZE -->
-                    <div class="space-y-4 text-center">
-                        <div class="flex flex-col gap-1 mb-2">
-                            <label
-                                class="text-[9px] font-black uppercase opacity-40 tracking-[0.2em] text-orange-700">BRONZE</label>
-                            <span id="system-bronze-display"
-                                class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Sistem: 0</span>
-                        </div>
-                        <div class="neu-inset p-4 rounded-2xl border border-white/5 relative">
-                            <input type="number" id="medal-manual-bronze" value="0" min="0"
-                                class="bg-transparent text-2xl font-black outline-none w-full text-center text-white">
-                            <p
-                                class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[6px] font-black text-white/30 tracking-widest uppercase">
-                                Target Total</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex gap-4 pt-4">
-                    <button onclick="toggleModal('modal-medal-manual-edit', false)"
-                        class="flex-1 py-5 rounded-2xl neu-button text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-all">Batal</button>
-                    <button id="save-medal-manual-btn" onclick="window.saveMedalManual()"
-                        class="flex-[2] py-5 rounded-2xl bg-gradient-to-br from-orange-600 to-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-xl hover:scale-[1.02] transition-all">Simpan
-                        Data</button>
+                        class="flex-1 btn-primary">SIMPAN</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Progress Overlay -->
-    <div id="loading-overlay">
-        <div class="loader-box">
-            <div
-                class="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500 mx-auto mb-6">
-                <svg class="w-8 h-8 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div id="loading-overlay"
+        class="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-slate-950/90 backdrop-blur-md hidden">
+        <div class="w-80 text-center">
+            <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-6">
+            </div>
+            <h3 id="loader-title" class="text-lg font-bold text-white uppercase tracking-widest mb-2">Memproses Data
+            </h3>
+            <p id="loader-status" class="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-4">Harap
+                tunggu...</p>
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div id="loader-progress-bar" class="h-full bg-blue-500 w-0 transition-all duration-300"></div>
+            </div>
+            <p id="loader-percent" class="text-xl font-bold text-blue-500 mt-4 italic">0%</p>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm -->
+    <div id="modal-confirm" class="fixed inset-0 z-[200] flex items-center justify-center modal-overlay hidden">
+        <div class="modal-container w-full max-w-sm p-8 text-center relative group overflow-hidden">
+            <div id="confirm-bg-gradient"
+                class="absolute -right-20 -top-20 w-60 h-60 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/15 transition-all">
+            </div>
+
+            <div id="confirm-icon-container"
+                class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 mx-auto mb-6 relative z-10">
+                <svg id="confirm-icon-danger" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <svg id="confirm-icon-info" class="w-8 h-8 hidden" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <h3 id="loader-title" class="text-xl font-black italic uppercase text-slate-100 mb-1">MEMPROSES DATA</h3>
-            <p id="loader-status" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">SINKRONISASI KE
-                CLOUD...</p>
-
-            <div class="loader-progress-bg">
-                <div id="loader-progress-bar"></div>
-            </div>
-
-            <p id="loader-percent" class="text-2xl font-black text-blue-500">0%</p>
-        </div>
-    </div>
-
-    <!-- Modal: Premium Action Confirmation (Replaces native confirm/prompt) -->
-    <div id="modal-confirm"
-        class="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-sm hidden transition-all duration-300">
-        <div class="neu-flat w-full max-w-md p-10 rounded-[3.5rem] relative mx-4 border border-white/10 overflow-hidden group shadow-2xl scale-95 opacity-0 transition-all duration-300"
-            id="modal-confirm-content">
-            <div class="absolute -right-20 -top-20 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/15 transition-all"
-                id="confirm-bg-gradient">
-            </div>
-
-            <header class="mb-8 text-center relative z-10">
-                <div id="confirm-icon-container"
-                    class="w-20 h-20 rounded-[2rem] neu-inset flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-500/20 shadow-lg transition-transform duration-500 group-hover:rotate-12">
-                    <svg id="confirm-icon-danger" class="w-10 h-10" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <svg id="confirm-icon-info" class="w-10 h-10 hidden" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h2 id="confirm-title"
-                    class="text-3xl font-black italic uppercase text-white leading-tight tracking-tight">
-                    Konfirmasi</h2>
-                <p id="confirm-message"
-                    class="text-[11px] font-bold opacity-60 mt-4 leading-relaxed text-slate-300 px-4">Apakah
-                    Anda yakin ingin melanjutkan tindakan ini?</p>
-            </header>
-
-            <div id="confirm-prompt-container" class="mb-8 hidden relative z-10 px-2">
+            <h2 id="confirm-title" class="text-2xl font-black text-white uppercase mb-2 relative z-10">Konfirmasi</h2>
+            <p id="confirm-message" class="text-xs text-slate-400 mb-8 relative z-10"></p>
+            <div id="confirm-prompt-container" class="hidden mb-6 relative z-10">
                 <label id="confirm-prompt-label"
                     class="text-[9px] font-black uppercase opacity-40 ml-4 mb-3 block tracking-widest text-red-500">Ketik
-                    konfirmasi di bawah</label>
-                <div class="relative">
-                    <input type="text" id="confirm-input"
-                        class="w-full neu-inset bg-slate-900/50 px-6 py-5 rounded-2xl outline-none text-sm font-black uppercase tracking-[0.2em] text-white border border-white/5 focus:border-red-500/50 transition-all placeholder-slate-700"
-                        placeholder="KETIK DI SINI...">
-                </div>
+                    konfirmasi dibawah:</label>
+                <input type="text" id="confirm-input"
+                    class="w-full bg-slate-950 border border-red-900/50 p-3 rounded-lg text-sm text-white focus:border-red-500 outline-none uppercase text-center font-bold"
+                    placeholder="KETIK KONFIRMASI...">
             </div>
-
-            <div class="flex space-x-4 relative z-10">
-                <button type="button" id="confirm-cancel-btn"
-                    class="flex-1 py-4 rounded-2xl neu-button text-[10px] font-black uppercase tracking-[0.2em] opacity-50 hover:opacity-100 transition-all">Batal</button>
-                <button id="confirm-action-btn"
-                    class="flex-1 py-4 rounded-2xl bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(220,38,38,0.3)] hover:scale-[1.02] transition-all">Ya,
-                    Lanjutkan</button>
+            <div class="flex space-x-3">
+                <button id="confirm-cancel-btn" class="flex-1 btn-secondary">BATAL</button>
+                <button id="confirm-action-btn" class="flex-1 btn-danger">YA, LANJUTKAN</button>
             </div>
         </div>
     </div>
 
-    <script type="module" src="js/event-detail.js?v=9"></script>
+    <script type="module" src="js/event-detail.js?v=11"></script>
+
+    <script>
+        function switchTab(name) {
+            const tabId = name.startsWith('tab-') ? name : 'tab-' + name;
+            const cleanName = name.replace('tab-', '');
+
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) targetTab.classList.add('active');
+
+            // Support both btn-atlet and btn-tab-atlet style IDs
+            const targetBtn = document.getElementById('btn-' + cleanName) || document.getElementById('btn-tab-' + cleanName);
+            if (targetBtn) targetBtn.classList.add('active');
+
+            // Special case for Bagan/Bracket and Hasil/Verifikasi aliases
+            if (cleanName === 'bracket') {
+                const baganBtn = document.getElementById('btn-bagan');
+                if (baganBtn) baganBtn.classList.add('active');
+            }
+            if (cleanName === 'verifikasi') {
+                const hasilBtn = document.getElementById('btn-hasil');
+                if (hasilBtn) hasilBtn.classList.add('active');
+            }
+        }
+
+        // KEYBOARD SHORTCUT SYSTEM
+        window.addEventListener('keydown', function (e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            switch (e.key) {
+                case '1': switchTab('atlet'); break;
+                case '2': switchTab('kontingen'); break;
+                case '3': switchTab('kelas'); break;
+                case '4': switchTab('bagan'); break;
+                case '5': switchTab('pembayaran'); break;
+                case '6': switchTab('hasil'); break;
+                case 'a':
+                case 'A': document.getElementById('athleteId').value = ''; window.toggleModal('modal-atlet', true); break;
+                case '/':
+                    e.preventDefault();
+                    const searchInput = document.getElementById('searchInput');
+                    if (searchInput) searchInput.focus();
+                    break;
+                case 'Escape':
+                    window.toggleModal('modal-atlet', false);
+                    window.toggleModal('modal-settings', false);
+                    window.toggleModal('modal-kelas', false);
+                    break;
+            }
+        });
+    </script>
+
+    <!-- RE-MAP IDs (For compatibility with legacy modules) -->
+    <div id="tab-bracket" class="hidden"></div> <!-- Alias for tab-bagan -->
+    <div id="tab-verifikasi" class="hidden"></div> <!-- Alias for tab-hasil -->
+    <script>
+        // Ensure aliases work if referenced in JS
+        document.addEventListener('DOMContentLoaded', () => {
+            const bracketTab = document.getElementById('tab-bagan');
+            const verifTab = document.getElementById('tab-hasil');
+            // We'll keep the IDs as per user snippet but we might need aliases if legacy JS looks for tab-bracket
+        });
+    </script>
+
 </body>
 
 </html>

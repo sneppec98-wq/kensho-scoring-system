@@ -31,11 +31,8 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
     if (currentSubTab === 'MAPPING') {
         if (cardsContainer) cardsContainer.classList.add('hidden');
         if (publicAccessContainer) publicAccessContainer.classList.add('hidden');
-        if (mappingContainer) {
-            mappingContainer.classList.remove('hidden');
-        }
+        if (mappingContainer) mappingContainer.classList.remove('hidden');
         if (classCountLabel) classCountLabel.innerText = 'MODE MAPPING';
-        // Pastikan renderMasterMappingTable selalu dipanggil untuk update real-time
         renderMasterMappingTable(brackets, classes);
         return;
     } else {
@@ -52,12 +49,9 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
 
     // Filter by sub-tab
     let filtered = classes.filter(cls => {
-        if (currentSubTab === 'BEREGU') {
-            return cls.type === 'BEREGU';
-        }
+        if (currentSubTab === 'BEREGU') return cls.type === 'BEREGU';
         const isFestival = (cls.code || "").toString().toUpperCase().startsWith('F');
         const isPerorangan = cls.type === 'PERORANGAN' || !cls.type;
-
         if (currentSubTab === 'FESTIVAL') return isFestival && isPerorangan;
         if (currentSubTab === 'OPEN') return !isFestival && isPerorangan;
         return false;
@@ -67,55 +61,45 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
     filtered.sort((a, b) => {
         const codeA = (a.code || "").toString().toUpperCase();
         const codeB = (b.code || "").toString().toUpperCase();
-
         if (codeA.startsWith('F') && codeB.startsWith('F')) {
             const numA = parseInt(codeA.substring(1)) || 0;
             const numB = parseInt(codeB.substring(1)) || 0;
             return numA - numB;
         }
-
         return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
     });
 
-    // Calculate Active Classes (Open + Festival with participants)
+    // Calculate active classes for the label
     const activeClassesCount = classes.filter(cls => {
         const isFestival = (cls.code || "").toString().toUpperCase().startsWith('F');
         const isPerorangan = cls.type === 'PERORANGAN' || !cls.type;
         const isOpen = !isFestival && isPerorangan;
-
-        if (isFestival || isOpen) {
-            return allAthletes.some(a => a.className === cls.name);
-        }
-        return false;
+        return (isFestival || isOpen) && allAthletes.some(a => a.className === cls.name);
     }).length;
 
-    if (classCountLabel) {
-        classCountLabel.innerText = `${activeClassesCount} KELAS AKTIF`;
-    }
+    if (classCountLabel) classCountLabel.innerText = `${activeClassesCount} KELAS AKTIF`;
 
+    // Render Classes Table
     tableBody.innerHTML = filtered.map(cls => `
         <tr class="row-hover border-b border-white/5 group">
             <td class="p-4 font-black text-blue-400 text-sm">${cls.code}</td>
             <td class="p-4 text-white font-bold">${cls.name}</td>
             <td class="p-4">
-                <span class="px-2 py-1 rounded text-[9px] font-black ${cls.type === 'BEREGU' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'
-        }">
+                <span class="px-2 py-1 rounded text-[9px] font-black ${cls.type === 'BEREGU' ? 'bg-purple-500/20 text-purple-400' : 'bg-blue-500/20 text-blue-400'}">
                     ${cls.type || 'PERORANGAN'}
                 </span>
             </td>
             <td class="p-4 opacity-70 text-xs">${cls.ageCategory || '-'}</td>
             <td class="p-4">
-                <span class="px-2 py-1 rounded text-[9px] font-bold ${cls.gender === 'PUTRA' ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'
-        }">
+                <span class="px-2 py-1 rounded text-[9px] font-bold ${cls.gender === 'PUTRA' ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'}">
                     ${cls.gender}
                 </span>
             </td>
             <td class="p-4 text-center opacity-70 text-xs">${cls.ageMin || 0} - ${cls.ageMax || 99} Thn</td>
             <td class="p-4 text-center opacity-70 text-xs">${cls.weightMin || 0} - ${cls.weightMax || 999} Kg</td>
             <td class="p-4">
-                <button onclick="deleteClass('${cls.code}')" 
-                    class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                <button onclick="deleteClass('${cls.code}')" class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 </button>
             </td>
         </tr>
@@ -128,39 +112,22 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
         lastSubTabRef = currentSubTab;
         lastEventIdRef = eventId;
 
-        bracketListArea.innerHTML = '';
         if (filtered.length === 0) {
             bracketListArea.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 italic font-black uppercase tracking-widest text-[10px]">Belum ada data ${currentSubTab}</div>`;
         } else {
-            // Load schedule data for Tatami info
+            // Batch load all brackets and schedule
             let scheduleData = [];
-            try {
-                const scheduleSnap = await getDoc(doc(db, `events/${eventId}/metadata`, 'schedule'));
-                if (scheduleSnap.exists()) {
-                    scheduleData = scheduleSnap.data().schedule || [];
-                }
-            } catch (err) {
-                console.warn("Could not load schedule for tatami display:", err);
-            }
-
-            // OPTIMIZED: Batch load ALL brackets once
             let allBracketsMap = {};
             try {
-                // Import getBrackets from firestore-listeners
+                const scheduleSnap = await getDoc(doc(db, `events/${eventId}/metadata`, 'schedule'));
+                if (scheduleSnap.exists()) scheduleData = scheduleSnap.data().schedule || [];
+
                 const { getBrackets } = await import('./firestore-listeners.js');
                 const allBrackets = await getBrackets(db, eventId);
+                allBrackets.forEach(b => allBracketsMap[b.class || b.id] = b);
+            } catch (err) { console.warn("Bracket init error:", err); }
 
-                // Create map for fast lookup
-                allBrackets.forEach(bracket => {
-                    allBracketsMap[bracket.class || bracket.id] = bracket;
-                });
-
-                console.log(`[CLASSES] Loaded ${allBrackets.length} brackets (CACHED)`);
-            } catch (err) {
-                console.warn("Could not batch load brackets:", err);
-            }
-
-            // Global Actions for Festival
+            // Festival Global Action
             let globalActions = "";
             if (currentSubTab === 'FESTIVAL') {
                 globalActions = `
@@ -177,126 +144,118 @@ export const renderClassesData = async (classes, allAthletes, brackets, currentS
                 `;
             }
 
-            const cards = filtered.map((data) => {
+            // Prepare card data
+            const cardsData = filtered.map(data => {
+                const bracketData = allBracketsMap[data.name];
                 const athleteCount = allAthletes.filter(a =>
                     (a.classCode === data.code) || (a.className.trim().toUpperCase() === data.name.trim().toUpperCase())
                 ).length;
 
-                if (athleteCount > 0) {
-                    let statusBadge = '';
-                    let statusReason = '';
+                return {
+                    data, athleteCount,
+                    hasParticipants: athleteCount > 0,
+                    isComplete: bracketData && bracketData.status === 'complete' && bracketData.athleteCount === athleteCount,
+                    bracketData
+                };
+            }).filter(c => c.hasParticipants); // Filter early to simplify sorting
 
-                    // Find Tatami info from schedule using robust matching
-                    const scheduleEntry = scheduleData.find(entry =>
-                        entry.classes && entry.classes.some(cls => {
-                            const cCode = (cls.code || "").toString().trim().toUpperCase();
-                            const cName = (cls.name || "").toString().trim().toUpperCase();
-                            const dCode = (data.code || "").toString().trim().toUpperCase();
-                            const dName = (data.name || "").toString().trim().toUpperCase();
-
-                            if (dCode && cCode && dCode === cCode) return true;
-                            if (dName && cName && dName === cName) return true;
-
-                            const fuzzyC = cName.replace(/[^A-Z0-9]/g, '');
-                            const fuzzyD = dName.replace(/[^A-Z0-9]/g, '');
-                            return fuzzyC && fuzzyD && fuzzyC === fuzzyD;
-                        })
-                    );
-                    const tatamiLabel = scheduleEntry ? `<div class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black tracking-widest uppercase w-fit">TATAMI ${scheduleEntry.arena}</div>` : '';
-
-                    // OPTIMIZED: Use pre-loaded bracket data
-                    const bracketData = allBracketsMap[data.name];
-                    if (bracketData && bracketData.status === 'complete') {
-                        const savedCount = bracketData.athleteCount || 0;
-                        const isRevised = athleteCount !== savedCount;
-
-                        if (isRevised) {
-                            const diff = athleteCount - savedCount;
-                            const diffText = diff > 0 ? `+ ${diff} ATLET BARU` : `${diff} ATLET DIHAPUS`;
-                            statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30 shadow-lg shadow-red-500/10">⚠️ REVISI</span>`;
-                            statusReason = `<p class="text-[8px] text-red-400 mt-1 uppercase font-black">${diffText}</p>`;
-                        } else {
-                            statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-lg shadow-emerald-500/10">✅ OK</span>`;
-                            statusReason = `<p class="text-[8px] text-emerald-400 mt-1 uppercase">BAGAN SELESAI</p>`;
-                        }
-                    } else {
-                        statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30 shadow-lg shadow-orange-500/10">⏳ PENDING</span>`;
-                        statusReason = `<p class="text-[8px] text-orange-400/60 mt-1 italic">Bagan belum dibuat</p>`;
-                    }
-
-                    const card = `
-                        <div class="bg-slate-800/40 p-10 rounded-[3rem] border border-white/5 group hover:border-blue-500/30 transition-all relative overflow-hidden flex flex-col h-full min-h-[420px] shadow-2xl">
-                            <div class="absolute -right-8 -top-8 text-[160px] font-black italic opacity-[0.03] pointer-events-none select-none">${(athleteCount).toString().padStart(2, '0')}</div>
-                            
-                            <!-- Header Info -->
-                            <div class="flex justify-between items-start mb-6 relative z-10 w-full">
-                                <div class="flex flex-col gap-3">
-                                    <div class="px-5 py-2.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 w-fit">
-                                        <span class="text-[11px] font-black text-blue-400 tracking-wider">${athleteCount} ATLET</span>
-                                    </div>
-                                    ${tatamiLabel}
-                                </div>
-                                <div class="flex flex-col items-end gap-3 text-right">
-                                    <span class="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">${data.gender}</span>
-                                    <div>${statusBadge}</div>
-                                </div>
-                            </div>
-
-                            <!-- Main Content (Centered) -->
-                            <div class="flex-1 flex flex-col justify-center mb-8 relative z-10">
-                                <span class="text-[11px] text-blue-500/60 font-black tracking-[0.3em] mb-3 uppercase">#${data.code || 'PENDING'}</span>
-                                <h4 class="text-lg font-black italic uppercase text-white leading-[1.3] tracking-tight mb-4">
-                                    ${data.name}
-                                </h4>
-                                <div class="flex items-center gap-2 mb-2">
-                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-600"></div>
-                                    <p class="text-[10px] font-black opacity-30 uppercase tracking-widest text-slate-300">${data.ageCategory}</p>
-                                </div>
-                                ${statusReason}
-                            </div>
-
-                            <!-- Action Button -->
-                            <div class="relative z-10 mt-auto">
-                                <a href="event-bracket.html?id=${eventId}&classId=${data.code}&class=${encodeURIComponent(data.name)}" 
-                                   class="w-full py-5 rounded-[1.5rem] bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-600 hover:border-blue-500 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 group/btn">
-                                    <span>BUAT / BUKA BAGAN</span>
-                                    <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    `;
-                    return card;
+            // Smart Sorting: Pending/Revisi (isComplete: false) FIRST
+            cardsData.sort((a, b) => {
+                if (a.isComplete !== b.isComplete) {
+                    return a.isComplete ? 1 : -1; // false comes before true
                 }
-                return '';
-            }).filter(card => card !== '');
+                // Secondary sort by code/name
+                return (a.data.code || "").localeCompare(b.data.code || "", undefined, { numeric: true });
+            });
 
-            // Bracket Pagination Logic
-            const totalItems = cards.length;
+            // Calculate Global Status Indicator
+            const totalBracketsCount = cardsData.length;
+            const completedBracketsCount = cardsData.filter(c => c.isComplete).length;
+            const needsEditCount = totalBracketsCount - completedBracketsCount;
+
+            const statusLabel = document.getElementById('bracketStatusLabel');
+            if (statusLabel) {
+                statusLabel.innerText = `BAGAN PERLU DIEDIT / TOTAL: (${needsEditCount.toString().padStart(2, '0')}/${totalBracketsCount.toString().padStart(2, '0')})`;
+                statusLabel.className = `text-[10px] font-black uppercase tracking-widest mr-4 ${needsEditCount > 0 ? 'text-orange-500' : 'text-emerald-500'}`;
+            }
+
+            // Generate Cards HTML
+            const cardsHtml = cardsData.map(({ data, athleteCount, isComplete, bracketData, hasParticipants }) => {
+                if (!hasParticipants) return '';
+
+                let statusBadge = '';
+                let statusReason = '';
+
+                const scheduleEntry = scheduleData.find(e => e.classes && e.classes.some(cls => (cls.code === data.code || cls.name === data.name)));
+                const tatamiLabel = scheduleEntry ? `<div class="px-3 py-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-black tracking-widest uppercase w-fit">TATAMI ${scheduleEntry.arena}</div>` : '';
+
+                if (isComplete) {
+                    statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">✅ OK</span>`;
+                    statusReason = `<p class="text-[8px] text-emerald-400 mt-1 uppercase font-black">BAGAN SELESAI</p>`;
+                } else if (bracketData && bracketData.status === 'complete') {
+                    const diff = athleteCount - (bracketData.athleteCount || 0);
+                    const diffText = diff > 0 ? `+ ${diff} ATLET BARU` : `${diff} ATLET DIHAPUS`;
+                    statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30">⚠️ REVISI</span>`;
+                    statusReason = `<p class="text-[8px] text-red-400 mt-1 uppercase font-black">${diffText}</p>`;
+                } else {
+                    statusBadge = `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-orange-500/20 text-orange-400 border border-orange-500/30">⏳ PENDING</span>`;
+                    statusReason = `<p class="text-[8px] text-orange-400/60 mt-1 italic font-bold">BELUM DIBUAT</p>`;
+                }
+
+                return `
+                    <div class="bg-slate-900/50 rounded-[2rem] border border-white/5 p-6 group hover:border-blue-500/30 transition-all flex flex-col h-full shadow-lg">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            ${tatamiLabel}
+                            <div class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[9px] font-black uppercase tracking-widest rounded-lg">${athleteCount} ATLET</div>
+                            <div class="ml-auto">${statusBadge}</div>
+                        </div>
+                        <div class="flex-1 mb-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">#${data.code || 'PENDING'}</span>
+                                <span class="text-[9px] font-black text-slate-600 uppercase tracking-widest">&bull;</span>
+                                <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest">${data.gender}</span>
+                            </div>
+                            <h4 class="text-base font-black uppercase text-white leading-tight tracking-tight group-hover:text-blue-400 transition-colors">${data.name}</h4>
+                            <div class="flex items-center gap-2 mt-2 opacity-40">
+                                <svg class="w-2.5 h-2.5 text-slate-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-slate-300 line-clamp-1">${data.ageCategory}</p>
+                            </div>
+                            ${statusReason}
+                        </div>
+                        <a href="event-bracket.html?id=${eventId}&classId=${data.code}&class=${encodeURIComponent(data.name)}" 
+                           class="w-full h-12 rounded-xl bg-white/5 border border-white/10 text-white text-[9px] font-black uppercase tracking-widest hover:bg-blue-600 hover:border-blue-500 transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
+                            <span>BUAT / BUKA BAGAN</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    </div>
+                `;
+            }).filter(h => h !== '');
+
+            // Pagination UI Refresh
+            const totalItems = cardsHtml.length;
             const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
-
             if (window.bracketCurrentPage > totalPages) window.bracketCurrentPage = totalPages;
             if (window.bracketCurrentPage < 1) window.bracketCurrentPage = 1;
 
             const startIdx = (window.bracketCurrentPage - 1) * PAGE_SIZE;
             const endIdx = Math.min(startIdx + PAGE_SIZE, totalItems);
-            const pagedCards = cards.slice(startIdx, endIdx);
+            const pagedHtml = cardsHtml.slice(startIdx, endIdx);
 
-            // Update Pagination UI
-            const pageInfo = document.getElementById('bracketPageInfo');
-            const currentLbl = document.getElementById('bracketCurrentPage');
-            const totalLbl = document.getElementById('bracketTotalPages');
-            const prevBtn = document.getElementById('bracketPrevBtn');
-            const nextBtn = document.getElementById('bracketNextBtn');
+            const paginationContainer = document.getElementById('bracketPaginationControls');
+            const pageInfoLabel = document.getElementById('bracketPageInfo');
+            const currentPageSpan = document.getElementById('bracketCurrentPage');
+            const totalPagesSpan = document.getElementById('bracketTotalPages');
+            const prevButton = document.getElementById('bracketPrevBtn');
+            const nextButton = document.getElementById('bracketNextBtn');
 
-            if (pageInfo) pageInfo.innerText = `Menampilkan ${totalItems === 0 ? 0 : startIdx + 1} - ${endIdx} dari ${totalItems} kelas`;
-            if (currentLbl) currentLbl.innerText = window.bracketCurrentPage;
-            if (totalLbl) totalLbl.innerText = totalPages;
-            if (prevBtn) prevBtn.disabled = window.bracketCurrentPage <= 1;
-            if (nextBtn) nextBtn.disabled = window.bracketCurrentPage >= totalPages;
+            if (paginationContainer) paginationContainer.classList.toggle('hidden', totalItems <= PAGE_SIZE);
+            if (pageInfoLabel) pageInfoLabel.innerText = `Menampilkan ${totalItems === 0 ? 0 : startIdx + 1} - ${endIdx} dari ${totalItems} kelas`;
+            if (currentPageSpan) currentPageSpan.innerText = window.bracketCurrentPage;
+            if (totalPagesSpan) totalPagesSpan.innerText = totalPages;
+            if (prevButton) prevButton.disabled = window.bracketCurrentPage <= 1;
+            if (nextButton) nextButton.disabled = window.bracketCurrentPage >= totalPages;
 
-            bracketListArea.innerHTML = globalActions + pagedCards.join('');
+            bracketListArea.innerHTML = globalActions + pagedHtml.join('');
         }
     }
 };

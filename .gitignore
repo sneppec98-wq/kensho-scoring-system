@@ -13,8 +13,9 @@ obj/
 .firebase/
 
 # Security Exclusions (Public Repo)
-js/firebase-init.js
-public_portal/js/firebase-init.js
+# Keep firebase-init.js tracked for ease of use (others can clone & run)
+# Security is handled via Domain Restrictions in Firebase/Google Cloud Console.
+
 .firebaserc
 KenshoBuilder/
 _OLD_BUILDER_ARCHIVE/

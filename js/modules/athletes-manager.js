@@ -115,40 +115,58 @@ export const renderAthleteData = (athletes, latestClasses, currentAthleteSubTab 
     if (nextBtn) nextBtn.disabled = window.athleteCurrentPage >= totalPages;
 
     tableBody.innerHTML = pagedData.map(athlete => `
-        <tr class="row-hover border-b border-white/5 group">
+        <tr class="row-hover border-b border-white/5 group ${athlete.verified === false ? 'bg-orange-500/5' : ''}">
             <td class="p-4">
                 <div class="font-bold text-white text-lg">${athlete.name}</div>
                 ${athlete.name2 || athlete.name3 ?
             `<div class="text-[10px] opacity-40 font-bold mt-1 uppercase">👥 TIM: ${[athlete.name, athlete.name2, athlete.name3].filter(n => n).join(' & ')}</div>` :
             (athlete.members && athlete.members.length > 0 ?
                 `<div class="text-[10px] opacity-40 font-bold mt-1 uppercase">👥 TIM: ${athlete.members.join(' & ')}</div>` : '')}
+                ${athlete.whatsapp ? `<div class="text-[9px] text-slate-500 font-bold mt-1">📱 ${athlete.whatsapp}</div>` : ''}
+                ${athlete.registeredVia === 'public_portal' ? '<span class="inline-block px-2 py-0.5 rounded text-[8px] font-black bg-purple-500/20 text-purple-400 mt-1">VIA PORTAL</span>' : ''}
             </td>
             <td class="p-4 opacity-70 text-sm font-bold">${athlete.team || '-'}</td>
-            <td class="p-4">
-                <span class="px-2 py-1 rounded text-[9px] font-black ${athlete.gender === 'PUTRA' ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'
-        }">
-                    ${athlete.gender}
-                </span>
-            </td>
             <td class="p-4">
                 <div class="flex flex-col">
                     <span class="text-[9px] font-black text-blue-500 mb-1 tracking-widest">
                         ${athlete.classCode || findClassInfo(athlete)?.code || 'ERR'}
                     </span>
                     <span class="text-xs font-bold text-slate-200">${athlete.className || findClassInfo(athlete)?.name || '-'}</span>
+                    <span class="px-2 py-1 rounded text-[9px] font-black mt-2 ${athlete.gender === 'PUTRA' ? 'bg-blue-500/20 text-blue-400' : 'bg-pink-500/20 text-pink-400'}">
+                        ${athlete.gender}
+                    </span>
                 </div>
+            </td>
+            <td class="p-4 text-center">
+                ${athlete.verified === false ?
+            `<span class="inline-block px-3 py-1.5 rounded-full text-[9px] font-black bg-orange-500/20 text-orange-400 border border-orange-500/30 uppercase tracking-wider">⏳ Pending</span>` :
+            `<span class="inline-block px-3 py-1.5 rounded-full text-[9px] font-black bg-green-500/20 text-green-400 border border-green-500/30 uppercase tracking-wider">✓ Verified</span>`
+        }
             </td>
             <td class="p-4 font-bold text-yellow-400">${athlete.weight || '-'} kg</td>
             <td class="p-4">
-                <div class="flex items-center space-x-2">
-                    <button onclick="editAthlete('${athlete.id}')" 
-                        class="w-8 h-8 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                    </button>
-                    <button onclick="deleteAthlete('${athlete.id}')" 
-                        class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                    </button>
+                <div class="flex items-center justify-center space-x-2">
+                    ${athlete.verified === false ? `
+                        <button onclick="verifyAthlete('${athlete.id}')" 
+                            class="px-3 py-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white text-[10px] font-black uppercase tracking-wider transition-all shadow-lg shadow-green-500/20"
+                            title="Verifikasi Atlet">
+                            ✓ VERIFIKASI
+                        </button>
+                        <button onclick="rejectAthlete('${athlete.id}', '${(athlete.name || '').replace(/'/g, "\\'")}') "
+                            class="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500 hover:text-white text-red-400 text-[10px] font-black uppercase tracking-wider transition-all border border-red-500/30"
+                           title="Tolak Pendaftaran">
+                            ✕ TOLAK
+                        </button>
+                    ` : `
+                        <button onclick="editAthlete('${athlete.id}')" 
+                            class="w-8 h-8 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        </button>
+                        <button onclick="deleteAthlete('${athlete.id}')" 
+                            class="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                        </button>
+                    `}
                 </div>
             </td>
         </tr>

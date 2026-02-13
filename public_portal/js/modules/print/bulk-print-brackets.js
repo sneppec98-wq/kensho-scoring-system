@@ -6,9 +6,10 @@ import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/fir
  * @param {string} eventId 
  * @param {string} eventName 
  * @param {string} eventLogo 
- * @param {string} type - 'open' or 'festival'
+ * @param {string} type - 'open', 'festival', or 'all'
+ * @param {string} contingentFilter - Filter by specific contingent
  */
-export const bulkPrintBrackets = async (eventId, eventName, eventLogo, type = 'open') => {
+export const bulkPrintBrackets = async (eventId, eventName, eventLogo, type = 'open', contingentFilter = "") => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
         alert("Pop-up terblokir! Silakan izinkan pop-up.");
@@ -30,15 +31,30 @@ export const bulkPrintBrackets = async (eventId, eventName, eventLogo, type = 'o
         const classSnap = await getDocs(query(collection(db, `events/${eventId}/classes`), orderBy("name", "asc")));
         const allClasses = classSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // 3. Filter brackets based on type
-        const filteredBrackets = brackets.filter(b => {
-            const classInfo = allClasses.find(c => c.name === b.name);
+        // 3. Filter brackets based on type and contingent
+        let filteredBrackets = brackets.filter(b => {
+            const classInfo = allClasses.find(c => c.name === b.name || c.id === b.name);
             const isFestival = (classInfo?.code || "").toString().toUpperCase().startsWith('F');
-            return type === 'festival' ? isFestival : !isFestival;
+
+            let typeMatch = true;
+            if (type === 'open') typeMatch = !isFestival;
+            else if (type === 'festival') typeMatch = isFestival;
+
+            return typeMatch;
         });
 
+        // Filter by contingent if requested
+        if (contingentFilter) {
+            filteredBrackets = filteredBrackets.filter(b =>
+                (b.participants || []).some(p => p.team === contingentFilter)
+            );
+        }
+
         if (filteredBrackets.length === 0) {
-            alert(`Belum ada bagan ${type.toUpperCase()} yang digenerate.`);
+            const msg = contingentFilter
+                ? `Tidak ada bagan ${type.toUpperCase()} untuk kontingen ${contingentFilter}.`
+                : `Belum ada bagan ${type.toUpperCase()} yang digenerate.`;
+            alert(msg);
             printWindow.close();
             return;
         }

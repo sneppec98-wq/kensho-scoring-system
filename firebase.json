@@ -25,7 +25,16 @@
                 "package.json",
                 "package-lock.json",
                 "main.js",
-                "preload.js"
+                "preload.js",
+                "KenshoBuilder/**",
+                "_OLD_BUILDER_ARCHIVE/**",
+                "obfuscate.js",
+                "PRICING_GUIDE.md",
+                "ROADMAP.md",
+                "setup-admin.html",
+                "generate-dummy-data.html",
+                "fix_final.ps1",
+                "admin-rekap-BACKUP.html"
             ],
             "rewrites": [
                 {
@@ -40,7 +49,15 @@
             "ignore": [
                 "firebase.json",
                 "**/.*",
-                "**/node_modules/**"
+                "**/node_modules/**",
+                "ROADMAP.md",
+                "**/_OLD_BUILDER_ARCHIVE/**"
+            ],
+            "rewrites": [
+                {
+                    "source": "**",
+                    "destination": "/index.html"
+                }
             ]
         },
         {

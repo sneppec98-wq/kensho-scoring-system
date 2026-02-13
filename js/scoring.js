@@ -45,7 +45,15 @@ window.isTimerRunning = false;
 window.isTimerEnabled = true;
 window.penaltiesAka = { c1: false, c2: false, c3: false, hc: false, h: false };
 window.penaltiesAo = { c1: false, c2: false, c3: false, hc: false, h: false };
-window.currentTatami = 1;
+// --- TATAMI SYNC LOGIC ---
+const urlParams = new URLSearchParams(window.location.search);
+window.currentTatami = urlParams.get('tatami') || 1;
+
+// Update Visual Label di Header Pak! Pak!
+setTimeout(() => {
+    const tatamiLabel = document.getElementById('activeTatamiLabel');
+    if (tatamiLabel) tatamiLabel.innerText = window.currentTatami;
+}, 500);
 window.monitorWindow = null;
 window.nameAka = "";
 window.nameAo = "";
@@ -71,6 +79,10 @@ window.vrAka = false;
 window.vrAo = false;
 window.isHantei = false;
 window.isQueueVisible = true;
+window.isRestTimerActive = false;
+window.restTimeLeft = 60;
+window.restTimerId = null;
+window.isIntroActive = false;
 
 // --- SOUND FUNCTIONS ---
 window.playBuzzer = playBuzzer;
@@ -122,11 +134,11 @@ window.filterCategories = function (queryText) {
 
     if (filtered.length === 0 && queryText === "") {
         dropdown.innerHTML = window.matchCategories.map(cat =>
-            `<div class="dropdown-item" onclick="selectCategory('${cat.replace(/'/g, "\\\\'")}')">${cat}</div>`
+            `<div class="dropdown-item" onclick="selectCategory('${cat.replace(/'/g, "\\'")}')">${cat}</div>`
         ).join('');
     } else {
         dropdown.innerHTML = filtered.map(cat =>
-            `<div class="dropdown-item" onclick="selectCategory('${cat.replace(/'/g, "\\\\'")}')">${cat}</div>`
+            `<div class="dropdown-item" onclick="selectCategory('${cat.replace(/'/g, "\\'")}')">${cat}</div>`
         ).join('');
     }
 
@@ -263,7 +275,7 @@ window.filterAthletes = function (side) {
         return;
     }
     dropdown.innerHTML = filtered.map(athlete => `
-        <button type="button" onclick="selectAthlete('${side}', '${athlete.name.replace(/'/g, "\\\\'")}', '${(athlete.team || '').replace(/'/g, "\\\\'")}')"
+        <button type="button" onclick="selectAthlete('${side}', '${athlete.name.replace(/'/g, "\\'")}', '${(athlete.team || '').replace(/'/g, "\\'")}')"
             class="w-full text-left px-4 py-2.5 hover:bg-${side === 'aka' ? 'red' : 'blue'}-500/20 transition-colors border-b border-white/5 last:border-0">
             <p class="text-xs font-bold text-white">${athlete.name}</p>
             <p class="text-[10px] text-slate-400 mt-0.5">${athlete.team || '(No team)'}</p>
@@ -316,7 +328,13 @@ window.broadcastData = function () {
         judgeScoresAo: window.judgeScoresAo,
         akaFlags: window.akaFlags,
         aoFlags: window.aoFlags,
-        showWinnerBanner: window.showWinnerBanner
+        showWinnerBanner: window.showWinnerBanner,
+        isRestTimerActive: window.isRestTimerActive,
+        restTimeLeft: window.restTimeLeft,
+        isIntroActive: window.isIntroActive,
+        showEventMedia: window.showEventMedia || false,
+        eventMediaUrl: window.eventMediaUrl || null,
+        eventMediaType: window.eventMediaType || null
     };
 
     if (window.updateBroadcastUI) window.updateBroadcastUI();
@@ -325,7 +343,22 @@ window.broadcastData = function () {
     clearTimeout(window._broadcastTimeout);
     window._broadcastTimeout = setTimeout(() => {
         broadcastScoreData(scoreData).catch(err => console.error('[Scoring] Broadcast failed:', err));
-    }, 800);
+    }, 100);
+};
+
+window.toggleIntro = function () {
+    window.isIntroActive = !window.isIntroActive;
+    const btn = document.getElementById('btnIntro');
+    if (btn) {
+        if (window.isIntroActive) {
+            btn.classList.add('bg-pink-600', 'text-white');
+            btn.classList.remove('bg-white/5', 'text-pink-400');
+        } else {
+            btn.classList.remove('bg-pink-600', 'text-white');
+            btn.classList.add('bg-white/5', 'text-pink-400');
+        }
+    }
+    window.broadcastData();
 };
 
 window.updateBroadcastUI = function () {
@@ -649,6 +682,16 @@ window.saveMatchSettings = function () {
         if (el.nAo) el.nAo.textContent = nameAo || '---';
         if (el.tAo) el.tAo.textContent = teamAo || '---';
 
+        // 🚀 OTOMATIS AKTIFKAN INTRO Pak! Pak!
+        if (nameAka && nameAo) {
+            window.isIntroActive = true;
+            const btnIntro = document.getElementById('btnIntro');
+            if (btnIntro) {
+                btnIntro.classList.add('bg-pink-600', 'text-white');
+                btnIntro.classList.remove('bg-white/5', 'text-pink-400');
+            }
+        }
+
         window.broadcastData();
         window.toggleSettingsModal();
         if (window.updateKataListLink) window.updateKataListLink();
@@ -701,8 +744,8 @@ window.setSenshu = function (side) {
     window.senshu = window.senshu === side ? null : side;
     const btnAka = document.getElementById('senshuAka');
     const btnAo = document.getElementById('senshuAo');
-    if (btnAka) btnAka.className = window.senshu === 'aka' ? "py-3 rounded-lg bg-red-600 text-white text-[10px] font-black shadow-[0_0_20px_rgba(220,38,38,0.5)] border-white/20" : "py-3 rounded-lg neu-button text-[10px] font-black opacity-70 hover:opacity-100 transition-opacity";
-    if (btnAo) btnAo.className = window.senshu === 'ao' ? "py-3 rounded-lg bg-blue-600 text-white text-[10px] font-black shadow-[0_0_20px_rgba(37,99,235,0.5)] border-white/20" : "py-3 rounded-lg neu-button text-[10px] font-black opacity-70 hover:opacity-100 transition-opacity";
+    if (btnAka) btnAka.className = window.senshu === 'aka' ? "py-4 rounded-xl bg-red-600 text-white text-[12px] font-black shadow-[0_0_20px_rgba(220,38,38,0.5)] border-white/20" : "py-4 rounded-xl neu-button text-[12px] font-black opacity-70 hover:opacity-100 transition-opacity";
+    if (btnAo) btnAo.className = window.senshu === 'ao' ? "py-4 rounded-xl bg-blue-600 text-white text-[12px] font-black shadow-[0_0_20px_rgba(37,99,235,0.5)] border-white/20" : "py-4 rounded-xl neu-button text-[12px] font-black opacity-70 hover:opacity-100 transition-opacity";
     window.broadcastData();
 };
 
@@ -781,38 +824,57 @@ window.toggleTimerSetting = function (enabled) {
 };
 
 window.toggleTimer = function () {
-    if (!window.isTimerEnabled) return;
     if (window.isWinnerDeclared) return;
+
+    window.isTimerRunning = !window.isTimerRunning;
     if (window.isTimerRunning) {
-        window.isTimerRunning = false;
-        clearInterval(window.timerId);
-    } else {
-        if (window.timeLeft <= 0) return;
-        window.isTimerRunning = true;
-        resumeAudio();
         window.timerId = setInterval(window.updateTimer, 1000);
+        window.resumeAudio();
+    } else {
+        clearInterval(window.timerId);
     }
     window.broadcastData();
+    window.updateRestOverlay();
 };
 
 window.updateTimer = function () {
-    if (window.timeLeft > 0) {
-        window.timeLeft--;
-        const display = document.getElementById('timerDisplay');
-        if (display) display.value = formatTime(window.timeLeft);
-        if (window.timeLeft === 15) {
-            playBeep();
-            logActivity("Atoshi Baraku", "Waktu tersisa 15 detik.", window.currentTatami);
+    if (!window.isTimerRunning) return;
+
+    if (window.isRestTimerActive) {
+        // Rest Timer Logic
+        if (window.restTimeLeft > 0) {
+            window.restTimeLeft--;
+            const display = document.getElementById('timerDisplay');
+            if (display) display.value = formatTime(window.restTimeLeft);
+
+            if (window.restTimeLeft === 0) {
+                window.playBuzzer();
+                window.toggleRestTimer(false);
+            }
+        } else {
+            window.toggleRestTimer(false);
         }
-        if (window.timeLeft === 0) {
-            window.isTimerRunning = false;
-            clearInterval(window.timerId);
-            playBuzzer();
-            logActivity("Waktu Habis", "Pertandingan berakhir.", window.currentTatami);
-            window.finishMatch();
+    } else {
+        // Match Timer Logic
+        if (window.timeLeft > 0) {
+            window.timeLeft--;
+            const display = document.getElementById('timerDisplay');
+            if (display) display.value = formatTime(window.timeLeft);
+            if (window.timeLeft === 15) {
+                playBeep();
+                logActivity("Atoshi Baraku", "Waktu tersisa 15 detik.", window.currentTatami);
+            }
+            if (window.timeLeft === 0) {
+                window.isTimerRunning = false;
+                clearInterval(window.timerId);
+                playBuzzer();
+                logActivity("Waktu Habis", "Pertandingan berakhir.", window.currentTatami);
+                window.finishMatch();
+            }
         }
-        window.broadcastData();
     }
+    window.broadcastData();
+    window.updateRestOverlay();
 };
 
 window.adjustTimer = function (seconds) {
@@ -924,10 +986,14 @@ window.togglePenalty = function (side, penalty) {
         const b = document.getElementById(`${p}${side.charAt(0).toUpperCase() + side.slice(1)}`);
         if (b) {
             if (penalties[p]) {
-                b.classList.add('bg-red-500', 'text-white', 'border-red-400');
+                // State: ACTIVE
+                b.classList.add('bg-red-600', 'text-white', 'border-transparent', 'active');
                 b.classList.remove('opacity-40');
+                if (p === 'h') b.classList.add('bg-red-700', 'shadow-[0_0_20px_rgba(220,38,38,0.5)]');
+                if (p === 'hc') b.classList.add('bg-amber-600');
             } else {
-                b.classList.remove('bg-red-500', 'text-white', 'border-red-400');
+                // State: INACTIVE
+                b.classList.remove('bg-red-600', 'bg-red-700', 'bg-amber-600', 'text-white', 'border-transparent', 'active', 'shadow-[0_0_20px_rgba(220,38,38,0.5)]');
                 b.classList.add('opacity-40');
             }
         }
@@ -964,6 +1030,28 @@ window.resetMatch = function () {
     window.isWinnerDeclared = false;
     window.winnerSide = null;
     window.showWinnerBanner = false;
+    window.isIntroActive = false;
+
+    // 🧹 SAPU BERSIH ATLET TAPI SIMPAN KATEGORI Pak! Pak!
+    window.nameAka = "";
+    window.nameAo = "";
+    window.teamAka = "";
+    window.teamAo = "";
+    window.slotAka = null;
+    window.slotAo = null;
+
+    // Update Display
+    if (document.getElementById('nameAkaDisplay')) document.getElementById('nameAkaDisplay').textContent = "ATLET AKA";
+    if (document.getElementById('nameAoDisplay')) document.getElementById('nameAoDisplay').textContent = "ATLET AO";
+    if (document.getElementById('teamAkaDisplay')) document.getElementById('teamAkaDisplay').textContent = "TEAM";
+    if (document.getElementById('teamAoDisplay')) document.getElementById('teamAoDisplay').textContent = "TEAM";
+
+    const btnIntro = document.getElementById('btnIntro');
+    if (btnIntro) {
+        btnIntro.classList.remove('bg-pink-600', 'text-white');
+        btnIntro.classList.add('bg-white/5', 'text-pink-400');
+    }
+
     window.vrAka = false;
     window.vrAo = false;
     window.isHantei = false;
@@ -994,9 +1082,9 @@ window.resetMatch = function () {
 
     ['Aka', 'Ao'].forEach(side => {
         const vrBtn = document.getElementById(`vr${side}`);
-        if (vrBtn) vrBtn.className = "py-3 rounded-lg neu-button text-[10px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100";
+        if (vrBtn) vrBtn.className = "py-4 rounded-xl neu-button text-[12px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100";
         const senshuBtn = document.getElementById(`senshu${side}`);
-        if (senshuBtn) senshuBtn.className = "py-3 rounded-lg neu-button text-[10px] font-black opacity-70 hover:opacity-100 transition-opacity";
+        if (senshuBtn) senshuBtn.className = "py-4 rounded-xl neu-button text-[12px] font-black opacity-70 hover:opacity-100 transition-opacity";
     });
 
     const hControls = document.getElementById('hanteiControls');
@@ -1039,8 +1127,32 @@ window.handleMonitor = function () {
     if (window.monitorWindow && !window.monitorWindow.closed) {
         window.monitorWindow.focus();
     } else {
-        const features = 'width=1280,height=720,menubar=no,toolbar=no,location=no,status=no';
-        window.monitorWindow = window.open('monitor.html', 'KarateMonitor', features);
+        // Setup Bapak: Monitor 2 ada di KIRI, Monitor 1 (Utama) ada di KANAN.
+        // Berarti Monitor 2 punya koordinat X negatif.
+
+        let screenWidth = window.screen.width;
+        let targetLeft = -screenWidth; // Geser sejauh satu lebar layar ke kiri Pak!
+        let targetTop = 0;
+
+        const features = `width=${screenWidth},height=${window.screen.height},left=${targetLeft},top=${targetTop},screenX=${targetLeft},screenY=${targetTop},menubar=no,toolbar=no,location=no,status=no`;
+
+        console.log('[Monitor] Mencoba "Buang ke Kiri" ke koordinat:', targetLeft);
+
+        window.monitorWindow = window.open(`scoring-monitor.html?tatami=${window.currentTatami}`, 'KarateMonitor', features);
+
+        // Anti-blokir & Auto-focus
+        if (!window.monitorWindow) {
+            alert("Pop-up diblokir! Silakan izinkan pop-up untuk melempar layar monitor otomatis.");
+        }
+    }
+};
+
+window.closeMonitor = function () {
+    if (window.monitorWindow && !window.monitorWindow.closed) {
+        window.monitorWindow.close();
+        window.monitorWindow = null;
+    } else {
+        console.log('[Monitor] Sudah tertutup atau belum dibuka.');
     }
 };
 
@@ -1049,6 +1161,14 @@ window.updateMonitorUI = function () {
         window.broadcastData();
     }
 };
+
+// Auto-close monitor window when scoring page is closed/navigated away
+window.addEventListener('beforeunload', () => {
+    if (window.monitorWindow && !window.monitorWindow.closed) {
+        window.monitorWindow.close();
+        console.log('[Monitor] Auto-closed on page unload');
+    }
+});
 
 window.finishMatch = async function () {
     if (!window.isWinnerDeclared) {
@@ -1114,6 +1234,61 @@ window.handleTimerKey = function (event) {
     if (event.key === 'Enter') {
         event.target.blur();
     }
+};
+
+window.toggleRestTimer = function (active, duration = 60) {
+    window.isRestTimerActive = active;
+    if (active) {
+        window.restTimeLeft = duration;
+        const display = document.getElementById('timerDisplay');
+        if (display) display.value = formatTime(window.restTimeLeft);
+    } else {
+        // Reset to match time when rest is turned off
+        const display = document.getElementById('timerDisplay');
+        if (display) display.value = formatTime(window.timeLeft);
+    }
+    window.broadcastData();
+    window.updateRestOverlay();
+};
+
+// Removed updateRestTimer as it's merged into updateTimer
+
+window.updateRestOverlay = function () {
+    const overlay = document.getElementById('restTimerOverlay');
+    const display = document.getElementById('restTimerDisplay');
+    const btnText = document.getElementById('restCountdownText');
+    const btn = document.getElementById('restTimerControl');
+
+    const timeStr = window.formatRestTime(window.restTimeLeft);
+
+    if (overlay && display) {
+        overlay.classList.toggle('hidden', !window.isRestTimerActive);
+        overlay.classList.toggle('flex', window.isRestTimerActive);
+        display.innerText = timeStr;
+    }
+
+    if (btnText) {
+        btnText.innerText = timeStr;
+        btnText.classList.toggle('hidden', !window.isRestTimerActive);
+    }
+
+    if (btn) {
+        if (window.isRestTimerActive) {
+            btn.classList.add('bg-amber-600', 'text-white');
+            btn.classList.remove('bg-white/5', 'text-amber-500/70');
+            btn.onclick = () => window.toggleRestTimer(false);
+        } else {
+            btn.classList.remove('bg-amber-600', 'text-white');
+            btn.classList.add('bg-white/5', 'text-amber-500/70');
+            btn.onclick = () => window.toggleRestTimer(true);
+        }
+    }
+};
+
+window.formatRestTime = function (seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 };
 
 window.initDashboard = async function () {
@@ -1256,8 +1431,57 @@ window.clearDigits = function () {
     console.log('Digits cleared');
 };
 
+// --- KEYBOARD SHORTCUTS ---
+window.addEventListener('keydown', (e) => {
+    // Abaikan jika sedang ngetik di input/textarea
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+    const key = e.key.toLowerCase();
 
+    // 1: Pengaturan Pertandingan
+    if (key === '1') {
+        e.preventDefault();
+        window.toggleSettingsModal();
+    }
+    // 2: Simpan Pengaturan
+    else if (key === '2') {
+        const modal = document.getElementById('settingsModal');
+        if (modal && !modal.classList.contains('hidden')) {
+            e.preventDefault();
+            window.saveMatchSettings();
+        }
+    }
+    // 3: Tutup BS/Intro
+    else if (key === '3') {
+        e.preventDefault();
+        if (window.isIntroActive) {
+            window.toggleIntro();
+        }
+    }
+    // Space: Start/Pause Timer
+    else if (e.code === 'Space') {
+        e.preventDefault();
+        window.toggleTimer();
+    }
+    // R: Reset Match
+    else if (key === 'r') {
+        e.preventDefault();
+        window.resetMatch();
+    }
+    // T: Rest Time Mode (Toggle On/Off)
+    else if (key === 't') {
+        e.preventDefault();
 
+        // Ambil durasi dari apa yang diketik/tertera di timer saat ini Pak!
+        const timerInput = document.getElementById('timerDisplay');
+        let customDuration = 60; // default
+        if (timerInput) {
+            const parts = timerInput.value.split(':');
+            if (parts.length === 2) {
+                customDuration = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+            }
+        }
 
-
+        window.toggleRestTimer(!window.isRestTimerActive, customDuration);
+    }
+});

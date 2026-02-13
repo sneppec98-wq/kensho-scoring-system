@@ -73,10 +73,15 @@
 
                 <!-- Password -->
                 <div>
-                    <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
-                        Password Key
-                    </label>
-                    <div class="relative mt-2">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+                            Password Key
+                        </label>
+                        <button type="button" onclick="handleForgotPassword()"
+                            class="text-[9px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-all">Lupa
+                            Password?</button>
+                    </div>
+                    <div class="relative">
                         <input type="password" id="password" required
                             class="w-full px-4 py-2.5 rounded-xl bg-[#0B1220] border border-white/5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-700 font-mono"
                             placeholder="••••••••">
@@ -170,10 +175,66 @@
     </div>
 
 
+    <!-- Modal: Activation / Input License -->
+    <div id="modal-activation"
+        class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 backdrop-blur-xl hidden">
+        <div class="w-full max-w-sm px-6 text-center">
+
+            <div class="mb-10">
+                <div
+                    class="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-blue-500/30">
+                    <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-white uppercase tracking-tight">Aktivasi Produk</h2>
+                <p class="text-[10px] text-slate-400 mt-2 font-medium">Silakan masukkan Serial Number Anda untuk
+                    melanjutkan.</p>
+            </div>
+
+            <div class="bg-[#111827] border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+                <form onsubmit="handleActivate(event)" class="space-y-6">
+                    <div class="px-2">
+                        <label
+                            class="text-[9px] uppercase tracking-[0.2em] text-slate-500 font-black block mb-4 text-center">Serial
+                            Number Key</label>
+                        <div class="flex items-center justify-center gap-2">
+                            <input type="text" value="KENSHO" readonly
+                                class="w-24 py-4 rounded-xl bg-black/40 border border-white/10 text-blue-500 text-xs font-black text-center tracking-widest outline-none">
+                            <span class="text-slate-800 font-bold">-</span>
+                            <input type="text" id="inputSerialP1" maxlength="4" required
+                                class="w-24 py-4 rounded-xl bg-black/40 border border-white/5 text-white text-xs focus:outline-none focus:border-blue-500 transition-all font-mono text-center uppercase tracking-widest"
+                                placeholder="XXXX">
+                            <span class="text-slate-800 font-bold">-</span>
+                            <input type="text" id="inputSerialP2" maxlength="3" required
+                                class="w-16 py-4 rounded-xl bg-black/40 border border-white/5 text-white text-xs focus:outline-none focus:border-blue-500 transition-all font-mono text-center uppercase tracking-widest"
+                                placeholder="123">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnActivate"
+                        class="w-full bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-black uppercase tracking-widest py-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-blue-600/20">
+                        <span id="btnActivateText">Aktifkan Sekarang</span>
+                    </button>
+
+                    <div class="text-center pt-2">
+                        <p class="text-[9px] text-slate-500 font-medium">Maksimal 5 Perangkat per Lisensi</p>
+                    </div>
+                </form>
+            </div>
+
+            <p class="text-center mt-8 text-[9px] text-slate-600 font-black uppercase tracking-widest">
+                Hubungi Admin untuk mendapatkan Lisensi Resmi.
+            </p>
+        </div>
+    </div>
+
+
     <script type="module">
         import { auth, db } from './js/firebase-init.js';
-        import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, getDoc, setDoc, updateDoc, serverTimestamp, onSnapshot, collection, query, where, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { logActivity } from './js/activity-logger.js';
 
 
@@ -187,7 +248,6 @@
                 const cancelBtn = document.getElementById('confirm-cancel-btn');
                 const promptContainer = document.getElementById('confirm-prompt-container');
                 const promptInput = document.getElementById('confirm-input');
-                const promptLabel = document.getElementById('confirm-prompt-label');
                 const iconDanger = document.getElementById('confirm-icon-danger');
                 const iconInfo = document.getElementById('confirm-icon-info');
 
@@ -208,7 +268,6 @@
 
                 if (promptWord) {
                     promptContainer.classList.remove('hidden');
-                    promptLabel.innerText = `Ketik "${promptWord}" untuk konfirmasi`;
                     promptInput.value = "";
                     confirmBtn.disabled = true; confirmBtn.style.opacity = "0.3";
                     promptInput.oninput = () => {
@@ -262,7 +321,7 @@
 
         window.copySerial = function () {
             const serial = document.getElementById('displaySerial').innerText;
-            if (serial === 'MENUNGGU...') return;
+            if (serial === 'MENUNGGU...' || serial === 'BELUM AKTIF') return;
             navigator.clipboard.writeText(serial);
             alert("Serial Number disalin ke clipboard!");
         }
@@ -282,7 +341,7 @@
             // Both desktop and web browser require device activation
             const isLocalDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
             if (licenseStatus !== 'active' && !isLocalDev) {
-                alert("Lisensi Anda belum aktif. Silakan hubungi Admin.");
+                alert("Lisensi Anda belum aktif. Silakan aktifkan produk Anda.");
                 return;
             }
             if (isExpired) {
@@ -375,9 +434,12 @@
 
                 // 5. Desktop-HWID Binding (if applicable)
                 if (window.electronAPI && !boundEmail) {
-                    await updateDoc(doc(db, "installations", currentHwid), {
-                        boundEmail: email
-                    });
+                    const licenseKey = localStorage.getItem('kensho_license_key');
+                    if (licenseKey) {
+                        await updateDoc(doc(db, "licenses", licenseKey), {
+                            boundEmail: email
+                        });
+                    }
                 }
 
                 console.log("Login Success:", user.uid);
@@ -423,14 +485,16 @@
         let greetingIndex = 0;
         const greetingEl = document.getElementById('dynamicGreeting');
 
-        setInterval(() => {
-            greetingEl.classList.add('opacity-0');
-            setTimeout(() => {
-                greetingIndex = (greetingIndex + 1) % greetings.length;
-                greetingEl.innerText = greetings[greetingIndex];
-                greetingEl.classList.remove('opacity-0');
-            }, 500);
-        }, 4000);
+        if (greetingEl) {
+            setInterval(() => {
+                greetingEl.classList.add('opacity-0');
+                setTimeout(() => {
+                    greetingIndex = (greetingIndex + 1) % greetings.length;
+                    greetingEl.innerText = greetings[greetingIndex];
+                    greetingEl.classList.remove('opacity-0');
+                }, 500);
+            }, 4000);
+        }
 
         // Check if running in Electron
         const isElectron = window.electronAPI !== undefined;
@@ -461,12 +525,8 @@
                 userAgent: navigator.userAgent,
                 language: navigator.language,
                 platform: navigator.platform,
-                cpuClass: navigator.cpuClass || 'unknown',
-                hardwareConcurrency: navigator.hardwareConcurrency || 0,
-                deviceMemory: navigator.deviceMemory || 0,
                 screenResolution: `${screen.width}x${screen.height}`,
                 colorDepth: screen.colorDepth,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 canvas: canvasData.substring(0, 50)
             };
 
@@ -481,6 +541,62 @@
 
             return 'WEB-' + Math.abs(hash).toString(16).toUpperCase().padStart(12, '0');
         }
+
+        // Fungsi Aktivasi License
+        window.handleActivate = async function (e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnActivate');
+            const text = document.getElementById('btnActivateText');
+            const p1 = document.getElementById('inputSerialP1').value.trim().toUpperCase();
+            const p2 = document.getElementById('inputSerialP2').value.trim();
+
+            if (!p1 || !p2) return;
+            const serialInput = `KENSHO-${p1}-${p2}`;
+
+            const originalBtnText = text.innerText;
+            text.innerText = "Memverifikasi...";
+            btn.disabled = true;
+
+            try {
+                const docRef = doc(db, "licenses", serialInput);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    throw new Error("Serial Number tidak valid. Pastikan input benar.");
+                }
+
+                const data = docSnap.data();
+                if (data.status === 'blocked') {
+                    throw new Error("Serial Number ini telah diblokir.");
+                }
+
+                // Check Device Limit
+                const registeredDevices = data.registered_devices || [];
+                const maxDevices = data.max_devices || 5;
+
+                if (!registeredDevices.includes(currentHwid)) {
+                    if (registeredDevices.length >= maxDevices) {
+                        throw new Error(`Batas maksimal perangkat (${maxDevices}) telah tercapai.`);
+                    }
+
+                    // Register this device
+                    await updateDoc(docRef, {
+                        registered_devices: arrayUnion(currentHwid),
+                        lastActive: serverTimestamp()
+                    });
+                }
+
+                // Success! Save to local and refresh
+                localStorage.setItem('kensho_license_key', serialInput);
+                await customAlert("Aktivasi Berhasil! Selamat menggunakan Kensho Tech.", "Berhasil", "info");
+                location.reload();
+
+            } catch (err) {
+                alert("❌ AKTIVASI GAGAL\n\n" + err.message);
+                text.innerText = originalBtnText;
+                btn.disabled = false;
+            }
+        };
 
         async function checkLicense() {
             // Jika di Browser (PWA Mode)
@@ -510,43 +626,46 @@
                     }
                 }
 
-                let pcName = "Web User";
                 if (window.electronAPI) {
                     currentHwid = await window.electronAPI.getMachineId();
-                    pcName = await window.electronAPI.getPCName();
                 }
-                const docRef = doc(db, "installations", currentHwid);
 
-                // Initialize if not exists (one time check)
+                // 1. Get License Key from LocalStorage
+                const savedLicense = localStorage.getItem('kensho_license_key');
+                if (!savedLicense) {
+                    document.getElementById('modal-activation').classList.remove('hidden');
+                    document.getElementById('displaySerial').innerText = "BELUM AKTIF";
+                    return;
+                }
+
+                const docRef = doc(db, "licenses", savedLicense);
                 const docSnap = await getDoc(docRef);
+
                 if (!docSnap.exists()) {
-                    const serial = 'KENSHO-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-                    await setDoc(docRef, {
-                        hwid: currentHwid,
-                        serial: serial,
-                        status: 'pending',
-                        deviceName: pcName || 'New Device',
-                        pcName: pcName || 'Unknown PC',
-                        registeredAt: serverTimestamp(),
-                        lastActive: serverTimestamp(),
-                        expiryDate: null,
-                        boundEmail: ""
-                    });
-                } else {
-                    // Update pcName field if missing or changed
-                    const currentData = docSnap.data();
-                    if (pcName && currentData.pcName !== pcName) {
-                        await updateDoc(docRef, { pcName: pcName });
-                    }
+                    localStorage.removeItem('kensho_license_key');
+                    document.getElementById('modal-activation').classList.remove('hidden');
+                    return;
                 }
 
                 // Subscribe to changes (Real-time Kill Switch)
                 onSnapshot(docRef, (snapshot) => {
-                    if (!snapshot.exists()) return;
+                    if (!snapshot.exists()) {
+                        localStorage.removeItem('kensho_license_key');
+                        location.reload();
+                        return;
+                    }
 
                     const data = snapshot.data();
                     licenseStatus = data.status;
                     boundEmail = data.boundEmail;
+                    const devices = data.registered_devices || [];
+
+                    // Verify if current device is still registered
+                    if (!devices.includes(currentHwid)) {
+                        localStorage.removeItem('kensho_license_key');
+                        location.reload();
+                        return;
+                    }
 
                     // Expiry Check
                     isExpired = false;
@@ -559,26 +678,22 @@
                     const btn = document.getElementById('btnSubmit');
                     const btnText = document.getElementById('btnText');
                     const displaySerial = document.getElementById('displaySerial');
-                    if (displaySerial) displaySerial.innerText = data.serial;
+                    if (displaySerial) displaySerial.innerText = data.serial || savedLicense;
 
                     if (licenseStatus === 'blocked' || isExpired) {
                         btn.disabled = true;
                         btnText.innerHTML = isExpired ? 'LISENSI EXPIRED' : 'AKSES DIBLOKIR';
                         btn.classList.add('opacity-50', 'bg-slate-800');
-                        btn.classList.remove('btn-premium');
-
                         // Force Logout if already inside
                         if (auth.currentUser) signOut(auth);
                     } else if (licenseStatus === 'pending') {
                         btn.disabled = true;
                         btnText.innerHTML = 'MENUNGGU AKTIVASI';
                         btn.classList.add('opacity-50', 'bg-amber-600');
-                        btn.classList.remove('btn-premium');
                     } else {
                         btn.disabled = false;
                         btnText.innerHTML = 'Log In';
                         btn.classList.remove('opacity-50', 'bg-slate-800', 'bg-amber-600');
-                        btn.classList.add('btn-premium');
                     }
                 });
 
@@ -590,6 +705,24 @@
         import { initUpdater } from './js/modules/updater-client.js';
 
         // ... existing auth code ... (keeping it clean)
+
+        window.handleForgotPassword = async function () {
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                alert("Silakan masukkan email Anda terlebih dahulu di kotak input.");
+                document.getElementById('email').focus();
+                return;
+            }
+
+            if (confirm(`Kirim link reset password ke email: ${email}?`)) {
+                try {
+                    await sendPasswordResetEmail(auth, email);
+                    await customAlert("Link reset password telah dikirim! Silakan cek Inbox atau folder Spam email Anda.", "Email Dikirim", "info");
+                } catch (err) {
+                    alert("Gagal mengirim email reset: " + err.message);
+                }
+            }
+        };
 
         // Run license check
         checkLicense();

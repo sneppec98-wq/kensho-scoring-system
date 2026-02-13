@@ -158,19 +158,19 @@
                             </div>
 
                             <!-- Penalty & Status Buttons -->
-                            <div id="penAka" class="grid grid-cols-7 gap-2">
+                            <div id="penAka" class="grid grid-cols-7 gap-1.5 md:gap-2">
                                 <button id="senshuAka" onclick="setSenshu('aka')"
                                     class="py-4 rounded-xl neu-button text-[12px] font-black opacity-70 hover:opacity-100 transition-opacity">S</button>
-                                <button id="aka_c1" onclick="togglePenalty('aka', 'c1')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C1</button>
-                                <button id="aka_c2" onclick="togglePenalty('aka', 'c2')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C2</button>
-                                <button id="aka_c3" onclick="togglePenalty('aka', 'c3')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C3</button>
-                                <button id="aka_hc" onclick="togglePenalty('aka', 'hc')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">HC</button>
-                                <button id="aka_h" onclick="togglePenalty('aka', 'h')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">H</button>
+                                <button onclick="togglePenalty('aka', 'c1')" id="c1Aka"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">C1</button>
+                                <button onclick="togglePenalty('aka', 'c2')" id="c2Aka"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">C2</button>
+                                <button onclick="togglePenalty('aka', 'c3')" id="c3Aka"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">C3</button>
+                                <button onclick="togglePenalty('aka', 'hc')" id="hcAka"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">HC</button>
+                                <button onclick="togglePenalty('aka', 'h')" id="hAka"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">H</button>
                                 <button id="vrAka" onclick="toggleVR('aka')"
                                     class="py-4 rounded-xl neu-button text-[12px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100">VR</button>
                             </div>
@@ -276,11 +276,32 @@
                             </button>
                             <button onclick="handleMonitor()" id="btnMonitor"
                                 class="w-10 h-10 rounded-lg bg-white/5 text-blue-400 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-lg border border-white/5"
-                                title="Open Monitor">
+                                title="Buka Monitor">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                                         d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
+                            </button>
+                            <button onclick="closeMonitor()" id="btnCloseMonitor"
+                                class="w-10 h-10 rounded-lg bg-white/5 text-red-400 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-lg border border-white/5"
+                                title="Tutup Monitor">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            <button onclick="toggleEventMedia()" id="btnEventMedia"
+                                class="w-10 h-10 rounded-lg bg-white/5 text-purple-400 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all shadow-lg border border-white/5"
+                                title="Toggle Event Media">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                            <button onclick="toggleIntro()" id="btnIntro"
+                                class="w-10 h-10 rounded-lg bg-white/5 text-pink-400 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all shadow-lg border border-white/5"
+                                title="Pre-Match Intro">
+                                <span class="text-[10px] font-black italic">VS</span>
                             </button>
                             <button onclick="toggleSettingsModal()" id="btnOpenSettings"
                                 class="w-10 h-10 rounded-lg bg-white/5 text-orange-400 flex items-center justify-center hover:bg-orange-600 hover:text-white transition-all shadow-lg border border-white/5"
@@ -350,6 +371,15 @@
                                 <svg id="timerIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M8 5v14l11-7z" />
                                 </svg>
+                            </button>
+
+                            <!-- REST TIMER (RES) -->
+                            <button onclick="toggleRestTimer(true)" id="btnRestTimerControl"
+                                class="w-11 h-11 rounded-xl bg-white/5 text-amber-500/70 flex flex-col items-center justify-center border border-white/10 hover:bg-white/[0.08] hover:text-amber-400 transition-all shadow-lg overflow-hidden"
+                                title="Start Rest Timer (RES)">
+                                <span id="restCountdownText"
+                                    class="hidden text-[10px] font-black leading-none mb-1">00:00</span>
+                                <i class="fa-solid fa-clock-rotate-left text-lg"></i>
                             </button>
 
                             <!-- RESET TIMER ONLY -->
@@ -541,19 +571,19 @@
                             </div>
 
                             <!-- Penalty & Status Buttons -->
-                            <div id="penAo" class="grid grid-cols-7 gap-2">
+                            <div id="penAo" class="grid grid-cols-7 gap-1.5 md:gap-2">
                                 <button id="senshuAo" onclick="setSenshu('ao')"
                                     class="py-4 rounded-xl neu-button text-[12px] font-black opacity-70 hover:opacity-100 transition-opacity">S</button>
-                                <button id="ao_c1" onclick="togglePenalty('ao', 'c1')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C1</button>
-                                <button id="ao_c2" onclick="togglePenalty('ao', 'c2')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C2</button>
-                                <button id="ao_c3" onclick="togglePenalty('ao', 'c3')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">C3</button>
-                                <button id="ao_hc" onclick="togglePenalty('ao', 'hc')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">HC</button>
-                                <button id="ao_h" onclick="togglePenalty('ao', 'h')"
-                                    class="py-4 rounded-xl neu-button text-[12px] font-black opacity-60 bg-black/40 border-white/5 transition-all hover:opacity-100">H</button>
+                                <button onclick="togglePenalty('ao', 'c1')" id="c1Ao"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">C1</button>
+                                <button onclick="togglePenalty('ao', 'c2')" id="c2Ao"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">C2</button>
+                                <button onclick="togglePenalty('ao', 'c3')" id="c3Ao"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">C3</button>
+                                <button onclick="togglePenalty('ao', 'hc')" id="hcAo"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">HC</button>
+                                <button onclick="togglePenalty('ao', 'h')" id="hAo"
+                                    class="penalty-btn neu-button py-4 rounded-xl text-[12px] font-black opacity-40">H</button>
                                 <button id="vrAo" onclick="toggleVR('ao')"
                                     class="py-4 rounded-xl neu-button text-[12px] font-black opacity-50 text-yellow-500 transition-all hover:opacity-100">VR</button>
                             </div>
@@ -693,6 +723,7 @@
         </div>
 
 
+
     </main>
 
     <!-- CUSTOM MODAL HTML -->
@@ -789,12 +820,49 @@
                     </div>
                 </div>
 
+                <!-- EVENT MEDIA SECTION -->
+                <div class="pt-6 mt-6 border-t border-white/10">
+                    <label class="block text-[8px] font-black uppercase tracking-[0.4em] text-purple-500 mb-3 ml-1">🎬
+                        EVENT MEDIA (STANDBY DISPLAY)</label>
+
+                    <div class="space-y-3">
+                        <!-- Upload Button -->
+                        <div class="relative">
+                            <input type="file" id="eventMediaInput" accept="video/*,image/*"
+                                onchange="handleEventMediaUpload(this)" class="hidden">
+                            <button onclick="document.getElementById('eventMediaInput').click()" type="button"
+                                class="w-full py-3 rounded-xl bg-purple-600/10 border border-purple-500/30 text-purple-400 text-[10px] font-black uppercase tracking-widest hover:bg-purple-600/20 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                Upload Video/Foto
+                            </button>
+                        </div>
+
+                        <!-- Preview -->
+                        <div id="mediaPreviewContainer"
+                            class="hidden bg-black/40 rounded-xl p-3 border border-purple-500/20">
+                            <p class="text-[7px] font-black uppercase tracking-wider text-purple-500/50 mb-2">Preview:
+                            </p>
+                            <div id="mediaPreview"
+                                class="w-full h-32 bg-black/60 rounded-lg flex items-center justify-center overflow-hidden">
+                                <!-- Preview will be inserted here -->
+                            </div>
+                            <button onclick="clearEventMedia()" type="button"
+                                class="w-full mt-2 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-[8px] font-black uppercase tracking-widest hover:bg-red-500/20 transition-all">
+                                Hapus Media
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="flex gap-4 mt-10">
                 <button onclick="toggleSettingsModal()"
                     class="flex-1 py-4 rounded-xl neu-button text-[10px] font-black uppercase tracking-widest text-slate-500">Tutup</button>
-                <button type="button" id="btnSaveSettings"
+                <button type="button" id="btnSaveSettings" onclick="saveMatchSettings()"
                     class="flex-1 py-4 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(220,38,38,0.3)]">Simpan
                     Pengaturan</button>
             </div>
@@ -1094,6 +1162,7 @@
         /* ========================= */
     </style>
 
+    <script src="js/event-media.js"></script>
 </body>
 
 </html>

@@ -5,6 +5,8 @@ import { prepareMedaliPrint } from './print/print-medali.js';
 import { prepareMedalTallyPrint } from './print/print-medal-tally.js';
 import { prepareBracketPrint } from './print/print-bracket.js';
 import { prepareJadwalPrint } from './print/print-jadwal.js';
+import { prepareOfficialReport } from './print/print-official-report.js';
+
 
 // UI View Imports
 import { renderPesertaView } from './verification/view-peserta.js';
@@ -103,22 +105,6 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
                     class="w-full bg-slate-900/40 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-xs font-bold text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all">
             </div>
 
-            <!-- Public Publication Toggle -->
-            ${(tab === 'JUARA' || tab === 'MEDALI' || tab === 'JADWAL') ? `
-            <div class="flex items-center gap-3 bg-slate-900/40 px-6 py-4 rounded-2xl border border-white/5 no-print">
-                <div class="text-right">
-                    <p class="text-[8px] font-black uppercase opacity-40 tracking-widest text-slate-200">PUBLIKASIKAN HASIL</p>
-                    <p class="text-[7px] font-bold opacity-30 uppercase mt-0.5">TERLIHAT DI PORTAL PESERTA</p>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" onchange="window.updatePublicAccess('${tab === 'JUARA' ? 'isWinnersPublic' : (tab === 'MEDALI' ? 'isMedalsPublic' : 'isSchedulePublic')}', this.checked)" 
-                        ${(window.currentEventData && (tab === 'JUARA' ? window.currentEventData.isWinnersPublic : (tab === 'MEDALI' ? window.currentEventData.isMedalsPublic : window.currentEventData.isSchedulePublic))) ? 'checked' : ''}
-                        class="sr-only peer">
-                    <div class="w-10 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-500 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 peer-checked:after:bg-white"></div>
-                </label>
-            </div>
-            ` : ''}
-
             <!-- Print Button (Custom Styled for Kensho) -->
             <div class="flex gap-2">
                 <button onclick="window.copyOfficialLink()" 
@@ -139,6 +125,17 @@ export const renderVerificationData = (athletes, classes, brackets = [], tab = '
                     </div>
                     <span class="text-[10px] font-black uppercase tracking-[0.2em]">CETAK ${tab.replace('_', ' ')} (F4)</span>
                 </button>
+                ${tab === 'JUARA' ? `
+                <button onclick="window.printOfficialTournamentReport('${eventName}', '${eventLogo || ''}')" 
+                    class="neu-button px-8 py-4 rounded-2xl flex items-center space-x-3 group transition-all text-blue-400 hover:text-white hover:bg-blue-500 shadow-xl shadow-blue-500/10">
+                    <div class="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">LAPORAN RESMI (A4)</span>
+                </button>
+                ` : ''}
             </div>
         </div>
     `;
@@ -227,6 +224,16 @@ window.printVerificationSubTab = async (tab, eventName, eventLogo) => {
     } else if (tab === 'JADWAL') {
         await prepareJadwalPrint(eventName, eventLogo);
     }
+};
+
+/**
+ * PRINT OFFICIAL TOURNAMENT REPORT
+ */
+window.printOfficialTournamentReport = async (eventName, eventLogo) => {
+    const brackets = window.latestBrackets || [];
+    const classes = window.latestClasses || [];
+    const athletes = window.latestAthletes || [];
+    await prepareOfficialReport(brackets, classes, athletes, eventName, eventLogo);
 };
 
 /**

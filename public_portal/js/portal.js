@@ -1,17 +1,20 @@
 import { db, auth } from './firebase-init.js';
-import { collection, getDocs, doc, getDoc, query, orderBy, onSnapshot, setDoc, getDocsFromCache, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, doc, getDoc, query, where, orderBy, onSnapshot, setDoc, getDocsFromCache, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { bulkPrintBrackets } from './modules/print/bulk-print-brackets.js';
+import { initRegistration } from './modules/registration-handler.js';
 
 // Global data store
 let allAthletes = [];
 let allClasses = [];
 let eventName = "";
 let eventLogo = "";
+let cachedSchedule = null;
+let manualMedals = [];
 
 // URL Params
 const urlParams = new URLSearchParams(window.location.search);
-const eventId = urlParams.get('id') || 'WgVTkA88gmI6ogrW39hf';
+const eventId = urlParams.get('id');
 
 // Global Event State
 let currentEventData = null;
@@ -43,8 +46,8 @@ async function init() {
     if (!eventId) {
         document.getElementById('participantList').innerHTML = `
             <div class="neu-flat p-20 rounded-[2.5rem] text-center">
-                <h3 class="text-xl font-bold text-red-400 uppercase italic">Event ID Tidak Ditemukan</h3>
-                <p class="text-xs opacity-50 mt-4">Pastikan Anda menggunakan link yang valid dari panitia.</p>
+                <h3 class="text-xl font-bold text-blue-600 uppercase italic">Selamat Datang</h3>
+                <p class="text-xs opacity-50 mt-4 max-w-sm mx-auto">Silakan gunakan link dari panitia untuk melihat detail pertandingan atau masukkan ID Event ke dalam URL parameter.</p>
             </div>
         `;
         return;
@@ -65,7 +68,7 @@ async function init() {
 
         if (eventDoc.exists()) {
             const data = eventDoc.data();
-            eventName = data.name || "NAMA EVENT TIDAK TERSEDIA";
+            eventName = data.name || "KENSHO SCORING SYSTEM";
             document.getElementById('eventName').innerText = eventName;
             document.title = `${eventName} | Official Portal`;
 
@@ -75,28 +78,37 @@ async function init() {
                 logoContainer.classList.remove('opacity-0');
             }
         } else {
-            document.getElementById('eventName').innerText = "LINK EVENT TIDAK VALID";
-            logoContainer.classList.add('hidden');
+            // Keep default branding if ID is invalid
+            document.getElementById('eventName').innerText = "KENSHO SCORING SYSTEM";
+            logoContainer.classList.remove('opacity-0');
         }
 
+        // --- Real-time Event Listener (REDUCED FREQUENCY/IMMEDIATE CACHE) ---
         // --- Real-time Event Listener (REDUCED FREQUENCY/IMMEDIATE CACHE) ---
         onSnapshot(doc(db, "events", eventId), { includeMetadataChanges: false }, (snap) => {
             if (snap.exists()) {
                 const newData = snap.data();
-                const flagsChanged = currentEventData && (
-                    newData.isBracketPublic !== currentEventData.isBracketPublic ||
-                    newData.isWinnersPublic !== currentEventData.isWinnersPublic ||
-                    newData.isMedalsPublic !== currentEventData.isMedalsPublic ||
-                    newData.isSchedulePublic !== currentEventData.isSchedulePublic
-                );
+                const firstLoad = !currentEventData;
                 currentEventData = newData;
                 eventName = newData.name || eventName;
                 document.getElementById('eventName').innerText = eventName;
-                if (flagsChanged) {
-                    console.log("🔒 Access flags updated.");
-                    if (!newData.isWinnersPublic || !newData.isMedalsPublic) cachedWinners = null;
-                    switchTab(activeTab);
+
+                // Logic to set initial active tab
+                if (firstLoad) {
+                    if (newData.isRegistrationPublic) {
+                        activeTab = 'registration';
+                    } else {
+                        activeTab = 'roster';
+                    }
+                } else {
+                    // Refresh logic if flags changed
+                    if (!newData.isRegistrationPublic && activeTab === 'registration') {
+                        activeTab = 'roster';
+                    }
                 }
+
+                if (!newData.isWinnersPublic || !newData.isMedalsPublic) cachedWinners = null;
+                switchTab(activeTab);
             }
         });
 
@@ -129,22 +141,77 @@ async function init() {
         const classSnap = await fetchOptimized(`events/${eventId}/classes`);
         allClasses = classSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // Fetch Athletes
-        const athleteSnap = await fetchOptimized(`events/${eventId}/athletes`, query(collection(db, `events/${eventId}/athletes`), orderBy("name", "asc")));
+        // Fetch Athletes (only verified ones for public display)
+        const athleteQuery = query(
+            collection(db, `events/${eventId}/athletes`),
+            where('verified', '==', true),
+            orderBy("name", "asc")
+        );
+        let athleteSnap = await fetchOptimized(null, athleteQuery);
         allAthletes = athleteSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        console.log(`✅ Fetched ${allAthletes.length} verified athletes.`);
+
+        // Fallback for development: If no verified athletes, try fetching ALL athletes for the contingent list
+        if (allAthletes.length === 0) {
+            console.warn("⚠️ No verified athletes found. Fetching all athletes for contingent list fallback...");
+            const allAthleteSnap = await getDocs(collection(db, `events/${eventId}/athletes`));
+            const totalAthletes = allAthleteSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            // If we found athletes but none were verified, we'll use these just for the contingent list
+            if (totalAthletes.length > 0) {
+                console.log(`✅ Fallback: Found ${totalAthletes.length} total athletes.`);
+                // We keep allAthletes empty for the roster display (security/consistency), 
+                // but we'll use a temporary variable for the bracket initialization if needed, 
+                // or just populate allAthletes if it's a dev event.
+                if (eventId === "WgVTkA88gmI6ogrW39hf") {
+                    allAthletes = totalAthletes;
+                }
+            }
+        }
 
         // --- Bracket Initialization ---
         async function initializeBrackets() {
             const openSelector = document.getElementById('bracketClassSelectorOpen');
-            const festivalSelector = document.getElementById('bracketClassSelectorFestival');
+            const contingentFilter = document.getElementById('bracketContingentFilter');
+
+            if (!openSelector || !contingentFilter) return;
+
+            console.log("🛠️ Initializing Brackets...");
 
             // 1. Fetch ALL brackets
             const bracketSnap = await getDocs(collection(db, `events/${eventId}/brackets`));
             const bracketDataList = bracketSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            // 2. Filter allClasses to only include those that have a bracket generated
+            // 2. Extract Unique Contingents from verified athletes
+            const uniqueContingents = [...new Set(
+                allAthletes.map(a => {
+                    const rawTeam = a.team || a.kontingen || a.teamName || "LAINNYA";
+                    return rawTeam.toString().trim().toUpperCase();
+                })
+            )].filter(t => t.length > 0).sort();
+
+            console.log(`📦 Found ${uniqueContingents.length} unique contingents for brackets.`);
+
+            contingentFilter.innerHTML = '<option value="">-- SEMUA KONTINGEN --</option>' +
+                uniqueContingents.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            const scheduleFilter = document.getElementById('scheduleContingentFilter');
+            if (scheduleFilter) {
+                scheduleFilter.innerHTML = '<option value="">-- SEMUA KONTINGEN --</option>' +
+                    uniqueContingents.map(t => `<option value="${t}">${t}</option>`).join('');
+
+                scheduleFilter.onchange = (e) => {
+                    if (cachedSchedule) renderPublicSchedule(cachedSchedule);
+                };
+            }
+
+            // 3. Get Active Classes (those that have a bracket generated)
+            // Filter to ONLY Open classes (not starting with F)
             const activeClasses = allClasses.filter(c => {
-                // Check if document ID is class name OR if class name is inside the document data
+                const isFestival = (c.code || "").toString().toUpperCase().startsWith('F');
+                if (isFestival) return false;
+
                 return bracketDataList.some(b =>
                     b.id === c.name ||
                     b.id === c.code ||
@@ -153,34 +220,41 @@ async function init() {
                 );
             });
 
-            // 3. Split into Open and Festival
-            const openClasses = activeClasses.filter(c => !c.code.toString().toUpperCase().startsWith('F'));
-            const festivalClasses = activeClasses.filter(c => c.code.toString().toUpperCase().startsWith('F'));
+            console.log(`🏆 Found ${activeClasses.length} active Open classes with brackets.`);
 
-            // Populate Open Selector
-            openSelector.innerHTML = '<option value="">-- PILIH KELAS OPEN --</option>' +
-                openClasses.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            // 4. Function to render selectors based on contingent
+            function updateSelectors(selectedContingent = "") {
+                const filteredByContingent = activeClasses.filter(c => {
+                    if (!selectedContingent) return true;
+                    return allAthletes.some(a => {
+                        const team = (a.team || a.kontingen || a.teamName || "LAINNYA").toString().trim().toUpperCase();
+                        return (team === selectedContingent) &&
+                            (a.className === c.name || a.classCode === c.code);
+                    });
+                });
 
-            // Populate Festival Selector
-            festivalSelector.innerHTML = '<option value="">-- PILIH KELAS FESTIVAL --</option>' +
-                festivalClasses.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+                openSelector.innerHTML = `<option value="">-- ${selectedContingent ? 'KELAS TERSEDIA' : 'PILIH KELAS OPEN'} --</option>` +
+                    filteredByContingent.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            }
+
+            // Initial render
+            updateSelectors();
 
             // Event Listeners
-            openSelector.onchange = (e) => {
-                if (e.target.value) {
-                    festivalSelector.value = ""; // Clear other selector
-                    loadBracket(e.target.value);
-                }
+            contingentFilter.onchange = (e) => {
+                updateSelectors(e.target.value);
             };
 
-            festivalSelector.onchange = (e) => {
+            openSelector.onchange = (e) => {
                 if (e.target.value) {
-                    openSelector.value = ""; // Clear other selector
                     loadBracket(e.target.value);
                 }
             };
         }
         await initializeBrackets();
+
+        // Initialize Registration Handler
+        initRegistration(eventId, allClasses);
 
         render(allAthletes);
 
@@ -297,9 +371,11 @@ window.switchTab = (tab) => {
     // Hide all tab content containers
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
 
-    // Check if the tab is publicly available (except roster which is always public)
+    // Check if the tab is publicly available
     let isLocked = false;
     if (currentEventData) {
+        if (tab === 'registration' && !currentEventData.isRegistrationPublic) isLocked = true;
+        if (tab === 'roster' && !currentEventData.isRosterPublic) isLocked = true;
         if (tab === 'bracket' && !currentEventData.isBracketPublic) isLocked = true;
         if (tab === 'winners' && !currentEventData.isWinnersPublic) isLocked = true;
         if (tab === 'medals' && !currentEventData.isMedalsPublic) isLocked = true;
@@ -312,15 +388,29 @@ window.switchTab = (tab) => {
     if (activeView) activeView.classList.remove('hidden');
 
     // Update buttons state
-    const tabs = ['roster', 'bracket', 'winners', 'medals', 'schedule'];
+    const tabs = ['registration', 'roster', 'bracket', 'winners', 'medals', 'schedule'];
     tabs.forEach(t => {
         const btn = document.getElementById(`tab-${t}`);
         if (!btn) return;
 
-        if (t === tab) {
-            btn.className = 'px-6 md:px-10 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all bg-white text-blue-600 shadow-sm';
+        // Visibility Check for Buttons
+        let shouldShowBtn = true;
+        if (currentEventData) {
+            if (t === 'registration' && !currentEventData.isRegistrationPublic) shouldShowBtn = false;
+            // Other tabs usually always show but locked, OR we could hide them too. 
+            // For now, let's keep others visible-but-locked, BUT Registration is special: HIDE if closed.
+        }
+
+        if (!shouldShowBtn) {
+            btn.classList.add('hidden');
         } else {
-            btn.className = 'px-6 md:px-10 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600';
+            btn.classList.remove('hidden');
+
+            if (t === tab) {
+                btn.className = 'px-6 md:px-10 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all bg-white text-blue-600 shadow-sm';
+            } else {
+                btn.className = 'px-6 md:px-10 py-3 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600';
+            }
         }
     });
 
@@ -335,6 +425,33 @@ window.switchTab = (tab) => {
         }
     }
 };
+
+// --- INITIAL DEFAULT TAB LOGIC ---
+function updateDefaultTab() {
+    if (!currentEventData) return;
+
+    // Check if Registration is public
+    const isRegPublic = currentEventData.isRegistrationPublic;
+
+    // Manage Buttons Visibility Immediately
+    const regBtn = document.getElementById('tab-registration');
+    if (regBtn) {
+        if (isRegPublic) regBtn.classList.remove('hidden');
+        else regBtn.classList.add('hidden');
+    }
+
+    // Decide active tab
+    // Rule: If Registration is public, it's the default. Else, Roster.
+    if (activeTab === 'registration' && !isRegPublic) {
+        switchTab('roster'); // Fallback if current was registration but it got closed
+    } else if (activeTab === 'roster' && isRegPublic) {
+        // Optional: Do we auto-switch to registration if it opens? or stays?
+        // Let's stick to user request: "semisal nanti dikasih akses dia munucl formnya" -> Just appears. 
+        // But "kalau tidak ada akses langsung tab pertama yang dibuka adalah daftar atlet"
+        // This suggests Roster is default ONLY IF Registration is hidden.
+        // So if Registration IS public, we should probably switch to it on first load.
+    }
+}
 
 // --- Bracket Engine ---
 async function loadBracket(className) {
@@ -564,13 +681,18 @@ async function loadWinnersData(mode = 'both') {
     const winnersList = document.getElementById('winnersList');
     const medalTally = document.getElementById('medalTally');
 
-    if (winnersList) winnersList.innerHTML = `<div class="animate-pulse flex flex-col items-center gap-4 py-20">
+    const loaderHtml = `<div class="animate-pulse flex flex-col items-center gap-4 py-20">
         <div class="w-12 h-12 bg-blue-100 rounded-full"></div>
         <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">MENGUMPULKAN DATA JUARA...</p>
     </div>`;
 
+    if (winnersList && (mode === 'winners' || mode === 'both')) winnersList.innerHTML = loaderHtml;
+    if (medalTally && (mode === 'medals' || mode === 'both')) medalTally.innerHTML = loaderHtml;
+
     try {
+        console.log(`🔍 Loading winners data for mode: ${mode}...`);
         const bracketSnap = await getDocs(collection(db, `events/${eventId}/brackets`));
+        console.log(`📦 Found ${bracketSnap.size} brackets total.`);
         const results = [];
 
         bracketSnap.forEach(docSnap => {
@@ -578,6 +700,9 @@ async function loadWinnersData(mode = 'both') {
             const className = b.class || docSnap.id;
             const classInfo = allClasses.find(c => c.name === className || c.code === docSnap.id);
             const isFestival = (classInfo?.code || b.classCode || "").toString().toUpperCase().startsWith('F');
+
+            // NEW: Entirely hide Festival from winners and medals as per user request
+            if (isFestival) return;
 
             const classWinners = {
                 className: className,
@@ -608,34 +733,62 @@ async function loadWinnersData(mode = 'both') {
             } else {
                 // Prestasi logic: Gold, Silver, Bronze from SVG IDs
                 const d = b.data || {};
+                const participants = b.participants || [];
+                const findTeamByName = (name) => {
+                    if (!name || name === "-" || name === "PESERTA KOSONG" || name === "NAMA PESERTA") return null;
+                    const p = participants.find(part => part.name === name);
+                    return p ? p.team : null;
+                };
 
                 // Gold
-                const goldName = d['winner_nama'] || d['nama_juara_1'] || d['text5989'] || d['fn1'];
-                // Note: text5989 is fn1 in Master.svg, fn1 is also a possible handle
-                if (goldName && goldName !== "-" && goldName !== "NAMA PESERTA") {
-                    const goldTeam = d['winner_kontingen'] || d['kontingen_juara_1'] || d['text5993'] || d['fk1'] || "-";
+                const goldName = d['winner_nama'] || d['nama_juara_1'] || d['winner_1_name'] || d['Winner_1'] || d['text5989'] || d['fn1'];
+                let goldTeam = d['winner_kontingen'] || d['kontingen_juara_1'] || d['winner_1_team'] || d['Winner_1_Team'] || d['text5993'] || d['fk1'] || "-";
+
+                // Fallback: If team is "-" or "KONTINGEN", look up from participants
+                if (goldTeam === "-" || goldTeam === "KONTINGEN" || goldTeam === "") {
+                    const lookup = findTeamByName(goldName);
+                    if (lookup) goldTeam = lookup;
+                }
+
+                if (goldName && goldName !== "-" && goldName !== "NAMA PESERTA" && goldName !== "PESERTA KOSONG") {
                     classWinners.winners.push({ rank: 1, name: goldName, team: goldTeam });
                 }
 
                 // Silver
-                const silverName = d['nama_juara_2'] || d['fn2'];
-                if (silverName && silverName !== "-" && silverName !== "NAMA PESERTA") {
-                    const silverTeam = d['kontingen_juara_2'] || d['fk2'] || "-";
+                const silverName = d['nama_juara_2'] || d['winner_2_name'] || d['Winner_2'] || d['fn2'];
+                let silverTeam = d['kontingen_juara_2'] || d['winner_2_team'] || d['Winner_2_Team'] || d['fk2'] || "-";
+                if (silverTeam === "-" || silverTeam === "KONTINGEN" || silverTeam === "") {
+                    const lookup = findTeamByName(silverName);
+                    if (lookup) silverTeam = lookup;
+                }
+                if (silverName && silverName !== "-" && silverName !== "NAMA PESERTA" && silverName !== "PESERTA KOSONG") {
                     classWinners.winners.push({ rank: 2, name: silverName, team: silverTeam });
                 }
 
                 // Bronze A
-                const bronzeAName = d['nama_juara_3_a'] || d['sn1']; // Fallback is simplified
-                if (bronzeAName && bronzeAName !== "-" && bronzeAName !== "NAMA PESERTA") {
-                    const bronzeATeam = d['kontingen_juara_3_a'] || d['sk1'] || "-";
+                const bronzeAName = d['nama_juara_3_a'] || d['winner_3_name'] || d['Winner_3'] || d['sn1'];
+                let bronzeATeam = d['kontingen_juara_3_a'] || d['winner_3_team'] || d['Winner_3_Team'] || d['sk1'] || "-";
+                if (bronzeATeam === "-" || bronzeATeam === "KONTINGEN" || bronzeATeam === "") {
+                    const lookup = findTeamByName(bronzeAName);
+                    if (lookup) bronzeATeam = lookup;
+                }
+                if (bronzeAName && bronzeAName !== "-" && bronzeAName !== "NAMA PESERTA" && bronzeAName !== "PESERTA KOSONG") {
                     classWinners.winners.push({ rank: 3, name: bronzeAName, team: bronzeATeam });
                 }
 
                 // Bronze B
-                const bronzeBName = d['nama_juara_3_b'] || d['sn3'];
-                if (bronzeBName && bronzeBName !== "-" && bronzeBName !== "NAMA PESERTA") {
-                    const bronzeBTeam = d['kontingen_juara_3_b'] || d['sk3'] || "-";
+                const bronzeBName = d['nama_juara_3_b'] || d['winner_4_name'] || d['Winner_4'] || d['sn3'];
+                let bronzeBTeam = d['kontingen_juara_3_b'] || d['winner_4_team'] || d['Winner_4_Team'] || d['sk3'] || "-";
+                if (bronzeBTeam === "-" || bronzeBTeam === "KONTINGEN" || bronzeBTeam === "") {
+                    const lookup = findTeamByName(bronzeBName);
+                    if (lookup) bronzeBTeam = lookup;
+                }
+                if (bronzeBName && bronzeBName !== "-" && bronzeBName !== "NAMA PESERTA" && bronzeBName !== "PESERTA KOSONG") {
                     classWinners.winners.push({ rank: 3, name: bronzeBName, team: bronzeBTeam });
+                }
+
+                if (classWinners.winners.length > 0) {
+                    console.log(`✅ [EXTRACTION] Found ${classWinners.winners.length} winners in ${className}`);
                 }
             }
 
@@ -647,13 +800,24 @@ async function loadWinnersData(mode = 'both') {
         // Sort results by class code or name
         results.sort((a, b) => a.className.localeCompare(b.className));
 
+        console.log(`🏆 Aggregated results for ${results.length} classes.`);
+        if (results.length > 0) {
+            console.log("Sample result [0]:", results[0]);
+        }
+
+        // Fetch Manual Medals
+        const manualSnap = await getDocs(collection(db, `events/${eventId}/medals_manual`));
+        manualMedals = manualSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log(`📦 Found ${manualMedals.length} manual medal overrides.`);
+
         cachedWinners = results;
         if (mode === 'winners' || mode === 'both') renderWinnersList(results);
-        if (mode === 'medals' || mode === 'both') renderMedalTallyTable(results);
+        if (mode === 'medals' || mode === 'both') renderMedalTallyTable(results, manualMedals, allAthletes);
 
     } catch (err) {
         console.error("Load Winners Error:", err);
-        winnersList.innerHTML = `<p class="text-red-400 text-xs font-bold text-center">Gagal memuat data juara: ${err.message}</p>`;
+        if (winnersList) winnersList.innerHTML = `<p class="text-red-400 text-xs font-bold text-center">Gagal memuat data juara: ${err.message}</p>`;
+        if (medalTally) medalTally.innerHTML = `<p class="text-red-400 text-xs font-bold text-center">Gagal memuat data medali: ${err.message}</p>`;
     }
 }
 
@@ -795,24 +959,61 @@ window.confirmReward = async (rewardId, type, value) => {
     }
 };
 
-function renderMedalTallyTable(data) {
+function renderMedalTallyTable(data, manualMedals = [], registeredAthletes = []) {
     const container = document.getElementById('medalTally');
+    console.log(`📊 [TALLY] Initializing table with ${data.length} results, ${manualMedals.length} manual, ${registeredAthletes.length} athletes.`);
 
     // Aggregate medals
     const tallies = {}; // { Team: { gold: 0, silver: 0, bronze: 0 } }
+    const normalize = (name) => (name || "").toString().trim().toUpperCase();
 
+    // 0. Initialize tallies with ALL registered contingents from athletes
+    if (registeredAthletes && registeredAthletes.length > 0) {
+        registeredAthletes.forEach(a => {
+            const team = normalize(a.team || a.kontingen || a.teamName);
+            if (team && team !== "-" && team !== "LAINNYA") {
+                if (!tallies[team]) tallies[team] = { gold: 0, silver: 0, bronze: 0 };
+            }
+        });
+        console.log(`📊 [TALLY] Pre-initialized with ${Object.keys(tallies).length} teams from athletes.`);
+    }
+
+    // 1. Process Automated Results (Data from Brackets)
     data.forEach(cls => {
         cls.winners.forEach(w => {
-            const team = (w.team || "LAINNYA").toUpperCase().trim();
-            if (team === "-" || team === "") return;
+            const team = normalize(w.team);
+            if (team === "-" || team === "" || team === "LAINNYA") return;
 
             if (!tallies[team]) tallies[team] = { gold: 0, silver: 0, bronze: 0 };
 
             if (w.rank === 1) tallies[team].gold++;
             else if (w.rank === 2) tallies[team].silver++;
             else if (w.rank === 3) tallies[team].bronze++;
+
+            // console.log(`📈 Increment tally for ${team}: Rank ${w.rank}`);
         });
     });
+    console.log(`📊 [TALLY] Teams after brackets: ${Object.keys(tallies).length}`);
+
+    // 2. Merge Manual Overrides
+    manualMedals.forEach(m => {
+        const team = normalize(m.team);
+        if (team) {
+            if (!tallies[team]) {
+                tallies[team] = { gold: Number(m.gold || 0), silver: Number(m.silver || 0), bronze: Number(m.bronze || 0) };
+            } else {
+                tallies[team].gold += Number(m.gold || 0);
+                tallies[team].silver += Number(m.silver || 0);
+                tallies[team].bronze += Number(m.bronze || 0);
+            }
+            console.log(`📦 Applied manual medals for ${team}: G:${m.gold} S:${m.silver} B:${m.bronze}`);
+        }
+    });
+
+    console.log("📊 [TALLY] Final tallies count:", Object.keys(tallies).length);
+    if (Object.keys(tallies).length > 0) {
+        console.log("📊 [TALLY] Sample entry:", Object.entries(tallies)[0]);
+    }
 
     const sortedTeams = Object.keys(tallies).map(team => ({
         name: team,
@@ -908,6 +1109,7 @@ async function loadScheduleData() {
             schedule.push(dayData);
         }
 
+        cachedSchedule = schedule;
         renderPublicSchedule(schedule);
 
     } catch (err) {
@@ -918,10 +1120,34 @@ async function loadScheduleData() {
 
 function renderPublicSchedule(schedule) {
     const output = document.getElementById('scheduleList');
+    const contingent = document.getElementById('scheduleContingentFilter')?.value || "";
     if (!output) return;
 
     let html = '';
     schedule.forEach((dayData, dayIdx) => {
+        // Filter classes within each arena by contingent
+        const filteredDayData = dayData.map(arena => {
+            const filteredClasses = arena.classes.filter(cls => {
+                // 1. Skip Festival
+                const isFestival = (cls.code || "").toString().toUpperCase().startsWith('F');
+                if (isFestival) return false;
+
+                // 2. Filter by Contingent if any
+                if (!contingent) return true;
+
+                // Check if any athlete from this team is in this class
+                return allAthletes.some(a => {
+                    const team = (a.team || a.kontingen || a.teamName || "LAINNYA").toString().trim().toUpperCase();
+                    return (team === contingent) &&
+                        (a.className === cls.name || a.classCode === cls.code);
+                });
+            });
+
+            return { ...arena, classes: filteredClasses };
+        }).filter(arena => arena.classes.length > 0); // Hide arenas with no matches for this contingent
+
+        if (filteredDayData.length === 0) return; // Hide entire day if no matches for this contingent
+
         html += `
             <div class="mb-16 stagger-card">
                 <div class="flex items-center gap-4 mb-8">
@@ -934,12 +1160,12 @@ function renderPublicSchedule(schedule) {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         `;
 
-        dayData.forEach((arena, arenaIdx) => {
+        filteredDayData.forEach((arena, arenaIdx) => {
             const totalLoad = arena.classes.reduce((sum, cls) => sum + (cls.athleteCount || 0), 0);
             html += `
                 <div class="premium-card overflow-hidden">
                     <div class="p-6 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                        <span class="text-[10px] font-black uppercase text-indigo-600 tracking-[0.2em]">TATAMI ${arenaIdx + 1}</span>
+                        <span class="text-[10px] font-black uppercase text-indigo-600 tracking-[0.2em]">TATAMI ${arena.arena}</span>
                         <div class="bg-white px-3 py-1 rounded-lg border border-slate-200">
                              <span class="text-[9px] font-black text-slate-500 uppercase">${arena.classes.length} KELAS</span>
                         </div>
@@ -980,7 +1206,8 @@ function renderPublicSchedule(schedule) {
 // --- Bulk Print ---
 window.handleBulkPrint = (type) => {
     if (!eventId) return;
-    bulkPrintBrackets(eventId, eventName, eventLogo, type);
+    const contingent = document.getElementById('bracketContingentFilter')?.value || "";
+    bulkPrintBrackets(eventId, eventName, eventLogo, type, contingent);
 };
 
 // Event Listeners

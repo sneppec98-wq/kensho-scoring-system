@@ -49,6 +49,13 @@ export function broadcastScoreData(scoreData) {
         akaFlags: scoreData.akaFlags || 0,
         aoFlags: scoreData.aoFlags || 0,
         showWinnerBanner: scoreData.showWinnerBanner || false,
+        isRestTimerActive: scoreData.isRestTimerActive || false,
+        restTimeLeft: scoreData.restTimeLeft || 0,
+        restTimerText: scoreData.restTimerText || '00:00',
+        isIntroActive: scoreData.isIntroActive || false,
+        showEventMedia: scoreData.showEventMedia || false,
+        eventMediaUrl: scoreData.eventMediaUrl || null,
+        eventMediaType: scoreData.eventMediaType || null,
         lastUpdate: Date.now()
     };
 
@@ -124,6 +131,9 @@ export function resetTatamiData(tatamiId) {
         kataAo: '',
         isWinnerDeclared: false,
         winnerSide: null,
+        isRestTimerActive: false,
+        restTimeLeft: 0,
+        isIntroActive: false,
         lastUpdate: Date.now()
     };
 

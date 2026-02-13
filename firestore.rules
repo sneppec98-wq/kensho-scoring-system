@@ -41,13 +41,9 @@ service cloud.firestore {
       allow read, write: if isAuthorized();
     }
 
-    match /installations/{hwid} {
-      allow read, create: if true; 
-      allow update, delete: if isAuthenticated();
-    }
-
     match /licenses/{docId} {
-      allow read, write: if isAuthenticated();
+      allow read, update: if true;
+      allow create, delete: if isAuthenticated();
     }
 
     match /settings/app {
@@ -70,6 +66,12 @@ service cloud.firestore {
     // Collection Group for Athletes (Scoring System)
     match /{path=**}/athletes/{athleteId} {
       allow read, write: if isAuthenticated();
+    }
+
+    // System Config (Global Maintenance)
+    match /system_config/features {
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
 
   }

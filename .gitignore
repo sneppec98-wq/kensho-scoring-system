@@ -11,3 +11,21 @@ obj/
 *.msi
 *.zip
 .firebase/
+
+# Security Exclusions (Public Repo)
+js/firebase-init.js
+public_portal/js/firebase-init.js
+.firebaserc
+KenshoBuilder/
+_OLD_BUILDER_ARCHIVE/
+obfuscate.js
+PRICING_GUIDE.md
+kensho-pembayaran/
+CETAK PIAGAM FESTIVAL.docx
+setup-admin.html
+generate-dummy-data.html
+fix_final.ps1
+ROADMAP.md
+admin-rekap-BACKUP.html
+PRINT_FIX_PATCH.txt
+*.ps1

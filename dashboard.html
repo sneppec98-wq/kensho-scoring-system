@@ -155,8 +155,9 @@
             <div class="badge-version">v4.0.0</div>
         </div>
         <nav class="flex-1 flex flex-col items-center space-y-4">
-            <a href="dashboard.html" class="side-btn active">🏠</a>
-            <a href="#" onclick="openProfileModal()" class="side-btn">👤</a>
+            <a href="dashboard.html" class="side-btn active" title="Beranda">🏠</a>
+            <a href="#" onclick="switchTab('settings-hub')" class="side-btn" title="Pengaturan Lisensi">⚙️</a>
+            <a href="#" onclick="openProfileModal()" class="side-btn" title="Profil Saya">👤</a>
         </nav>
         <button onclick="handleLogout()" class="side-btn mt-auto mb-6">⎋</button>
     </aside>
@@ -271,6 +272,159 @@
             </section>
         </div>
 
+        <!-- SETTINGS & LICENSE HUB TAB -->
+        <div id="settings-hub" class="tab-content hidden animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Left: License Info & Quota -->
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="card p-8 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="text-xs font-black text-blue-500 uppercase tracking-[0.2em] mb-4">Status Lisensi
+                            </h3>
+                            <div class="flex items-center gap-4 mb-6">
+                                <div
+                                    class="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-xl">
+                                    🛡️</div>
+                                <div>
+                                    <p class="text-lg font-bold tracking-tight uppercase">MASTER LICENSE</p>
+                                    <p id="licenseStatusLabel"
+                                        class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">AKTIF •
+                                        PREMIUM</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-black/40 border border-white/5 mb-6">
+                                <p
+                                    class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">
+                                    Serial Number Utama</p>
+                                <p id="masterSerialDisplay"
+                                    class="text-sm font-mono font-bold text-center tracking-widest text-white">
+                                    KENSHO-XXXX-XXX</p>
+                            </div>
+
+                            <div class="space-y-4 mb-6">
+                                <div
+                                    class="flex justify-between items-center text-[10px] font-bold uppercase tracking-widest">
+                                    <span class="text-slate-500">Masa Berlaku</span>
+                                    <span id="expiryDateDisplay" class="text-white">-- / -- / ----</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <div
+                                        class="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-2">
+                                        <span class="text-slate-500">Device Quota</span>
+                                        <span id="quotaText" class="text-blue-400">1 / 5</span>
+                                    </div>
+                                    <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div id="quotaBar" class="h-full bg-blue-500 transition-all duration-1000"
+                                            style="width: 20%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute -right-20 -bottom-20 w-60 h-60 bg-blue-500/5 rounded-full blur-[80px]">
+                        </div>
+                    </div>
+
+                    <!-- Features & Access Control -->
+                    <div class="card p-6 border-white/5 bg-black/10">
+                        <h3
+                            class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                            <span>Fitur & Akses Modul</span>
+                            <span
+                                class="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-400 text-[8px] tracking-widest">SISTEM
+                                AKTIF</span>
+                        </h3>
+
+                        <div id="featureListContent" class="space-y-4">
+                            <!-- Premium Modules Only -->
+                            <div class="flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-xs">
+                                        ⚡</div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-white uppercase tracking-tight">Manajemen
+                                            Pertandingan</p>
+                                        <p class="text-[8px] text-slate-500 uppercase">Input Score & Jadwal Bagan</p>
+                                    </div>
+                                </div>
+                                <span class="text-[8px] font-bold text-emerald-500 uppercase">Unlocked</span>
+                            </div>
+
+                            <div class="flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-xs">
+                                        🎯</div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-white uppercase tracking-tight">Sistem
+                                            Scoring Tatami</p>
+                                        <p class="text-[8px] text-slate-500 uppercase">Real-time Poin & Pelanggaran</p>
+                                    </div>
+                                </div>
+                                <span class="text-[8px] font-bold text-emerald-500 uppercase">Unlocked</span>
+                            </div>
+
+                            <div class="flex items-center justify-between group">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-xs">
+                                        🧩</div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-white uppercase tracking-tight">Bracket
+                                            Builder</p>
+                                        <p class="text-[8px] text-slate-500 uppercase">Sistem Bagan & Riwayat</p>
+                                    </div>
+                                </div>
+                                <span class="text-[8px] font-bold text-emerald-500 uppercase">Unlocked</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Support -->
+                    <div class="card p-6 border-dashed border-white/10 bg-transparent text-center">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Butuh Lebih Dari
+                            5 Perangkat?</p>
+                        <a href="https://wa.me/6281234567890" target="_blank"
+                            class="inline-block px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all">
+                            Hubungi Admin Kensho
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right: Member List -->
+                <div class="lg:col-span-2">
+                    <div class="card p-8 h-full">
+                        <div class="flex justify-between items-center mb-8">
+                            <div>
+                                <h2 class="text-2xl font-bold tracking-tight uppercase">Manajemen Anggota</h2>
+                                <p class="text-[9px] font-bold uppercase tracking-[0.3em] opacity-40 mt-1">Buat Lisensi
+                                    Mandiri Untuk Tim Anda</p>
+                            </div>
+                            <button onclick="generateMemberLicense()" id="btnGenerateMember"
+                                class="px-6 py-3 rounded-xl bg-blue-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 hover:brightness-110 active:scale-95 transition-all">
+                                + Tambah Anggota
+                            </button>
+                        </div>
+
+                        <div id="memberLicenseList" class="space-y-4 min-h-[300px]">
+                            <!-- Member items will be injected here -->
+                            <div class="flex flex-col items-center justify-center py-20 opacity-20">
+                                <span class="text-4xl mb-4">🔑</span>
+                                <p class="text-[10px] font-bold uppercase tracking-widest">Belum Ada Anggota Terdaftar
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <!-- ACTIVITY LOG TAB (Preserved logic) -->
         <div id="activity-log" class="tab-content hidden animate-fade-in">
             <div class="card p-8">
@@ -353,7 +507,7 @@
         import { db, auth } from './js/firebase-init.js';
         import { handleLogout } from './js/auth-helpers.js';
         import { onAuthStateChanged, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { collection, onSnapshot, collectionGroup, query, orderBy, limit, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, onSnapshot, collectionGroup, query, orderBy, limit, where, getDocs, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { logActivity } from './js/activity-logger.js';
 
         window.handleLogout = handleLogout;
@@ -381,8 +535,17 @@
             // Sync side-btn active state if applicable
             document.querySelectorAll('.side-btn').forEach(btn => btn.classList.remove('active'));
             if (tabId === 'overview') {
-                document.querySelector('aside .side-btn:first-child').classList.add('active');
+                document.querySelector('aside .side-btn:nth-child(1) a').classList.add('active'); // Needs caution on selector
             }
+
+            // Simpler reliable sync
+            const allLinks = document.querySelectorAll('aside nav a');
+            allLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick')?.includes(tabId) || (tabId === 'overview' && link.getAttribute('href') === 'dashboard.html')) {
+                    link.classList.add('active');
+                }
+            });
         };
 
 
@@ -518,6 +681,216 @@
         }
 
         syncStats();
+
+        // --- LICENSE HUB LOGIC ---
+        async function initLicenseHub() {
+            const masterSerial = localStorage.getItem('kensho_license_key');
+            if (!masterSerial) return;
+
+            document.getElementById('masterSerialDisplay').innerText = masterSerial;
+
+            let globalMaintenance = {
+                match_management: false,
+                scoring_system: false,
+                bracket_builder: false
+            };
+
+            // 0. Listen to Global Maintenance
+            onSnapshot(doc(db, "system_config", "features"), (gsnap) => {
+                if (gsnap.exists()) {
+                    globalMaintenance = gsnap.data().maintenance || globalMaintenance;
+                    // Trigger re-render of master license info once global flags are loaded/updated
+                    getDoc(doc(db, "licenses", masterSerial)).then(lsnap => {
+                        if (lsnap.exists()) renderModules(lsnap.data());
+                    });
+                }
+            });
+
+            function renderModules(licenseData) {
+                const featureList = document.getElementById('featureListContent');
+                if (!featureList) return;
+
+                const modules = licenseData.modules || {
+                    match_management: 'unlocked',
+                    scoring_system: 'unlocked',
+                    bracket_builder: 'unlocked'
+                };
+
+                const config = [
+                    { id: 'match_management', label: 'Manajemen Pertandingan', sub: 'Input Score & Jadwal Bagan', icon: '⚡' },
+                    { id: 'scoring_system', label: 'Sistem Scoring Tatami', sub: 'Real-time Poin & Pelanggaran', icon: '🎯' },
+                    { id: 'bracket_builder', label: 'Bracket Builder', sub: 'Sistem Bagan & Riwayat', icon: '🧩' }
+                ];
+
+                featureList.innerHTML = config.map(m => {
+                    const localStatus = modules[m.id] || 'locked';
+                    const isGlobalMaint = globalMaintenance[m.id] === true;
+
+                    let status = localStatus;
+                    if (isGlobalMaint) status = 'maintenance';
+
+                    let statusText = 'Unlocked';
+                    let statusClass = 'text-emerald-500';
+                    let opacityClass = '';
+                    let icon = m.icon;
+
+                    if (status === 'locked') {
+                        statusText = 'Locked';
+                        statusClass = 'text-red-500';
+                        opacityClass = 'opacity-40 grayscale';
+                        icon = '🔒';
+                    } else if (status === 'maintenance') {
+                        statusText = 'Maintenance';
+                        statusClass = 'text-amber-500';
+                        icon = '🛠️';
+                    }
+
+                    return `
+                        <div class="flex items-center justify-between group ${opacityClass}">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-xs">${icon}</div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-white uppercase tracking-tight">${m.label}</p>
+                                    <p class="text-[8px] text-slate-500 uppercase">${m.sub}</p>
+                                </div>
+                            </div>
+                            <span class="text-[8px] font-bold ${statusClass} uppercase">${statusText}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            onSnapshot(doc(db, "licenses", masterSerial), (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    const statusLabel = document.getElementById('licenseStatusLabel');
+                    if (data.status === 'blocked') {
+                        statusLabel.innerText = "DIBLOKIR";
+                        statusLabel.className = "text-[10px] font-bold text-red-500 uppercase tracking-widest";
+                    } else {
+                        statusLabel.innerText = "AKTIF • " + (data.type || "PREMIUM").toUpperCase();
+                        statusLabel.className = "text-[10px] font-bold text-emerald-500 uppercase tracking-widest";
+                    }
+
+                    // Display Expiry Date
+                    const expiryEl = document.getElementById('expiryDateDisplay');
+                    if (expiryEl && data.expiryDate) {
+                        const date = data.expiryDate.toDate();
+                        expiryEl.innerText = date.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+                    } else if (expiryEl) {
+                        expiryEl.innerText = "LIFETIME / PERMANEN";
+                    }
+
+                    // --- DYNAMIC MODULE RENDERING ---
+                    renderModules(data);
+                }
+            });
+
+            // 2. Listen to Sub-Licenses (Members)
+            const q = query(collection(db, "licenses"), where("parentId", "==", masterSerial));
+            onSnapshot(q, (snapshot) => {
+                const memberList = document.getElementById('memberLicenseList');
+                const quotaText = document.getElementById('quotaText');
+                const quotaBar = document.getElementById('quotaBar');
+                const btnGen = document.getElementById('btnGenerateMember');
+
+                const members = [];
+                snapshot.forEach(doc => members.push({ id: doc.id, ...doc.data() }));
+
+                // Update Quota (Master is always 1)
+                const totalUsed = 1 + members.length;
+                quotaText.innerText = `${totalUsed} / 5`;
+                quotaBar.style.width = (totalUsed * 20) + "%";
+                quotaBar.className = `h-full transition-all duration-1000 ${totalUsed >= 5 ? 'bg-amber-500' : 'bg-blue-500'}`;
+
+                // Disable button if quota full
+                if (totalUsed >= 5) {
+                    btnGen.disabled = true;
+                    btnGen.classList.add('opacity-50', 'cursor-not-allowed');
+                    btnGen.innerText = "KUOTA PENUH";
+                } else {
+                    btnGen.disabled = false;
+                    btnGen.classList.remove('opacity-50', 'cursor-not-allowed');
+                    btnGen.innerText = "+ Tambah Anggota";
+                }
+
+                if (members.length === 0) {
+                    memberList.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-20 opacity-20">
+                            <span class="text-4xl mb-4">🔑</span>
+                            <p class="text-[10px] font-bold uppercase tracking-widest">Belum Ada Anggota Terdaftar</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                memberList.innerHTML = members.map(m => `
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-lg">👤</div>
+                            <div>
+                                <p class="text-[11px] font-mono font-bold text-white tracking-widest uppercase">${m.id}</p>
+                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                                    Member License ${m.registered_devices?.length > 0 ? '• Terpakai' : '• Menunggu Aktivasi'}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="copyToClipboard('${m.id}')" class="px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 text-[9px] font-black uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all">Copy</button>
+                            <button onclick="deleteMemberLicense('${m.id}')" class="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 text-[9px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">Hapus</button>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
+
+        window.generateMemberLicense = async () => {
+            const masterSerial = localStorage.getItem('kensho_license_key');
+            const masterSnap = await getDoc(doc(db, "licenses", masterSerial));
+
+            if (!masterSnap.exists()) return alert("Lisensi Master tidak ditemukan.");
+            const masterData = masterSnap.data();
+
+            // Generate Random Part (XXXX-123)
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let p1 = '';
+            for (let i = 0; i < 4; i++) p1 += chars.charAt(Math.floor(Math.random() * chars.length));
+            let p2 = Math.floor(100 + Math.random() * 900);
+
+            const newSerial = `KENSHO-${p1}-${p2}`;
+
+            try {
+                await setDoc(doc(db, "licenses", newSerial), {
+                    parentId: masterSerial,
+                    type: 'MEMBER',
+                    status: 'active',
+                    max_devices: 1,
+                    registered_devices: [],
+                    expiryDate: masterData.expiryDate || null,
+                    createdAt: new Date(),
+                    adminName: 'Owner Generated',
+                    adminPhone: '-'
+                });
+
+                await logActivity("Generate Member", `Membuat lisensi anggota baru: ${newSerial}`);
+                alert("Lisensi Anggota Berhasil Dibuat!\n\nSilakan berikan serial member ini kepada anggota tim Bapak.");
+            } catch (err) {
+                alert("Gagal membuat lisensi: " + err.message);
+            }
+        };
+
+        window.deleteMemberLicense = async (id) => {
+            if (confirm(`HAPUS LISENSI ANGGOTA?\n\nSerial ${id} akan kehilangan akses.`)) {
+                await deleteDoc(doc(db, "licenses", id));
+                await logActivity("Hapus Member", `Menghapus lisensi anggota: ${id}`);
+            }
+        };
+
+        window.copyToClipboard = (text) => {
+            navigator.clipboard.writeText(text);
+            alert("Serial berhasil disalin!");
+        };
+
+        initLicenseHub();
 
         // Initialize from URL
         const urlParams = new URLSearchParams(window.location.search);

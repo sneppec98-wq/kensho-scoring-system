@@ -83,28 +83,31 @@ onAuthStateChanged(auth, async (user) => {
     }
 
 
-    // B. MONITOR DESKTOP LICENSE (Desktop Only)
-    if (window.electronAPI) {
-        try {
-            // 0. Version Check
-            const settingsSnap = await getDoc(doc(db, "settings", "app"));
-            if (settingsSnap.exists()) {
-                const minVer = settingsSnap.data().minVersion;
-                if (minVer && APP_VERSION < minVer) {
-                    handleViolation("⚠️ VERSI KEDALUWARSA\nSilakan unduh versi terbaru.");
-                    return;
-                }
+    // B. MONITOR DESKTOP & WEB LICENSE
+    try {
+        // 0. Version Check
+        const settingsSnap = await getDoc(doc(db, "settings", "app"));
+        if (settingsSnap.exists()) {
+            const minVer = settingsSnap.data().minVersion;
+            if (minVer && APP_VERSION < minVer) {
+                handleViolation("⚠️ VERSI KEDALUWARSA\nSilakan unduh versi terbaru.");
+                return;
             }
+        }
 
-            const hwid = await window.electronAPI.getMachineId();
-            const docRef = doc(db, "installations", hwid);
+        const hwid = window.electronAPI ? await window.electronAPI.getMachineId() : localStorage.getItem('kensho_browser_device_id');
+        const savedLicense = localStorage.getItem('kensho_license_key');
+
+        if (savedLicense) {
+            const docRef = doc(db, "licenses", savedLicense);
 
             // Real-time listener
             if (licenseUnsubscribe) licenseUnsubscribe();
 
             licenseUnsubscribe = onSnapshot(docRef, (snapshot) => {
                 if (!snapshot.exists()) {
-                    handleViolation("Perangkat tidak terdaftar.");
+                    localStorage.removeItem('kensho_license_key');
+                    handleViolation("Lisensi tidak ditemukan atau telah dihapus.");
                     return;
                 }
 
@@ -112,30 +115,37 @@ onAuthStateChanged(auth, async (user) => {
                 const status = data.status;
                 const expiry = data.expiryDate ? data.expiryDate.toDate() : null;
                 const now = new Date();
+                const devices = data.registered_devices || [];
 
-                // 1. Check Status
-                if (status === 'blocked') {
-                    handleViolation("⚠️ PERANGKAT DIBLOKIR\nInstalasi dicabut oleh Admin.");
+                // 1. Check if device is still registered
+                if (!devices.includes(hwid)) {
+                    localStorage.removeItem('kensho_license_key');
+                    handleViolation("Perangkat ini telah dicabut dari lisensi.");
                     return;
                 }
-                // Removed 'pending' status check from here as it's handled by account monitoring
 
-                // 2. Check Expiry
+                // 2. Check Status
+                if (status === 'blocked') {
+                    handleViolation("⚠️ LISENSI DIBLOKIR\nAkses dicabut oleh Owner.");
+                    return;
+                }
+
+                // 3. Check Expiry
                 if (expiry && now > expiry) {
                     handleViolation("⚠️ LISENSI KEDALUWARSA\nMasa aktif aplikasi habis.");
                     return;
                 }
 
-                // 3. Check Binding (1 Email = 1 HWID)
+                // 4. Check Binding (1 Email = 1 License)
                 if (data.boundEmail && data.boundEmail !== user.email.toLowerCase()) {
-                    handleViolation(`⚠️ KONFLIK AKUN\nPerangkat terikat dg: ${data.boundEmail} `);
+                    handleViolation(`⚠️ KONFLIK AKUN\nLisensi terikat dg: ${data.boundEmail}`);
                     return;
                 }
             });
-
-        } catch (err) {
-            console.error("License Guard Error:", err);
         }
+
+    } catch (err) {
+        console.error("License Guard Error:", err);
     }
 });
 

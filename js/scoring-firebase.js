@@ -3,9 +3,10 @@
 
 import { rtdb } from './firebase-init.js';
 import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { pushToSupabase } from './supabase-init.js';
 
 /**
- * Broadcast current scoring data to Firebase RTDB
+ * Broadcast current scoring data to Firebase RTDB & Supabase Relay
  * @param {Object} scoreData - Object containing all score/timer data
  * @returns {Promise} Firebase set operation promise
  */
@@ -58,6 +59,9 @@ export function broadcastScoreData(scoreData) {
         eventMediaType: scoreData.eventMediaType || null,
         lastUpdate: Date.now()
     };
+
+    // Relay to Supabase for economical public monitoring
+    pushToSupabase(tatamiId, data);
 
     return set(scoringRef, data)
         .then(() => {

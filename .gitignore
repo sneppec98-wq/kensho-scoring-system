@@ -5,6 +5,8 @@ dist/
 *.log
 .DS_Store
 .env
+js/project-config.js
+lib/constants/project_config.dart
 bin/
 obj/
 *.exe

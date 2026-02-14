@@ -16,6 +16,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Create Project Config (Web)
+        run: |
+          echo "export const firebaseConfig = {
+            apiKey: '${{ secrets.FIREBASE_API_KEY }}',
+            authDomain: '${{ secrets.FIREBASE_AUTH_DOMAIN }}',
+            databaseURL: '${{ secrets.FIREBASE_DATABASE_URL }}',
+            projectId: '${{ secrets.FIREBASE_PROJECT_ID }}',
+            storageBucket: '${{ secrets.FIREBASE_STORAGE_BUCKET }}',
+            messagingSenderId: '${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}',
+            appId: '${{ secrets.FIREBASE_APP_ID }}',
+            measurementId: '${{ secrets.FIREBASE_MEASUREMENT_ID }}'
+          };" > js/project-config.js
+          echo "export const supabaseConfig = {
+              url: '${{ secrets.SUPABASE_URL }}',
+              anonKey: '${{ secrets.SUPABASE_ANON_KEY }}'
+          };" >> js/project-config.js
+        shell: bash
+
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
